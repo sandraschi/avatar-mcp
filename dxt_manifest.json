@@ -1,0 +1,44 @@
+{
+  "name": "avatarmcp",
+  "version": "0.1.0",
+  "display_name": "Avatar MCP",
+  "description": "MCP server for managing and animating VRM avatars with support for animations, expressions, and real-time control",
+  "author": "Sandra Schi",
+  "license": "MIT",
+  
+  "server": {
+    "command": ["python", "-m", "avatarmcp.service"],
+    "timeout": 30,
+    "launch_delay": 5000,
+    "port": 8000,
+    "auto_start": true
+  },
+
+  "prompts": [
+    {
+      "name": "load_avatar_prompt",
+      "description": "Load a VRM/VRoid avatar model",
+      "template": "Load the avatar from {path} and name it {name}."
+    },
+    {
+      "name": "play_animation_prompt",
+      "description": "Play an animation on an avatar",
+      "template": "Play the {animation_name} animation on {avatar_name} with {speed}x speed."
+    },
+    {
+      "name": "set_expression_prompt",
+      "description": "Set a facial expression on an avatar",
+      "template": "Set the {expression_name} expression on {avatar_name} with {intensity}% intensity."
+    },
+    {
+      "name": "move_avatar_prompt",
+      "description": "Move an avatar to a new position",
+      "template": "Move {avatar_name} to position {x}, {y}, {z}."
+    },
+    {
+      "name": "export_avatar_prompt",
+      "description": "Export an avatar to a file",
+      "template": "Export the avatar named {name} to {path}."
+    }
+  ]
+}
