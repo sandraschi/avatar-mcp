@@ -1,0 +1,18 @@
+{
+  "avatar": {
+    "type": "vrm",
+    "path": "examples/Nekomimi-chan.vrm",
+    "scale": 1.0,
+    "position": {"x": 0, "y": 0, "z": 0}
+  },
+  "animations": {
+    "idle": "idle",
+    "talking": "talking",
+    "listening": "listening"
+  },
+  "mcp": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 8080
+  }
+}

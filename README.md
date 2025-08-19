@@ -1,66 +1,79 @@
-﻿# AvatarMCP
+# AvatarMCP
 
-> Advanced VRM avatar management and animation server with VRChat integration
+> Advanced VRM avatar management and animation server with REST API and WebSocket support
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![FastMCP 2.10+](https://img.shields.io/badge/FastMCP-2.10%2B-brightgreen)](https://fastmcp.readthedocs.io/)
+[![REST API](https://img.shields.io/badge/REST-API-ff69b4)](docs/API_REFERENCE.md)
+[![WebSocket](https://img.shields.io/badge/WebSocket-Support-9cf)](docs/API_REFERENCE.md#websocket-api)
 
-## ðŸš€ Features
+## 🚀 Features
 
-- **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models
+- **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
+- **RESTful API**: Comprehensive HTTP API for remote control and automation
+- **WebSocket Support**: Real-time updates and event streaming
+- **Animation System**: Play, blend, and manage animations with support for loops and varying speeds
+- **Bone Control**: Precise control over avatar bones for custom poses and animations
+- **Blend Shape Support**: Animate facial expressions and morph targets
+- **Model Management**: Load, unload, and manage multiple VRM models
+- **FastMCP 2.10+ Integration**: Full compatibility with the latest MCP ecosystem
+- **DXT Packaging**: Easy deployment and integration with MCP-compatible applications
+- **Type Annotated**: Fully type-annotated code for better development experience
+- **Modular Design**: Clean architecture with separate components for VRM loading, animation, and server logic
 
-- **VRChat Integration**: Seamless control of VRChat avatars via OSC
+## 📚 Documentation
 
+### Core Components
 
-- **OSCMCP Integration**: Connect with other MCP services
+- `VRMLoader`: Load and parse VRM 2.0 files
+- `AnimationController`: Manage and play animations on avatars
+- `AvatarService`: High-level API for managing avatars and their animations
+- `AvatarAPI`: RESTful API server for remote control
+- `WebSocketManager`: Real-time communication layer
 
-- **Real-time Control**: Manipulate avatar parameters in real-time
+### API Reference
 
+For complete API documentation, see [API Reference](docs/API_REFERENCE.md).
 
-- **Blend Shapes & Bones**: Full support for facial expressions and skeletal animation
+Key API Features:
+- Model management (upload, list, delete)
+- Avatar control (create, update, delete)
+- Animation control (play, stop, blend)
+- Real-time updates via WebSocket
+- Error handling and validation
 
-- **Gesture System**: Predefined gestures and custom mappings
-
-
-- **Expression Mapping**: Map expressions to avatar parameters
-
-- **DXT Packaging**: Easy deployment and integration
-
-
-
-## ðŸ“– Documentation
-
-- [VRChat & Unity 3D Setup Guide](docs/VRCHAT_UNITY_SETUP.md) - Comprehensive guide for setting up VRChat, Unity, and
-OSC integration
-
-
-
-
-
-- [API Reference](docs/API.md) - Detailed API documentation
-
-
-
-## ðŸ“¦ Installation
+## 📦 Installation
 
 ### Prerequisites
 
 - Python 3.9+
+- pip (Python package manager)
+- Git (for source installation)
+- [VRChat](https://vrchat.com/) (optional, for VRChat integration)
 
-- pip
-
-
-- [VRChat](https://vrchat.com/) (for VRChat integration)
-
-### Install from Source
+### Quick Start
 
 ```bash
+# Install from PyPI (recommended)
+pip install avatarmcp
 
-# Clone the repository
-
-
+# Or install from source
 git clone https://github.com/yourusername/avatarmcp.git
+cd avatarmcp
+pip install -e .
+```
+
+### Dependencies
+
+All dependencies will be installed automatically, but key dependencies include:
+- FastAPI (for the REST API)
+- Uvicorn (ASGI server)
+- WebSockets (for real-time updates)
+- PyVRM (for VRM model loading)
+- numpy (for animation math)
+- pydantic (for data validation)
 cd avatarmcp
 
 # Install with dependencies
