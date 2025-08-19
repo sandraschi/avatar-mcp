@@ -23,8 +23,8 @@ from aiohttp import WSMsgType, web
 from fastmcp import mcp
 
 from .animation_v2 import AnimationController, AnimationClip, AnimationEventType
-from .model_manager import VRMModelManager, ModelCacheEntry
-from .service import AvatarService, VRMModel
+from ..models.model_manager import VRMModelManager, ModelCacheEntry
+from ..interfaces.service import AvatarService, VRMModel
 
 logger = logging.getLogger(__name__)
 

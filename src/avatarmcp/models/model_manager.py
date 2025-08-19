@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
-from .vrm_loader import VRMLoader, VRMModel, VRMFileType
+from ..models.vrm_loader import VRMLoader, VRMModel, VRMFileType
 
 logger = logging.getLogger(__name__)
 

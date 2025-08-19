@@ -11,6 +11,91 @@ This document describes the advanced animation system in AvatarMCP, which provid
 - **Performance Optimization**: Efficient keyframe interpolation and pose calculation
 - **Event System**: Respond to animation events in real-time
 
+## VRM Animation Integration
+
+The animation system now fully integrates with VRM models through the following implementation:
+
+### VRM Model Loading
+
+VRM models are loaded using the `VRMLoader` class, which extracts:
+- Bone hierarchy and transforms
+- Blend shape definitions
+- Animation clips
+- Material properties
+
+```python
+# Loading a VRM model
+from avatarmcp.vrm_loader import VRMLoader
+
+vrm_model = VRMLoader.from_file("path/to/model.vrm")
+```
+
+### Animation Types
+
+The system supports three types of animations:
+
+1. **VRM Animations** - Native animations embedded in the VRM file
+2. **Standard Animations** - Built-in animations (idle, walk, etc.)
+3. **Custom Animations** - User-defined animations in JSON format
+
+### Animation Control
+
+```python
+# Play a VRM animation
+play_animation(
+    model_id="model_1",
+    animation_name="vrm_animation_name",
+    loop=True,
+    weight=1.0,
+    speed=1.0
+)
+
+# Stop an animation
+stop_animation(
+    model_id="model_1",
+    animation_name="vrm_animation_name",
+    fade_out=0.5  # Optional fade out in seconds
+)
+```
+
+### Blend Shape Control
+
+```python
+# List available blend shapes
+blend_shapes = list_blend_shapes("model_1")
+
+# Set blend shape weight
+set_blend_shape(
+    model_id="model_1",
+    blend_shape_name="Blink_L",
+    weight=1.0  # 0.0 to 1.0
+)
+```
+
+### Bone Control
+
+```python
+# List bones and their hierarchy
+bones = list_bones("model_1")
+
+# Set bone transform directly
+set_bone_transform(
+    model_id="model_1",
+    bone_name="Head",
+    rotation=(x, y, z, w),  # Quaternion
+    position=(x, y, z),     # Optional position
+    scale=(x, y, z)         # Optional scale
+)
+```
+
+### Testing
+
+Use the test script to verify VRM animation functionality:
+
+```bash
+python examples/test_animation.py path/to/your/model.vrm
+```
+
 ## Core Components
 
 ### AnimationController

@@ -1,48 +1,73 @@
 # AvatarMCP
 
-> Advanced VRM avatar management and animation server with REST API and WebSocket support
+> FastMCP 2.10.1-compatible VRM avatar management and animation server with VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![FastMCP 2.10+](https://img.shields.io/badge/FastMCP-2.10%2B-brightgreen)](https://fastmcp.readthedocs.io/)
-[![REST API](https://img.shields.io/badge/REST-API-ff69b4)](docs/API_REFERENCE.md)
-[![WebSocket](https://img.shields.io/badge/WebSocket-Support-9cf)](docs/API_REFERENCE.md#websocket-api)
+[![FastMCP 2.10.1](https://img.shields.io/badge/FastMCP-2.10.1-brightgreen)](https://fastmcp.readthedocs.io/)
+[![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
 
 ## 🚀 Features
 
+### Core Features
+
+- **FastMCP 2.10.1 Compatible**: Fully implements the MCP protocol over stdio transport
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
-- **RESTful API**: Comprehensive HTTP API for remote control and automation
-- **WebSocket Support**: Real-time updates and event streaming
+- **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
 - **Animation System**: Play, blend, and manage animations with support for loops and varying speeds
 - **Bone Control**: Precise control over avatar bones for custom poses and animations
 - **Blend Shape Support**: Animate facial expressions and morph targets
 - **Model Management**: Load, unload, and manage multiple VRM models
-- **FastMCP 2.10+ Integration**: Full compatibility with the latest MCP ecosystem
+
+### Secondary Features
+
+- **RESTful API**: Optional HTTP API for testing and development (not for production use)
 - **DXT Packaging**: Easy deployment and integration with MCP-compatible applications
 - **Type Annotated**: Fully type-annotated code for better development experience
-- **Modular Design**: Clean architecture with separate components for VRM loading, animation, and server logic
+- **Modular Design**: Clean architecture with separate components for VRM loading, animation, and MCP server
 
 ## 📚 Documentation
 
 ### Core Components
 
-- `VRMLoader`: Load and parse VRM 2.0 files
+- `MCPServer`: FastMCP 2.10.1-compatible server implementation
+- `VRChatOSC`: OSC integration with VRChat for avatar control
+- `VRMModel`: VRM 2.0 model loading and management
 - `AnimationController`: Manage and play animations on avatars
-- `AvatarService`: High-level API for managing avatars and their animations
-- `AvatarAPI`: RESTful API server for remote control
-- `WebSocketManager`: Real-time communication layer
+- `MCPTools`: MCP command handlers for avatar control
 
-### API Reference
+### MCP Protocol Support
 
-For complete API documentation, see [API Reference](docs/API_REFERENCE.md).
+AvatarMCP implements the following MCP commands:
 
-Key API Features:
-- Model management (upload, list, delete)
-- Avatar control (create, update, delete)
-- Animation control (play, stop, blend)
-- Real-time updates via WebSocket
-- Error handling and validation
+#### Avatar Management
+
+- `avatar.load`: Load a VRM model
+- `avatar.unload`: Unload a VRM model
+- `avatar.list`: List all loaded avatars
+
+#### Animation Control
+
+- `animation.play`: Play an animation on an avatar
+- `animation.stop`: Stop a running animation
+- `animation.list`: List available animations
+
+#### Parameter Control
+
+- `parameter.set`: Set an avatar parameter
+- `parameter.get`: Get an avatar parameter value
+
+#### OSC Integration
+
+- `osc.send`: Send a raw OSC message
+- `osc.chat`: Send a chat message to VRChat
+
+For complete MCP protocol documentation, see [FastMCP Documentation](https://fastmcp.readthedocs.io/).
+
+### VRChat OSC Integration
+
+See [VRChat OSC Integration Guide](docs/VRChat_OSC_Integration_Guide.md) for details on how to configure and use the OSC integration.
 
 ## 📦 Installation
 
@@ -50,8 +75,7 @@ Key API Features:
 
 - Python 3.9+
 - pip (Python package manager)
-- Git (for source installation)
-- [VRChat](https://vrchat.com/) (optional, for VRChat integration)
+- [VRChat](https://vrchat.com/) (for VRChat OSC integration)
 
 ### Quick Start
 
@@ -63,46 +87,76 @@ pip install avatarmcp
 git clone https://github.com/yourusername/avatarmcp.git
 cd avatarmcp
 pip install -e .
+
+# Install required dependencies
+pip install python-osc pyvrm
 ```
 
 ### Dependencies
 
-All dependencies will be installed automatically, but key dependencies include:
-- FastAPI (for the REST API)
-- Uvicorn (ASGI server)
-- WebSockets (for real-time updates)
-- PyVRM (for VRM model loading)
-- numpy (for animation math)
-- pydantic (for data validation)
-cd avatarmcp
+Core dependencies (automatically installed):
 
-# Install with dependencies
-pip install -e .
+- `python-osc`: For VRChat OSC communication
+- `pyvrm`: For VRM model loading and manipulation
+- `numpy`: For animation math
+- `fastmcp`: MCP protocol implementation
 
+Optional dependencies (for development and testing):
 
+- `fastapi`: For the optional REST API
+- `uvicorn`: ASGI server for the REST API
 
+```bash
 
+## 🚀 Quick Start
 
+### Running the Server
 
-# Install optional dependencies for VRM parsing
-pip install pygltflib numpy
-
-
-
-
-
+```bash
+# Start the MCP server
+python -m avatarmcp
 ```
 
-## ðŸŽ® Quick Start
+The server will start and listen for MCP commands on stdin/stdout. You can interact with it using any MCP 2.10.1-compatible client.
 
-### Basic Usage
+### Example MCP Commands
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "avatar.load",
+  "params": {
+    "id": "my_avatar",
+    "path": "/path/to/avatar.vrm",
+    "scale": 1.0
+  }
+}
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "animation.play",
+  "params": {
+    "avatar_id": "my_avatar",
+    "animation": "wave_hand",
+    "loop": false
+  }
+}
+```
+
+### Optional REST API
+
+For testing purposes, you can start the optional REST API server:
+
+```bash
+uvicorn avatarmcp.api:app --host 0.0.0.0 --port 8000
+```
+
+**Note:** The REST API is provided for testing and development purposes only and should not be used in production.
 
 ```python
 from avatarmcp import VRChatAvatarController
-
-
-
-
 
 import asyncio
 

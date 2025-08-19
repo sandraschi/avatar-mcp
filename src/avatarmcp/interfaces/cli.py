@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from .api import AvatarAPI
+from ..network.api import AvatarAPI
 from . import __version__
 
 def parse_args():
@@ -77,7 +77,7 @@ def main():
     args.model_dir.mkdir(parents=True, exist_ok=True)
     
     # Import here to avoid circular imports
-    from .api import app
+    from ..network.api import app
     
     # Configure the app
     app.state.model_dir = args.model_dir

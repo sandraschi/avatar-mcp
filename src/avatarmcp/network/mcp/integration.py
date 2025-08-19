@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from fastmcp import FastMCP
-from .osc_server import VRChatOSCServer
-from .vrm_loader import VRMLoader, VRMBlendShape
+from ..network.osc.server import VRChatOSCServer
+from ..models.vrm_loader import VRMLoader, VRMBlendShape
 
 logger = logging.getLogger(__name__)
 

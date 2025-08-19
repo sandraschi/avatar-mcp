@@ -13,8 +13,8 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
 # Local imports
-from .vrm_loader import VRMModel as VRMLoaderModel, VRMBone, VRMBlendShape, VRMMaterial, VRMTexture
-from .model_manager import VRMModelManager, ModelCacheEntry
+from ..models.vrm_loader import VRMModel as VRMLoaderModel, VRMBone, VRMBlendShape, VRMMaterial, VRMTexture
+from ..models.model_manager import VRMModelManager, ModelCacheEntry
 
 # Configure logging
 logging.basicConfig(
