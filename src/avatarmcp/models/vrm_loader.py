@@ -1,4 +1,4 @@
-﻿"""
+"""
 VRM 2.0 Loader
 
 This module provides functionality to load and parse VRM 2.0 files,
@@ -104,10 +104,24 @@ class VRMLoader:
         """
         path = Path(file_path)
         if not path.exists():
-            raise FileNotFoundError(f"VRM file not found: {file_path}")
-        
+            raise FileNotFoundError(f"VRM file not found: {path}")
+            
+        file_type = path.suffix.lower()[1:]  # Remove the dot
+        if file_type not in [t.value for t in VRMFileType]:
+            raise ValueError(f"Unsupported file type: {file_type}")
+            
         # Load the GLTF/GLB file
-        gltf = GLTF2().load(str(path.absolute()))
+        try:
+            # Try loading as binary GLB first
+            if file_type == 'glb' or file_type == 'vrm':
+                gltf = GLTF2().load_binary(str(path.absolute()))
+            else:
+                # For other formats, try loading as text with explicit UTF-8 encoding
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = f.read()
+                gltf = GLTF2().from_json(data)
+        except Exception as e:
+            raise ValueError(f"Failed to load VRM file: {str(e)}") from e
         
         # Create a new VRM model
         model = VRMModel()
@@ -148,257 +162,769 @@ class VRMLoader:
     
     @staticmethod
     def _load_textures(gltf: GLTF2) -> List[VRMTexture]:
-        """Load textures from the GLTF file."""
+        """Load textures from the GLTF file.
+        
+        Args:
+            gltf: The loaded GLTF2 object
+            
+        Returns:
+            List of VRMTexture objects
+        """
         textures = []
         
         if not hasattr(gltf, 'textures') or not gltf.textures:
+            logger.debug("No textures found in GLTF file")
             return textures
             
         for tex_idx, tex in enumerate(gltf.textures):
-            # Skip if no source image
-            if not hasattr(tex, 'source') or tex.source is None:
+            try:
+                # Skip if no source image
+                if not hasattr(tex, 'source') or tex.source is None:
+                    logger.debug(f"Texture {tex_idx} has no source, skipping")
+                    continue
+                    
+                # Get the source image
+                if tex.source >= len(gltf.images):
+                    logger.warning(f"Texture {tex_idx} references invalid image index {tex.source}")
+                    continue
+                    
+                img = gltf.images[tex.source]
+                
+                # Initialize texture data
+                texture_data = b''
+                width = getattr(img, 'width', 0)
+                height = getattr(img, 'height', 0)
+                mime_type = getattr(img, 'mimeType', 'image/png')
+                
+                # Handle different texture data sources
+                if hasattr(img, 'bufferView') and img.bufferView is not None:
+                    # Get data from buffer view
+                    if img.bufferView >= len(gltf.bufferViews):
+                        logger.warning(f"Image {tex.source} references invalid buffer view {img.bufferView}")
+                        continue
+                        
+                    buffer_view = gltf.bufferViews[img.bufferView]
+                    
+                    # Get the buffer containing the data
+                    if buffer_view.buffer >= len(gltf.buffers):
+                        logger.warning(f"BufferView {img.bufferView} references invalid buffer {buffer_view.buffer}")
+                        continue
+                        
+                    buffer = gltf.buffers[buffer_view.buffer]
+                    
+                    # Handle different buffer data types
+                    if hasattr(buffer, 'data') and buffer.data is not None:
+                        # Binary data is already loaded in memory
+                        start = buffer_view.byteOffset
+                        end = start + buffer_view.byteLength
+                        texture_data = bytes(buffer.data[start:end])
+                    elif hasattr(buffer, 'uri') and buffer.uri:
+                        # Handle external file reference
+                        try:
+                            uri = buffer.uri
+                            if uri.startswith('data:'):
+                                # Handle data URI
+                                import base64
+                                header, data = uri.split(',', 1)
+                                if 'base64' in header:
+                                    texture_data = base64.b64decode(data)
+                                else:
+                                    texture_data = data.encode('utf-8')
+                            else:
+                                # Handle file path
+                                with open(uri, 'rb') as f:
+                                    f.seek(buffer_view.byteOffset)
+                                    texture_data = f.read(buffer_view.byteLength)
+                        except Exception as e:
+                            logger.warning(f"Failed to load texture from {getattr(buffer, 'uri', 'unknown')}: {str(e)}")
+                            continue
+                    
+                # Handle embedded image data
+                elif hasattr(img, 'uri') and img.uri:
+                    try:
+                        if img.uri.startswith('data:'):
+                            # Handle data URI
+                            import base64
+                            header, data = img.uri.split(',', 1)
+                            if 'base64' in header:
+                                texture_data = base64.b64decode(data)
+                                # Try to extract mime type from header
+                                if ';' in header:
+                                    mime_type = header.split(';')[0].split(':')[1]
+                            else:
+                                texture_data = data.encode('utf-8')
+                        else:
+                            # Handle file path
+                            with open(img.uri, 'rb') as f:
+                                texture_data = f.read()
+                    except Exception as e:
+                        logger.warning(f"Failed to load texture from URI {img.uri}: {str(e)}")
+                        continue
+                else:
+                    logger.warning(f"No texture data available for texture {tex_idx}")
+                    continue
+                
+                # Create texture data
+                texture = VRMTexture(
+                    name=f"texture_{len(textures)}",
+                    data=texture_data,
+                    mime_type=mime_type,
+                    width=width,
+                    height=height
+                )
+                
+                # Set name if available
+                if hasattr(tex, 'name') and tex.name:
+                    texture.name = tex.name
+                elif hasattr(img, 'name') and img.name:
+                    texture.name = img.name
+                    
+                textures.append(texture)
+                
+            except Exception as e:
+                logger.error(f"Error loading texture {tex_idx}: {str(e)}", exc_info=True)
                 continue
                 
-            # Get the source image
-            img = gltf.images[tex.source]
-            
-            # Create texture data
-            texture = VRMTexture(
-                name=f"texture_{len(textures)}",
-                data=img.data,
-                mime_type=img.mimeType,
-                width=getattr(img, 'width', 0),
-                height=getattr(img, 'height', 0)
-            )
-            
-            if hasattr(tex, 'name') and tex.name:
-                texture.name = tex.name
-                
-            textures.append(texture)
-            
         return textures
     
     @staticmethod
-    def _load_materials(gltf: GLTF2, textures: List[VRMMaterial]) -> List[VRMMaterial]:
-        """Load materials from the GLTF file."""
+    def _load_materials(gltf: GLTF2, textures: List[VRMTexture]) -> List[VRMMaterial]:
+        """Load materials from the GLTF file.
+        
+        Args:
+            gltf: The loaded GLTF2 object
+            textures: List of loaded VRMTexture objects
+            
+        Returns:
+            List of VRMMaterial objects
+        """
         materials = []
         
         if not hasattr(gltf, 'materials') or not gltf.materials:
+            logger.debug("No materials found in GLTF file")
             return materials
             
         for mat_idx, mat in enumerate(gltf.materials):
-            # Create base material
-            material = VRMMaterial(
-                name=f"material_{len(materials)}",
-                alpha_mode=getattr(mat, 'alphaMode', 'OPAQUE'),
-                alpha_cutoff=getattr(mat, 'alphaCutoff', 0.5),
-                double_sided=getattr(mat, 'doubleSided', False)
-            )
-            
-            # Set name if available
-            if hasattr(mat, 'name') and mat.name:
-                material.name = mat.name
+            try:
+                # Create base material with default values
+                material = VRMMaterial(
+                    name=f"material_{len(materials)}",
+                    alpha_mode=getattr(mat, 'alphaMode', 'OPAQUE'),
+                    alpha_cutoff=float(getattr(mat, 'alphaCutoff', 0.5)),
+                    double_sided=bool(getattr(mat, 'doubleSided', False)),
+                    metallic_factor=1.0,
+                    roughness_factor=1.0,
+                    base_color=(1.0, 1.0, 1.0, 1.0),
+                    emissive_factor=(0.0, 0.0, 0.0)
+                )
                 
-            # Handle PBR material properties
-            if hasattr(mat, 'pbrMetallicRoughness'):
-                pbr = mat.pbrMetallicRoughness
+                # Set name if available
+                if hasattr(mat, 'name') and mat.name:
+                    material.name = mat.name.strip() or f"material_{len(materials)}"
                 
-                # Base color
-                if hasattr(pbr, 'baseColorFactor') and pbr.baseColorFactor:
-                    material.base_color = tuple(pbr.baseColorFactor)
+                # Handle PBR material properties if available
+                if hasattr(mat, 'pbrMetallicRoughness') and mat.pbrMetallicRoughness is not None:
+                    pbr = mat.pbrMetallicRoughness
                     
-                # Metallic and roughness
-                material.metallic_factor = getattr(pbr, 'metallicFactor', 1.0)
-                material.roughness_factor = getattr(pbr, 'roughnessFactor', 1.0)
-                
-                # Textures
-                if hasattr(pbr, 'baseColorTexture') and pbr.baseColorTexture:
-                    material.texture_indices['baseColor'] = pbr.baseColorTexture.index
+                    # Base color factor
+                    if hasattr(pbr, 'baseColorFactor') and pbr.baseColorFactor is not None:
+                        try:
+                            material.base_color = tuple(float(x) for x in pbr.baseColorFactor[:4])
+                        except (TypeError, ValueError, IndexError) as e:
+                            logger.warning(f"Invalid baseColorFactor in material {mat_idx}: {e}")
                     
-                if hasattr(pbr, 'metallicRoughnessTexture') and pbr.metallicRoughnessTexture:
-                    material.texture_indices['metallicRoughness'] = pbr.metallicRoughnessTexture.index
-            
-            # Handle emissive factor
-            if hasattr(mat, 'emissiveFactor') and mat.emissiveFactor:
-                material.emissive_factor = tuple(mat.emissiveFactor)
+                    # Base color texture
+                    if hasattr(pbr, 'baseColorTexture') and pbr.baseColorTexture is not None:
+                        tex_index = pbr.baseColorTexture.index
+                        if 0 <= tex_index < len(textures):
+                            material.texture_indices['baseColor'] = tex_index
+                        else:
+                            logger.warning(f"Invalid baseColorTexture index {tex_index} in material {mat_idx}")
+                    
+                    # Metallic and roughness factors
+                    if hasattr(pbr, 'metallicFactor') and pbr.metallicFactor is not None:
+                        try:
+                            material.metallic_factor = float(pbr.metallicFactor)
+                        except (TypeError, ValueError) as e:
+                            logger.warning(f"Invalid metallicFactor in material {mat_idx}: {e}")
+                    
+                    if hasattr(pbr, 'roughnessFactor') and pbr.roughnessFactor is not None:
+                        try:
+                            material.roughness_factor = float(pbr.roughnessFactor)
+                        except (TypeError, ValueError) as e:
+                            logger.warning(f"Invalid roughnessFactor in material {mat_idx}: {e}")
+                    
+                    # Metallic-roughness texture
+                    if hasattr(pbr, 'metallicRoughnessTexture') and pbr.metallicRoughnessTexture is not None:
+                        tex_index = pbr.metallicRoughnessTexture.index
+                        if 0 <= tex_index < len(textures):
+                            material.texture_indices['metallicRoughness'] = tex_index
+                        else:
+                            logger.warning(f"Invalid metallicRoughnessTexture index {tex_index} in material {mat_idx}")
                 
-            # Handle normal map
-            if hasattr(mat, 'normalTexture') and mat.normalTexture:
-                material.texture_indices['normal'] = mat.normalTexture.index
+                # Handle normal map
+                if hasattr(mat, 'normalTexture') and mat.normalTexture is not None:
+                    tex_index = mat.normalTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['normal'] = tex_index
+                        # Store normal scale if available
+                        if hasattr(mat.normalTexture, 'scale'):
+                            material.texture_indices['normalScale'] = float(mat.normalTexture.scale)
+                    else:
+                        logger.warning(f"Invalid normalTexture index {tex_index} in material {mat_idx}")
                 
-            # Handle occlusion map
-            if hasattr(mat, 'occlusionTexture') and mat.occlusionTexture:
-                material.texture_indices['occlusion'] = mat.occlusionTexture.index
+                # Handle occlusion map
+                if hasattr(mat, 'occlusionTexture') and mat.occlusionTexture is not None:
+                    tex_index = mat.occlusionTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['occlusion'] = tex_index
+                        # Store occlusion strength if available
+                        if hasattr(mat.occlusionTexture, 'strength'):
+                            material.texture_indices['occlusionStrength'] = float(mat.occlusionTexture.strength)
+                    else:
+                        logger.warning(f"Invalid occlusionTexture index {tex_index} in material {mat_idx}")
                 
-            # Handle emissive texture
-            if hasattr(mat, 'emissiveTexture') and mat.emissiveTexture:
-                material.texture_indices['emissive'] = mat.emissiveTexture.index
+                # Handle emissive factor
+                if hasattr(mat, 'emissiveFactor') and mat.emissiveFactor is not None:
+                    try:
+                        material.emissive_factor = tuple(float(x) for x in mat.emissiveFactor[:3])
+                    except (TypeError, ValueError, IndexError) as e:
+                        logger.warning(f"Invalid emissiveFactor in material {mat_idx}: {e}")
                 
-            materials.append(material)
+                # Handle emissive texture
+                if hasattr(mat, 'emissiveTexture') and mat.emissiveTexture is not None:
+                    tex_index = mat.emissiveTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['emissive'] = tex_index
+                    else:
+                        logger.warning(f"Invalid emissiveTexture index {tex_index} in material {mat_idx}")
+                
+                # Handle alpha mode and cutoff
+                if hasattr(mat, 'alphaMode') and mat.alphaMode is not None:
+                    material.alpha_mode = str(mat.alphaMode).upper()
+                
+                if hasattr(mat, 'alphaCutoff') and mat.alphaCutoff is not None:
+                    try:
+                        material.alpha_cutoff = float(mat.alphaCutoff)
+                    except (TypeError, ValueError) as e:
+                        logger.warning(f"Invalid alphaCutoff in material {mat_idx}: {e}")
+                
+                # Handle double-sided flag
+                if hasattr(mat, 'doubleSided') and mat.doubleSided is not None:
+                    material.double_sided = bool(mat.doubleSided)
+                
+                # Handle VRM material properties if available
+                if hasattr(mat, 'extensions') and mat.extensions and 'KHR_materials_unlit' in mat.extensions:
+                    material.texture_indices['unlit'] = True
+                
+                materials.append(material)
+                
+            except Exception as e:
+                logger.error(f"Error loading material {mat_idx}: {str(e)}", exc_info=True)
+                # Create a default material if loading fails
+                default_mat = VRMMaterial(
+                    name=f"error_material_{mat_idx}",
+                    base_color=(1.0, 0.0, 1.0, 1.0),  # Magenta to indicate error
+                    metallic_factor=0.0,
+                    roughness_factor=1.0
+                )
+                materials.append(default_mat)
             
         return materials
     
-    @staticmethod
-    def _load_meshes(gltf: GLTF2) -> List[VRMMesh]:
-        """Load meshes from the GLTF file."""
+    @classmethod
+    def _get_accessor_data(cls, gltf, accessor_idx):
+        """Get data from an accessor using pygltflib's built-in methods."""
+        if accessor_idx is None or not hasattr(gltf, 'accessors') or accessor_idx >= len(gltf.accessors):
+            return None
+            
+        try:
+            accessor = gltf.accessors[accessor_idx]
+            
+            # Use pygltflib's built-in method to get data
+            try:
+                # First try to get data directly from the accessor
+                if hasattr(gltf, 'get_data_from_accessor'):
+                    data = gltf.get_data_from_accessor(accessor_idx)
+                    if data is not None:
+                        return data.tolist() if hasattr(data, 'tolist') else data
+                
+                # If direct method fails, try to get data from buffer view
+                if hasattr(accessor, 'bufferView') and accessor.bufferView is not None:
+                    buffer_view = gltf.bufferViews[accessor.bufferView]
+                    buffer = gltf.buffers[buffer_view.buffer]
+                    
+                    # Get the raw buffer data
+                    if hasattr(gltf, 'get_data_from_buffer_uri'):
+                        buffer_data = gltf.get_data_from_buffer_uri(buffer.uri)
+                    elif hasattr(gltf, 'get_data_from_buffer_uri_index'):
+                        buffer_data = gltf.get_data_from_buffer_uri_index(buffer_view.buffer)
+                    else:
+                        # Last resort: try to access buffer data directly
+                        buffer_data = getattr(buffer, 'data', None)
+                    
+                    if buffer_data is None:
+                        logger.warning(f"No data available for buffer view {accessor.bufferView}")
+                        return None
+                    
+                    # Get the data type and component count
+                    dtype_map = {
+                        5120: np.int8,    # BYTE
+                        5121: np.uint8,   # UNSIGNED_BYTE
+                        5122: np.int16,   # SHORT
+                        5123: np.uint16,  # UNSIGNED_SHORT
+                        5125: np.uint32,  # UNSIGNED_INT
+                        5126: np.float32  # FLOAT
+                    }
+                    
+                    dtype = dtype_map.get(accessor.componentType, np.float32)
+                    
+                    # Calculate the number of components per element
+                    num_components_map = {
+                        'SCALAR': 1,
+                        'VEC2': 2,
+                        'VEC3': 3,
+                        'VEC4': 4,
+                        'MAT2': 4,
+                        'MAT3': 9,
+                        'MAT4': 16
+                    }
+                    num_components = num_components_map.get(accessor.type, 1)
+                    
+                    # Convert to numpy array
+                    data = np.frombuffer(
+                        buffer_data,
+                        dtype=dtype,
+                        count=accessor.count * num_components,
+                        offset=buffer_view.byteOffset + (getattr(accessor, 'byteOffset', 0) or 0)
+                    )
+                    
+                    # Reshape the data if needed
+                    if num_components > 1:
+                        data = data.reshape(-1, num_components)
+                        
+                    return data.tolist()
+                
+                return None
+                
+            except Exception as e:
+                logger.warning(f"Error getting data from accessor: {str(e)}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error in _get_accessor_data: {str(e)}")
+            return None
+    
+    @classmethod
+    def _load_meshes(cls, gltf: GLTF2) -> List[VRMMesh]:
+        """Load meshes from the GLTF file.
+        
+        Args:
+            gltf: The loaded GLTF2 object
+            
+        Returns:
+            List of VRMMesh objects
+        """
         meshes = []
         
         if not hasattr(gltf, 'meshes') or not gltf.meshes:
+            logger.debug("No meshes found in GLTF file")
             return meshes
             
-        for mesh_idx, mesh in enumerate(gltf.meshes):
-            # Skip if no primitives
-            if not hasattr(mesh, 'primitives') or not mesh.primitives:
-                continue
+        for mesh_idx, gltf_mesh in enumerate(gltf.meshes):
+            try:
+                if not hasattr(gltf_mesh, 'primitives') or not gltf_mesh.primitives:
+                    logger.debug(f"Mesh {mesh_idx} has no primitives, skipping")
+                    continue
                 
-            # For now, just handle the first primitive
-            primitive = mesh.primitives[0]
-            
-            # Get vertex positions
-            positions = None
-            if 'POSITION' in primitive.attributes:
-                accessor = gltf.accessors[primitive.attributes['POSITION']]
-                buffer_view = gltf.bufferViews[accessor.bufferView]
-                buffer = gltf.buffers[buffer_view.buffer]
+                # For now, just handle the first primitive of each mesh
+                primitive = gltf_mesh.primitives[0]
                 
-                # Extract position data
-                positions = np.frombuffer(
-                    buffer.data,
-                    dtype=np.float32,
-                    count=accessor.count * 3,
-                    offset=buffer_view.byteOffset + (accessor.byteOffset or 0)
-                ).reshape(-1, 3)
-            
-            # Get faces (indices)
-            faces = None
-            if hasattr(primitive, 'indices') and primitive.indices is not None:
-                accessor = gltf.accessors[primitive.indices]
-                buffer_view = gltf.bufferViews[accessor.bufferView]
-                buffer = gltf.buffers[buffer_view.buffer]
+                # Get the position data (required)
+                positions = None
+                if hasattr(primitive, 'attributes') and hasattr(primitive.attributes, 'POSITION'):
+                    positions = cls._get_accessor_data(gltf, primitive.attributes.POSITION)
+                    if positions is not None:
+                        try:
+                            positions = np.array(positions, dtype=np.float32)
+                            if len(positions.shape) != 2 or positions.shape[1] != 3:
+                                logger.warning(f"Invalid position data shape {positions.shape} in mesh {mesh_idx}")
+                                positions = None
+                        except Exception as e:
+                            logger.warning(f"Error processing positions for mesh {mesh_idx}: {str(e)}")
+                            positions = None
                 
-                # Determine the data type
-                if accessor.componentType == 5123:  # UNSIGNED_SHORT
-                    dtype = np.uint16
-                elif accessor.componentType == 5125:  # UNSIGNED_INT
-                    dtype = np.uint32
-                else:  # Default to unsigned short
-                    dtype = np.uint16
+                if positions is None:
+                    logger.warning(f"Mesh {mesh_idx} has no valid position data, skipping")
+                    continue
                 
-                # Extract index data
-                indices = np.frombuffer(
-                    buffer.data,
-                    dtype=dtype,
-                    count=accessor.count,
-                    offset=buffer_view.byteOffset + (accessor.byteOffset or 0)
-                )
+                # Get other attributes
+                normals = None
+                tex_coords = None
+                joint_indices = None
+                joint_weights = None
                 
-                # Reshape to triangles
-                faces = indices.reshape(-1, 3)
-            
-            # Create the mesh
-            if positions is not None and faces is not None:
+                if hasattr(primitive, 'attributes'):
+                    attrs = primitive.attributes
+                    
+                    # Get normals if available
+                    if hasattr(attrs, 'NORMAL') and attrs.NORMAL is not None:
+                        normals_data = cls._get_accessor_data(gltf, attrs.NORMAL)
+                        if normals_data is not None:
+                            try:
+                                normals = np.array(normals_data, dtype=np.float32)
+                                if len(normals) != len(positions):
+                                    logger.warning(f"Normal count {len(normals)} does not match vertex count {len(positions)} in mesh {mesh_idx}")
+                                    normals = None
+                            except Exception as e:
+                                logger.warning(f"Error processing normals for mesh {mesh_idx}: {str(e)}")
+                    
+                    # Get texture coordinates if available
+                    if hasattr(attrs, 'TEXCOORD_0') and attrs.TEXCOORD_0 is not None:
+                        texcoords_data = cls._get_accessor_data(gltf, attrs.TEXCOORD_0)
+                        if texcoords_data is not None:
+                            try:
+                                tex_coords = np.array(texcoords_data, dtype=np.float32)
+                                if len(tex_coords) != len(positions):
+                                    logger.warning(f"Texcoord count {len(tex_coords)} does not match vertex count {len(positions)} in mesh {mesh_idx}")
+                                    tex_coords = None
+                            except Exception as e:
+                                logger.warning(f"Error processing texture coordinates for mesh {mesh_idx}: {str(e)}")
+                    
+                    # Get joint indices if available (for skinning)
+                    if hasattr(attrs, 'JOINTS_0') and attrs.JOINTS_0 is not None:
+                        joint_indices_data = cls._get_accessor_data(gltf, attrs.JOINTS_0)
+                        if joint_indices_data is not None:
+                            try:
+                                joint_indices = np.array(joint_indices_data, dtype=np.uint8)
+                                if len(joint_indices) != len(positions):
+                                    logger.warning(f"Joint index count {len(joint_indices)} does not match vertex count {len(positions)} in mesh {mesh_idx}")
+                                    joint_indices = None
+                            except Exception as e:
+                                logger.warning(f"Error processing joint indices for mesh {mesh_idx}: {str(e)}")
+                    
+                    # Get joint weights if available (for skinning)
+                    if hasattr(attrs, 'WEIGHTS_0') and attrs.WEIGHTS_0 is not None:
+                        joint_weights_data = cls._get_accessor_data(gltf, attrs.WEIGHTS_0)
+                        if joint_weights_data is not None:
+                            try:
+                                joint_weights = np.array(joint_weights_data, dtype=np.float32)
+                                if len(joint_weights) != len(positions):
+                                    logger.warning(f"Joint weight count {len(joint_weights)} does not match vertex count {len(positions)} in mesh {mesh_idx}")
+                                    joint_weights = None
+                            except Exception as e:
+                                logger.warning(f"Error processing joint weights for mesh {mesh_idx}: {str(e)}")
+                
+                # Get faces (indices)
+                faces = None
+                if hasattr(primitive, 'indices') and primitive.indices is not None:
+                    indices_data = cls._get_accessor_data(gltf, primitive.indices)
+                    if indices_data is not None:
+                        try:
+                            # Convert to numpy array and reshape to triangles
+                            indices = np.array(indices_data, dtype=np.uint32)
+                            
+                            # Determine primitive type (triangles, triangle_strip, etc.)
+                            mode = getattr(primitive, 'mode', 4)  # Default to TRIANGLES (4)
+                            
+                            if mode == 4:  # TRIANGLES
+                                if len(indices) % 3 != 0:
+                                    logger.warning(f"Triangle indices count {len(indices)} is not divisible by 3 in mesh {mesh_idx}")
+                                    faces = indices[:len(indices) // 3 * 3].reshape(-1, 3)
+                                else:
+                                    faces = indices.reshape(-1, 3)
+                            elif mode == 5:  # TRIANGLE_STRIP
+                                # Convert triangle strip to triangles
+                                strip = indices
+                                faces = []
+                                for i in range(len(strip) - 2):
+                                    if i % 2 == 0:
+                                        faces.append([strip[i], strip[i+1], strip[i+2]])
+                                    else:
+                                        faces.append([strip[i+1], strip[i], strip[i+2]])
+                                faces = np.array(faces, dtype=np.uint32)
+                            else:
+                                logger.warning(f"Unsupported primitive mode {mode} in mesh {mesh_idx}, using vertex positions as point cloud")
+                                # Fall back to point cloud
+                                faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
+                                
+                        except Exception as e:
+                            logger.warning(f"Error processing indices for mesh {mesh_idx}: {str(e)}")
+                            # Fall back to non-indexed geometry
+                            faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
+                else:
+                    # No indices provided, create non-indexed geometry
+                    logger.debug(f"Mesh {mesh_idx} has no indices, creating non-indexed geometry")
+                    faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
+                
+                # Create the mesh
                 vrm_mesh = VRMMesh(
                     name=f"mesh_{len(meshes)}",
                     vertices=positions,
-                    faces=faces,
+                    faces=faces if faces is not None else np.array([], dtype=np.uint32).reshape(0, 3),
+                    normals=normals,
+                    texcoords=tex_coords,
                     material_index=getattr(primitive, 'material', None)
                 )
                 
                 # Set name if available
-                if hasattr(mesh, 'name') and mesh.name:
-                    vrm_mesh.name = mesh.name
-                    
+                if hasattr(gltf_mesh, 'name') and gltf_mesh.name:
+                    vrm_mesh.name = gltf_mesh.name.strip() or f"mesh_{len(meshes)}"
+                
+                # Store additional data as attributes
+                vrm_mesh.attributes = {}
+                if joint_indices is not None:
+                    vrm_mesh.attributes['joint_indices'] = joint_indices
+                if joint_weights is not None:
+                    vrm_mesh.attributes['joint_weights'] = joint_weights
+                
                 meshes.append(vrm_mesh)
+                
+            except Exception as e:
+                logger.error(f"Error loading mesh {mesh_idx}: {str(e)}", exc_info=True)
+                continue
         
         return meshes
     
-    @staticmethod
-    def _load_armature(gltf: GLTF2) -> Dict[str, VRMBone]:
-        """Load the armature (skeleton) from the GLTF file."""
+    @classmethod
+    def _load_armature(cls, gltf: GLTF2) -> Dict[str, VRMBone]:
+        """Load the armature (skeleton) from the GLTF file.
+        
+        Args:
+            gltf: The loaded GLTF2 object
+            
+        Returns:
+            Dictionary mapping bone names to VRMBone objects
+        """
         bones = {}
         
-        # Check if we have skins (armatures)
+        # Check if we have any skins (armatures)
         if not hasattr(gltf, 'skins') or not gltf.skins:
+            logger.debug("No skins found in GLTF file")
             return bones
             
-        # For simplicity, just handle the first skin
-        skin = gltf.skins[0]
-        
-        # Get the joint names
-        joint_names = []
-        if hasattr(skin, 'joints') and skin.joints:
-            joint_names = [gltf.nodes[joint].name for joint in skin.joints 
-                          if hasattr(gltf.nodes[joint], 'name') and gltf.nodes[joint].name]
-        
-        # Create bone entries
-        for i, joint_idx in enumerate(skin.joints):
-            node = gltf.nodes[joint_idx]
+        try:
+            # For now, just handle the first skin
+            skin = gltf.skins[0]
             
-            # Get parent bone index if it exists
-            parent = None
-            if hasattr(skin, 'skeleton') and skin.skeleton is not None:
-                # This is a simplification - in a real implementation, you'd need to traverse the node hierarchy
-                pass
+            # Get the joint indices and inverse bind matrices
+            joint_indices = getattr(skin, 'joints', [])
+            
+            # Get the inverse bind matrices if available
+            inverse_bind_matrices = None
+            if hasattr(skin, 'inverseBindMatrices') and skin.inverseBindMatrices is not None:
+                inverse_bind_data = cls._get_accessor_data(gltf, skin.inverseBindMatrices)
+                if inverse_bind_data is not None:
+                    try:
+                        inverse_bind_matrices = np.array(inverse_bind_data, dtype=np.float32).reshape(-1, 4, 4)
+                    except Exception as e:
+                        logger.warning(f"Error processing inverse bind matrices: {str(e)}")
+            
+            # Create a mapping from node index to bone name
+            node_to_bone = {}
+            
+            # First pass: create all bones
+            for i, joint_idx in enumerate(joint_indices):
+                if joint_idx >= len(gltf.nodes):
+                    logger.warning(f"Joint index {joint_idx} out of range, skipping")
+                    continue
+                    
+                node = gltf.nodes[joint_idx]
                 
-            # Create the bone
-            bone = VRMBone(
-                name=node.name if hasattr(node, 'name') and node.name else f"bone_{i}",
-                parent=parent,
-                position=tuple(node.translation) if hasattr(node, 'translation') else (0.0, 0.0, 0.0),
-                rotation=tuple(node.rotation) if hasattr(node, 'rotation') else (0.0, 0.0, 0.0, 1.0),
-                scale=tuple(node.scale) if hasattr(node, 'scale') else (1.0, 1.0, 1.0)
-            )
+                # Get bone name
+                if hasattr(node, 'name') and node.name:
+                    bone_name = node.name.strip()
+                else:
+                    bone_name = f"bone_{i}"
+                
+                # Get transform
+                translation = tuple(node.translation) if hasattr(node, 'translation') and node.translation is not None else (0.0, 0.0, 0.0)
+                rotation = tuple(node.rotation) if hasattr(node, 'rotation') and node.rotation is not None else (0.0, 0.0, 0.0, 1.0)
+                scale = tuple(node.scale) if hasattr(node, 'scale') and node.scale is not None else (1.0, 1.0, 1.0)
+                
+                # Get inverse bind matrix if available
+                inv_bind_matrix = None
+                if inverse_bind_matrices is not None and i < len(inverse_bind_matrices):
+                    inv_bind_matrix = inverse_bind_matrices[i].tolist()
+                
+                # Create the bone
+                bone = VRMBone(
+                    name=bone_name,
+                    parent=None,  # Will be set in the second pass
+                    position=translation,
+                    rotation=rotation,
+                    scale=scale
+                )
+                
+                # Store additional data
+                bone.node_index = joint_idx
+                if inv_bind_matrix is not None:
+                    bone.inverse_bind_matrix = inv_bind_matrix
+                
+                # Add to dictionaries
+                bones[bone_name] = bone
+                node_to_bone[joint_idx] = bone_name
             
-            bones[bone.name] = bone
+            # Second pass: set up parent-child relationships
+            for joint_idx, bone_name in node_to_bone.items():
+                node = gltf.nodes[joint_idx]
+                
+                # Find parent node
+                parent_bone = None
+                if hasattr(node, 'children') and node.children:
+                    # In GLTF, nodes have children, but we need to find the parent
+                    for child_idx in node.children:
+                        if child_idx in node_to_bone:
+                            child_bone = bones[node_to_bone[child_idx]]
+                            child_bone.parent = bone_name
+                
+                # Handle skin root bone
+                if hasattr(skin, 'skeleton') and skin.skeleton is not None and joint_idx == skin.skeleton:
+                    bones[bone_name].is_root = True
+            
+            # If we have a skeleton root, mark it
+            if hasattr(skin, 'skeleton') and skin.skeleton is not None and skin.skeleton in node_to_bone:
+                root_bone_name = node_to_bone[skin.skeleton]
+                bones[root_bone_name].is_root = True
+            
+            logger.info(f"Loaded {len(bones)} bones for armature")
+            
+        except Exception as e:
+            logger.error(f"Error loading armature: {str(e)}", exc_info=True)
         
         return bones
     
-    @staticmethod
-    def _load_blend_shapes(gltf: GLTF2, meshes: List[VRMMesh]) -> List[VRMBlendShape]:
-        """Load blend shapes (morph targets) from the GLTF file."""
+    @classmethod
+    def _load_blend_shapes(cls, gltf: GLTF2, meshes: List[VRMMesh]) -> List[VRMBlendShape]:
+        """Load blend shapes (morph targets) from the GLTF file.
+        
+        Args:
+            gltf: The loaded GLTF2 object
+            meshes: List of loaded VRMMesh objects
+            
+        Returns:
+            List of VRMBlendShape objects
+        """
         blend_shapes = []
         
         # Check if we have any meshes with morph targets
         if not hasattr(gltf, 'meshes') or not gltf.meshes:
+            logger.debug("No meshes found for blend shapes")
             return blend_shapes
-            
-        for mesh_idx, mesh in enumerate(gltf.meshes):
-            if not hasattr(mesh, 'primitives') or not mesh.primitives:
-                continue
-                
-            primitive = mesh.primitives[0]
-            
-            # Check for morph targets
-            if not hasattr(primitive, 'targets') or not primitive.targets:
-                continue
-                
-            for target_idx, target in enumerate(primitive.targets):
-                # Create a blend shape for each target
-                blend_shape = VRMBlendShape(
-                    name=f"blendshape_{len(blend_shapes)}",
-                    category="custom",
-                    is_binary=False
-                )
-                
-                # Get the position deltas
-                if 'POSITION' in target:
-                    accessor = gltf.accessors[target['POSITION']]
-                    buffer_view = gltf.bufferViews[accessor.bufferView]
-                    buffer = gltf.buffers[buffer_view.buffer]
-                    
-                    # Extract position deltas
-                    deltas = np.frombuffer(
-                        buffer.data,
-                        dtype=np.float32,
-                        count=accessor.count * 3,
-                        offset=buffer_view.byteOffset + (accessor.byteOffset or 0)
-                    ).reshape(-1, 3)
-                    
-                    # Store the deltas for this mesh
-                    blend_shape.morph_targets[mesh_idx] = deltas
-                
-                blend_shapes.append(blend_shape)
         
+        # First, check for VRM blend shape groups if available
+        vrm_blend_shape_groups = {}
+        if hasattr(gltf, 'extensions') and gltf.extensions and 'VRM' in gltf.extensions:
+            vrm_ext = gltf.extensions['VRM']
+            if 'blendShapeMaster' in vrm_ext and 'blendShapeGroups' in vrm_ext['blendShapeMaster']:
+                for group in vrm_ext['blendShapeMaster']['blendShapeGroups']:
+                    if 'name' in group and 'binds' in group and group['binds']:
+                        vrm_blend_shape_groups[group['name']] = group
+        
+        # Process each mesh
+        for mesh_idx, gltf_mesh in enumerate(gltf.meshes):
+            try:
+                if not hasattr(gltf_mesh, 'primitives') or not gltf_mesh.primitives:
+                    continue
+                
+                # For now, just handle the first primitive of each mesh
+                primitive = gltf_mesh.primitives[0]
+                
+                # Check for morph targets
+                if not hasattr(primitive, 'targets') or not primitive.targets:
+                    continue
+                
+                # Get the mesh name for better blend shape naming
+                mesh_name = getattr(gltf_mesh, 'name', f"mesh_{mesh_idx}")
+                
+                # Process each target (blend shape)
+                for target_idx, target in enumerate(primitive.targets):
+                    try:
+                        # Default blend shape name
+                        blend_shape_name = f"blendshape_{len(blend_shapes)}"
+                        
+                        # Try to get a better name from VRM extensions
+                        if mesh_name in vrm_blend_shape_groups:
+                            group = vrm_blend_shape_groups[mesh_name]
+                            if target_idx < len(group.get('binds', [])):
+                                bind = group['binds'][target_idx]
+                                if 'mesh' in bind and bind['mesh'] == mesh_idx and 'index' in bind:
+                                    if 'name' in group:
+                                        blend_shape_name = group['name']
+                        
+                        # Check if we already have a blend shape with this name
+                        existing_idx = next((i for i, bs in enumerate(blend_shapes) 
+                                          if bs.name == blend_shape_name), -1)
+                        
+                        if existing_idx >= 0:
+                            # Use existing blend shape
+                            blend_shape = blend_shapes[existing_idx]
+                        else:
+                            # Create a new blend shape
+                            is_binary = False
+                            category = "custom"
+                            
+                            # Check VRM preset categories
+                            if blend_shape_name.lower() in ["a", "i", "u", 'e', 'o']:  # Common viseme presets
+                                category = "viseme"
+                            elif blend_shape_name.lower() in ["neutral", "joy", "angry", "sorrow", "fun"]:
+                                category = "preset"
+                            
+                            blend_shape = VRMBlendShape(
+                                name=blend_shape_name,
+                                category=category,
+                                is_binary=is_binary
+                            )
+                            blend_shapes.append(blend_shape)
+                        
+                        # Process position deltas (morph target)
+                        if 'POSITION' in target and target['POSITION'] is not None:
+                            positions = cls._get_accessor_data(gltf, target['POSITION'])
+                            if positions is not None:
+                                try:
+                                    deltas = np.array(positions, dtype=np.float32)
+                                    if len(deltas.shape) == 2 and deltas.shape[1] == 3:
+                                        blend_shape.morph_targets[mesh_idx] = deltas
+                                    else:
+                                        logger.warning(f"Invalid position deltas shape {deltas.shape} for blend shape {blend_shape_name}")
+                                except Exception as e:
+                                    logger.warning(f"Error processing position deltas for blend shape {blend_shape_name}: {str(e)}")
+                        
+                        # Process normal deltas if available
+                        if 'NORMAL' in target and target['NORMAL'] is not None:
+                            normals = cls._get_accessor_data(gltf, target['NORMAL'])
+                            if normals is not None:
+                                try:
+                                    normal_deltas = np.array(normals, dtype=np.float32)
+                                    if len(normal_deltas.shape) == 2 and normal_deltas.shape[1] == 3:
+                                        if not hasattr(blend_shape, 'normal_deltas'):
+                                            blend_shape.normal_deltas = {}
+                                        blend_shape.normal_deltas[mesh_idx] = normal_deltas
+                                except Exception as e:
+                                    logger.warning(f"Error processing normal deltas for blend shape {blend_shape_name}: {str(e)}")
+                        
+                        # Process tangent deltas if available
+                        if 'TANGENT' in target and target['TANGENT'] is not None:
+                            tangents = cls._get_accessor_data(gltf, target['TANGENT'])
+                            if tangents is not None:
+                                try:
+                                    tangent_deltas = np.array(tangents, dtype=np.float32)
+                                    if len(tangent_deltas.shape) == 2 and tangent_deltas.shape[1] == 3:
+                                        if not hasattr(blend_shape, 'tangent_deltas'):
+                                            blend_shape.tangent_deltas = {}
+                                        blend_shape.tangent_deltas[mesh_idx] = tangent_deltas
+                                except Exception as e:
+                                    logger.warning(f"Error processing tangent deltas for blend shape {blend_shape_name}: {str(e)}")
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing blend shape target {target_idx} for mesh {mesh_idx}: {str(e)}", exc_info=True)
+                        continue
+                
+            except Exception as e:
+                logger.error(f"Error processing mesh {mesh_idx} for blend shapes: {str(e)}", exc_info=True)
+                continue
+        
+        logger.info(f"Loaded {len(blend_shapes)} blend shapes")
         return blend_shapes
     
     def _parse_vrm_extension(self, vrm_data: Dict):
