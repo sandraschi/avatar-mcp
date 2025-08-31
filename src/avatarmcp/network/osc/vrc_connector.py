@@ -54,18 +54,60 @@ class VRChatOSC:
         self.dispatcher.map(f"{self.ADDRESS_AVATAR_PARAMETERS}/*", self._on_parameter_change)
     
     async def start(self):
-        """Start the OSC server."""
-        loop = asyncio.get_event_loop()
-        self.server = AsyncIOOSCUDPServer(
-            (self.host, self.receive_port), 
-            self.dispatcher, 
-            loop
-        )
+        """Start the OSC server, trying multiple ports if necessary."""
+        if hasattr(self, '_running') and self._running:
+            return
+            
+        # Try multiple ports if the default one is in use
+        base_port = self.receive_port
+        max_attempts = 10
         
-        transport, protocol = await self.server.create_serve_endpoint()
-        self.transport = transport
-        logger.info(f"OSC server started on {self.host}:{self.receive_port}")
-    
+        for attempt in range(max_attempts):
+            current_port = base_port + attempt
+            logger.info(f"Attempting to start OSC server on {self.host}:{current_port} (attempt {attempt + 1}/{max_attempts})")
+            
+            try:
+                # Create the server
+                self.server = AsyncIOOSCUDPServer(
+                    (self.host, current_port),
+                    self.dispatcher,
+                    asyncio.get_running_loop()
+                )
+                
+                # Start the server
+                transport, protocol = await self.server.create_serve_endpoint()
+                
+                # If we get here, the port was available
+                self._running = True
+                self.receive_port = current_port  # Update the port to the one actually used
+                logger.info(f"OSC server started on {self.host}:{self.receive_port}")
+                
+                # Store the transport for later cleanup
+                self._transport = transport
+                
+                # Update the client's port if it exists
+                if hasattr(self, 'client') and self.client:
+                    self.client.port = current_port + 1  # Client typically uses the next port
+                    
+                return transport
+                
+            except OSError as e:
+                if "10048" in str(e):  # Address already in use
+                    logger.warning(f"Port {current_port} is in use, trying next port...")
+                    if attempt == max_attempts - 1:  # Last attempt
+                        logger.error(f"Failed to find an available port after {max_attempts} attempts")
+                        raise RuntimeError(f"Could not find an available port in range {base_port}-{base_port + max_attempts - 1}") from e
+                    continue
+                else:
+                    logger.error(f"Failed to start OSC server: {e}")
+                    self._running = False
+                    raise
+                    
+            except Exception as e:
+                logger.error(f"Unexpected error starting OSC server: {e}")
+                self._running = False
+                raise
+                    
     async def stop(self):
         """Stop the OSC server."""
         if self.transport:

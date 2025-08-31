@@ -51,38 +51,150 @@ class MCPServer:
     
     async def start(self):
         """Start the MCP server."""
+        if self.running:
+            return
+            
         self.running = True
         logger.info("Starting MCP server on stdio")
         
-        # Set up stdio
-        self.reader = asyncio.StreamReader()
-        protocol = asyncio.StreamReaderProtocol(self.reader)
-        transport, _ = await asyncio.get_event_loop().connect_read_pipe(
-            lambda: protocol, sys.stdin
-        )
-        
-        self.writer_transport, self.writer = await asyncio.get_event_loop().connect_write_pipe(
-            asyncio.streams.FlowControlMixin,
-            asyncio.streams.StreamWriterProtocol(
-                asyncio.StreamReader(),
-                asyncio.StreamWriter(
-                    transport=sys.stdout.buffer,
-                    protocol=None,
-                    reader=None,
-                    loop=asyncio.get_event_loop()
+        try:
+            # Get the current event loop
+            loop = asyncio.get_running_loop()
+            
+            # For Windows, we'll use a simpler approach with StreamReader/Writer
+            if sys.platform == 'win32':
+                # Create a StreamReader for stdin
+                self.reader = asyncio.StreamReader()
+                
+                # Create a StreamWriter for stdout
+                # We'll use a custom transport that writes directly to sys.stdout
+                class StdoutTransport(asyncio.Transport):
+                    def __init__(self, loop=None):
+                        super().__init__(extra={'peername': ('<stdio>', 0)})
+                        self._loop = loop or asyncio.get_event_loop()
+                        self._closing = False
+                        self._protocol = None
+                    
+                    def write(self, data):
+                        if not self._closing:
+                            try:
+                                sys.stdout.buffer.write(data)
+                                sys.stdout.buffer.flush()
+                            except Exception as e:
+                                logger.error(f"Error writing to stdout: {e}")
+                    
+                    def is_closing(self):
+                        return self._closing
+                    
+                    def close(self):
+                        if not self._closing:
+                            self._closing = True
+                            if self._protocol:
+                                self._loop.call_soon(self._protocol.connection_lost, None)
+                    
+                    def abort(self):
+                        self.close()
+                
+                # Create the transport and protocol for stdout
+                transport = StdoutTransport(loop=loop)
+                protocol = asyncio.StreamReaderProtocol(asyncio.StreamReader())
+                transport._protocol = protocol
+                protocol.connection_made(transport)
+                
+                # Create the StreamWriter
+                self.writer = asyncio.StreamWriter(transport, protocol, None, loop)
+                
+                # Start a task to read from stdin
+                async def read_stdin():
+                    while self.running:
+                        try:
+                            line = await loop.run_in_executor(None, sys.stdin.readline)
+                            if not line:  # EOF
+                                break
+                            await self.reader.feed_data(line.encode())
+                        except Exception as e:
+                            logger.error(f"Error reading from stdin: {e}")
+                            break
+                    
+                loop.create_task(read_stdin())
+                
+            else:
+                # Non-Windows platforms can use the standard approach
+                self.reader = asyncio.StreamReader()
+                protocol = asyncio.StreamReaderProtocol(self.reader)
+                
+                # Connect to stdin
+                transport, _ = await loop.connect_read_pipe(
+                    lambda: protocol, sys.stdin
                 )
-            )
-        )
-        
-        # Start message processing
-        asyncio.create_task(self._process_messages())
+                
+                # Create a StreamWriter for stdout
+                write_protocol = asyncio.StreamReaderProtocol(asyncio.StreamReader())
+                self.writer_transport, _ = await loop.connect_write_pipe(
+                    lambda: write_protocol, sys.stdout.buffer
+                )
+                
+                # Create the writer
+                self.writer = asyncio.StreamWriter(
+                    transport=self.writer_transport,
+                    protocol=write_protocol,
+                    reader=None
+                )
+                self._write_stdout = None
+            
+            # Start message processing
+            self._process_task = asyncio.create_task(self._process_messages())
+            logger.info("MCP server started successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to start MCP server: {e}")
+            self.running = False
+            raise
     
     async def stop(self):
         """Stop the MCP server."""
+        if not self.running:
+            return
+            
+        logger.info("Stopping MCP server...")
         self.running = False
+        
+        # Cancel the process task
+        if hasattr(self, '_process_task') and self._process_task:
+            self._process_task.cancel()
+            try:
+                await self._process_task
+            except asyncio.CancelledError:
+                pass
+            
+        # Close the writer
         if self.writer:
-            self.writer.close()
-            await self.writer.wait_closed()
+            try:
+                if sys.platform == 'win32':
+                    # For Windows, we need to handle the custom transport
+                    if hasattr(self.writer, 'transport') and hasattr(self.writer.transport, 'close'):
+                        self.writer.transport.close()
+                else:
+                    # For non-Windows, use standard close
+                    self.writer.close()
+                    try:
+                        await self.writer.wait_closed()
+                    except Exception as e:
+                        logger.error(f"Error closing writer: {e}")
+            except Exception as e:
+                logger.error(f"Error during writer close: {e}")
+        
+        # Close the reader
+        if self.reader:
+            self.reader.feed_eof()
+            
+        # Clean up any pending requests
+        for future in self.pending_requests.values():
+            if not future.done():
+                future.cancel()
+        self.pending_requests.clear()
+            
+        logger.info("MCP server stopped")
     
     async def _process_messages(self):
         """Process incoming messages."""
@@ -187,21 +299,22 @@ class MCPServer:
         await self._send_json(response)
     
     async def _send_json(self, data: Dict[str, Any]):
-        """Send a JSON message.
-        
-        Args:
-            data: The data to send
-        """
+        """Send a JSON message."""
         if not self.writer:
             return
             
         try:
             message = json.dumps(data).encode('utf-8')
-            length = len(message).to_bytes(4, byteorder='big')
-            self.writer.write(length + message)
-            await self.writer.drain()
+            if hasattr(self, '_write_stdout') and self._write_stdout:
+                # Use direct write for Windows
+                self._write_stdout(message + b'\n')
+            else:
+                # Use StreamWriter for other platforms
+                self.writer.write(message + b'\n')
+                await self.writer.drain()
         except Exception as e:
-            logger.error(f"Error sending message: {e}", exc_info=True)
+            logger.error(f"Error sending JSON: {e}")
+            raise
     
     # Command Handlers
     async def _handle_echo(self, params: Dict[str, Any]) -> Dict[str, Any]:

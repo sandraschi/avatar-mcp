@@ -3,6 +3,7 @@ AvatarMCP - Main application class for managing VRM avatars with FastMCP 2.10.1+
 """
 import asyncio
 import logging
+import threading
 from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
 
@@ -11,14 +12,20 @@ from fastmcp import FastMCP
 from ..models.vrm_model import VRMModel
 from ..models.animation_controller import AnimationController
 from ..network.osc.vrc_connector import VRChatOSC
+from ..visualization.manager import VisualizationManager
 from .mcp_server import MCPServer
 from .mcp_tools import MCPTools
+from ..visualization.mcp_tools import VisualizationTools
 
 class AvatarMCP:
     """Main application class for AvatarMCP server."""
     
-    def __init__(self):
-        """Initialize the AvatarMCP application."""
+    def __init__(self, enable_visualization: bool = True):
+        """Initialize the AvatarMCP application.
+        
+        Args:
+            enable_visualization: Whether to enable 3D visualization
+        """
         self.logger = logging.getLogger(__name__)
         
         # Initialize VRChat OSC connector
@@ -27,16 +34,36 @@ class AvatarMCP:
         # Initialize MCP server
         self.mcp = MCPServer(self)
         
-        # Initialize MCP tools
-        self.tools = MCPTools(self.mcp, self.osc)
+        # Initialize visualization first if enabled
+        self.visualization = None
+        if enable_visualization:
+            try:
+                from ..visualization.manager import VisualizationManager
+                from ..visualization.mcp_tools import VisualizationTools
+                
+                self.visualization = VisualizationManager()
+                self.logger.info("3D visualization enabled")
+                
+                # Initialize MCP tools with visualization support
+                self.tools = VisualizationTools(self.mcp, self.osc, self.visualization)
+            except ImportError as e:
+                self.logger.warning(f"Failed to initialize 3D visualization: {e}")
+                self.tools = MCPTools(self.mcp, self.osc)
+        else:
+            # Use basic MCP tools without visualization
+            self.tools = MCPTools(self.mcp, self.osc)
         
         # State
         self.models: Dict[str, VRMModel] = {}
         self.animation_controllers: Dict[str, AnimationController] = {}
         self.running = False
     
-    async def start(self):
-        """Start the AvatarMCP server."""
+    async def start(self, start_visualization: bool = True):
+        """Start the AvatarMCP server.
+        
+        Args:
+            start_visualization: Whether to start the 3D visualization window
+        """
         if self.running:
             return
             
@@ -48,6 +75,18 @@ class AvatarMCP:
             
             # Start MCP server
             await self.mcp.start()
+            
+            # Start visualization if enabled
+            if self.visualization and start_visualization:
+                # Run in a separate thread to avoid blocking the event loop
+                def start_visualization_thread():
+                    import time
+                    # Small delay to ensure MCP server is fully started
+                    time.sleep(1.0)
+                    self.visualization.start_viewer()
+                    
+                thread = threading.Thread(target=start_visualization_thread, daemon=True)
+                thread.start()
             
             self.running = True
             self.logger.info("AvatarMCP server started successfully")
@@ -69,20 +108,24 @@ class AvatarMCP:
             return
             
         self.logger.info("Stopping AvatarMCP server...")
-        self.running = False
+        
+        # Stop visualization
+        if hasattr(self, 'visualization') and self.visualization:
+            self.visualization.stop_viewer()
         
         # Stop all animations
         for controller in self.animation_controllers.values():
             controller.stop_all_animations()
         
         # Stop MCP server
-        if hasattr(self.mcp, 'stop'):
+        if hasattr(self, 'mcp') and self.mcp:
             await self.mcp.stop()
-        
-        # Stop OSC
-        if hasattr(self.osc, 'stop'):
+            
+        # Stop VRChat OSC
+        if hasattr(self, 'osc') and self.osc:
             await self.osc.stop()
-        
+            
+        self.running = False
         self.logger.info("AvatarMCP server stopped")
     
     async def load_model(self, model_id: str, path: str, scale: float = 1.0) -> Dict[str, Any]:

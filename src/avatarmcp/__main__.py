@@ -8,14 +8,21 @@ import asyncio
 import signal
 import sys
 import logging
+import argparse
 from typing import Optional, Any, Dict
 
 # Configure logging before any imports
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # More verbose logging
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('avatarmcp.log', mode='w')
+    ]
 )
+
+# Set higher log level for asyncio to reduce noise
+logging.getLogger('asyncio').setLevel(logging.WARNING)
 
 # Import after logging is configured
 from .core.app import AvatarMCP  # noqa: E402
@@ -25,50 +32,77 @@ logger = logging.getLogger(__name__)
 class ServerRunner:
     """Helper class to run the AvatarMCP server with proper signal handling."""
     
-    def __init__(self):
-        """Initialize the server runner."""
+    def __init__(self, enable_visualization: bool = True):
+        """Initialize the server runner.
+        
+        Args:
+            enable_visualization: Whether to enable 3D visualization
+        """
         self.app: Optional[AvatarMCP] = None
+        self.enable_visualization = enable_visualization
         self.shutdown_event = asyncio.Event()
+        self._shutdown_requested = False
         
         # Set up signal handlers
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
+        if sys.platform != 'win32':
+            signal.signal(signal.SIGINT, self._signal_handler)
+            signal.signal(signal.SIGTERM, self._signal_handler)
     
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals."""
+        if self._shutdown_requested:
+            return
+            
+        self._shutdown_requested = True
         logger.info(f"Received signal {signal.Signals(signum).name}, shutting down...")
-        self.shutdown_event.set()
+        
+        # Schedule the shutdown on the event loop
+        if hasattr(self, '_shutdown_handle') and self._shutdown_handle:
+            self._shutdown_handle.cancel()
+            
+        loop = asyncio.get_running_loop()
+        self._shutdown_handle = loop.call_soon_threadsafe(self.shutdown_event.set)
     
     async def run(self):
         """Run the AvatarMCP server."""
         logger.info("Starting AvatarMCP server...")
         
         try:
-            # Initialize the application
-            self.app = AvatarMCP()
+            # Create the application with visualization enabled/disabled
+            self.app = AvatarMCP(enable_visualization=self.enable_visualization)
             
-            # Start the application
-            server_task = asyncio.create_task(self.app.start())
+            # Start the application with visualization
+            await self.app.start(start_visualization=self.enable_visualization)
             
             # Wait for shutdown signal
             await self.shutdown_event.wait()
             
-            # Shut down the application
-            logger.info("Shutting down AvatarMCP server...")
-            await self.app.stop()
+            return 0
             
-            # Wait for the server task to complete
-            await asyncio.wait_for(server_task, timeout=5.0)
-            
-        except asyncio.CancelledError:
-            logger.info("Server task cancelled")
         except Exception as e:
-            logger.error(f"Server error: {e}", exc_info=True)
-            raise
+            logger.error(f"Failed to start server: {e}", exc_info=True)
+            return 1
         finally:
-            # Ensure cleanup
             if self.app:
                 await self.app.stop()
+            logger.info("Shutting down AvatarMCP server...")
+            if self.app:
+                await self.app.stop()
+            logger.info("Server stopped")
+        
+        return 0
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description='AvatarMCP - VRM Avatar Management Server')
+    parser.add_argument('--no-visualization', 
+                        action='store_true',
+                        help='Disable 3D visualization')
+    parser.add_argument('--log-level',
+                        default='INFO',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                        help='Set the logging level')
+    return parser.parse_args()
 
 def main() -> int:
     """
@@ -77,31 +111,40 @@ def main() -> int:
     Returns:
         int: Exit code (0 for success, non-zero for errors)
     """
+    args = parse_args()
+    
+    # Update logging level based on command line argument
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
+    
+    # Configure asyncio for Windows
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    
+    # Create and set the event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
     try:
-        # Set up asyncio event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        # Create the server runner with visualization enabled/disabled
+        runner = ServerRunner(enable_visualization=not args.no_visualization)
         
-        # Create and run the server
-        runner = ServerRunner()
+        # Run the server in the main event loop
         return loop.run_until_complete(runner.run())
         
     except KeyboardInterrupt:
-        logger.info("Shutdown requested by user")
+        logger.info("Server stopped by user")
         return 0
     except Exception as e:
-        logger.critical(f"Fatal error: {e}", exc_info=True)
+        logger.error(f"Fatal error: {e}", exc_info=True)
         return 1
     finally:
-        # Clean up the event loop
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.stop()
-            if not loop.is_closed():
-                loop.close()
-        except Exception as e:
-            logger.error(f"Error during cleanup: {e}", exc_info=True)
+        # Ensure we clean up properly
+        if 'runner' in locals() and runner.app:
+            try:
+                loop.run_until_complete(runner.app.stop())
+            except Exception as e:
+                logger.error(f"Error during cleanup: {e}", exc_info=True)
+        loop.close()
 
 if __name__ == "__main__":
     sys.exit(main())

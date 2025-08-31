@@ -1,0 +1,16 @@
+# 3D Visualization
+pyvista>=0.35.0
+pyvistaqt>=0.7.0
+numpy>=1.20.0
+
+# VRM Support (placeholder - we'll need to implement VRM loading)
+# pyvrm
+
+# Optional: For better performance
+pyopengl>=3.1.0
+
+# For UI controls
+PyQt5>=5.15.0
+
+# For texture loading
+Pillow>=8.0.0

@@ -5,18 +5,29 @@ import os
 import sys
 import logging
 from pathlib import Path
+import os
 
 # Add the src directory to the Python path at the very beginning
 src_dir = str(Path(__file__).parent / "src")
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
+# Create logs directory if it doesn't exist
+log_dir = Path(__file__).parent / 'logs'
+log_dir.mkdir(exist_ok=True)
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(log_dir / 'avatarmcp.log')
+    ]
 )
+
+# Set higher log level for asyncio to reduce noise
+logging.getLogger('asyncio').setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
@@ -36,33 +47,67 @@ def main():
     
     try:
         # Try to import the server module
-        logger.info("Attempting to import avatarmcp.server...")
-        from avatarmcp.server import main as server_main
-        
-        # List available modules for debugging
-        logger.info("Successfully imported avatarmcp.server")
-        
-        # Start the server
-        logger.info("Starting AvatarMCP server...")
-        return server_main()
-        
-    except ImportError as e:
-        logger.error("Failed to import required module: %s", e, exc_info=True)
-        logger.error("Module search paths: %s", sys.path)
-        
-        # Try to list the src/avatarmcp directory
+        logger.info("Attempting to import avatarmcp...")
         try:
-            avatarmcp_path = Path(__file__).parent / "src" / "avatarmcp"
-            if avatarmcp_path.exists():
-                logger.info("Contents of %s:", avatarmcp_path)
-                for f in avatarmcp_path.glob("*"):
-                    logger.info("  - %s", f.name)
-        except Exception as dir_err:
-            logger.error("Failed to list avatarmcp directory: %s", dir_err)
+            import avatarmcp
+            logger.info("Successfully imported avatarmcp from: %s", avatarmcp.__file__)
             
-        return 1
+            # Get the directory containing avatarmcp
+            import pathlib
+            avatarmcp_path = pathlib.Path(avatarmcp.__file__).parent
+            logger.info("Contents of %s:", avatarmcp_path)
+            for f in avatarmcp_path.glob("*"):
+                logger.info("  - %s", f.name)
+                
+            # Try to import the server components
+            try:
+                from avatarmcp.core.app import AvatarMCP
+                logger.info("Successfully imported AvatarMCP class")
+                
+                # Create and start the server
+                logger.info("Creating AvatarMCP instance...")
+                app = AvatarMCP()
+                
+                logger.info("Starting the server...")
+                import asyncio
+                
+                # Get the event loop
+                try:
+                    loop = asyncio.get_event_loop()
+                    logger.info("Using existing event loop")
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    logger.info("Created new event loop")
+                    
+                # Run the server
+                logger.info("Running server...")
+                loop.run_until_complete(app.start())
+                
+                try:
+                    # Keep the server running
+                    loop.run_forever()
+                except KeyboardInterrupt:
+                    logger.info("Shutting down server...")
+                finally:
+                    loop.run_until_complete(app.stop())
+                    loop.close()
+                
+                logger.info("Server stopped successfully")
+                return 0
+                
+            except ImportError as e:
+                logger.error("Failed to import AvatarMCP: %s", e)
+                logger.error("Available modules in avatarmcp: %s", dir(avatarmcp))
+                return 1
+                
+        except ImportError as e:
+            logger.error("Failed to import avatarmcp: %s", e)
+            logger.error("Python path: %s", sys.path)
+            return 1
+            
     except Exception as e:
-        logger.error("Error starting server: %s", e, exc_info=True)
+        logger.exception("Unexpected error in main:")
         return 1
 
 if __name__ == "__main__":
