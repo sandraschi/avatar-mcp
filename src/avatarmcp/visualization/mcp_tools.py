@@ -5,6 +5,7 @@ This module provides FastMCP 2.11.3+ compatible tools for 3D visualization.
 """
 import asyncio
 import logging
+from dataclasses import dataclass
 from typing import Dict, Any, Optional, List, Union
 
 from ..core.mcp_tools import MCPTools as BaseTools

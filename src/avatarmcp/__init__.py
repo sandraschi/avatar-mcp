@@ -9,7 +9,7 @@ import asyncio
 import logging
 import sys
 import os
-from typing import Optional, Dict, Any, Tuple, List, Union
+from typing import Optional, Dict, Any, Tuple, List, Union, TYPE_CHECKING
 
 # Configure logging before any other imports
 logging.basicConfig(
@@ -25,9 +25,22 @@ logging.basicConfig(
 # Set higher log level for asyncio to reduce noise
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 
+# Only import type hints when type checking to avoid circular imports
+if TYPE_CHECKING:
+    from .server import AvatarMCPServer
+
+# Public API
+__all__ = [
+    'AvatarMCPServer',
+    'run_server',
+]
+
 # Import core components after logging is configured
 from .core.app import AvatarMCP  # noqa: E402
 from .core.mcp_server import MCPServer  # noqa: E402
+
+# Import server functionality to make it available at the package level
+from .server import AvatarMCPServer, run_server  # noqa: E402
 from .network.osc.vrc_connector import VRChatOSC  # noqa: E402
 
 # Package metadata

@@ -17,6 +17,9 @@ websockets>=11.0.0
 # HTTP Client
 httpx>=0.24.0
 
+# OSC (Open Sound Control)
+python-osc>=1.8.3
+
 # Data Validation
 pydantic>=1.10.5
 

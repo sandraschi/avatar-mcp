@@ -1,7 +1,7 @@
 """
 Simple chatbot implementation for avatar interactions.
 """
-from typing import Dict, List, Optional, Callable
+from typing import Any, Dict, List, Optional, Callable
 import random
 import json
 import os
