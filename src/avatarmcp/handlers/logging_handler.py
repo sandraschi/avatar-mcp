@@ -128,7 +128,7 @@ class LogHandler(logging.Handler):
         try:
             self._emit(record)
         except Exception as e:
-            print(f"Error in log handler: {str(e)}", file=sys.stderr)
+            logger.error("Error in log handler: %s", str(e), exc_info=True)
     
     def _emit(self, record: logging.LogRecord) -> None:
         """Eit a log record (to be implemented by subclasses)."""
@@ -223,7 +223,7 @@ class QueueLogHandler(LogHandler):
             self.log_queue.put_nowait(log_message.to_dict())
         except asyncio.QueueFull:
             # If the queue is full, drop the message
-            print(f"Log queue full, dropping message: {log_message.message}", file=sys.stderr)
+            logger.warning("Log queue full, dropping message: %s", log_message.message)
 
 class LoggingHandler(BaseHandler):
     """Centralized logging handler for the Avatar MCP server."""

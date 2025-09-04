@@ -5,7 +5,18 @@ import os
 import sys
 import json
 import time
+import logging
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stderr)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Add the src directory to the Python path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -15,34 +26,36 @@ def load_avatar(avatar_path):
     try:
         from avatarmcp.server import load_vrm
         
-        print(f"Loading avatar: {avatar_path}")
+        logger.info(f"Loading avatar: {avatar_path}")
         result = load_vrm(avatar_path)
         
         if result.get("status") == "success":
-            print(f"Successfully loaded avatar with ID: {result.get('model_id')}")
-            return result["model_id"]
+            model_id = result.get('model_id')
+            logger.info(f"Successfully loaded avatar with ID: {model_id}")
+            return model_id
         else:
-            print(f"Failed to load avatar: {result.get('error', 'Unknown error')}")
+            error_msg = result.get('error', 'Unknown error')
+            logger.error(f"Failed to load avatar: {error_msg}")
             return None
             
     except Exception as e:
-        print(f"Error loading avatar: {str(e)}")
+        logger.error(f"Error loading avatar: {str(e)}", exc_info=True)
         return None
 
 def main():
-    print("=== Claude Desktop VRM Avatar Setup ===\n")
+    logger.info("=== Claude Desktop VRM Avatar Setup ===")
     
     # Path to the VRM file
     vrm_path = Path("examples/Nekomimi-chan.vrm")
     
     if not vrm_path.exists():
-        print(f"Error: VRM file not found at {vrm_path}")
-        print("Please make sure the VRM file exists in the examples directory.")
+        logger.error(f"VRM file not found at {vrm_path}")
+        logger.error("Please make sure the VRM file exists in the examples directory.")
         return
     
-    print(f"Found VRM avatar: {vrm_path.name}")
-    print("\nMake sure the AvatarMCP server is running in another terminal.")
-    print("You can start it with: python -m avatarmcp.server\n")
+    logger.info(f"Found VRM avatar: {vrm_path.name}")
+    logger.info("\nMake sure the AvatarMCP server is running in another terminal.")
+    logger.info("You can start it with: python -m avatarmcp.server\n")
     
     input("Press Enter to load the avatar into the server...")
     
@@ -50,15 +63,15 @@ def main():
     avatar_id = load_avatar(str(vrm_path.absolute()))
     
     if not avatar_id:
-        print("\nFailed to load the avatar. Please check the error messages above.")
+        logger.error("\nFailed to load the avatar. Please check the error messages above.")
         return
     
-    print("\n=== Setup Complete! ===")
-    print("The avatar is now loaded in the AvatarMCP server.")
-    print("\nIn Claude Desktop, use these settings to connect:")
-    print(f"- MCP Server: localhost:8080")
-    print(f"- Avatar ID: {avatar_id}")
-    print("\nMake sure to enable MCP support in Claude Desktop settings.")
+    logger.info("\n=== Setup Complete! ===")
+    logger.info("The avatar is now loaded in the AvatarMCP server.")
+    logger.info("\nIn Claude Desktop, use these settings to connect:")
+    logger.info(f"- MCP Server: localhost:8080")
+    logger.info(f"- Avatar ID: {avatar_id}")
+    logger.info("\nMake sure to enable MCP support in Claude Desktop settings.")
 
 if __name__ == "__main__":
     main()

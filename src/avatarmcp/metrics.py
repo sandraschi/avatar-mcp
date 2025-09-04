@@ -1,6 +1,7 @@
 # Metrics collection for the Avatar MCP server using Prometheus.
 # This module provides metrics collection for monitoring the Avatar MCP server.
 
+import logging
 from typing import Optional, Dict, Any
 from prometheus_client import start_http_server, Counter, Gauge, Histogram, Info
 import time
@@ -97,9 +98,9 @@ class MetricsCollector:
         try:
             start_http_server(self.port)
             self._server_started = True
-            print(f'Metrics server started on port {self.port}')
+            logging.info('Metrics server started on port %d', self.port)
         except Exception as e:
-            print(f'Failed to start metrics server: {e}')
+            logging.error('Failed to start metrics server: %s', e, exc_info=True)
     
     def record_request(self, method: str, endpoint: str, status: str, duration: float) -> None:
         # Record an API request.

@@ -6,28 +6,39 @@ import sys
 import platform
 import importlib
 import traceback
+import logging
 from pathlib import Path
 
-def print_section(title):
-    """Print a section header."""
-    print(f"\n{'='*50}")
-    print(f" {title}".ljust(50, '='))
-    print(f"{'='*50}")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stderr)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_section(title):
+    """Log a section header."""
+    logger.info("\n" + "=" * 50)
+    logger.info(f" {title} ".center(50, '='))
+    logger.info("=" * 50)
 
 def check_python():
     """Check Python version and environment."""
-    print_section("Python Environment")
-    print(f"Python Executable: {sys.executable}")
-    print(f"Python Version: {platform.python_version()}")
-    print(f"Platform: {platform.platform()}")
-    print(f"Current Working Directory: {os.getcwd()}")
-    print("\nPython Path:")
+    log_section("Python Environment")
+    logger.info(f"Python Executable: {sys.executable}")
+    logger.info(f"Python Version: {platform.python_version()}")
+    logger.info(f"Platform: {platform.platform()}")
+    logger.info(f"Current Working Directory: {os.getcwd()}")
+    logger.info("Python Path:")
     for p in sys.path:
-        print(f"  {p}")
+        logger.info(f"  {p}")
 
 def check_imports():
     """Check if required modules can be imported."""
-    print_section("Checking Imports")
+    log_section("Checking Imports")
     
     required_modules = [
         'fastmcp',
@@ -45,13 +56,13 @@ def check_imports():
     for module in required_modules:
         try:
             mod = importlib.import_module(module)
-            print(f"✓ {module}: {mod.__file__}")
+            logger.info(f"✓ {module}: {mod.__file__}")
         except ImportError as e:
-            print(f"✗ {module}: {e}")
+            logger.error(f"✗ {module}: {e}")
 
 def check_avatarmcp():
     """Check if avatarmcp can be imported."""
-    print_section("Checking AvatarMCP")
+    log_section("Checking AvatarMCP")
     
     # Add src to path if not already there
     src_dir = str(Path(__file__).parent / "src")
@@ -60,26 +71,26 @@ def check_avatarmcp():
     
     try:
         import avatarmcp
-        print(f"✓ avatarmcp imported from: {avatarmcp.__file__}")
+        logger.info(f"✓ avatarmcp imported from: {avatarmcp.__file__}")
         
         # Try to import server
         try:
             from avatarmcp import server
-            print("✓ avatarmcp.server imported successfully")
+            logger.info("✓ avatarmcp.server imported successfully")
             return True
         except ImportError as e:
-            print(f"✗ Failed to import avatarmcp.server: {e}")
-            traceback.print_exc()
+            logger.error(f"✗ Failed to import avatarmcp.server: {e}")
+            logger.debug("Traceback:", exc_info=True)
             return False
             
     except ImportError as e:
-        print(f"✗ Failed to import avatarmcp: {e}")
-        traceback.print_exc()
+        logger.error(f"✗ Failed to import avatarmcp: {e}")
+        logger.debug("Traceback:", exc_info=True)
         return False
 
 def run_server():
     """Try to run the server."""
-    print_section("Starting Server")
+    log_section("Testing Server")
     
     # Add src to path if not already there
     src_dir = str(Path(__file__).parent / "src")
@@ -88,20 +99,19 @@ def run_server():
     
     try:
         from avatarmcp.server import main
-        print("✓ Server main function found")
-        print("Starting server... (Press Ctrl+C to stop)")
+        logger.info("✓ Server main function found")
+        logger.info("Starting server... (Press Ctrl+C to stop)")
         main()
     except Exception as e:
-        print(f"✗ Failed to start server: {e}")
-        traceback.print_exc()
+        logger.error(f"✗ Failed to start server: {e}")
+        logger.debug("Traceback:", exc_info=True)
 
 def main():
     """Main function."""
     check_python()
     check_imports()
-    
     if check_avatarmcp():
-        if input("\nDo you want to try starting the server? (y/n): ").lower() == 'y':
+        if input("\nStart the server? (y/n): ").lower() == 'y':
             run_server()
 
 if __name__ == "__main__":

@@ -285,14 +285,14 @@ if __name__ == "__main__":
             
             # Example: Set a gesture
             result = await osc_tools.set_gesture("left", "Fist", 1.0)
-            print(f"Set gesture result: {result}")
+            logger.info("Set gesture result: %s", result)
             
             # Keep running
             while True:
                 await asyncio.sleep(1)
                 
         except KeyboardInterrupt:
-            print("\nStopping...")
+            logger.info("Stopping OSC tools...")
         finally:
             await osc_tools.stop()
     

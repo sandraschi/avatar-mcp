@@ -1,5 +1,5 @@
 """
-AvatarMCP - Main application class for managing VRM avatars with FastMCP 2.10.1+ and VRChat OSC
+AvatarMCP - Main application class for managing VRM avatars with FastMCP 2.12.0+ and VRChat OSC
 """
 import asyncio
 import logging
@@ -13,9 +13,9 @@ from ..models.vrm_model import VRMModel
 from ..models.animation_controller import AnimationController
 from ..network.osc.vrc_connector import VRChatOSC
 from ..visualization.manager import VisualizationManager
-from .mcp_server import MCPServer
 from .enhanced_mcp_tools import EnhancedMCPTools
 from ..visualization.mcp_tools import VisualizationTools
+from ..server import AvatarMCPServer
 
 class AvatarMCP:
     """Main application class for AvatarMCP server."""
@@ -31,8 +31,8 @@ class AvatarMCP:
         # Initialize VRChat OSC connector
         self.osc = VRChatOSC()
         
-        # Initialize MCP server
-        self.mcp = MCPServer(self)
+        # Initialize MCP server with FastMCP 2.12.0+
+        self.mcp = AvatarMCPServer(enable_osc=True)
         
         # Initialize visualization first if enabled
         self.visualization = None

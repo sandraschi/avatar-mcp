@@ -1,12 +1,12 @@
 """
-AvatarMCP - FastMCP 2.12.0+ Server Implementation
+AvatarMCP - FastMCP 2.11.3 Server Implementation - FIXED
 
 This module implements the MCP (Model Context Protocol) server for AvatarMCP,
-following the FastMCP 2.12.0+ API standards.
+following the FastMCP 2.11.3+ API standards.
 
 FIXES:
 - Updated FastMCP API from deprecated .method() decorators to new @mcp.tool() pattern
-- Fixed initialization issues with FastMCP 2.10.1+
+- Fixed initialization issues with FastMCP 2.12.0+
 """
 import asyncio
 import fnmatch

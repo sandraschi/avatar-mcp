@@ -218,6 +218,17 @@ VRM_SOURCES = {
 # Example usage
 if __name__ == "__main__":
     import asyncio
+    import logging
+    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stderr)
+        ]
+    )
+    logger = logging.getLogger(__name__)
     
     async def main():
         # Create a VRM manager
@@ -225,13 +236,13 @@ if __name__ == "__main__":
         
         # Scan for models
         model_ids = await vrm_manager.scan_models()
-        print(f"Found {len(model_ids)} models:")
+        logger.info(f"Found {len(model_ids)} models:")
         for model_id in model_ids:
-            print(f"- {model_id}")
+            logger.info(f"- {model_id}")
         
-        # Print VRM sources
-        print("\nVRM Sources:")
+        # Log VRM sources
+        logger.info("\nVRM Sources:")
         for name, url in VRM_SOURCES.items():
-            print(f"- {name}: {url}")
+            logger.info(f"- {name}: {url}")
     
     asyncio.run(main())

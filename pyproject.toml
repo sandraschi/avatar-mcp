@@ -48,7 +48,7 @@ dev = [
 avatarmcp = "avatarmcp.__main__:main"
 
 [project.entry-points.'mcp.server']
-avatarmcp = "avatarmcp.core.mcp_server:MCPServer"
+avatarmcp = "avatarmcp.server:AvatarMCPServer"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/avatarmcp"

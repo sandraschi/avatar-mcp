@@ -710,7 +710,7 @@ if __name__ == "__main__":
             await vision.start_processing(display_detections)
             
             # Run for 30 seconds
-            print("Running vision processing for 30 seconds...")
+            logger.info("Running vision processing for 30 seconds...")
             await asyncio.sleep(30)
             
             # Stop processing

@@ -639,7 +639,7 @@ def example_usage():
     
     # Set up event handlers
     def on_footstep(layer: str, state: str, event: AnimationEvent):
-        print(f"Footstep at {event.time}s")
+        logger.debug("Footstep at %fs", event.time)
     
     controller.add_event_handler(AnimationEventType.FOOTSTEP, on_footstep)
     
@@ -656,7 +656,7 @@ def example_usage():
             
             time.sleep(1/60)  # 60 FPS
     except KeyboardInterrupt:
-        print("Animation stopped")
+        logger.info("Animation stopped")
 
 if __name__ == "__main__":
     example_usage()

@@ -1,150 +1,157 @@
+#!/usr/bin/env python3
 """
-AvatarMCP - Main Entry Point
+AvatarMCP - Main entry point for the Avatar Model Control Protocol server.
 
 This module serves as the entry point for the AvatarMCP server when run as a module.
-It initializes and starts the FastMCP 2.10.1+ compatible server with VRChat OSC integration.
+It initializes and starts the FastMCP 2.12.0+ compatible server with VRChat OSC integration.
 """
+# Redirect stdout to stderr before any imports
+import sys
+import os
 import asyncio
 import signal
-import sys
 import logging
 import argparse
 from typing import Optional, Any, Dict
 
-# Configure logging before any imports
-logging.basicConfig(
-    level=logging.DEBUG,  # More verbose logging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('avatarmcp.log', mode='w')
-    ]
-)
+# Configure logging before any imports to catch early messages
+from .utils.logging_utils import setup_logging
 
-# Set higher log level for asyncio to reduce noise
-logging.getLogger('asyncio').setLevel(logging.WARNING)
+import os
+from logging.handlers import RotatingFileHandler
+import logging
+import sys
 
-# Import after logging is configured
-from .core.app import AvatarMCP  # noqa: E402
-
+# Don't set up logging here, we'll do it after parsing arguments
 logger = logging.getLogger(__name__)
 
-class ServerRunner:
-    """Helper class to run the AvatarMCP server with proper signal handling."""
-    
-    def __init__(self, enable_visualization: bool = True):
-        """Initialize the server runner.
-        
-        Args:
-            enable_visualization: Whether to enable 3D visualization
-        """
-        self.app: Optional[AvatarMCP] = None
-        self.enable_visualization = enable_visualization
-        self.shutdown_event = asyncio.Event()
-        self._shutdown_requested = False
-        
-        # Set up signal handlers
-        if sys.platform != 'win32':
-            signal.signal(signal.SIGINT, self._signal_handler)
-            signal.signal(signal.SIGTERM, self._signal_handler)
-    
-    def _signal_handler(self, signum, frame):
-        """Handle shutdown signals."""
-        if self._shutdown_requested:
-            return
-            
-        self._shutdown_requested = True
-        logger.info(f"Received signal {signal.Signals(signum).name}, shutting down...")
-        
-        # Schedule the shutdown on the event loop
-        if hasattr(self, '_shutdown_handle') and self._shutdown_handle:
-            self._shutdown_handle.cancel()
-            
-        loop = asyncio.get_running_loop()
-        self._shutdown_handle = loop.call_soon_threadsafe(self.shutdown_event.set)
-    
-    async def run(self):
-        """Run the AvatarMCP server."""
-        logger.info("Starting AvatarMCP server...")
-        
-        try:
-            # Create the application with visualization enabled/disabled
-            self.app = AvatarMCP(enable_visualization=self.enable_visualization)
-            
-            # Start the application with visualization
-            await self.app.start(start_visualization=self.enable_visualization)
-            
-            # Wait for shutdown signal
-            await self.shutdown_event.wait()
-            
-            return 0
-            
-        except Exception as e:
-            logger.error(f"Failed to start server: {e}", exc_info=True)
-            return 1
-        finally:
-            if self.app:
-                await self.app.stop()
-            logger.info("Shutting down AvatarMCP server...")
-            if self.app:
-                await self.app.stop()
-            logger.info("Server stopped")
-        
-        return 0
+# Now import the rest of the application
+from .server import AvatarMCPServer, run_server
 
-def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='AvatarMCP - VRM Avatar Management Server')
-    parser.add_argument('--no-visualization', 
-                        action='store_true',
-                        help='Disable 3D visualization')
-    parser.add_argument('--log-level',
-                        default='INFO',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                        help='Set the logging level')
-    return parser.parse_args()
+# Global server instance
+mcp_server: Optional[AvatarMCPServer] = None
 
-def main() -> int:
-    """
-    Entry point for the AvatarMCP server.
+async def shutdown(signal: signal.Signals) -> None:
+    """Handle shutdown signals."""
+    logger.info(f"Received exit signal {signal.name}...")
     
-    Returns:
-        int: Exit code (0 for success, non-zero for errors)
-    """
-    args = parse_args()
+    if mcp_server:
+        await mcp_server.stop()
     
-    # Update logging level based on command line argument
-    logging.getLogger().setLevel(getattr(logging, args.log_level))
+    logger.info("Server stopped successfully")
+    sys.exit(0)
+
+def handle_exception(loop: asyncio.AbstractEventLoop, context: Dict[str, Any]) -> None:
+    """Handle uncaught exceptions."""
+    # Log the exception
+    logger.error(f"Unhandled exception: {context}", exc_info=context.get('exception'))
     
-    # Configure asyncio for Windows
-    if sys.platform == 'win32':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # Schedule the shutdown
+    asyncio.create_task(shutdown(signal.SIGTERM))
+
+async def main() -> None:
+    """Main entry point for the AvatarMCP server."""
+    global mcp_server, osc_server
     
-    # Create and set the event loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='AvatarMCP - Avatar Model Control Protocol Server')
+    parser.add_argument('--host', type=str, default='127.0.0.1',
+                       help='Host to bind the MCP server to')
+    parser.add_argument('--port', type=int, default=0,
+                       help='Port to bind the MCP server to (0 for random)')
+    parser.add_argument('--osc-host', type=str, default='127.0.0.1',
+                       help='Host to bind the OSC server to')
+    parser.add_argument('--osc-port', type=int, default=9000,
+                       help='Port to bind the OSC server to')
+    parser.add_argument('--vrc-osc-host', type=str, default='127.0.0.1',
+                       help='VRChat OSC host to send messages to')
+    parser.add_argument('--vrc-osc-port', type=int, default=9001,
+                       help='VRChat OSC port to send messages to')
+    parser.add_argument('--debug', action='store_true',
+                       help='Enable debug logging')
+    parser.add_argument('--log-file', type=str, default='avatarmcp.log',
+                       help='Path to log file (default: avatarmcp.log)')
+    
+    args = parser.parse_args()
+    
+    # Set up logging with the correct level and log file
+    log_level = logging.DEBUG if args.debug else logging.INFO
+    
+    # Ensure log directory exists
+    log_dir = os.path.dirname(os.path.abspath(args.log_file))
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    
+    # Configure logging with final settings
+    setup_logging(
+        log_level=log_level,
+        log_file=args.log_file,
+        console=False,  # No console output
+        force_stderr=True,  # Force all logging to stderr
+        max_bytes=10*1024*1024,  # 10MB per file
+        backup_count=5,  # Keep 5 backup files
+        force_stderr=True  # Ensure all console output goes to stderr
+    )
+    
+    logger.info("Starting AvatarMCP server...")
+    logger.debug(f"Command line arguments: {sys.argv}")
+    logger.debug(f"Python version: {sys.version}")
+    logger.debug(f"Running on platform: {sys.platform}")
     
     try:
-        # Create the server runner with visualization enabled/disabled
-        runner = ServerRunner(enable_visualization=not args.no_visualization)
+        # Create the MCP server with default configuration
+        mcp_server = AvatarMCPServer(
+            host=args.host,
+            port=args.port,
+            osc_host=args.osc_host,
+            osc_port=args.osc_port,
+            vrc_osc_host=args.vrc_osc_host,
+            vrc_osc_port=args.vrc_osc_port
+        )
         
-        # Run the server in the main event loop
-        return loop.run_until_complete(runner.run())
+        # Register signal handlers for graceful shutdown
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            try:
+                loop.add_signal_handler(
+                    sig,
+                    lambda s=sig: asyncio.create_task(shutdown(s))
+                )
+            except (NotImplementedError, RuntimeError) as e:
+                logger.warning(f"Could not add signal handler for {sig}: {e}")
         
-    except KeyboardInterrupt:
-        logger.info("Server stopped by user")
-        return 0
+        # Set exception handler
+        loop.set_exception_handler(handle_exception)
+        
+        # Start the MCP server
+        await mcp_server.start()
+        
+        # Log server addresses
+        if hasattr(mcp_server, 'server') and mcp_server.server is not None:
+            for sock in mcp_server.server.sockets:
+                logger.info(f"MCP server listening on {sock.getsockname()}")
+        
+        logger.info(f"OSC server configured for {args.vrc_osc_host}:{args.vrc_osc_port}")
+        
+        # Keep the server running
+        await asyncio.Future()
+        
     except Exception as e:
-        logger.error(f"Fatal error: {e}", exc_info=True)
+        logger.exception("Fatal error in main loop")
         return 1
     finally:
-        # Ensure we clean up properly
-        if 'runner' in locals() and runner.app:
-            try:
-                loop.run_until_complete(runner.app.stop())
-            except Exception as e:
-                logger.error(f"Error during cleanup: {e}", exc_info=True)
-        loop.close()
+        # Ensure clean shutdown
+        if 'mcp_server' in globals() and mcp_server:
+            await mcp_server.stop()
+    
+    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
+        sys.exit(0)
+    except Exception as e:
+        logger.exception("Unhandled exception in main")
+        sys.exit(1)

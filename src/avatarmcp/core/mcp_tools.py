@@ -33,21 +33,29 @@ ParameterName = str
 ParameterValue = Union[str, int, float, bool, None]
 
 class MCPTools(MCPToolsBase):
-    """MCP Tools for avatar control with FastMCP 2.12+ compatibility."""
+    """MCP Tools for avatar control with FastMCP 2.12+ compatibility.
     
-    def __init__(self, mcp_server, vrc_osc: VRChatOSC):
-        """Initialize the MCP tools.
+    This class provides a collection of MCP tools for controlling avatars, animations,
+    and other functionality in the AvatarMCP system. It's designed to work with
+    FastMCP 2.12.0 and above.
+    """
+    
+    def __init__(self, mcp_server: Any, vrc_osc: VRChatOSC) -> None:
+        """Initialize the MCP tools with required dependencies.
         
         Args:
-            mcp_server: The MCP server instance
-            vrc_osc: The VRChat OSC connector
+            mcp_server: The MCP server instance that manages these tools
+            vrc_osc: The VRChat OSC connector for sending/receiving OSC messages
+            
+        Raises:
+            RuntimeError: If the FastMCP version is not compatible
         """
         super().__init__(mcp_server)
         self.osc = vrc_osc
         self.avatars: Dict[AvatarID, VRMModel] = {}
         self.animation_controllers: Dict[AvatarID, AnimationController] = {}
         
-        # Check FastMCP version
+        # Ensure we're using a compatible FastMCP version
         self._check_fastmcp_version()
         
         # Register all tools with @mcp_tool decorator

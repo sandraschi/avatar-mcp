@@ -1,11 +1,11 @@
 # AvatarMCP
 
-> FastMCP 2.10.1-compatible VRM avatar management and animation server with VRChat OSC integration
+> FastMCP 2.12.0+ compatible VRM avatar management and animation server with VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![FastMCP 2.10.1](https://img.shields.io/badge/FastMCP-2.10.1-brightgreen)](https://fastmcp.readthedocs.io/)
+[![FastMCP 2.12.0](https://img.shields.io/badge/FastMCP-2.12.0+-brightgreen)](https://fastmcp.readthedocs.io/)
 [![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
 
 ## 🚀 Features
@@ -17,7 +17,7 @@
   - Lighting controls and environment settings
   - Real-time updates for all avatar modifications
 
-- **FastMCP 2.12+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
+- **FastMCP 2.12.0+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
 - **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
 - **Advanced Animation System**: Play, blend, and manage animations with support for loops, varying speeds, and real-time recording
@@ -37,11 +37,53 @@
 
 ### Core Components
 
-- `MCPServer`: FastMCP 2.10.1-compatible server implementation
+- `MCPServer`: FastMCP 2.13.0-compatible server implementation
 - `VRChatOSC`: OSC integration with VRChat for avatar control
 - `VRMModel`: VRM 2.0 model loading and management
 - `AnimationController`: Manage and play animations on avatars
 - `MCPTools`: MCP command handlers for avatar control
+
+## 💬 Available Prompts
+
+AvatarMCP supports natural language interaction through the following commands:
+
+### Avatar Management
+- **Load Avatar**: "Load the VRM model from {path} as {avatar_name}"
+- **Unload Avatar**: "Unload the avatar named {avatar_name}"
+- **List Avatars**: "Show all loaded avatars"
+- **Set Active Avatar**: "Set {avatar_name} as the active avatar"
+
+### Animation Control
+- **Play Animation**: "Play {animation_name} on {avatar_name} at {speed}x speed"
+- **Stop Animation**: "Stop current animation on {avatar_name}"
+- **Pause Animation**: "Pause animation on {avatar_name}"
+- **Resume Animation**: "Resume paused animation on {avatar_name}"
+- **Blend Animations**: "Blend from {anim1} to {anim2} over {duration} seconds on {avatar_name}"
+- **Set Animation Parameter**: "Set {parameter} to {value} on {avatar_name}'s animation"
+
+### Bone Control
+- **Rotate Bone**: "Rotate {bone_name} to X:{x} Y:{y} Z:{z} on {avatar_name}"
+- **Reset Bone**: "Reset {bone_name} rotation on {avatar_name}"
+- **List Bones**: "Show all bones for {avatar_name}"
+
+### Morph/BlendShape Control
+- **Set Morph**: "Set {morph_name} to {value} on {avatar_name}"
+- **Reset Morph**: "Reset {morph_name} on {avatar_name}"
+- **List Morphs**: "Show available morphs for {avatar_name}"
+
+### Export
+- **Export Avatar**: "Export {avatar_name} to {file_path} as {format}"
+- **Take Screenshot**: "Take a screenshot of {avatar_name} and save to {file_path}"
+
+### System
+- **Get System Info**: "Show system information"
+- **Get Logs**: "Show recent logs"
+- **Search Web**: "Search the web for {query}"
+- **Query Knowledge Base**: "Search knowledge base for {query}"
+
+### Advanced
+- **Send OSC Message**: "Send OSC message {address} with {value} to {ip}:{port}"
+- **Run Script**: "Run script {script_name} with parameters {params}"
 
 ### 3D Visualization & Controls
 
@@ -147,7 +189,7 @@ Optional dependencies (for development and testing):
 python -m avatarmcp
 ```
 
-The server will start and listen for MCP commands on stdin/stdout. You can interact with it using any MCP 2.10.1-compatible client.
+The server will start and listen for MCP commands on stdin/stdout. You can interact with it using any MCP 2.12.0-compatible client.
 
 ### Example MCP Commands
 

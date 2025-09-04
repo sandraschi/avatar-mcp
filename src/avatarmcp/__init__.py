@@ -37,7 +37,6 @@ __all__ = [
 
 # Import core components after logging is configured
 from .core.app import AvatarMCP  # noqa: E402
-from .core.mcp_server import MCPServer  # noqa: E402
 
 # Import server functionality to make it available at the package level
 from .server import AvatarMCPServer, run_server  # noqa: E402
@@ -48,10 +47,10 @@ __version__ = "0.2.0"
 
 # Re-export for easier access
 __all__ = [
-    'AvatarMCP', 
-    'MCPServer', 
+    'AvatarMCP',
+    'AvatarMCPServer',
     'VRChatOSC',
-    'start_server'
+    'run_server'
 ]
 
 # Global server instance for singleton pattern

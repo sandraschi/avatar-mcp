@@ -1,6 +1,6 @@
-# AvatarMCP DXT Package
+# AvatarMCP DXT Package (FastMCP 2.12.0+)
 
-This document provides instructions for building, installing, and using the AvatarMCP DXT package.
+This document provides instructions for building, installing, and using the AvatarMCP DXT package with FastMCP 2.12.0+ compatibility.
 
 ## Prerequisites
 
@@ -40,10 +40,12 @@ This document provides instructions for building, installing, and using the Avat
 
 ## Installing the DXT Package
 
-1. **Copy the DXT file** to your Claude Desktop packages directory:
-   - Windows: `%APPDATA%\Claude\packages\`
-   - macOS: `~/Library/Application Support/Claude/packages/`
-   - Linux: `~/.config/claude/packages/`
+1. **Install the DXT file** in Claude Desktop:
+   - Open Claude Desktop
+   - Go to Settings (gear icon)
+   - Navigate to the Extensions tab
+   - Drag and drop the `.dxt` file into the Extensions window
+   - Confirm the installation when prompted
 
 2. **Restart Claude Desktop** to load the new package
 
@@ -85,12 +87,45 @@ response = requests.post(
 
 ## Available Prompts
 
-The following prompts are available for natural language interaction:
+The following natural language commands are available for interacting with avatars:
 
-- **Load Avatar**: "Load the avatar from {path} and name it {name}"
-- **Play Animation**: "Play the {animation_name} animation on {avatar_name} with {speed}x speed"
-- **Set Expression**: "Set the {expression_name} expression on {avatar_name} with {intensity}% intensity"
-- **Move Avatar**: "Move {avatar_name} to position {x}, {y}, {z}"
+### Avatar Management
+- **Load Avatar**: "Load the VRM model from {path} as {avatar_name}"
+- **Unload Avatar**: "Unload the avatar named {avatar_name}"
+- **List Avatars**: "Show all loaded avatars"
+- **Set Active Avatar**: "Set {avatar_name} as the active avatar"
+
+### Animation Control
+- **Play Animation**: "Play {animation_name} on {avatar_name} at {speed}x speed"
+- **Stop Animation**: "Stop current animation on {avatar_name}"
+- **Pause Animation**: "Pause animation on {avatar_name}"
+- **Resume Animation**: "Resume paused animation on {avatar_name}"
+- **Blend Animations**: "Blend from {anim1} to {anim2} over {duration} seconds on {avatar_name}"
+- **Set Animation Parameter**: "Set {parameter} to {value} on {avatar_name}'s animation"
+
+### Bone Control
+- **Rotate Bone**: "Rotate {bone_name} to X:{x} Y:{y} Z:{z} on {avatar_name}"
+- **Reset Bone**: "Reset {bone_name} rotation on {avatar_name}"
+- **List Bones**: "Show all bones for {avatar_name}"
+
+### Morph/BlendShape Control
+- **Set Morph**: "Set {morph_name} to {value} on {avatar_name}"
+- **Reset Morph**: "Reset {morph_name} on {avatar_name}"
+- **List Morphs**: "Show available morphs for {avatar_name}"
+
+### Export
+- **Export Avatar**: "Export {avatar_name} to {file_path} as {format}"
+- **Take Screenshot**: "Take a screenshot of {avatar_name} and save to {file_path}"
+
+### System
+- **Get System Info**: "Show system information"
+- **Get Logs**: "Show recent logs"
+- **Search Web**: "Search the web for {query}"
+- **Query Knowledge Base**: "Search knowledge base for {query}"
+
+### Advanced
+- **Send OSC Message**: "Send OSC message {address} with {value} to {ip}:{port}"
+- **Run Script**: "Run script {script_name} with parameters {params}"
 - **Export Avatar**: "Export the avatar named {name} to {path}"
 
 ## Troubleshooting

@@ -110,7 +110,7 @@ class LokiLogHandler(logging.Handler):
                 self._send_batch()
                 
         except Exception as e:
-            print(f"Error in LokiLogHandler: {e}", file=sys.stderr)
+            logger.error("Error in LokiLogHandler: %s", str(e), exc_info=True)
     
     def _send_batch(self) -> None:
         """Send the current batch of logs to Loki."""
@@ -133,9 +133,10 @@ class LokiLogHandler(logging.Handler):
             
             # Check for errors
             if response.status_code != 204:
-                print(
-                    f"Failed to send logs to Loki: {response.status_code} - {response.text}",
-                    file=sys.stderr
+                logger.error(
+                    "Failed to send logs to Loki: %d - %s",
+                    response.status_code,
+                    response.text
                 )
             
             # Clear the batch
@@ -143,7 +144,7 @@ class LokiLogHandler(logging.Handler):
             self._last_send = time.time()
             
         except Exception as e:
-            print(f"Error sending logs to Loki: {e}", file=sys.stderr)
+            logger.error("Error sending logs to Loki: %s", str(e), exc_info=True)
     
     def close(self) -> None:
         """Close the handler and send any remaining logs."""

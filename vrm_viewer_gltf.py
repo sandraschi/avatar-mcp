@@ -2,6 +2,15 @@ import pyvista as pv
 import numpy as np
 import os
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 from pygltflib import GLTF2
 
 class VRMViewer:
@@ -10,7 +19,7 @@ class VRMViewer:
         
     def load_vrm(self, filepath):
         try:
-            print(f"Loading VRM file: {filepath}")
+            logger.info(f"Loading VRM file: {filepath}")
             
             # Load the GLB file directly
             gltf = GLTF2().load(filepath)
@@ -63,7 +72,7 @@ class VRMViewer:
             return True
             
         except Exception as e:
-            print(f"Error loading VRM: {str(e)}")
+            logger.error(f"Error loading VRM: {str(e)}", exc_info=True)
             return False
     
     def show(self):
@@ -78,15 +87,15 @@ if __name__ == "__main__":
     
     # Check if file exists
     if not os.path.exists(vrm_path):
-        print(f"Error: VRM file not found at: {vrm_path}")
-        print("Please make sure the VRM file exists in the 'examples' directory.")
+        logger.error(f"VRM file not found at: {vrm_path}")
+        logger.error("Please make sure the VRM file exists in the 'examples' directory.")
         exit(1)
     
     # Try to load and show the VRM
     if viewer.load_vrm(vrm_path):
-        print("VRM loaded successfully!")
-        print("Close the 3D window to exit.")
+        logger.info("VRM loaded successfully!")
+        logger.info("Close the 3D window to exit.")
         viewer.show()
     else:
-        print("Failed to load VRM file. Please check the error message above.")
+        logger.error("Failed to load VRM file. Please check the logs for details.")
         exit(1)

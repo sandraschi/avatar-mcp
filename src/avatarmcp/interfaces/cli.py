@@ -1,4 +1,4 @@
-""
+"""
 AvatarMCP Command Line Interface
 
 This module provides a command-line interface for the AvatarMCP server.
@@ -82,12 +82,12 @@ def main():
     # Configure the app
     app.state.model_dir = args.model_dir
     
-    # Print startup banner
-    print(f"\n{'=' * 50}")
-    print(f"AvatarMCP Server v{__version__}".center(50))
-    print(f"Listening on http://{args.host}:{args.port}".center(50))
-    print(f"Model directory: {args.model_dir.absolute()}".center(50))
-    print('=' * 50 + '\n')
+    # Log startup banner
+    logger.info("=" * 50)
+    logger.info(f"AvatarMCP Server v{__version__}".center(50))
+    logger.info(f"Listening on http://{args.host}:{args.port}".center(50))
+    logger.info(f"Model directory: {args.model_dir.absolute()}".center(50))
+    logger.info("=" * 50)
     
     # Start the server
     uvicorn.run(

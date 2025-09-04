@@ -4,8 +4,10 @@ Simple script to start the AvatarMCP server with debug output.
 import os
 import sys
 import logging
+import json
 from pathlib import Path
-import os
+import time
+from typing import Dict, Any
 
 # Add the src directory to the Python path at the very beginning
 src_dir = str(Path(__file__).parent / "src")
@@ -16,30 +18,45 @@ if src_dir not in sys.path:
 log_dir = Path(__file__).parent / 'logs'
 log_dir.mkdir(exist_ok=True)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(log_dir / 'avatarmcp.log')
-    ]
-)
+# Configure root logger
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.DEBUG)
+
+# Clear existing handlers
+for handler in root_logger.handlers[:]:
+    root_logger.removeHandler(handler)
+
+# Create formatter for both console and file
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Console handler (stderr) - Plain text format
+console_handler = logging.StreamHandler(sys.stderr)
+console_handler.setFormatter(formatter)
+console_handler.setLevel(logging.INFO)
+root_logger.addHandler(console_handler)
+
+# File handler - Same format as console for consistency
+file_handler = logging.FileHandler(log_dir / 'avatarmcp.log')
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.DEBUG)
+root_logger.addHandler(file_handler)
 
 # Set higher log level for asyncio to reduce noise
 logging.getLogger('asyncio').setLevel(logging.WARNING)
+logging.getLogger('websockets').setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
 def print_environment():
-    """Print environment information for debugging."""
-    logger.info("Python version: %s", sys.version)
-    logger.info("Python path: %s", sys.path)
-    logger.info("Current working directory: %s", os.getcwd())
-    logger.info("Environment variables:")
+    """Log environment information for debugging."""
+    logger.info("Starting AvatarMCP server")
+    logger.debug("Python version: %s", sys.version)
+    logger.debug("Python path: %s", sys.path)
+    logger.debug("Current working directory: %s", os.getcwd())
+    logger.debug("Environment variables:")
     for key, value in os.environ.items():
         if 'python' in key.lower() or 'path' in key.lower() or 'home' in key.lower():
-            logger.info("  %s: %s", key, value)
+            logger.debug("  %s: %s", key, value)
 
 def main():
     """Main entry point for the server."""

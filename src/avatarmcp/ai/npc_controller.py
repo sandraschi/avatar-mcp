@@ -453,11 +453,11 @@ if __name__ == "__main__":
             await npc.start()
             
             # Run for 5 minutes
-            print("AI NPC is running. Press Ctrl+C to stop.")
+            logger.info("AI NPC is running. Press Ctrl+C to stop.")
             await asyncio.sleep(300)
             
         except KeyboardInterrupt:
-            print("\nStopping AI NPC...")
+            logger.info("Stopping AI NPC...")
         finally:
             # Stop the NPC
             await npc.stop()

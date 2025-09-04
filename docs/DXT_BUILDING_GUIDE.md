@@ -496,7 +496,7 @@ Packaged with your extension and used by the DXT runtime. Defines how your exten
   "license": "MIT",
   "outputDir": "dist",
   "mcp": {
-    "version": "2.10.1",
+    "version": "2.12.0",
     "server": {
       "command": "python",
       "args": ["-m", "your.package.module"],
@@ -606,7 +606,7 @@ your-mcp/
 
 ### FastMCP Server Best Practices
 
-- Use FastMCP 2.10.1 or later
+- Use FastMCP 2.12.0 or later
 - Implement proper signal handling
 - Use structured logging
 - Handle all exceptions gracefully
@@ -934,13 +934,13 @@ jobs:
 
 ## 🔧 FASTMCP VERSION REQUIREMENT
 
-**CRITICAL**: Must use fastmcp>=2.10.1,<3.0.0 for DXT compatibility.
+**CRITICAL**: Must use fastmcp>=2.12.0 for DXT compatibility.
 
 **requirements.txt:**
 
 ```txt
-# Core MCP dependencies - EXACT VERSION REQUIRED
-fastmcp>=2.10.1,<3.0.0
+# Core MCP dependencies - VERSION REQUIREMENT
+fastmcp>=2.12.0,<3.0.0
 fastapi>=0.95.0
 uvicorn[standard]>=0.22.0
 pydantic>=2.0.0,<3.0.0
@@ -958,9 +958,9 @@ httpx>=0.24.0
 # mypy>=1.4.0
 ```
 
-**Why fastmcp 2.10.1?**
+**Why fastmcp 2.12.0?**
 
-- Fixes critical DXT runtime compatibility issues
+- Includes all critical DXT runtime compatibility fixes
 - Resolves async/await handling in DXT environments
 - Proper error handling for extension context
 - Stable API surface for production use
@@ -1071,7 +1071,7 @@ httpx>=0.24.0
   "name": "example-mcp",
   "version": "1.0.0",
   "description": "Example MCP server with external tool integration",
-  "long_description": "Comprehensive MCP server that demonstrates proper external dependency handling, user configuration, and professional tool integration patterns using FastMCP 2.10.1+.",
+  "long_description": "Comprehensive MCP server that demonstrates proper external dependency handling, user configuration, and professional tool integration patterns using FastMCP 2.12.0+.",
   "author": {
     "name": "Sandra Schi",
     "email": "sandra@sandraschi.dev",

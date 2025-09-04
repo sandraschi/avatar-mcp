@@ -236,7 +236,7 @@ class NekomimiBrain:
 
 ### Python Libraries
 ```requirements
-fastmcp>=2.10.1
+fastmcp>=2.12.0
 python-osc>=1.8.0
 opencv-python>=4.8.0
 librosa>=0.10.0
