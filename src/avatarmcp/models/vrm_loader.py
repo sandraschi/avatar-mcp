@@ -299,71 +299,81 @@ class VRMLoader:
             List of VRMMaterial objects
         """
         materials = []
-        
-        if not hasattr(gltf, 'materials') or not gltf.materials:
-            logger.debug("No materials found in GLTF file")
-            return materials
-            
-        for mat_idx, mat in enumerate(gltf.materials):
+        for i, mat in enumerate(gltf.materials or []):
             try:
-                # Create base material with default values
-                material = VRMMaterial(
-                    name=f"material_{len(materials)}",
-                    alpha_mode=getattr(mat, 'alphaMode', 'OPAQUE'),
-                    alpha_cutoff=float(getattr(mat, 'alphaCutoff', 0.5)),
-                    double_sided=bool(getattr(mat, 'doubleSided', False)),
-                    metallic_factor=1.0,
-                    roughness_factor=1.0,
-                    base_color=(1.0, 1.0, 1.0, 1.0),
-                    emissive_factor=(0.0, 0.0, 0.0)
-                )
-                
-                # Set name if available
-                if hasattr(mat, 'name') and mat.name:
-                    material.name = mat.name.strip() or f"material_{len(materials)}"
-                
-                # Handle PBR material properties if available
-                if hasattr(mat, 'pbrMetallicRoughness') and mat.pbrMetallicRoughness is not None:
-                    pbr = mat.pbrMetallicRoughness
+                # Safely get alpha_cutoff with None check
+                alpha_cutoff = getattr(mat, 'alphaCutoff', 0.5)
+                if alpha_cutoff is None:
+                    alpha_cutoff = 0.5
                     
-                    # Base color factor
+                # Safely get pbr properties
+                pbr = getattr(mat, 'pbrMetallicRoughness', None)
+                metallic = 1.0
+                roughness = 1.0
+                base_color = [1.0, 1.0, 1.0, 1.0]
+                
+                if pbr is not None:
+                    metallic = float(getattr(pbr, 'metallicFactor', 1.0))
+                    roughness = float(getattr(pbr, 'roughnessFactor', 1.0))
+                    base_color = list(getattr(pbr, 'baseColorFactor', [1.0, 1.0, 1.0, 1.0]))
+                    
+                    # Handle base color factor if available
                     if hasattr(pbr, 'baseColorFactor') and pbr.baseColorFactor is not None:
                         try:
-                            material.base_color = tuple(float(x) for x in pbr.baseColorFactor[:4])
+                            base_color = [float(x) for x in pbr.baseColorFactor[:4]]
                         except (TypeError, ValueError, IndexError) as e:
-                            logger.warning(f"Invalid baseColorFactor in material {mat_idx}: {e}")
+                            logger.warning(f"Invalid baseColorFactor in material {i}: {e}")
                     
-                    # Base color texture
-                    if hasattr(pbr, 'baseColorTexture') and pbr.baseColorTexture is not None:
-                        tex_index = pbr.baseColorTexture.index
-                        if 0 <= tex_index < len(textures):
-                            material.texture_indices['baseColor'] = tex_index
-                        else:
-                            logger.warning(f"Invalid baseColorTexture index {tex_index} in material {mat_idx}")
-                    
-                    # Metallic and roughness factors
-                    if hasattr(pbr, 'metallicFactor') and pbr.metallicFactor is not None:
-                        try:
-                            material.metallic_factor = float(pbr.metallicFactor)
-                        except (TypeError, ValueError) as e:
-                            logger.warning(f"Invalid metallicFactor in material {mat_idx}: {e}")
-                    
-                    if hasattr(pbr, 'roughnessFactor') and pbr.roughnessFactor is not None:
-                        try:
-                            material.roughness_factor = float(pbr.roughnessFactor)
-                        except (TypeError, ValueError) as e:
-                            logger.warning(f"Invalid roughnessFactor in material {mat_idx}: {e}")
-                    
-                    # Metallic-roughness texture
-                    if hasattr(pbr, 'metallicRoughnessTexture') and pbr.metallicRoughnessTexture is not None:
-                        tex_index = pbr.metallicRoughnessTexture.index
-                        if 0 <= tex_index < len(textures):
-                            material.texture_indices['metallicRoughness'] = tex_index
-                        else:
-                            logger.warning(f"Invalid metallicRoughnessTexture index {tex_index} in material {mat_idx}")
+                material = VRMMaterial(
+                    name=f"material_{i}",
+                    alpha_mode=getattr(mat, 'alphaMode', 'OPAQUE'),
+                    alpha_cutoff=float(alpha_cutoff),
+                    double_sided=bool(getattr(mat, 'doubleSided', False)),
+                    metallic_factor=metallic,
+                    roughness_factor=roughness,
+                    base_color=tuple(base_color),
+                    emissive_factor=tuple(getattr(mat, 'emissiveFactor', [0.0, 0.0, 0.0]))
+                )
+                
+                # Handle texture indices if they exist
+                if hasattr(pbr, 'baseColorTexture') and hasattr(pbr.baseColorTexture, 'index'):
+                    tex_index = pbr.baseColorTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['baseColor'] = tex_index
+                    else:
+                        logger.warning(f"Invalid baseColorTexture index {tex_index} in material {i}")
+                
+                # Handle metallic and roughness factors
+                if hasattr(pbr, 'metallicFactor') and pbr.metallicFactor is not None:
+                    try:
+                        material.metallic_factor = float(pbr.metallicFactor)
+                    except (TypeError, ValueError) as e:
+                        logger.warning(f"Invalid metallicFactor in material {i}: {e}")
+                
+                if hasattr(pbr, 'roughnessFactor') and pbr.roughnessFactor is not None:
+                    try:
+                        material.roughness_factor = float(pbr.roughnessFactor)
+                    except (TypeError, ValueError) as e:
+                        logger.warning(f"Invalid roughnessFactor in material {i}: {e}")
+                
+                # Handle base color texture
+                if hasattr(pbr, 'baseColorTexture') and hasattr(pbr.baseColorTexture, 'index'):
+                    tex_index = pbr.baseColorTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['baseColor'] = tex_index
+                    else:
+                        logger.warning(f"Invalid baseColorTexture index {tex_index} in material {i}")
+                
+                # Handle metallic-roughness texture
+                if hasattr(pbr, 'metallicRoughnessTexture') and hasattr(pbr.metallicRoughnessTexture, 'index'):
+                    tex_index = pbr.metallicRoughnessTexture.index
+                    if 0 <= tex_index < len(textures):
+                        material.texture_indices['metallicRoughness'] = tex_index
+                    else:
+                        logger.warning(f"Invalid metallicRoughnessTexture index {tex_index} in material {i}")
                 
                 # Handle normal map
-                if hasattr(mat, 'normalTexture') and mat.normalTexture is not None:
+                if hasattr(mat, 'normalTexture') and hasattr(mat.normalTexture, 'index'):
                     tex_index = mat.normalTexture.index
                     if 0 <= tex_index < len(textures):
                         material.texture_indices['normal'] = tex_index
@@ -371,10 +381,10 @@ class VRMLoader:
                         if hasattr(mat.normalTexture, 'scale'):
                             material.texture_indices['normalScale'] = float(mat.normalTexture.scale)
                     else:
-                        logger.warning(f"Invalid normalTexture index {tex_index} in material {mat_idx}")
+                        logger.warning(f"Invalid normalTexture index {tex_index} in material {i}")
                 
-                # Handle occlusion map
-                if hasattr(mat, 'occlusionTexture') and mat.occlusionTexture is not None:
+                # Handle occlusion texture
+                if hasattr(mat, 'occlusionTexture') and hasattr(mat.occlusionTexture, 'index'):
                     tex_index = mat.occlusionTexture.index
                     if 0 <= tex_index < len(textures):
                         material.texture_indices['occlusion'] = tex_index
@@ -382,14 +392,14 @@ class VRMLoader:
                         if hasattr(mat.occlusionTexture, 'strength'):
                             material.texture_indices['occlusionStrength'] = float(mat.occlusionTexture.strength)
                     else:
-                        logger.warning(f"Invalid occlusionTexture index {tex_index} in material {mat_idx}")
+                        logger.warning(f"Invalid occlusionTexture index {tex_index} in material {i}")
                 
                 # Handle emissive factor
                 if hasattr(mat, 'emissiveFactor') and mat.emissiveFactor is not None:
                     try:
                         material.emissive_factor = tuple(float(x) for x in mat.emissiveFactor[:3])
                     except (TypeError, ValueError, IndexError) as e:
-                        logger.warning(f"Invalid emissiveFactor in material {mat_idx}: {e}")
+                        logger.warning(f"Invalid emissiveFactor in material {i}: {e}")
                 
                 # Handle emissive texture
                 if hasattr(mat, 'emissiveTexture') and mat.emissiveTexture is not None:
@@ -397,7 +407,7 @@ class VRMLoader:
                     if 0 <= tex_index < len(textures):
                         material.texture_indices['emissive'] = tex_index
                     else:
-                        logger.warning(f"Invalid emissiveTexture index {tex_index} in material {mat_idx}")
+                        logger.warning(f"Invalid emissiveTexture index {tex_index} in material {i}")
                 
                 # Handle alpha mode and cutoff
                 if hasattr(mat, 'alphaMode') and mat.alphaMode is not None:
@@ -407,7 +417,7 @@ class VRMLoader:
                     try:
                         material.alpha_cutoff = float(mat.alphaCutoff)
                     except (TypeError, ValueError) as e:
-                        logger.warning(f"Invalid alphaCutoff in material {mat_idx}: {e}")
+                        logger.warning(f"Invalid alphaCutoff in material {i}: {e}")
                 
                 # Handle double-sided flag
                 if hasattr(mat, 'doubleSided') and mat.doubleSided is not None:
@@ -416,20 +426,18 @@ class VRMLoader:
                 # Handle VRM material properties if available
                 if hasattr(mat, 'extensions') and mat.extensions and 'KHR_materials_unlit' in mat.extensions:
                     material.texture_indices['unlit'] = True
-                
+                    
                 materials.append(material)
-                
             except Exception as e:
-                logger.error(f"Error loading material {mat_idx}: {str(e)}", exc_info=True)
+                logger.error(f"Error loading material {i}: {str(e)}", exc_info=True)
                 # Create a default material if loading fails
                 default_mat = VRMMaterial(
-                    name=f"error_material_{mat_idx}",
+                    name=f"error_material_{i}",
                     base_color=(1.0, 0.0, 1.0, 1.0),  # Magenta to indicate error
                     metallic_factor=0.0,
                     roughness_factor=1.0
                 )
                 materials.append(default_mat)
-            
         return materials
     
     @classmethod
