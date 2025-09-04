@@ -5,23 +5,32 @@ This module implements the MCP (Model Context Protocol) server for AvatarMCP,
 following the FastMCP 2.11.3 standard for communication via stdio.
 """
 import asyncio
+import fnmatch
+import inspect
 import json
 import logging
 import os
+import signal
 import sys
 import time
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable, Awaitable, Set
+from typing import Any, Dict, List, Optional, Union, cast
+
+try:
+    import aiofiles
+except ImportError:
+    aiofiles = None
 
 from fastmcp import FastMCP
-from osc4py3.as_eventloop import OSCServer, OSCClient, OSCUDPServer, OSCUDPClient
-from osc4py3 import oscmethod, oscbuildparse
 
-# Local imports
-from .models.vrm_manager import VRMManager, VRMMetadata
 from .models.vrm_model import VRMModel
+from .models.vrm_manager import VRMManager
+from .handlers.logging_handler import LoggingHandler
+from .handlers.settings_handler import SettingsHandler
+from .handlers.rest_handler import RESTHandler
+from .handlers.websocket_handler import WebSocketHandler
 from .tools.chat_tools import ChatTool
 from .handlers.chatbot_handler import ChatbotHandler
+from .metrics import MetricsCollector
 
 logger = logging.getLogger(__name__)
 
@@ -32,18 +41,49 @@ class OSCConfig:
         self.server_address = server_address
         self.server_port = server_port
 
+def oscmethod(address_pattern):
+    """Decorator to mark methods as OSC message handlers."""
+    def decorator(func):
+        func._osc_address = address_pattern
+        return func
+    return decorator
+
 class OSCManager:
     def __init__(self, osc_config: Optional[OSCConfig] = None):
         if osc_config is None:
             osc_config = OSCConfig()
         self.osc_config = osc_config
-        self.osc_server = OSCUDPServer((osc_config.server_address, osc_config.server_port), self)
-        self.osc_client = OSCUDPClient()
-        self.osc_client.connect((osc_config.client_address, osc_config.client_port))
-
+        
+        # Import OSC dependencies here to make them optional
+        from pythonosc.dispatcher import Dispatcher
+        from pythonosc.osc_server import AsyncIOOSCUDPServer
+        from pythonosc.udp_client import SimpleUDPClient
+        
+        self.dispatcher = Dispatcher()
+        self.osc_server = AsyncIOOSCUDPServer(
+            (osc_config.server_address, osc_config.server_port), 
+            self.dispatcher
+        )
+        self.osc_client = SimpleUDPClient(osc_config.client_address, osc_config.client_port)
+        
+        # Register the handler method
+        self.dispatcher.map("/*", self._handle_osc_message)
+    
+    async def _handle_osc_message(self, address, *args):
+        """Internal handler for OSC messages."""
+        logger.info(f"Received OSC message: {address} {args}")
+        
+        # Call the appropriate handler method if it exists
+        for name, method in inspect.getmembers(self, inspect.ismethod):
+            if hasattr(method, '_osc_address'):
+                if fnmatch.fnmatch(address, method._osc_address):
+                    return await method(address, *args)
+    
     @oscmethod("/avatar/osc/*")
-    def handle_osc_message(self, path, tags, args, source):
-        logger.info(f"Received OSC message: {path} {args}")
+    async def handle_osc_message(self, address, *args):
+        """Handle OSC messages matching /avatar/osc/* pattern."""
+        logger.info(f"Handling OSC message: {address} {args}")
+        # Add your OSC message handling logic here
 
 class AvatarMCPServer:
     """MCP server implementation for AvatarMCP.
@@ -75,12 +115,23 @@ class AvatarMCPServer:
         self.chat_tool = ChatTool()
         self.chat_tool.chatbot_handler = self.chatbot_handler
         
+        # Initialize metrics collection
+        self.metrics = MetricsCollector(port=8000, enabled=True)
+        self.metrics.info.info({
+            'version': '1.0.0',
+            'service': 'avatarmcp',
+            'environment': os.getenv('ENV', 'development')
+        })
+        
         # Track server state
         self.start_time = time.time()
         self.initialized = False
         
         # Register MCP methods
         self._register_methods()
+        
+        # Set up periodic metrics update
+        self._metrics_task = None
     
     def _register_methods(self) -> None:
         """Register all MCP methods and tools."""
@@ -367,8 +418,12 @@ class AvatarMCPServer:
                             )
                             if os.path.exists(metadata_path):
                                 try:
-                                    async with aiofiles.open(metadata_path, 'r', encoding='utf-8') as f:
-                                        avatar_info["metadata"] = json.loads(await f.read())
+                                    if aiofiles:
+                                        async with aiofiles.open(metadata_path, 'r', encoding='utf-8') as f:
+                                            avatar_info["metadata"] = json.loads(await f.read())
+                                    else:
+                                        with open(metadata_path, 'r', encoding='utf-8') as f:
+                                            avatar_info["metadata"] = json.loads(f.read())
                                 except Exception as e:
                                     logger.warning(f"Failed to load metadata for {model_id}: {e}")
                     
@@ -480,21 +535,12 @@ class AvatarMCPServer:
             if not address or value is None:
                 raise ValueError("Both address and value must be provided")
                 
-            # Convert type string to OSCMessageType if provided
-            msg_type = None
-            if osc_type:
-                try:
-                    msg_type = OSCMessageType(osc_type.lower())
-                except ValueError:
-                    logger.warning(f"Unknown OSC type: {osc_type}. Using default.")
-            
-            # Send the OSC message
-            self.osc_manager.send_message(address, value, msg_type)
+            # Send the OSC message using the simple client
+            self.osc_manager.osc_client.send_message(address, value)
             
             return {
                 "status": "success", 
-                "message": f"Sent OSC: {address} = {value}",
-                "type": msg_type.value if msg_type else self.osc_manager.config.default_message_type.value
+                "message": f"Sent OSC: {address} = {value}"
             }
             
         except Exception as e:
@@ -526,30 +572,9 @@ class AvatarMCPServer:
             timeout = float(params.get("timeout", 1.0))
             max_messages = int(params.get("max_messages", 10))
             
+            # For now, return empty messages as OSC receive functionality needs implementation
+            # TODO: Implement actual OSC message receiving
             messages = []
-            start_time = asyncio.get_event_loop().time()
-            
-            # Check for messages until timeout or max_messages reached
-            while len(messages) < max_messages:
-                time_remaining = timeout - (asyncio.get_event_loop().time() - start_time)
-                if time_remaining <= 0:
-                    break
-                    
-                # Wait for next message with remaining timeout
-                msg = await self.osc_manager.get_next_message(timeout=time_remaining)
-                if not msg:
-                    break
-                    
-                msg_address, msg_args = msg
-                
-                # Filter by address pattern if specified
-                if address_pattern and not self._match_osc_pattern(msg_address, address_pattern):
-                    continue
-                    
-                messages.append({
-                    "address": msg_address,
-                    "args": msg_args
-                })
             
             return {
                 "status": "success",
@@ -815,6 +840,75 @@ class AvatarMCPServer:
             logger.error(f"Failed to get animation box properties: {str(e)}")
             return {"status": "error", "message": str(e)}
             
+    async def handle_avatar_set_active(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Set the active avatar model.
+        
+        Args:
+            params: Dictionary containing:
+                   - id: ID of the avatar to set as active
+                   
+        Returns:
+            Dictionary with status and information about the active avatar
+        """
+        try:
+            if not self.initialized:
+                raise RuntimeError("Server not initialized. Call 'initialize' first.")
+                
+            avatar_id = params.get("id")
+            if not avatar_id:
+                raise ValueError("No avatar ID provided")
+                
+            # Check if the model is loaded
+            if avatar_id not in self.loaded_models:
+                return {
+                    "status": "error",
+                    "message": f"Avatar with ID '{avatar_id}' is not loaded"
+                }
+                
+            # Set the active model
+            self.active_model_id = avatar_id
+            
+            return {
+                "status": "success",
+                "message": f"Set active avatar to: {avatar_id}",
+                "active_avatar_id": avatar_id
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to set active avatar: {str(e)}", exc_info=True)
+            return {"status": "error", "message": str(e)}
+            
+    async def handle_avatar_get_active(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Get the currently active avatar model.
+        
+        Args:
+            params: Not used, kept for API consistency
+                   
+        Returns:
+            Dictionary with status and information about the active avatar
+        """
+        try:
+            if not self.initialized:
+                raise RuntimeError("Server not initialized. Call 'initialize' first.")
+                
+            if not self.active_model_id:
+                return {
+                    "status": "success",
+                    "active_avatar_id": None,
+                    "message": "No active avatar"
+                }
+                
+            return {
+                "status": "success",
+                "active_avatar_id": self.active_model_id,
+                "loaded": self.active_model_id in self.loaded_models,
+                "message": f"Active avatar: {self.active_model_id}"
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get active avatar: {str(e)}", exc_info=True)
+            return {"status": "error", "message": str(e)}
+            
     async def handle_avatar_get_metadata(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Get detailed metadata for a specific avatar.
         
@@ -865,8 +959,12 @@ class AvatarMCPServer:
                 
                 if os.path.exists(metadata_path):
                     try:
-                        async with aiofiles.open(metadata_path, 'r', encoding='utf-8') as f:
-                            metadata = json.loads(await f.read())
+                        if aiofiles:
+                            async with aiofiles.open(metadata_path, 'r', encoding='utf-8') as f:
+                                metadata = json.loads(await f.read())
+                        else:
+                            with open(metadata_path, 'r', encoding='utf-8') as f:
+                                metadata = json.loads(f.read())
                     except Exception as e:
                         logger.warning(f"Failed to load metadata for {avatar_id}: {e}")
                 
@@ -915,32 +1013,23 @@ class AvatarMCPServer:
             # TODO: Implement actual dance stopping
             
             return {"status": "success", "message": "Stopped dance"}
-                
-            response = {
-                "status": "success",
-                "active": True,
-                "id": self.active_model_id,
-                "loaded": True
-            }
-            
-            # Add metadata if requested
-            if include_metadata and self.active_model_id in self.loaded_models:
-                response["metadata"] = self.loaded_models[self.active_model_id].to_dict()
-            
-            # Add basic info if metadata not available or not requested
-            if "metadata" not in response:
-                model_info = self.vrm_manager.models.get(self.active_model_id, {})
-                response.update({
-                    "name": model_info.get("metadata", {}).get("name", self.active_model_id),
-                    "path": model_info.get("path", "")
-                })
-            
-            return response
             
         except Exception as e:
-            error_msg = f"Failed to get active avatar: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            return {"status": "error", "message": error_msg}
+            logger.error(f"Failed to stop dance: {str(e)}")
+            return {"status": "error", "message": str(e)}
+            
+    async def handle_martial_arts_pose(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle martial arts pose request."""
+        try:
+            pose_name = params.get("name", "default")
+            logger.info(f"Setting martial arts pose: {pose_name}")
+            # TODO: Implement actual martial arts pose setting
+            
+            return {"status": "success", "message": f"Set martial arts pose: {pose_name}"}
+            
+        except Exception as e:
+            logger.error(f"Failed to set martial arts pose: {str(e)}")
+            return {"status": "error", "message": str(e)}
             
     async def handle_martial_arts_sequence(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Handle martial arts sequence request."""
@@ -1008,13 +1097,38 @@ class AvatarMCPServer:
             logger.error(f"Failed to echo: {str(e)}")
             return {"status": "error", "message": str(e)}
     
+    async def _update_metrics(self) -> None:
+        """Periodically update system metrics."""
+        while self.running:
+            try:
+                uptime = time.time() - self.start_time
+                self.metrics.update_system_metrics(uptime)
+                self.metrics.set_avatars_loaded(len(self.loaded_models))
+                self.metrics.set_active_avatar(self.active_model_id)
+                # Update chat sessions count if available
+                if hasattr(self.chatbot_handler, 'get_active_sessions'):
+                    self.metrics.set_chat_sessions(len(self.chatbot_handler.get_active_sessions()))
+            except Exception as e:
+                logger.error(f"Error updating metrics: {e}")
+            
+            await asyncio.sleep(5)  # Update every 5 seconds
+    
     async def start(self) -> None:
         """Start the MCP server."""
         if self.running:
             return
             
-        logger.info("Starting AvatarMCP server (FastMCP 2.11.3)")
         self.running = True
+        
+        # Start metrics collection
+        self._metrics_task = asyncio.create_task(self._update_metrics())
+        
+        # Start MCP server
+        await self.mcp.start()
+        logger.info("AvatarMCP server started")
+        
+        # Record server start in metrics
+        self.metrics.record_avatar_operation('server_start', 'success')
         
         # Set up stdio communication
         reader = asyncio.StreamReader()
@@ -1062,36 +1176,121 @@ class AvatarMCPServer:
         if not self.running:
             return
             
-        logger.info("Stopping AvatarMCP server")
         self.running = False
         
+        # Stop metrics collection
+        if self._metrics_task and not self._metrics_task.done():
+            self._metrics_task.cancel()
+            try:
+                await self._metrics_task
+            except asyncio.CancelledError:
+                pass
+        
+        # Record server stop in metrics
+        self.metrics.record_avatar_operation('server_stop', 'success')
+        
+        # Stop MCP server
+        await self.mcp.stop()
+        logger.info("AvatarMCP server stopped")
+        
         # Stop OSC server
-        await self.osc_manager.stop()
+        if hasattr(self, 'osc_manager'):
+            await self.osc_manager.stop()
+
+def configure_logging(enable_loki: bool = False, loki_url: str = None) -> None:
+    """Configure logging with optional Loki support."""
+    # Basic logging configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[logging.StreamHandler(sys.stderr)]
+    )
+    
+    # Add Loki handler if enabled
+    if enable_loki and loki_url:
+        try:
+            from .handlers.logging_handler import LoggingHandler
+            
+            # Create formatter with JSON format for Loki
+            formatter = logging.Formatter(
+                '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+            )
+            
+            # Add Loki handler
+            loki_handler = LoggingHandler()
+            loki_handler.add_loki_handler(
+                url=loki_url,
+                tags={"service": "avatarmcp", "environment": os.getenv('ENV', 'development')},
+                level=logging.INFO,
+                formatter=formatter
+            )
+            
+            logger.info("Loki logging enabled")
+            
+        except ImportError:
+            logger.warning("Loki logging dependencies not available. Falling back to console logging.")
+        except Exception as e:
+            logger.error(f"Failed to configure Loki logging: {e}")
+
+
+async def run_server(host: str = "0.0.0.0", port: int = 8000, enable_loki: bool = False, loki_url: str = None) -> None:
+    """Run the AvatarMCP server.
+    
+    Args:
+        host: Host to bind the server to
+        port: Port to listen on
+        enable_loki: Whether to enable Loki logging
+        loki_url: URL for Loki logging server
+    """
+    # Configure logging
+    configure_logging(enable_loki=enable_loki, loki_url=loki_url)
+    
+    # Create and start server
+    server = AvatarMCPServer()
+    
+    # Set up signal handlers for graceful shutdown
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, lambda: asyncio.create_task(server.stop()))
+    
+    try:
+        await server.start()
+        # Keep the server running until stopped
+        while server.running:
+            await asyncio.sleep(1)
+    except asyncio.CancelledError:
+        pass
+    finally:
+        await server.stop()
+    return 0
 
 
 async def main():
     """Main entry point for the MCP server."""
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stderr)
-        ]
+    # Parse command line arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='AvatarMCP Server')
+    parser.add_argument('--host', type=str, default='0.0.0.0',
+                      help='Host to bind the server to')
+    parser.add_argument('--port', type=int, default=8000,
+                      help='Port to listen on')
+    parser.add_argument('--metrics-port', type=int, default=8001,
+                      help='Port for metrics server (0 to disable)')
+    parser.add_argument('--loki', action='store_true',
+                      help='Enable Loki logging')
+    parser.add_argument('--loki-url', type=str,
+                      default='http://localhost:3100/loki/api/v1/push',
+                      help='URL for Loki logging server')
+    
+    args = parser.parse_args()
+    
+    # Run the server
+    await run_server(
+        host=args.host,
+        port=args.port,
+        enable_loki=args.loki,
+        loki_url=args.loki_url
     )
-    
-    # Start the server
-    server = AvatarMCPServer()
-    try:
-        await server.start()
-    except asyncio.CancelledError:
-        pass
-    except Exception as e:
-        logger.error(f"Fatal error: {e}", exc_info=True)
-        return 1
-    finally:
-        await server.stop()
-    
     return 0
 
 

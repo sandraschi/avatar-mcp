@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'AvatarMCP'
+    orgId: 1
+    folder: 'AvatarMCP'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

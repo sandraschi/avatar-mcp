@@ -52,11 +52,19 @@ class VRChatOSC:
         # Register default handlers
         self.dispatcher.map(self.ADDRESS_AVATAR_CHANGE, self._on_avatar_change)
         self.dispatcher.map(f"{self.ADDRESS_AVATAR_PARAMETERS}/*", self._on_parameter_change)
+        
+        # Initialize state
+        self._running = False
     
     async def start(self):
-        """Start the OSC server, trying multiple ports if necessary."""
-        if hasattr(self, '_running') and self._running:
+        """Start the OSC server and client, trying multiple ports if necessary."""
+        if self._running:
             return
+            
+        # Initialize the client if not already done
+        if not hasattr(self, 'client') or not self.client:
+            self.client = udp_client.SimpleUDPClient(self.host, self.send_port)
+            logger.info(f"OSC client initialized to send to {self.host}:{self.send_port}")
             
         # Try multiple ports if the default one is in use
         base_port = self.receive_port
@@ -84,10 +92,6 @@ class VRChatOSC:
                 
                 # Store the transport for later cleanup
                 self._transport = transport
-                
-                # Update the client's port if it exists
-                if hasattr(self, 'client') and self.client:
-                    self.client.port = current_port + 1  # Client typically uses the next port
                     
                 return transport
                 

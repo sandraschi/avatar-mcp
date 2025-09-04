@@ -23,6 +23,15 @@ import queue
 
 from .base_handler import BaseHandler
 
+# Import Loki handler if available
+try:
+    from .loki_handler import LokiLogHandler
+    LOKI_AVAILABLE = True
+except ImportError:
+    LOKI_AVAILABLE = False
+    class LokiLogHandler:  # type: ignore
+        pass
+
 logger = logging.getLogger(__name__)
 
 class LogLevel(str):
@@ -406,15 +415,15 @@ class LoggingHandler(BaseHandler):
             Handler ID
         """
         handler_id = f"queue_{len(self._handlers) + 1}"
-        queue_to_use = log_queue if log_queue is not None else self._log_queue
-        
-        if queue_to_use is None:
-            raise ValueError("No log queue provided and no default queue available")
-        
-        handler = QueueLogHandler(log_queue=queue_to_use, level=level)
+        handler = QueueLogHandler(
+            log_queue=log_queue or self._log_queue,
+            level=level
+        )
         
         if formatter:
             handler.setFormatter(formatter)
+            
+        return self._add_handler(f"queue_{id(handler)}", handler)
         
         self._add_handler(handler_id, handler)
         return handler_id

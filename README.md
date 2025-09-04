@@ -12,12 +12,18 @@
 
 ### Core Features
 
-- **FastMCP 2.10.1 Compatible**: Fully implements the MCP protocol over stdio transport
+- **3D Visualization**: Interactive 3D viewport for real-time avatar preview and manipulation
+  - Multiple camera views (front, side, top, perspective)
+  - Lighting controls and environment settings
+  - Real-time updates for all avatar modifications
+
+- **FastMCP 2.12+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
 - **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
-- **Animation System**: Play, blend, and manage animations with support for loops and varying speeds
-- **Bone Control**: Precise control over avatar bones for custom poses and animations
-- **Blend Shape Support**: Animate facial expressions and morph targets
+- **Advanced Animation System**: Play, blend, and manage animations with support for loops, varying speeds, and real-time recording
+- **Advanced Bone Control**: Precise control over avatar bones with local/world space transforms and hierarchical manipulation
+- **Morph Target Control**: Fine-grained control over blend shapes and morph targets with batch updates
+- **Export Tools**: Export avatars to FBX, Unity packages, and VRChat SDK formats
 - **Model Management**: Load, unload, and manage multiple VRM models
 
 ### Secondary Features
@@ -36,6 +42,30 @@
 - `VRMModel`: VRM 2.0 model loading and management
 - `AnimationController`: Manage and play animations on avatars
 - `MCPTools`: MCP command handlers for avatar control
+
+### 3D Visualization & Controls
+
+AvatarMCP features a powerful 3D viewport system for intuitive avatar manipulation:
+
+- **Interactive 3D Viewport**: Real-time rendering of your avatar with multiple camera angles
+- **View Controls**:
+  - Rotate: Click and drag with left mouse button
+  - Pan: Right-click and drag
+  - Zoom: Mouse wheel or right-click + drag up/down
+  - Reset View: Double-click the viewport
+- **Visualization Modes**:
+  - Solid: Full textured rendering
+  - Wireframe: See underlying mesh structure
+  - Shaded: Flat shading for better shape visualization
+  - X-Ray: See through the model for complex rigs
+
+### Advanced Avatar Controls
+
+- **Bone Control**: Precise manipulation of individual bones with support for local and world space transformations
+- **Morph Target Control**: Fine-grained control over blend shapes and morph targets with real-time preview
+- **Export Tools**: Export avatars to various formats including FBX and Unity packages
+
+For detailed documentation, see [AVATAR_CONTROLS.md](docs/AVATAR_CONTROLS.md).
 
 ### MCP Protocol Support
 

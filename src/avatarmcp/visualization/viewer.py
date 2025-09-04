@@ -18,6 +18,7 @@ class VRMViewer:
         Args:
             window_size: Tuple of (width, height) for the window
         """
+        import time
         self.plotter = pv.Plotter(window_size=window_size)
         self.models = {}
         self.current_model = None
@@ -29,6 +30,8 @@ class VRMViewer:
         self.active_animations = {}
         self.animation_callbacks = {}
         self.animation_time = 0.0
+        
+        # Set up the plotter
         self.plotter.enable_terrain_style()
         self.plotter.add_axes()
         self.plotter.add_floor(color='lightgray')
@@ -39,8 +42,9 @@ class VRMViewer:
         self.animation_box_position = [0, 0, 0]
         self.animation_box_size = [1.0, 1.0, 1.0]
         
-        # Set up the animation timer
-        self.plotter.add_callback(self.update, interval=16)  # ~60 FPS
+        # Animation state
+        self._last_update_time = time.time()
+        self._animation_timer = None
         
     def load_vrm(self, model_id: str, file_path: str) -> bool:
         """Load a VRM model into the viewer.
@@ -114,43 +118,95 @@ class VRMViewer:
         return True
     
     def update(self):
-        """Update the viewer state."""
-        if not self.is_playing:
-            return
+        """Update the viewer state and redraw the scene."""
+        if not hasattr(self, 'plotter') or self.plotter is None:
+            return False
             
-        # Update animation time based on speed
-        self.animation_time += 0.016 * self.animation_speed  # ~60 FPS
+        try:
+            # Check if render window is ready
+            if hasattr(self.plotter, 'render_window') and self.plotter.render_window and \
+               hasattr(self.plotter, 'iren') and self.plotter.iren and \
+               hasattr(self.plotter.iren, 'GetInitialized') and self.plotter.iren.GetInitialized():
+                
+                # Only update if the plotter is visible and active
+                if hasattr(self.plotter, 'is_active') and not self.plotter.is_active:
+                    return False
+                    
+                self.plotter.update()
+                self.plotter.render()
+                return True
+            return False
+        except Exception as e:
+            logger.debug(f"Error updating viewer: {e}")
+            return False
         
-        # Update all active animations
-        for model_id, anim_data in list(self.active_animations.items()):
-            if model_id not in self.animation_actors:
-                continue
-                
-            actor = self.animation_actors[model_id]
-            animation = anim_data['animation']
-            start_time = anim_data['start_time']
-            
-            # Calculate animation time with loop handling
-            anim_time = (self.animation_time - start_time) % animation.duration
-            
-            # Update bone transforms
-            for bone_name, bone_animation in animation.bones.items():
-                # Get interpolated transform at current time
-                transform = bone_animation.evaluate(anim_time)
-                
-                # Apply transform to the actor (simplified - actual implementation depends on your model structure)
-                if hasattr(actor, 'set_pose'):
-                    actor.set_pose(bone_name, transform)
-                
-            # Update blend shapes if any
-            if hasattr(animation, 'blend_shapes'):
-                for shape_name, weight_curve in animation.blend_shapes.items():
-                    weight = weight_curve.evaluate(anim_time)
-                    if hasattr(actor, 'set_blend_shape_weight'):
-                        actor.set_blend_shape_weight(shape_name, weight)
+    def _update_animations(self):
+        """Update all active animations using the time module."""
+        import time
         
-        # Request a redraw
-        self.plotter.render()
+        try:
+            # Check if we should continue animating
+            if not self.is_playing or not self.active_animations:
+                return
+                
+            # Check if plotter is still valid
+            if not hasattr(self, 'plotter') or self.plotter is None:
+                self.is_playing = False
+                return
+                
+            current_time = time.time()
+            delta_time = current_time - self._last_update_time
+            self._last_update_time = current_time
+            
+            # Cap delta time to avoid large jumps when window is inactive
+            delta_time = min(delta_time, 0.1)  # Cap at 100ms
+            
+            # Update animation time
+            self.animation_time += delta_time * self.animation_speed
+            
+            # Update all active animations
+            for model_id, animation_data in list(self.active_animations.items()):
+                if model_id in self.models:
+                    try:
+                        # Get the actor for this model
+                        actor = self.models[model_id]
+                        
+                        # If we have an actual animation object, update it
+                        if hasattr(animation_data, 'update'):
+                            animation_data.update(self.animation_time)
+                        
+                        # Update blend shapes if any
+                        if hasattr(animation_data, 'blend_shapes') and hasattr(actor, 'set_blend_shape_weight'):
+                            for shape_name, weight_curve in animation_data.blend_shapes.items():
+                                weight = weight_curve.evaluate(self.animation_time)
+                                actor.set_blend_shape_weight(shape_name, weight)
+                        
+                        # Apply the animation to the model
+                        self._apply_animation(model_id, animation_data)
+                        
+                    except Exception as e:
+                        logger.error(f"Error updating animation for {model_id}: {e}")
+                        self.stop_animation(model_id)
+            
+            # Update the display if we have a valid plotter
+            if hasattr(self, 'plotter') and self.plotter is not None:
+                self.update()
+            
+            # Schedule the next update if we're still playing and have animations
+            if self.is_playing and self.active_animations:
+                # Use a try/except to prevent any timer-related errors from breaking the animation loop
+                try:
+                    if hasattr(self.plotter, 'app') and self.plotter.app:
+                        self.plotter.app.process_events()
+                    if hasattr(self.plotter, 'iren') and hasattr(self.plotter.iren, 'create_timer'):
+                        self.plotter.iren.create_timer(16, self._update_animations)  # ~60 FPS
+                except Exception as e:
+                    logger.error(f"Error scheduling next animation frame: {e}")
+                    self.is_playing = False
+                    
+        except Exception as e:
+            logger.error(f"Unexpected error in animation loop: {e}")
+            self.is_playing = False
     
     def play_animation(self, model_id: str, animation_name: str, loop: bool = True, speed: float = 1.0) -> bool:
         """Play an animation on a model.
@@ -164,31 +220,31 @@ class VRMViewer:
         Returns:
             bool: True if animation was started successfully
         """
+        logger.info(f"Playing animation '{animation_name}' on model '{model_id}'")
+        
+        # Check if model exists
         if model_id not in self.models:
             logger.warning(f"Model {model_id} not found")
             return False
             
-        model = self.models[model_id]
-        
-        # Get the animation (simplified - you'd load this from your model)
-        animation = getattr(model, 'animations', {}).get(animation_name)
-        if not animation:
-            logger.warning(f"Animation '{animation_name}' not found for model {model_id}")
-            return False
-            
         # Store animation data
         self.active_animations[model_id] = {
-            'animation': animation,
+            'animation': animation_name,
             'start_time': self.animation_time,
             'loop': loop,
             'speed': speed
         }
-        
-        # Update playback speed
+            
+        # Reset animation state
+        import time
         self.animation_speed = speed
+        self.animation_time = 0.0
+        self._last_update_time = time.time()
         self.is_playing = True
         
-        logger.info(f"Playing animation '{animation_name}' on model {model_id}")
+        # Start the animation loop
+        self._update_animations()
+            
         return True
         
     def stop_animation(self, model_id: str, animation_name: str = None, fade_out: float = 0.0) -> bool:

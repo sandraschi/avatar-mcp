@@ -14,7 +14,7 @@ from ..models.animation_controller import AnimationController
 from ..network.osc.vrc_connector import VRChatOSC
 from ..visualization.manager import VisualizationManager
 from .mcp_server import MCPServer
-from .mcp_tools import MCPTools
+from .enhanced_mcp_tools import EnhancedMCPTools
 from ..visualization.mcp_tools import VisualizationTools
 
 class AvatarMCP:
@@ -44,14 +44,20 @@ class AvatarMCP:
                 self.visualization = VisualizationManager()
                 self.logger.info("3D visualization enabled")
                 
-                # Initialize MCP tools with visualization support
-                self.tools = VisualizationTools(self.mcp, self.osc, self.visualization)
+                # Initialize enhanced MCP tools with visualization support
+                self.tools = EnhancedMCPTools(self.mcp, self.osc)
+                # Initialize visualization tools with the enhanced tools
+                self.visualization_tools = VisualizationTools(self.mcp, self.osc, self.visualization)
             except ImportError as e:
                 self.logger.warning(f"Failed to initialize 3D visualization: {e}")
-                self.tools = MCPTools(self.mcp, self.osc)
+                self.tools = EnhancedMCPTools(self.mcp, self.osc)
+                self.visualization_tools = None
+                self.logger.info("3D visualization disabled, using enhanced MCP tools")
         else:
-            # Use basic MCP tools without visualization
-            self.tools = MCPTools(self.mcp, self.osc)
+            # Initialize enhanced MCP tools without visualization
+            self.tools = EnhancedMCPTools(self.mcp, self.osc)
+            self.visualization_tools = None
+            self.logger.info("3D visualization disabled, using enhanced MCP tools")
         
         # State
         self.models: Dict[str, VRMModel] = {}

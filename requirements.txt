@@ -1,4 +1,5 @@
 # Core Dependencies
+fastmcp>=2.10.1
 fastapi>=0.95.0
 uvicorn>=0.21.1
 python-multipart>=0.0.6
@@ -6,10 +7,9 @@ python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
 python-dotenv>=1.0.0
 
-# VRM and 3D
+# VRM and 3D (using pygltflib for VRM support)
 pygltflib>=1.14.1
 numpy>=1.24.0
-PyVRM>=0.11.0
 
 # WebSocket
 websockets>=11.0.0
