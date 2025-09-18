@@ -83,15 +83,15 @@ class VoiceChatbot(Chatbot):
                 if not text:
                     continue
                     
-                print(f"User: {text}")
+                logger.info(f"User: {text}")
                 
                 # Generate response
                 response = await self.generate_response(text)
-                print(f"Bot: {response}")
+                logger.info(f"Bot: {response}")
                 
                 # Speak the response
                 await self.voice.speak(response)
                 
             except Exception as e:
-                print(f"Error in voice chat: {e}")
+                logger.error(f"Error in voice chat: {e}")
                 await asyncio.sleep(1)

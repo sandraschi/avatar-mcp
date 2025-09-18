@@ -63,9 +63,11 @@ def setup_logging(
             
             # Log the log file location at startup
             if console or force_stderr:
-                print(f"Logging to file: {log_file}", file=sys.stderr)
+                # Use stderr directly for initial logging setup message only
+                sys.stderr.write(f"Logging to file: {log_file}\n")
         except Exception as e:
-            print(f"Failed to set up file logging: {e}", file=sys.stderr)
+            # Use stderr directly for critical setup errors
+            sys.stderr.write(f"Failed to set up file logging: {e}\n")
     
     # Add all handlers to the root logger
     for handler in handlers:
@@ -74,7 +76,6 @@ def setup_logging(
     # Force all logging to stderr if requested
     if force_stderr and console:
         # Redirect stdout to stderr to catch any print statements
-        import sys
         sys.stdout = sys.stderr
         
         # Also patch the root logger to ensure no handlers use stdout

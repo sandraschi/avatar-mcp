@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 from enum import Enum
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from .base import (
     AvatarControlBase,
@@ -51,8 +51,9 @@ class ExportOptions(BaseModel):
         description="Custom output directory (default: exports/)"
     )
     
-    @validator('platform')
-    def validate_platform(cls, v):
+    @field_validator('platform')
+    @classmethod
+    def validate_platform(cls, v: str) -> str:
         valid_platforms = ["vrc", "unity", "generic"]
         if v not in valid_platforms:
             raise ValueError(f"Platform must be one of {valid_platforms}")

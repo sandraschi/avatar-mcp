@@ -6,7 +6,7 @@ Provides functionality for controlling morph targets (blendshapes) in avatars.
 
 import logging
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from .base import (
     AvatarControlBase,
@@ -27,8 +27,9 @@ class MorphTargetValue(BaseModel):
         description="Weight value between 0.0 and 1.0"
     )
     
-    @validator('weight')
-    def validate_weight(cls, v):
+    @field_validator('weight')
+    @classmethod
+    def validate_weight(cls, v: float) -> float:
         if not 0.0 <= v <= 1.0:
             raise ValueError("Weight must be between 0.0 and 1.0")
         return v

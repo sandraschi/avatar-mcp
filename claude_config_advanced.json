@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "avatarmcp-basic": {
+      "command": "python",
+      "args": ["src/avatarmcp/mcp_main.py"],
+      "cwd": "D:/Dev/repos/avatarmcp",
+      "env": {
+        "PYTHONPATH": "D:/Dev/repos/avatarmcp/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "avatarmcp-enhanced": {
+      "command": "python",
+      "args": ["src/avatarmcp/mcp_enhanced.py"],
+      "cwd": "D:/Dev/repos/avatarmcp",
+      "env": {
+        "PYTHONPATH": "D:/Dev/repos/avatarmcp/src",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
+

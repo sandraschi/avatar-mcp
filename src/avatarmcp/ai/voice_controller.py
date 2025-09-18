@@ -149,7 +149,7 @@ class VoiceController:
                 if not text:
                     continue
                     
-                print(f"Heard: {text}")
+                logger.info(f"Heard: {text}")
                 
                 # Process command
                 if not await self.process_command(text):
@@ -157,5 +157,5 @@ class VoiceController:
                     await self.speak(f"I heard you say: {text}")
                     
             except Exception as e:
-                print(f"Error in chatbot loop: {e}")
+                logger.error(f"Error in chatbot loop: {e}")
                 await asyncio.sleep(1)

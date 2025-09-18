@@ -11,7 +11,10 @@ from typing import Dict, Any, Optional, List, Callable, Union, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
-from fastmcp import FastMCP, mcp_tool
+from fastmcp import FastMCP
+
+# Create a FastMCP instance for tool registration
+mcp = FastMCP("VRChatOSCTools")
 from ..network.osc.server import VRChatOSCServer
 from ..network.mcp.integration import AvatarOSCIntegrator, AvatarOSCConfig
 
@@ -82,7 +85,7 @@ class VRChatOSCTools:
     def _register_tools(self):
         """Register MCP tools for OSC control."""
         
-        @mcp_tool("vrchat_osc.set_gesture")
+        @mcp.tool("vrchat_osc.set_gesture")
         async def set_gesture(hand: str, gesture: str, strength: float = 1.0) -> Dict[str, Any]:
             """Set a hand gesture for the avatar.
             
@@ -103,7 +106,7 @@ class VRChatOSCTools:
             except Exception as e:
                 return {"status": "error", "message": str(e)}
         
-        @mcp_tool("vrchat_osc.set_expression")
+        @mcp.tool("vrchat_osc.set_expression")
         async def set_expression(expression: str, strength: float = 1.0) -> Dict[str, Any]:
             """Set a facial expression for the avatar.
             
@@ -123,7 +126,7 @@ class VRChatOSCTools:
             except Exception as e:
                 return {"status": "error", "message": str(e)}
         
-        @mcp_tool("vrchat_osc.set_viseme")
+        @mcp.tool("vrchat_osc.set_viseme")
         async def set_viseme(viseme: str, strength: float = 1.0) -> Dict[str, Any]:
             """Set a viseme for lip sync.
             
@@ -143,7 +146,7 @@ class VRChatOSCTools:
             except Exception as e:
                 return {"status": "error", "message": str(e)}
         
-        @mcp_tool("vrchat_osc.set_parameter")
+        @mcp.tool("vrchat_osc.set_parameter")
         async def set_parameter(name: str, value: Any) -> Dict[str, Any]:
             """Set a custom parameter on the avatar.
             
@@ -176,7 +179,7 @@ class VRChatOSCTools:
             except Exception as e:
                 return {"status": "error", "message": str(e)}
         
-        @mcp_tool("vrchat_osc.get_parameter")
+        @mcp.tool("vrchat_osc.get_parameter")
         async def get_parameter(name: str) -> Dict[str, Any]:
             """Get the current value of a parameter.
             
@@ -197,7 +200,7 @@ class VRChatOSCTools:
             except Exception as e:
                 return {"status": "error", "message": str(e)}
         
-        @mcp_tool("vrchat_osc.list_parameters")
+        @mcp.tool("vrchat_osc.list_parameters")
         async def list_parameters() -> Dict[str, Any]:
             """List all available parameters.
             
@@ -231,7 +234,7 @@ class VRChatOSCTools:
                 }
             }
         
-        @mcp_tool("vrchat_osc.load_vrm")
+        @mcp.tool("vrchat_osc.load_vrm")
         async def load_vrm(file_path: str) -> Dict[str, Any]:
             """Load a VRM model and extract parameters.
             

@@ -404,4 +404,4 @@ class SystemInfoTool(ChatTool):
 #     category="status",
 #     details=False
 # )
-# print(json.dumps(result.to_dict(), indent=2))
+# logger.debug(json.dumps(result.to_dict(), indent=2))

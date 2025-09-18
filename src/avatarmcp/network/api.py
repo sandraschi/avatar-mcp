@@ -20,7 +20,10 @@ import aiohttp
 import aiohttp.web
 import aiohttp_cors
 from aiohttp import WSMsgType, web
-from fastmcp import mcp
+from fastmcp import FastMCP
+
+# Create a FastMCP instance for the API
+mcp = FastMCP("AvatarAPI")
 
 from .animation_v2 import AnimationController, AnimationClip, AnimationEventType
 from ..models.model_manager import VRMModelManager, ModelCacheEntry

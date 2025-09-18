@@ -298,7 +298,11 @@ class LoggingHandler(BaseHandler):
                 # Shutdown requested
                 break
             except Exception as e:
-                print(f"Error in log consumer: {str(e)}", file=sys.stderr)
+                # Use logger or fallback to stderr for critical logging errors
+                try:
+                    logger.error(f"Error in log consumer: {str(e)}")
+                except:
+                    sys.stderr.write(f"Error in log consumer: {str(e)}\n")
     
     async def _process_log_message(self, log_data: Dict[str, Any]) -> None:
         """Process a log message.

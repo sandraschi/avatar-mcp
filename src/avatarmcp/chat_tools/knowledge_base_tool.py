@@ -114,4 +114,4 @@ class KnowledgeBaseTool(ChatTool):
 #     context="I'm trying to set up the server for the first time",
 #     max_results=2
 # )
-# print(json.dumps(result.to_dict(), indent=2))
+# logger.debug(json.dumps(result.to_dict(), indent=2))

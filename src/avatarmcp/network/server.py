@@ -1,4 +1,4 @@
-﻿"""
+"""
 AvatarMCP Server
 
 FastMCP 2.10+ compliant server implementation for managing VRM avatars.
@@ -8,11 +8,13 @@ import logging
 import os
 import sys
 import time
+import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union, Type, TypedDict
 
 import fastmcp
 from fastmcp import FastMCP
+from fastmcp.tools import tool as mcp_tool
 
 # Import VRM loader
 from ..models.vrm_loader import VRMLoader, VRMModel
@@ -30,16 +32,11 @@ from ..core.mcp_help import mcp_help, register_help_command
 from ..core.help_system import help_system, register_help, CommandInfo, ParameterInfo
 
 try:
-    import fastmcp
-    import logging
-    import traceback
-    import time
-    import fastmcp
-    from . import standard_animations
-    from ..models.vrm_loader import VRMLoader, VRMModel
+    # Try importing any optional dependencies here
+    pass
 except ImportError as e:
-    print("ERROR: FastMCP 2.10+ is required. Please install with: pip install 'fastmcp>=2.10.0,<3.0.0'",
-          file=sys.stderr)
+    # Use stderr directly for critical import errors before logging is set up
+    sys.stderr.write("ERROR: FastMCP 2.10+ is required. Please install with: pip install 'fastmcp>=2.10.0,<3.0.0'\n")
     sys.exit(1)
 
 # Configure logging
@@ -386,7 +383,7 @@ def create_error_response(error: str, details: Optional[Dict[str, Any]] = None) 
         "details": details or {}
     }
 
-@mcp.tool()
+@mcp_tool()
 def load_vrm(file_path: str) -> Dict[str, Any]:
     """Load a VRM model from file.
     
@@ -458,7 +455,7 @@ def load_vrm(file_path: str) -> Dict[str, Any]:
             {"error_id": error_id, "error": str(e)}
         )
 
-@mcp.tool()
+@mcp_tool()
 def unload_vrm(model_id: str) -> Dict[str, Any]:
     """Unload a VRM model.
     
@@ -631,7 +628,7 @@ def play_animation(model_id: str, animation_name: str, loop: bool = False,
             {"error_id": error_id, "error": str(e)}
         )
 
-@mcp.tool()
+@mcp_tool()
 def stop_animation(model_id: str, animation_name: str, fade_out: float = 0.0) -> Dict[str, Any]:
     """Stop a playing animation.
     

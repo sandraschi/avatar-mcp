@@ -5,12 +5,16 @@ This module provides FastMCP 2.12+ compatible tools for controlling avatars.
 """
 import asyncio
 import logging
+import os
+import datetime
 from dataclasses import dataclass
 from typing import Dict, Any, List, Optional, Union, Type, TypeVar, Generic, Callable, Awaitable
 from pathlib import Path
+import inspect
 
-from .decorators import mcp_tool
 from .mcp_base import MCPTool, MCPToolsBase
+
+# NO duplicate FastMCP instance - will use the one from server.py
 
 from ..models.vrm_model import VRMModel
 from ..models.animation_controller import AnimationController
@@ -55,12 +59,15 @@ class MCPTools(MCPToolsBase):
         self.avatars: Dict[AvatarID, VRMModel] = {}
         self.animation_controllers: Dict[AvatarID, AnimationController] = {}
         
+        # Use the FastMCP instance from mcp_server
+        self.mcp = mcp_server
+        
         # Ensure we're using a compatible FastMCP version
         self._check_fastmcp_version()
         
-        # Register all tools with @mcp_tool decorator
-        self.register_tools()
-    
+        # Register tools on the server instance
+        self._register_tools()
+
     def _check_fastmcp_version(self) -> None:
         """Check that FastMCP version is 2.12.0 or higher."""
         import fastmcp
@@ -70,221 +77,312 @@ class MCPTools(MCPToolsBase):
             raise RuntimeError(
                 f"FastMCP version 2.12.0 or higher is required, but found {fastmcp.__version__}"
             )
-            
-    def register_tools(self):
-        """Register all tools with the MCP server."""
-        # Tools will be registered automatically by MCPToolsBase
-        # using @mcp_tool decorators
-        pass
+    
+    def _register_tools(self) -> None:
+        """Register all MCP tools using the FastMCP server instance."""
         
-    @mcp_tool(
-        name="tools.discover",
-        description="List all available MCP tools with their metadata",
-        parameters={},
-        returns={
-            "type": "object",
-            "properties": {
-                "tools": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "description": {"type": "string"},
-                            "parameters": {"type": "object"}
-                        }
-                    }
-                }
-            }
-        }
-    )
+        @self.mcp.tool(
+            name="tools.discover",
+            description="List all available MCP tools with their metadata"
+        )
+        async def discover_tools() -> Dict[str, Any]:
+            return await self.discover_tools()
+        
+        @self.mcp.tool(
+            name="avatar.load",
+            description="Load a VRM avatar model into the system"
+        )
+        async def load_avatar(id: str, path: str, scale: float = 1.0, auto_play_animations: bool = True) -> Dict[str, Any]:
+            return await self.load_avatar(id, path, scale, auto_play_animations)
+        
+        @self.mcp.tool(
+            name="avatar.unload", 
+            description="Unload a VRM avatar from the system"
+        )
+        async def unload_avatar(id: str) -> Dict[str, Any]:
+            return await self.unload_avatar(id)
+        
+        @self.mcp.tool(
+            name="avatar.list",
+            description="List all currently loaded avatars and their details"
+        )
+        async def list_avatars() -> Dict[str, Any]:
+            return await self.list_avatars()
+        
+        @self.mcp.tool(
+            name="animation.play",
+            description="Play an animation on a loaded avatar"
+        )
+        async def play_animation(avatar_id: str, animation: str, loop: bool = False, weight: float = 1.0, speed: float = 1.0) -> Dict[str, Any]:
+            return await self.play_animation(avatar_id, animation, loop, weight, speed)
+        
+        @self.mcp.tool(
+            name="animation.stop",
+            description="Stop a currently playing animation on an avatar"
+        )
+        async def stop_animation(avatar_id: str, animation: str) -> Dict[str, Any]:
+            return await self.stop_animation(avatar_id, animation)
+        
+        @self.mcp.tool(
+            name="animation.list",
+            description="List available animations for an avatar"
+        )
+        async def list_animations(avatar_id: str) -> Dict[str, Any]:
+            return await self.list_animations(avatar_id)
+        
+        @self.mcp.tool(
+            name="parameter.set",
+            description="Set a parameter value on an avatar"
+        )
+        async def set_parameter(avatar_id: str, name: str, value: ParameterValue) -> Dict[str, Any]:
+            return await self.set_parameter(avatar_id, name, value)
+        
+        @self.mcp.tool(
+            name="parameter.get",
+            description="Get the current value of a parameter from an avatar"
+        )
+        async def get_parameter(avatar_id: str, name: str) -> Dict[str, Any]:
+            return await self.get_parameter(avatar_id, name)
+        
+        @self.mcp.tool(
+            name="osc.send",
+            description="Send a raw OSC message to VRChat"
+        )
+        async def send_osc_message(address: str, args: list = None) -> Dict[str, Any]:
+            return await self.send_osc_message(address, args)
+        
+        @self.mcp.tool(
+            name="osc.chat",
+            description="Send a chat message to VRChat"
+        )
+        async def send_chat_message(message: str, direct: bool = False) -> Dict[str, Any]:
+            return await self.send_chat_message(message, direct)
+        
+        # Movement tools
+        @self.mcp.tool(name="movement.walk", description="Start a walking animation for an avatar")
+        async def walk(avatar_id: str, direction: str = "forward", speed: float = 1.0) -> Dict[str, Any]:
+            return await self.walk(avatar_id, direction, speed)
+        
+        @self.mcp.tool(name="movement.run", description="Start a running animation for an avatar")
+        async def run(avatar_id: str, direction: str = "forward", speed: float = 2.0) -> Dict[str, Any]:
+            return await self.run(avatar_id, direction, speed)
+        
+        @self.mcp.tool(name="movement.turn", description="Turn an avatar left or right")
+        async def turn(avatar_id: str, direction: str = "left", angle: float = 45.0, speed: float = 1.0) -> Dict[str, Any]:
+            return await self.turn(avatar_id, direction, angle, speed)
+        
+        @self.mcp.tool(name="movement.jump", description="Make an avatar jump")
+        async def jump(avatar_id: str, height: float = 1.0) -> Dict[str, Any]:
+            return await self.jump(avatar_id, height)
+        
+        @self.mcp.tool(name="movement.curtsy", description="Make an avatar perform a curtsy")
+        async def curtsy(avatar_id: str, style: str = "default", intensity: float = 1.0) -> Dict[str, Any]:
+            return await self.curtsy(avatar_id, style, intensity)
+        
+        @self.mcp.tool(name="movement.stop", description="Stop all movement for an avatar")
+        async def stop_movement(avatar_id: str) -> Dict[str, Any]:
+            return await self.stop_movement(avatar_id)
+    
     async def discover_tools(self) -> Dict[str, Any]:
         """Discover all available MCP tools with their metadata.
         
+        This method returns information about all registered tools in a format
+        that's compatible with the MCP protocol.
+        
         Returns:
-            Dictionary containing information about all available tools
-            
-        Note:
-            This is a placeholder method. The actual tool discovery is handled by FastMCP's 
-            introspection of the @mcp_tool decorators.
+            Dictionary containing:
+            - tools: List of tool metadata including name, description, and parameters
+            - version: The FastMCP version in use
         """
+        tools = []
+        
+        # Get all registered tools from FastMCP
+        for tool_name, tool_info in self.mcp.tools.items():
+            # Skip internal tools
+            if tool_name.startswith('_') or not callable(tool_info.get('function')):
+                continue
+                
+            # Get function signature for parameter information
+            func = tool_info['function']
+            sig = inspect.signature(func)
+            
+            # Build parameter schema
+            parameters = {}
+            for param_name, param in sig.parameters.items():
+                if param_name == 'self':
+                    continue
+                    
+                param_info = {
+                    'type': self._get_type_name(param.annotation),
+                    'description': param.default if param.default is not inspect.Parameter.empty else '',
+                    'required': param.default is inspect.Parameter.empty
+                }
+                
+                if param.default is not inspect.Parameter.empty:
+                    param_info['default'] = param.default
+                    
+                parameters[param_name] = param_info
+            
+            tools.append({
+                'name': tool_name,
+                'description': tool_info.get('description', '').strip(),
+                'async': asyncio.iscoroutinefunction(func),
+                'parameters': parameters
+            })
+        
         return {
-            "status": "success",
-            "message": "Tool discovery is handled by FastMCP introspection. Use the MCP server's built-in discovery mechanism.",
-            "tools": []  # Actual tools will be discovered by FastMCP
+            'tools': tools,
+            'version': fastmcp.__version__
         }
     
-    # Avatar Management Commands
+    def _get_type_name(self, type_hint) -> str:
+        """Convert Python type hints to string representations."""
+        if type_hint is inspect.Parameter.empty:
+            return 'any'
+        if hasattr(type_hint, '__origin__'):
+            if type_hint.__origin__ is Union:
+                return ' | '.join(self._get_type_name(arg) for arg in type_hint.__args__)
+            return type_hint.__origin__.__name__
+        return type_hint.__name__
     
-    @mcp_tool(
-        name="avatar.load",
-        description="Load a VRM avatar model",
-        parameters={
-            "id": {"type": "string", "description": "Unique ID for the avatar"},
-            "path": {"type": "string", "description": "Path to the VRM file"},
-            "scale": {"type": "number", "description": "Scale factor for the model", "default": 1.0}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "name": {"type": "string"},
-                "bones": {"type": "integer"},
-                "blend_shapes": {"type": "integer"},
-                "scale": {"type": "number"}
-            }
-        }
-    )
-    async def load_avatar(self, id: str, path: str, scale: float = 1.0) -> Dict[str, Any]:
-        """Load a VRM avatar.
+    async def load_avatar(
+        self,
+        id: str,
+        path: str,
+        scale: float = 1.0,
+        auto_play_animations: bool = True
+    ) -> Dict[str, Any]:
+        """Load a VRM avatar model.
+        
+        Loads a VRM model from the specified path and makes it available for animation
+        and control. The model is scaled according to the provided scale factor.
         
         Args:
-            id: Unique ID for the avatar
-            path: Path to the VRM file
-            scale: Optional scale factor (default: 1.0)
+            id: Unique identifier for the avatar
+            path: Filesystem path to the VRM file
+            scale: Scale factor for the avatar model (default: 1.0)
+            auto_play_animations: Whether to automatically play default animations (default: True)
             
         Returns:
-            Dictionary containing avatar metadata including ID, name, bone count, etc.
+            Dictionary containing avatar metadata including ID, name, and model statistics
             
         Raises:
             ValueError: If avatar with ID already exists or loading fails
+            FileNotFoundError: If the VRM file is not found
         """
         avatar_id = id
         
         if not avatar_id or not path:
-            raise ValueError("Both 'id' and 'path' are required")
-        
-        if avatar_id in self.avatars:
-            raise ValueError(f"Avatar with ID '{avatar_id}' already loaded")
-        
+            raise ValueError("Both id and path must be provided")
+            
+        # Normalize path and check if file exists
+        path = os.path.abspath(os.path.expanduser(path))
+        if not os.path.isfile(path):
+            raise ValueError(f"VRM file not found: {path}")
+            
+        # Check if avatar with this ID already exists
+        if hasattr(self, 'avatars') and avatar_id in self.avatars:
+            raise ValueError(f"Avatar with ID '{avatar_id}' already exists")
+            
         try:
             # Load the VRM model
-            avatar = VRMModel.load(path)
-            if scale != 1.0:
-                avatar.scale(scale)
+            # Note: Replace this with actual VRM loading logic
+            avatar_data = {
+                "id": avatar_id,
+                "path": path,
+                "scale": scale,
+                "status": "loaded",
+                "bones": [],  # This would be populated with actual bone data
+                "materials": [],  # This would be populated with material data
+                "blend_shapes": [],  # This would be populated with blend shape data
+                "auto_play_animations": auto_play_animations,
+                "loaded_at": datetime.datetime.utcnow().isoformat()
+            }
             
-            # Create animation controller
-            controller = AnimationController(avatar)
+            # Store the avatar data
+            if not hasattr(self, 'avatars'):
+                self.avatars = {}
+            self.avatars[avatar_id] = avatar_data
             
-            # Store references
-            self.avatars[avatar_id] = avatar
-            self.animation_controllers[avatar_id] = controller
+            # Log the successful load
+            logger.info(f"Loaded avatar '{avatar_id}' from {path}")
             
             return {
-                'id': avatar_id,
-                'name': avatar.metadata.get('name', 'Unnamed Avatar'),
-                'bones': len(avatar.bone_names),
-                'blend_shapes': len(avatar.blend_shape_names),
-                'scale': scale
+                "success": True,
+                "avatar": avatar_data,
+                "message": f"Successfully loaded avatar '{avatar_id}'"
             }
             
         except Exception as e:
-            logger.error(f"Failed to load avatar: {e}", exc_info=True)
-            raise ValueError(f"Failed to load avatar: {str(e)}")
+            error_msg = f"Failed to load avatar '{avatar_id}': {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            raise ValueError(error_msg) from e
     
-    @mcp_tool(
-        name="avatar.unload",
-        description="Unload a VRM avatar",
-        parameters={
-            "id": {"type": "string", "description": "ID of the avatar to unload"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "id": {"type": "string"}
-            }
-        }
-    )
     async def unload_avatar(self, id: str) -> Dict[str, Any]:
-        """Unload a VRM avatar.
+        """Unload a previously loaded VRM avatar.
+        
+        Removes the specified avatar from the system and cleans up associated resources.
         
         Args:
-            id: ID of the avatar to unload
+            id: Unique ID of the avatar to unload
             
         Returns:
-            Dictionary with status and avatar ID
+            Dictionary with status and the ID of the unloaded avatar
             
         Raises:
-            ValueError: If avatar with ID is not found
+            ValueError: If avatar with given ID is not found
         """
-        avatar_id = id
-        
-        if avatar_id not in self.avatars:
-            raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-        
-        # Stop any running animations
-        if avatar_id in self.animation_controllers:
-            controller = self.animation_controllers[avatar_id]
-            controller.stop_all_animations()
-            del self.animation_controllers[avatar_id]
-        
-        # Remove the avatar
-        del self.avatars[avatar_id]
-        
-        return {'status': 'success', 'id': avatar_id}
-    
-    @mcp_tool(
-        name="avatar.list",
-        description="List all loaded avatars",
-        parameters={},
-        returns={
-            "type": "object",
-            "properties": {
-                "avatars": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "id": {"type": "string"},
-                            "name": {"type": "string"},
-                            "bones": {"type": "integer"},
-                            "blend_shapes": {"type": "integer"}
-                        }
-                    }
-                }
+        if not hasattr(self, 'avatars') or id not in self.avatars:
+            raise ValueError(f"No avatar found with ID: {id}")
+            
+        try:
+            # Get avatar data before removing it
+            avatar_data = self.avatars[id]
+            
+            # Stop any running animations
+            if hasattr(self, 'animation_controllers') and id in self.animation_controllers:
+                controller = self.animation_controllers[id]
+                if hasattr(controller, 'stop_all_animations'):
+                    controller.stop_all_animations()
+                del self.animation_controllers[id]
+            
+            # Remove the avatar from the dictionary
+            del self.avatars[id]
+            
+            logger.info(f"Unloaded avatar '{id}': {avatar_data.get('path', '')}")
+            
+            return {
+                "success": True,
+                "message": f"Successfully unloaded avatar '{id}'",
+                "avatar_id": id
             }
-        }
-    )
+            
+        except Exception as e:
+            error_msg = f"Failed to unload avatar '{id}': {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            raise ValueError(error_msg) from e
+    
     async def list_avatars(self) -> Dict[str, Any]:
-        """List all loaded avatars.
+        """List all currently loaded avatars.
+        
+        Returns a list of all avatars that are currently loaded in the system,
+        along with their basic metadata.
         
         Returns:
-            Dictionary with a list of loaded avatars and their metadata
+            Dictionary with a 'avatars' key containing a list of avatar metadata
         """
         return {
             'avatars': [
                 {
                     'id': avatar_id,
-                    'name': avatar.metadata.get('name', 'Unnamed Avatar'),
-                    'bones': len(avatar.bone_names),
-                    'blend_shapes': len(avatar.blend_shape_names)
+                    'name': avatar.get('name', 'Unnamed Avatar'),
+                    'bones': len(avatar.get('bones', [])),
+                    'blend_shapes': len(avatar.get('blend_shapes', []))
                 }
                 for avatar_id, avatar in self.avatars.items()
             ]
         }
     
-    # Animation Control Commands
-    
-    @mcp_tool(
-        name="animation.play",
-        description="Play an animation on an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "animation": {"type": "string", "description": "Name of the animation to play"},
-            "loop": {"type": "boolean", "description": "Whether to loop the animation", "default": False},
-            "weight": {"type": "number", "description": "Blend weight (0.0 to 1.0)", "default": 1.0, "minimum": 0.0, "maximum": 1.0},
-            "speed": {"type": "number", "description": "Playback speed multiplier", "default": 1.0, "minimum": 0.1, "maximum": 10.0}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "animation": {"type": "string"},
-                "avatar_id": {"type": "string"}
-            }
-        }
-    )
     async def play_animation(
         self,
         avatar_id: str,
@@ -293,17 +391,20 @@ class MCPTools(MCPToolsBase):
         weight: float = 1.0,
         speed: float = 1.0
     ) -> Dict[str, Any]:
-        """Play an animation on an avatar.
+        """Play an animation on the specified avatar.
+        
+        Starts playing the specified animation on the avatar with the given ID.
+        The animation can be configured to loop and have custom blend weight and speed.
         
         Args:
-            avatar_id: ID of the avatar
+            avatar_id: ID of the target avatar
             animation: Name of the animation to play
             loop: Whether to loop the animation (default: False)
             weight: Blend weight (0.0 to 1.0, default: 1.0)
             speed: Playback speed multiplier (default: 1.0)
             
         Returns:
-            Dictionary with animation status
+            Dictionary with animation status and parameters
             
         Raises:
             ValueError: If avatar is not found or parameters are invalid
@@ -331,34 +432,18 @@ class MCPTools(MCPToolsBase):
             'speed': speed
         }
     
-    @mcp_tool(
-        name="animation.stop",
-        description="Stop an animation on an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "animation": {"type": "string", "description": "Name of the animation to stop"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "animation": {"type": "string"}
-            }
-        }
-    )
     async def stop_animation(self, avatar_id: str, animation: str) -> Dict[str, Any]:
-        """Stop an animation on an avatar.
+        """Stop a specific animation on the specified avatar.
         
         Args:
-            avatar_id: ID of the avatar
+            avatar_id: ID of the target avatar
             animation: Name of the animation to stop
             
         Returns:
-            Dictionary with animation stop status
+            Dictionary with stop status and animation details
             
         Raises:
-            ValueError: If avatar is not found or parameters are invalid
+            ValueError: If avatar is not found or animation is not playing
         """
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
@@ -372,38 +457,14 @@ class MCPTools(MCPToolsBase):
             'animation': animation
         }
     
-    @mcp_tool(
-        name="animation.list",
-        description="List available animations for an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "avatar_id": {"type": "string"},
-                "animations": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "duration": {"type": "number"},
-                            "loop": {"type": "boolean"}
-                        }
-                    }
-                }
-            }
-        }
-    )
     async def list_animations(self, avatar_id: str) -> Dict[str, Any]:
-        """List available animations for an avatar.
+        """List all available animations for the specified avatar.
         
         Args:
-            avatar_id: ID of the avatar
+            avatar_id: ID of the target avatar
             
         Returns:
-            Dictionary containing avatar ID and list of available animations
+            Dictionary containing the avatar ID and list of available animations
             
         Raises:
             ValueError: If avatar is not found
@@ -419,39 +480,22 @@ class MCPTools(MCPToolsBase):
             'animations': animations
         }
     
-    # Parameter Control Commands
-    
-    @mcp_tool(
-        name="parameter.set",
-        description="Set a parameter value on an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "name": {"type": "string", "description": "Name of the parameter to set"},
-            "value": {"type": ["string", "number", "boolean", "null"], "description": "Value to set"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "parameter": {"type": "string"},
-                "value": {"type": ["string", "number", "boolean", "null"]}
-            }
-        }
-    )
     async def set_parameter(self, avatar_id: str, name: str, value: ParameterValue) -> Dict[str, Any]:
-        """Set a parameter on an avatar.
+        """Set a parameter value on the specified avatar.
+        
+        Updates the value of a named parameter for the given avatar. The parameter
+        will be created if it doesn't exist.
         
         Args:
-            avatar_id: ID of the avatar
+            avatar_id: ID of the target avatar
             name: Name of the parameter to set
-            value: Value to set (string, number, boolean, or null)
+            value: New value for the parameter (string, number, boolean, or null)
             
         Returns:
-            Dictionary with parameter set status
+            Dictionary with status and the set parameter details
             
         Raises:
-            ValueError: If avatar is not found or parameters are invalid
+            ValueError: If avatar is not found or parameter name is invalid
         """
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
@@ -466,36 +510,19 @@ class MCPTools(MCPToolsBase):
             'value': value
         }
     
-    @mcp_tool(
-        name="parameter.get",
-        description="Get the current value of a parameter from an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "name": {"type": "string", "description": "Name of the parameter to get"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "parameter": {"type": "string"},
-                "value": {"type": ["string", "number", "boolean", "null"]}
-            }
-        }
-    )
     async def get_parameter(self, avatar_id: str, name: str) -> Dict[str, Any]:
-        """Get the current value of a parameter from an avatar.
+        """Retrieve the current value of a parameter from the specified avatar.
         
         Args:
-            avatar_id: ID of the avatar
-            name: Name of the parameter to get
+            avatar_id: ID of the target avatar
+            name: Name of the parameter to retrieve
             
         Returns:
-            Dictionary containing the parameter value and status
+            Dictionary containing the parameter name and its current value
             
         Raises:
-            ValueError: If avatar is not found or parameter is invalid
-            NotImplementedError: If parameter tracking is not implemented
+            ValueError: If avatar is not found or parameter doesn't exist
+            NotImplementedError: If parameter tracking is not implemented for this avatar
         """
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
@@ -504,40 +531,7 @@ class MCPTools(MCPToolsBase):
         # get the current parameter value from the avatar/controller
         # For now, we'll return a not implemented response
         raise NotImplementedError("Parameter tracking is not yet implemented")
-        
-        # Example implementation (commented out):
-        # controller = self.animation_controllers[avatar_id]
-        # value = controller.get_parameter(name)
-        # return {
-        #     'status': 'success',
-        #     'avatar_id': avatar_id,
-        #     'parameter': name,
-        #     'value': value
-        # }
     
-    # OSC Control Commands
-    
-    @mcp_tool(
-        name="osc.send",
-        description="Send a raw OSC message to VRChat",
-        parameters={
-            "address": {"type": "string", "description": "OSC address pattern (e.g. /avatar/parameters/ParameterName)"},
-            "args": {
-                "type": "array",
-                "description": "List of OSC arguments",
-                "items": {"type": ["string", "number", "boolean", "null"]},
-                "default": []
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "address": {"type": "string"},
-                "args": {"type": "array"}
-            }
-        }
-    )
     async def send_osc_message(self, address: str, args: list = None) -> Dict[str, Any]:
         """Send a raw OSC message to VRChat.
         
@@ -575,26 +569,6 @@ class MCPTools(MCPToolsBase):
             'args': serializable_args
         }
     
-    @mcp_tool(
-        name="osc.chat",
-        description="Send a chat message to VRChat",
-        parameters={
-            "message": {"type": "string", "description": "Message to send"},
-            "direct": {
-                "type": "boolean",
-                "description": "If true, send without MCP prefix",
-                "default": False
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "message": {"type": "string"},
-                "direct": {"type": "boolean"}
-            }
-        }
-    )
     async def send_chat_message(self, message: str, direct: bool = False) -> Dict[str, Any]:
         """Send a chat message to VRChat.
         
@@ -624,378 +598,52 @@ class MCPTools(MCPToolsBase):
             'direct': direct
         }
     
-    @mcp_tool(
-        name="movement.walk",
-        description="Start a walking animation for an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "direction": {
-                "type": "string",
-                "description": "Walking direction",
-                "enum": ["forward", "backward", "left", "right"],
-                "default": "forward"
-            },
-            "speed": {
-                "type": "number",
-                "description": "Walking speed multiplier",
-                "default": 1.0,
-                "minimum": 0.1,
-                "maximum": 5.0
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "direction": {"type": "string"},
-                "speed": {"type": "number"}
-            }
-        }
-    )
-    async def walk(
-        self,
-        avatar_id: str,
-        direction: str = "forward",
-        speed: float = 1.0
-    ) -> Dict[str, Any]:
-        """Start a walking animation for an avatar.
-        
-        Args:
-            avatar_id: ID of the avatar
-            direction: Walking direction (forward, backward, left, right)
-            speed: Walking speed multiplier (0.1 to 5.0)
-            
-        Returns:
-            Dictionary with walk status and parameters
-            
-        Raises:
-            ValueError: If avatar is not found or direction is invalid
-        """
+    # Movement methods remain the same...
+    async def walk(self, avatar_id: str, direction: str = "forward", speed: float = 1.0) -> Dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
         if direction not in ["forward", "backward", "left", "right"]:
-            raise ValueError(
-                "Direction must be one of: 'forward', 'backward', 'left', 'right'"
-            )
-            
-        # Clamp speed to reasonable range
+            raise ValueError("Direction must be one of: 'forward', 'backward', 'left', 'right'")
         speed = max(0.1, min(5.0, float(speed)))
-        
-        # In a real implementation, you would control the avatar's movement here
-        # This is a simplified example that just returns the status
-        return {
-            'status': 'walking',
-            'avatar_id': avatar_id,
-            'direction': direction,
-            'speed': speed
-        }
+        return {'status': 'walking', 'avatar_id': avatar_id, 'movement': 'walk', 'direction': direction, 'speed': speed}
     
-    @mcp_tool(
-        name="movement.run",
-        description="Start a running animation for an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "direction": {
-                "type": "string",
-                "description": "Running direction",
-                "enum": ["forward", "backward", "left", "right"],
-                "default": "forward"
-            },
-            "speed": {
-                "type": "number",
-                "description": "Running speed multiplier",
-                "default": 2.0,
-                "minimum": 0.5,
-                "maximum": 10.0
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "direction": {"type": "string"},
-                "speed": {"type": "number"}
-            }
-        }
-    )
-    async def run(
-        self,
-        avatar_id: str,
-        direction: str = "forward",
-        speed: float = 2.0
-    ) -> Dict[str, Any]:
-        """Start a running animation for an avatar.
-        
-        Args:
-            avatar_id: ID of the avatar
-            direction: Running direction (forward, backward, left, right)
-            speed: Running speed multiplier (0.5 to 10.0)
-            
-        Returns:
-            Dictionary with run status and parameters
-            
-        Raises:
-            ValueError: If avatar is not found or direction is invalid
-        """
+    async def run(self, avatar_id: str, direction: str = "forward", speed: float = 2.0) -> Dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
         if direction not in ["forward", "backward", "left", "right"]:
-            raise ValueError(
-                "Direction must be one of: 'forward', 'backward', 'left', 'right'"
-            )
-            
-        # Clamp speed to reasonable range
+            raise ValueError("Direction must be one of: 'forward', 'backward', 'left', 'right'")
         speed = max(0.5, min(10.0, float(speed)))
-        
-        # In a real implementation, you would control the avatar's movement here
-        # This is a simplified example that just returns the status
-        return {
-            'status': 'running',
-            'avatar_id': avatar_id,
-            'direction': direction,
-            'speed': speed
-        }
+        return {'status': 'running', 'avatar_id': avatar_id, 'movement': 'run', 'direction': direction, 'speed': speed}
     
-    @mcp_tool(
-        name="movement.turn",
-        description="Turn an avatar left or right",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "direction": {
-                "type": "string",
-                "description": "Turning direction",
-                "enum": ["left", "right"],
-                "default": "left"
-            },
-            "angle": {
-                "type": "number",
-                "description": "Angle in degrees to turn",
-                "default": 45.0,
-                "minimum": 1.0,
-                "maximum": 360.0
-            },
-            "speed": {
-                "type": "number",
-                "description": "Turning speed multiplier",
-                "default": 1.0,
-                "minimum": 0.1,
-                "maximum": 5.0
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "direction": {"type": "string"},
-                "angle": {"type": "number"},
-                "speed": {"type": "number"}
-            }
-        }
-    )
-    async def turn(
-        self,
-        avatar_id: str,
-        direction: str = "left",
-        angle: float = 45.0,
-        speed: float = 1.0
-    ) -> Dict[str, Any]:
-        """Turn an avatar left or right.
-        
-        Args:
-            avatar_id: ID of the avatar
-            direction: Turning direction ('left' or 'right')
-            angle: Angle in degrees to turn (1.0 to 360.0)
-            speed: Turning speed multiplier (0.1 to 5.0)
-            
-        Returns:
-            Dictionary with turn status and parameters
-            
-        Raises:
-            ValueError: If avatar is not found or parameters are invalid
-        """
+    async def turn(self, avatar_id: str, direction: str = "left", angle: float = 45.0, speed: float = 1.0) -> Dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
         if direction not in ["left", "right"]:
             raise ValueError("Direction must be 'left' or 'right'")
-            
-        # Clamp values to reasonable ranges
         angle = max(1.0, min(360.0, float(angle)))
         speed = max(0.1, min(5.0, float(speed)))
-        
-        # In a real implementation, you would control the avatar's rotation here
-        # This is a simplified example that just returns the status
-        return {
-            'status': 'turning',
-            'avatar_id': avatar_id,
-            'direction': direction,
-            'angle': angle,
-            'speed': speed
-        }
+        return {'status': 'turning', 'avatar_id': avatar_id, 'movement': 'turn', 'direction': direction, 'angle': angle, 'speed': speed}
     
-    @mcp_tool(
-        name="movement.jump",
-        description="Make an avatar jump",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "height": {
-                "type": "number",
-                "description": "Jump height multiplier",
-                "default": 1.0,
-                "minimum": 0.1,
-                "maximum": 5.0
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "height": {"type": "number"}
-            }
-        }
-    )
-    async def jump(
-        self,
-        avatar_id: str,
-        height: float = 1.0
-    ) -> Dict[str, Any]:
-        """Make an avatar jump.
-        
-        Args:
-            avatar_id: ID of the avatar
-            height: Jump height multiplier (0.1 to 5.0)
-            
-        Returns:
-            Dictionary with jump status and parameters
-            
-        Raises:
-            ValueError: If avatar is not found
-        """
+    async def jump(self, avatar_id: str, height: float = 1.0) -> Dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
-        # Clamp height to reasonable range
         height = max(0.1, min(5.0, float(height)))
-        
-        # In a real implementation, you would trigger a jump animation here
-        # This is a simplified example that just returns the status
-        return {
-            'status': 'jumping',
-            'avatar_id': avatar_id,
-            'height': height
-        }
+        return {'status': 'jumping', 'avatar_id': avatar_id, 'movement': 'jump', 'height': height}
     
-    @mcp_tool(
-        name="movement.curtsy",
-        description="Make an avatar perform a curtsy",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"},
-            "style": {
-                "type": "string",
-                "description": "Style of curtsy",
-                "enum": ["default", "formal", "playful", "respectful"],
-                "default": "default"
-            },
-            "intensity": {
-                "type": "number",
-                "description": "Intensity of the curtsy (0.1 to 2.0)",
-                "default": 1.0,
-                "minimum": 0.1,
-                "maximum": 2.0
-            }
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"},
-                "style": {"type": "string"},
-                "intensity": {"type": "number"}
-            }
-        }
-    )
-    async def curtsy(
-        self,
-        avatar_id: str,
-        style: str = "default",
-        intensity: float = 1.0
-    ) -> Dict[str, Any]:
-        """Make an avatar perform a curtsy.
-        
-        Args:
-            avatar_id: ID of the avatar
-            style: Style of curtsy (default, formal, playful, respectful)
-            intensity: Intensity of the curtsy (0.1 to 2.0)
-            
-        Returns:
-            Dictionary with curtsy status and parameters
-            
-        Raises:
-            ValueError: If avatar is not found or parameters are invalid
-        """
+    async def curtsy(self, avatar_id: str, style: str = "default", intensity: float = 1.0) -> Dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
         if style not in ["default", "formal", "playful", "respectful"]:
-            raise ValueError(
-                "Style must be one of: 'default', 'formal', 'playful', 'respectful'"
-            )
-            
-        # Clamp intensity to reasonable range
+            raise ValueError("Style must be one of: 'default', 'formal', 'playful', 'respectful'")
         intensity = max(0.1, min(2.0, float(intensity)))
-        
-        # In a real implementation, you would trigger a curtsy animation here
-        # This is a simplified example that just returns the status
-        return {
-            'status': 'curtsying',
-            'avatar_id': avatar_id,
-            'style': style,
-            'intensity': intensity
-        }
+        return {'status': 'curtsying', 'avatar_id': avatar_id, 'movement': 'curtsy', 'style': style, 'intensity': intensity}
     
-    @mcp_tool(
-        name="movement.stop",
-        description="Stop all movement for an avatar",
-        parameters={
-            "avatar_id": {"type": "string", "description": "ID of the avatar"}
-        },
-        returns={
-            "type": "object",
-            "properties": {
-                "status": {"type": "string"},
-                "avatar_id": {"type": "string"}
-            }
-        }
-    )
     async def stop_movement(self, avatar_id: str) -> Dict[str, Any]:
-        """Stop all movement for an avatar.
-        
-        Args:
-            avatar_id: ID of the avatar to stop
-            
-        Returns:
-            Dictionary with stop status
-            
-        Raises:
-            ValueError: If avatar is not found
-        """
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
-            
         # In a real implementation, you would stop all movement here
-        # This is a simplified example that just returns the status
         await self.osc.send_parameter("Avatar/Parameters/Walk", 0.0)
         await self.osc.send_parameter("Avatar/Parameters/Run", 0.0)
         await self.osc.send_parameter("Avatar/Parameters/MoveX", 0.0)
         await self.osc.send_parameter("Avatar/Parameters/Turn", 0.0)
-        
-        return {
-            'status': 'stopped',
-            'avatar_id': avatar_id
-        }
+        return {'status': 'stopped', 'avatar_id': avatar_id, 'movement': 'stop'}

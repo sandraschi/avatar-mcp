@@ -194,4 +194,4 @@ class AnimationControlTool(ChatTool):
 #     speed=1.2,
 #     blend_time=0.3
 # )
-# print(json.dumps(result.to_dict(), indent=2))
+# logger.debug(json.dumps(result.to_dict(), indent=2))

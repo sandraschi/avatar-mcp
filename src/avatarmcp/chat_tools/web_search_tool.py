@@ -96,4 +96,4 @@ class WebSearchTool(ChatTool):
 # Example usage:
 # tool = WebSearchTool()
 # result = await tool.execute(query="latest Python features", max_results=3)
-# print(json.dumps(result.to_dict(), indent=2))
+# logger.debug(json.dumps(result.to_dict(), indent=2))

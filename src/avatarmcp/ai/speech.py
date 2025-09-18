@@ -654,12 +654,12 @@ if __name__ == "__main__":
         speech = SpeechProcessor()
         
         # Example: Text-to-speech
-        print("Testing text-to-speech...")
+        logger.info("Testing text-to-speech...")
         text = "Hello, this is a test of the text-to-speech system."
         audio_data = await speech.text_to_speech(text)
         
         if audio_data:
-            print(f"Generated {len(audio_data)} bytes of audio")
+            logger.info(f"Generated {len(audio_data)} bytes of audio")
             
             # Play the audio (requires pyaudio)
             try:
@@ -686,14 +686,14 @@ if __name__ == "__main__":
                         stream.close()
                         p.terminate()
             except ImportError:
-                print("pyaudio not available, cannot play audio")
+                logger.warning("pyaudio not available, cannot play audio")
         
         # Example: Speech-to-text
-        print("\nTesting speech-to-text (5 seconds of microphone input)...")
+        logger.info("Testing speech-to-text (5 seconds of microphone input)...")
         text = await speech.recognize_speech()
         if text:
-            print(f"Recognized: {text}")
+            logger.info(f"Recognized: {text}")
         else:
-            print("No speech recognized")
+            logger.info("No speech recognized")
     
     asyncio.run(main())

@@ -210,4 +210,4 @@ class AvatarControlTool(ChatTool):
 #     intensity=0.8,
 #     blend_time=0.3
 # )
-# print(json.dumps(result.to_dict(), indent=2))
+# logger.debug(json.dumps(result.to_dict(), indent=2))
