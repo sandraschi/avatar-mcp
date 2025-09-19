@@ -35,12 +35,42 @@ __all__ = [
     'run_server',
 ]
 
-# Import core components after logging is configured
-from .core.app import AvatarMCP  # noqa: E402
+# Conditional imports to avoid loading heavy dependencies during package import
+# Only import when not in MCP mode or when explicitly needed
 
-# Import server functionality to make it available at the package level
-from .server import AvatarMCPServer, run_server  # noqa: E402
-from .network.osc.vrc_connector import VRChatOSC  # noqa: E402
+_heavy_imports_loaded = False
+_mcp_mode = '--mcp' in sys.argv or 'mcp_main.py' in sys.argv[0] if sys.argv else False
+
+def _ensure_heavy_imports():
+    """Load heavy imports only when needed."""
+    global _heavy_imports_loaded, AvatarMCP, AvatarMCPServer, run_server, VRChatOSC
+    
+    if not _heavy_imports_loaded and not _mcp_mode:
+        try:
+            from .core.app import AvatarMCP  # noqa: E402
+            from .server import AvatarMCPServer, run_server  # noqa: E402  
+            from .network.osc.vrc_connector import VRChatOSC  # noqa: E402
+            _heavy_imports_loaded = True
+        except ImportError as e:
+            # If heavy imports fail, define stub classes
+            class AvatarMCP:
+                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
+            class AvatarMCPServer:
+                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
+            def run_server(): raise ImportError(f"Heavy dependencies not available: {e}")
+            class VRChatOSC:
+                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
+
+# Always available lightweight components
+try:
+    # These should always be importable
+    pass
+except ImportError:
+    pass
+
+# Only load heavy components if not in MCP mode
+if not _mcp_mode:
+    _ensure_heavy_imports()
 
 # Package metadata
 __version__ = "0.2.0"

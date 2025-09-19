@@ -49,53 +49,130 @@ class MCPServer:
         self._write_json(response)
     
     def _write_json(self, data: dict):
-        """Write JSON data to the output stream with Content-Length header."""
-        json_str = json.dumps(data)
-        content = f"Content-Length: {len(json_str)}\r\n\r\n{json_str}"
-        # Only write to stdout for the client - no debugging to stderr in MCP mode
-        self.output.write(content)
-        self.output.flush()
+        """Write JSON data to the output stream."""
+        import sys
+        try:
+            json_str = json.dumps(data)
+            
+            # Claude Desktop appears to use direct JSON format, not Content-Length headers
+            sys.stderr.write("DEBUG: Writing JSON response (direct format)\n")
+            sys.stderr.flush()
+            
+            # Write JSON directly with newline
+            content = f"{json_str}\n"
+            
+            sys.stderr.write(f"DEBUG: Sending: {content[:100]}...\n")
+            sys.stderr.flush()
+            
+            self.output.write(content)
+            self.output.flush()
+            
+            sys.stderr.write("DEBUG: JSON response sent successfully\n")
+            sys.stderr.flush()
+            
+        except Exception as e:
+            sys.stderr.write(f"DEBUG: Error writing JSON: {e}\n")
+            sys.stderr.flush()
     
     async def _read_request(self) -> Optional[dict]:
         """Read a JSON-RPC request from input stream."""
+        import sys
         try:
-            # Read Content-Length header
-            while True:
-                line = self.input.readline()
-                if not line:
-                    return None
-                line = line.strip()
-                if line.startswith("Content-Length:"):
-                    content_length = int(line.split(":")[1].strip())
-                    break
-                elif line == "":
-                    continue
-                else:
-                    logger.warning(f"Unexpected header line: {line}")
+            sys.stderr.write("DEBUG: Starting to read request\n")
+            sys.stderr.flush()
             
-            # Read empty line
-            self.input.readline()
+            # Use asyncio to read from stdin without blocking
+            import asyncio
             
-            # Read JSON content
-            content = self.input.read(content_length)
-            if not content:
+            # Read first line
+            sys.stderr.write("DEBUG: Reading first line\n")
+            sys.stderr.flush()
+            
+            line = await asyncio.get_event_loop().run_in_executor(
+                None, self.input.readline
+            )
+            
+            if not line:
+                sys.stderr.write("DEBUG: No line received, returning None\n")
+                sys.stderr.flush()
                 return None
                 
-            return json.loads(content)
+            line = line.strip()
+            sys.stderr.write(f"DEBUG: First line: '{line}'\n")
+            sys.stderr.flush()
+            
+            # Check if this is Content-Length header or direct JSON
+            if line.startswith("Content-Length:"):
+                # Standard MCP protocol with headers
+                sys.stderr.write("DEBUG: Using Content-Length protocol\n")
+                sys.stderr.flush()
+                
+                content_length = int(line.split(":")[1].strip())
+                sys.stderr.write(f"DEBUG: Content length: {content_length}\n")
+                sys.stderr.flush()
+                
+                # Read empty line
+                await asyncio.get_event_loop().run_in_executor(
+                    None, self.input.readline
+                )
+                
+                # Read JSON content
+                content = await asyncio.get_event_loop().run_in_executor(
+                    None, lambda: self.input.read(content_length)
+                )
+                
+                if not content:
+                    sys.stderr.write("DEBUG: No content received\n")
+                    sys.stderr.flush()
+                    return None
+                    
+            elif line.startswith("{"):
+                # Direct JSON without headers (Claude Desktop format)
+                sys.stderr.write("DEBUG: Using direct JSON protocol\n")
+                sys.stderr.flush()
+                content = line
+                
+            else:
+                sys.stderr.write(f"DEBUG: Unrecognized format: {line}\n")
+                sys.stderr.flush()
+                return None
+            
+            sys.stderr.write(f"DEBUG: Received content: {content[:100]}...\n")
+            sys.stderr.flush()
+            
+            request = json.loads(content)
+            sys.stderr.write(f"DEBUG: Parsed request: {request}\n")
+            sys.stderr.flush()
+            
+            return request
             
         except Exception as e:
+            sys.stderr.write(f"DEBUG: Error reading request: {e}\n")
+            import traceback
+            sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
+            sys.stderr.flush()
             logger.error(f"Error reading request: {e}")
             return None
     
     async def handle_request(self, request: dict):
         """Handle a JSON-RPC request."""
+        import sys
         method = request.get("method")
         params = request.get("params", {})
         request_id = request.get("id")
         
+        sys.stderr.write(f"DEBUG: Handling method: {method}, id: {request_id}\n")
+        sys.stderr.flush()
+        
         logger.debug(f"Handling request: {method}")
         
         try:
+            # Handle notifications (no response needed)
+            if method.startswith("notifications/"):
+                sys.stderr.write(f"DEBUG: Ignoring notification: {method}\n")
+                sys.stderr.flush()
+                return
+            
             if method == "initialize":
                 await self.handle_initialize(params, request_id)
             elif method == "shutdown":
@@ -105,15 +182,20 @@ class MCPServer:
             elif method == "tools/call":
                 await self.handle_execute_tool(params, request_id)
             else:
+                sys.stderr.write(f"DEBUG: Unknown method: {method}\n")
+                sys.stderr.flush()
                 logger.warning(f"Unknown method: {method}")
-                await self.send_jsonrpc_response({
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": {
-                        "code": -32601,
-                        "message": f"Method not found: {method}"
+                
+                if request_id is not None:
+                    error_response = {
+                        "jsonrpc": "2.0",
+                        "id": request_id,
+                        "error": {
+                            "code": -32601,
+                            "message": f"Method not found: {method}"
+                        }
                     }
-                })
+                    self._write_json(error_response)
         except Exception as e:
             logger.exception(f"Error handling request {method}")
             await self.send_jsonrpc_response({
@@ -123,25 +205,73 @@ class MCPServer:
     
     async def handle_initialize(self, params: dict, request_id: int):
         """Handle initialize request."""
-        logger.debug("Handling initialize request")
-        self.running = True
-        
-        # Send capabilities response
-        response = {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {
-                "protocolVersion": "2025-06-18",
-                "capabilities": {
-                    "tools": {}
-                },
-                "serverInfo": {
-                    "name": "AvatarMCP",
-                    "version": "1.0.0"
+        import sys
+        try:
+            sys.stderr.write("=== INITIALIZE START ===\n")
+            sys.stderr.flush()
+            
+            logger.debug("Handling initialize request")
+            sys.stderr.write("DEBUG: Initialize request received\n")
+            sys.stderr.flush()
+            
+            self.running = True
+            sys.stderr.write("DEBUG: Set running=True\n")
+            sys.stderr.flush()
+            
+            # Send capabilities response
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2025-06-18",
+                    "capabilities": {
+                        "tools": {}
+                    },
+                    "serverInfo": {
+                        "name": "AvatarMCP",
+                        "version": "1.0.0"
+                    }
                 }
             }
-        }
-        self._write_json(response)
+            
+            sys.stderr.write("DEBUG: Created response object\n")
+            sys.stderr.flush()
+            
+            sys.stderr.write("DEBUG: About to call _write_json\n")
+            sys.stderr.flush()
+            
+            self._write_json(response)
+            
+            sys.stderr.write("DEBUG: _write_json completed successfully\n")
+            sys.stderr.flush()
+            
+            sys.stderr.write("=== INITIALIZE SUCCESS ===\n")
+            sys.stderr.flush()
+            
+        except Exception as e:
+            sys.stderr.write(f"=== INITIALIZE ERROR: {str(e)} ===\n")
+            sys.stderr.write(f"Error type: {type(e)}\n")
+            import traceback
+            sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
+            sys.stderr.flush()
+            logger.error(f"Error in initialize: {e}", exc_info=True)
+            
+            # Try to send error response
+            try:
+                error_response = {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32603,
+                        "message": f"Initialize failed: {str(e)}"
+                    }
+                }
+                self._write_json(error_response)
+            except:
+                sys.stderr.write("Failed to send error response\n")
+                sys.stderr.flush()
+            
+            raise
     
     async def handle_shutdown(self, request_id: int):
         """Handle shutdown request."""
@@ -153,7 +283,7 @@ class MCPServer:
         logger.debug("Handling listTools request")
         tools = [
             {
-                "name": "avatar.list",
+                "name": "avatarlist", 
                 "description": "List all available avatars in the system with metadata",
                 "inputSchema": {
                     "type": "object",
@@ -162,7 +292,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "avatar.load",
+                "name": "avatarload",
                 "description": "Load an avatar by ID or direct file path",
                 "inputSchema": {
                     "type": "object",
@@ -184,7 +314,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "animation.play",
+                "name": "animationplay",
                 "description": "Play an animation on a loaded avatar",
                 "inputSchema": {
                     "type": "object",
@@ -217,7 +347,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "bone.control",
+                "name": "bonecontrol",
                 "description": "Control bone transforms on an avatar",
                 "inputSchema": {
                     "type": "object",
@@ -263,7 +393,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "morph.control",
+                "name": "morphcontrol",
                 "description": "Control morph targets (blend shapes) on an avatar",
                 "inputSchema": {
                     "type": "object",
@@ -287,7 +417,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "avatar.export",
+                "name": "avatarexport",
                 "description": "Export avatar to various formats",
                 "inputSchema": {
                     "type": "object",
@@ -315,7 +445,7 @@ class MCPServer:
                 }
             },
             {
-                "name": "viewer.show",
+                "name": "viewershow",
                 "description": "Display VRoid/VRM model in 3D PyVista window",
                 "inputSchema": {
                     "type": "object",
@@ -368,19 +498,19 @@ class MCPServer:
         logger.debug(f"Executing tool: {tool_name} with params: {tool_params}")
         
         try:
-            if tool_name == "avatar.list":
+            if tool_name == "avatarlist":
                 result = await self.execute_avatar_list(tool_params)
-            elif tool_name == "avatar.load":
+            elif tool_name == "avatarload":
                 result = await self.execute_avatar_load(tool_params)
-            elif tool_name == "animation.play":
+            elif tool_name == "animationplay":
                 result = await self.execute_animation_play(tool_params)
-            elif tool_name == "bone.control":
+            elif tool_name == "bonecontrol":
                 result = await self.execute_bone_control(tool_params)
-            elif tool_name == "morph.control":
+            elif tool_name == "morphcontrol":
                 result = await self.execute_morph_control(tool_params)
-            elif tool_name == "avatar.export":
+            elif tool_name == "avatarexport":
                 result = await self.execute_avatar_export(tool_params)
-            elif tool_name == "viewer.show":
+            elif tool_name == "viewershow":
                 result = await self.execute_viewer_show(tool_params)
             else:
                 raise ValueError(f"Unknown tool: {tool_name}")
@@ -974,28 +1104,64 @@ class MCPServer:
     
     async def _fallback_list_avatars(self) -> dict:
         """Fallback avatar listing using basic file scanning."""
+        import sys
         try:
             import os
             from pathlib import Path
+            import glob
             
-            # Look for VRM files in common locations
-            search_paths = [
-                "models",
-                "examples", 
-                "../models",
-                "."
+            sys.stderr.write("DEBUG: Starting fallback avatar scan\n")
+            sys.stderr.write(f"DEBUG: Current working directory: {os.getcwd()}\n")
+            sys.stderr.flush()
+            
+            # Use absolute paths to ensure we're looking in the right place
+            base_dir = os.getcwd()
+            
+            # Look for VRM files in common locations (case-insensitive)
+            search_patterns = [
+                os.path.join(base_dir, "models", "*.vrm"),
+                os.path.join(base_dir, "models", "*.VRM"),
+                os.path.join(base_dir, "examples", "*.vrm"), 
+                os.path.join(base_dir, "examples", "*.VRM"),
+                os.path.join(base_dir, "*.vrm"),
+                os.path.join(base_dir, "*.VRM")
             ]
             
+            # Also check if examples directory exists
+            examples_dir = os.path.join(base_dir, "examples")
+            sys.stderr.write(f"DEBUG: Examples directory exists: {os.path.exists(examples_dir)}\n")
+            if os.path.exists(examples_dir):
+                sys.stderr.write(f"DEBUG: Examples directory contents: {os.listdir(examples_dir)}\n")
+            sys.stderr.flush()
+            
             avatars = []
-            for search_path in search_paths:
-                if os.path.exists(search_path):
-                    for file_path in Path(search_path).rglob("*.vrm"):
+            for pattern in search_patterns:
+                sys.stderr.write(f"DEBUG: Searching pattern: {pattern}\n")
+                sys.stderr.flush()
+                
+                found_files = glob.glob(pattern)
+                sys.stderr.write(f"DEBUG: Found {len(found_files)} files for pattern {pattern}\n")
+                sys.stderr.flush()
+                
+                for file_path in found_files:
+                    abs_path = os.path.abspath(file_path)
+                    file_size = os.path.getsize(file_path)
+                    
+                    sys.stderr.write(f"DEBUG: Found VRM: {file_path} -> {abs_path}\n")
+                    sys.stderr.flush()
+                    
+                    # Avoid duplicates
+                    avatar_id = os.path.splitext(os.path.basename(file_path))[0]
+                    if not any(avatar['id'] == avatar_id for avatar in avatars):
                         avatars.append({
-                            "id": file_path.stem,
-                            "name": file_path.stem,
-                            "path": str(file_path),
-                            "metadata": {"source": "file_scan", "size": file_path.stat().st_size}
+                            "id": avatar_id,
+                            "name": avatar_id,
+                            "path": abs_path,
+                            "metadata": {"source": "file_scan", "size": file_size}
                         })
+            
+            sys.stderr.write(f"DEBUG: Total avatars found: {len(avatars)}\n")
+            sys.stderr.flush()
             
             return {
                 "status": "partial_success",
@@ -1013,18 +1179,42 @@ class MCPServer:
 
     async def run(self):
         """Run the MCP server main loop."""
+        import sys
         if not ASYNCIO_AVAILABLE:
             raise RuntimeError("Asyncio not available, use run_sync() instead")
         
         logger.info("Starting MCP server in async mode")
+        sys.stderr.write("=== MCP SERVER STARTING ===\n")
+        sys.stderr.flush()
         
         while self.running:
             try:
+                sys.stderr.write("DEBUG: Waiting for request...\n")
+                sys.stderr.flush()
+                
                 request = await self._read_request()
+                
+                sys.stderr.write(f"DEBUG: Received request: {request}\n")
+                sys.stderr.flush()
+                
                 if request is None:
+                    sys.stderr.write("DEBUG: Request is None, breaking\n")
+                    sys.stderr.flush()
                     break
+                    
+                sys.stderr.write("DEBUG: About to handle request\n")
+                sys.stderr.flush()
+                
                 await self.handle_request(request)
+                
+                sys.stderr.write("DEBUG: Request handled successfully\n")
+                sys.stderr.flush()
+                
             except Exception as e:
+                sys.stderr.write(f"=== MAIN LOOP ERROR: {str(e)} ===\n")
+                import traceback
+                sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
+                sys.stderr.flush()
                 logger.error(f"Error in main loop: {e}")
                 break
     

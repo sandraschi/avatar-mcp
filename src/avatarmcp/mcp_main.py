@@ -65,6 +65,10 @@ def main():
             server.run_sync()
         
     except Exception as e:
+        # Write error to stderr so it appears in Claude Desktop logs
+        import sys
+        sys.stderr.write(f"CRITICAL ERROR in MCP server: {str(e)}\n")
+        sys.stderr.flush()
         logger.error(f"Error in MCP server: {str(e)}", exc_info=True)
         sys.exit(1)
 
