@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "avatarmcp": {
+            "command": "D:/Dev/repos/avatarmcp/venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "avatarmcp",
+                "--mcp"
+            ],
+            "cwd": "D:/Dev/repos/avatarmcp",
+            "env": {
+                "PYTHONPATH": "D:/Dev/repos/avatarmcp/src",
+                "PYTHONUNBUFFERED": "1"
+            }
+        }
+    }
+}

@@ -69,7 +69,7 @@ async def mcp_main():
     
     # Create and run the MCP server
     try:
-        from .mcp_server import MCPServer
+        from .mcp_server_clean import MCPServer
         server = MCPServer()
         await server.run()
     except Exception as e:
