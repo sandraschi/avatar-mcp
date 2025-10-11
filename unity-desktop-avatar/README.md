@@ -2,6 +2,16 @@
 
 A next-generation desktop avatar system that brings your VRM avatars to life on your desktop. Part of the AvatarMCP ecosystem, this solution provides a powerful, extensible platform for interactive 3D avatars in a desktop environment.
 
+## 🚀 Quick Start
+
+1. **Download** the latest release from [GitHub Releases](../../releases)
+2. **Extract** all files to a folder
+3. **Run** `DesktopAvatar.exe`
+4. **Load an avatar** using OSC: `/avatar/load "path/to/avatar.vrm"`
+5. **Control** via OSC messages on port 9000
+
+See [Getting Started](Docs/GETTING_STARTED.md) for detailed instructions.
+
 ## 🌟 Key Features
 
 ### Core Functionality

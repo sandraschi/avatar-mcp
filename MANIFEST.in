@@ -1,0 +1,17 @@
+include README.md
+include LICENSE
+include requirements*.txt
+include pyproject.toml
+include mcpb/manifest.json
+include mcpb/mcpb.json
+recursive-include docs *.md
+recursive-include examples *.py *.md
+recursive-include models *.vrm
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .git
+global-exclude .github
+global-exclude venv
+global-exclude dist
+global-exclude build
+global-exclude *.egg-info

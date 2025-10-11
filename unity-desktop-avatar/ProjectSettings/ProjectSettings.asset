@@ -1,0 +1,313 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 23
+  productGUID: 00000000000000000000000000000000
+  AndroidProfiler: 0
+  AndroidFilterTouchesWhenObscured: 0
+  AndroidEnableSustainedPerformanceMode: 0
+  defaultScreenOrientation: 4
+  targetDevice: 2
+  useOnDemandResources: 0
+  accelerometerFrequency: 60
+  companyName: AvatarMCP
+  productName: Desktop Avatar
+  defaultCursor: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.17254902, b: 0.23137255, a: 1}
+  m_ShowUnitySplashScreen: 0
+  m_ShowUnitySplashLogo: 0
+  m_ScreenWidth: 800
+  m_ScreenHeight: 1200
+  m_DefaultScreenWidth: 800
+  m_DefaultScreenHeight: 1200
+  m_RunInBackground: 1
+  applicationIdentifier: {}
+  buildNumber:
+    Standalone: 0
+    iPhone: 0
+    tvOS: 0
+  overrideDefaultApplicationIdentifier: 0
+  AndroidBundleVersionCode: 1
+  AndroidMinSdkVersion: 22
+  AndroidTargetSdkVersion: 0
+  AndroidPreferredInstallLocation: 1
+  aotOptions:
+  stripEngineCode: 1
+  iPhoneStrippingLevel: 0
+  iPhoneScriptCallOptimization: 0
+  ForceInternetPermission: 0
+  ForceSDCardPermission: 0
+  CreateWallpaper: 0
+  APKExpansionFiles: 0
+  keepLoadedShadersAlive: 0
+  StripUnusedMeshComponents: 1
+  VertexChannelCompressionMask: 4054
+  iPhoneSdkVersion: 988
+  iPhoneTargetOSVersionString: 11.0
+  tvOSSdkVersion: 0
+  tvOSRequireExtendedGameController: 0
+  tvOSTargetOSVersionString: 11.0
+  uIPrerenderedIcon: 0
+  uIRequiresPersistentWiFi: 0
+  uIRequiresFullScreen: 1
+  uIStatusBarHidden: 1
+  uIExitOnSuspend: 0
+  uIStatusBarStyle: 0
+  appleTVSplashScreen: {fileID: 0}
+  appleTVSplashScreen2x: {fileID: 0}
+  tvOSSmallIconLayers: []
+  tvOSSmallIconLayers2x: []
+  tvOSTopShelfImageLayers: []
+  tvOSTopShelfImageLayers2x: []
+  tvOSTopShelfImageWideLayers: []
+  tvOSTopShelfImageWideLayers2x: []
+  iOSLaunchScreenType: 0
+  iOSLaunchScreenPortrait: {fileID: 0}
+  iOSLaunchScreenLandscape: {fileID: 0}
+  iOSLaunchScreenBackgroundColor:
+    serializedVersion: 2
+    rgba: 0
+  iOSLaunchScreenFillPct: 100
+  iOSLaunchScreenSize: 100
+  iOSLaunchScreenCustomStoryboardPath:
+  iOSLaunchScreeniPadType: 0
+  iOSLaunchScreeniPadImage: {fileID: 0}
+  iOSLaunchScreeniPadBackgroundColor:
+    serializedVersion: 2
+    rgba: 0
+  iOSLaunchScreeniPadFillPct: 100
+  iOSLaunchScreeniPadSize: 100
+  iOSLaunchScreeniPadCustomStoryboardPath:
+  iOSDeviceRequirements: []
+  iOSURLSchemes: []
+  iOSBackgroundModes: 0
+  iOSMetalForceHardShadows: 0
+  metalEditorSupport: 1
+  metalAPIValidation: 1
+  iOSRenderExtraFrameOnPause: 1
+  iosCopyPluginsCodeInsteadOfSymlink: 0
+  appleDeveloperTeamID:
+  iOSManualSigningProvisioningProfileID:
+  tvOSManualSigningProvisioningProfileID:
+  iOSManualSigningProvisioningProfileType: 0
+  tvOSManualSigningProvisioningProfileType: 0
+  appleEnableAutomaticSigning: 0
+  iOSRequireARKit: 0
+  iOSAutomaticallyDetectAndAddCapabilities: 1
+  appleEnableProMotion: 0
+  shaderPrecisionModel: 0
+  clonedFromGUID: c0cbd913a215e704bb93e4ae45fc9ba7
+  templatePackageId: com.unity.template.3d@8.1.0
+  templateDefaultScene: Assets/Scenes/Main.unity
+  useCustomMainManifest: 0
+  useCustomLauncherManifest: 0
+  useCustomMainGradleTemplate: 0
+  useCustomLauncherGradleTemplate: 0
+  useCustomBaseGradleTemplate: 0
+  m_BuildTargetIcons: []
+  m_BuildTargetBatching: []
+  m_BuildTargetGraphicsJobs:
+  - m_BuildTarget: Android
+    m_GraphicsJobs: 0
+  - m_BuildTarget: iPhone
+    m_GraphicsJobs: 0
+  - m_BuildTarget: tvOS
+    m_GraphicsJobs: 0
+  m_BuildTargetGraphicsJobMode: []
+  m_BuildTargetGraphicsAPIs: []
+  m_BuildTargetVRSettings: []
+  m_BuildTargetEnableVuforiaSettings: []
+  openGLRequireES31: 0
+  openGLRequireES31AEP: 0
+  openGLRequireES32: 0
+  m_TemplateCustomTags: {}
+  mobileMTRendering:
+    Android: 1
+    iPhone: 1
+    tvOS: 1
+  m_BuildTargetGroupLightmapEncodingQuality: []
+  m_BuildTargetGroupLightmapSettings: []
+  playModeTestRunnerEnabled: 0
+  runPlayModeTestAsEditModeTest: 0
+  actionOnDotNetUnhandledException: 1
+  enableInternalProfiler: 0
+  logObjCUncaughtExceptions: 1
+  enableCrashReportAPI: 0
+  cameraUsageDescription:
+  locationUsageDescription:
+  microphoneUsageDescription:
+  bluetoothUsageDescription:
+  switchNMETAID:
+  switchNSwitchTitleNames: []
+  switchNSupportedLanguages: []
+  switchNApplicationErrorMessage:
+  switchNWiiUGroupName:
+  switchNWiiUGroupID: 0
+  switchNWiiUBootSize: 0
+  switchNWiiUMaxNoOfInstallableModules: 0
+  switchNWiiUMaxNoOfRows: 0
+  switchNWiiUMaxNoOfColumns: 0
+  switchNWiiUEnableDebugPad: 0
+  switchNintendoSwitchDisableVideoOut: 0
+  switchNintendoSwitchStartupUserAccount: 0
+  switchNintendoSwitchTouchScreenUsage: 0
+  switchNintendoSwitchSupportedLanguages: []
+  switchNintendoSwitchLogoHandling: 0
+  switchNintendoSwitchReleaseVersion: 0
+  switchNintendoSwitchDisplayVersion: 0
+  switchNintendoSwitchStartupUserAccountSettings: 0
+  switchNintendoSwitchAllowedRuntimeAddOnContentInstall: 0
+  switchNintendoSwitchSupportsNintendoVibration: 0
+  switchNintendoSwitchSupportsNintendoVibrationFile: 0
+  switchNintendoSwitchNintendoVibrationFile:
+  switchNintendoSwitchSupportsNintendoVibration: 0
+  switchNintendoSwitchSupportsNintendoVibrationFile: 0
+  switchNintendoSwitchNintendoVibrationFile:
+  switchNintendoSwitchStartupUserAccountSettings: 0
+  switchNintendoSwitchSupportedLanguages: []
+  switchNintendoSwitchLogoType: 0
+  switchSwitchSocketConfigEnabled: 0
+  switchTcpSocketBufferSize: 0
+  switchUdpSocketBufferSize: 0
+  switchSocketInitializeEnabled: 0
+  switchNetworkInterfaceManagerInitializeEnabled: 0
+  switchPlayerConnectionEnabled: 0
+  switchUseNewStyleFilepaths: 0
+  switchUseMicroSleepForYield: 1
+  switchEnableRamDiskSupport: 0
+  switchMicroSleepForYieldTime: 25
+  switchRamDiskSpaceSize: 12
+  ps4NPAgeRating: 12
+  ps4NPTitleSecret:
+  ps4NPTrophyPackPath:
+  ps4ParentalLevel: 11
+  ps4ContentID:
+  ps4Category: 0
+  ps4MasterVersion: 01.00
+  ps4AppVersion: 01.00
+  ps4AppType: 0
+  ps4ParamSfxPath:
+  ps4VideoOutPixelFormat: 0
+  ps4VideoOutInitialWidth: 1920
+  ps4VideoOutBaseModeInitialWidth: 1920
+  ps4VideoOutReprojectionRate: 0
+  ps4PronunciationXMLPath:
+  ps4PronunciationSIGPath:
+  ps4BackgroundImagePath:
+  ps4StartupImagePath:
+  ps4StartupImagesFolder:
+  ps4IconImagesFolder:
+  ps4SaveDataImagePath:
+  ps4SdkOverride:
+  ps4BGMPath:
+  ps4ShareFilePath:
+  ps4ShareOverlayImagePath:
+  ps4PrivacyGuardImagePath:
+  ps4ExtraSceSysFile:
+  ps4NPtitleDatPath:
+  ps4RemotePlayKeyAssignment: -1
+  ps4RemotePlayKeyMappingDir:
+  ps4PlayTogetherPlayerCount: 0
+  ps4EnterButtonAssignment: 1
+  ps4ApplicationParam1: 0
+  ps4ApplicationParam2: 0
+  ps4ApplicationParam3: 0
+  ps4ApplicationParam4: 0
+  ps4DownloadDataSize: 0
+  ps4GarlicHeapSize: 2048
+  ps4ProGarlicHeapSize: 1024
+  ps4Passcode: frAQBc8Wsa1xVPfvJcrgRYwTiizs2trQ
+  ps4pnSessions: 1
+  ps4pnPresence: 1
+  ps4pnFriends: 1
+  ps4pnGameCustomData: 1
+  ps4pnTitle:
+  ps4pnAppType:
+  ps4pnAppData:
+  ps4pnPresence:
+  ps4pnChatRestrictions:
+  ps4pnVoiceChat:
+  ps4pnNpTitleId:
+  ps4pnNpCommunicationId:
+  ps4NpAgeRating: 12
+  ps4NpTitleSecret:
+  ps4NpTrophyPackPath:
+  ps4NpTitleLockupImagePath:
+  ps4NpTitleLockupImagesFolder:
+  ps4NpParamSfxPath:
+  ps4SupportedLanguages: []
+  ps4AllUsersDataPath:
+  ps4SharedDataPath:
+  ps4SaveDataPath:
+  ps4MonoEnvVars:
+  ps4NpTitleDatPath:
+  ps4NpTrophyPackPath:
+  ps4ScriptOptimizationLevel: 0
+  ps4Audio3dVirtualSpeakerCount: 0
+  ps4VideoRecordingFeaturesUsed: 0
+  ps4ContentSearchFeaturesUsed: 0
+  ps4CompatibilityPS5: 0
+  ps4GPU800MHz: 1
+  ps4attribUserManagement: 0
+  ps4attribMoveSupport: 0
+  ps4attrib3DSupport: 0
+  ps4attribShareSupport: 0
+  ps4attribExclusiveVR: 0
+  ps4attribExclusiveVideo: 0
+  ps4attribExclusiveAudio: 0
+  ps4disableAutoHideSplash: 0
+  ps4videoRecordingFeaturesUsed: 0
+  ps4contentSearchFeaturesUsed: 0
+  ps4CompatibilityPS5: 0
+  ps4GPU800MHz: 1
+  ps4attribUserManagement: 0
+  ps4attribMoveSupport: 0
+  ps4attrib3DSupport: 0
+  ps4attribShareSupport: 0
+  ps4attribExclusiveVR: 0
+  ps4attribExclusiveVideo: 0
+  ps4attribExclusiveAudio: 0
+  ps4disableAutoHideSplash: 0
+  ps4StartupUserAccountDisabled: 0
+  ps4ActivePlayerPushNotifications: 0
+  ps4LiveArea2DStartupScreen: {fileID: 0}
+  ps4LiveArea2DStartupScreen2: {fileID: 0}
+  ps4LiveArea2DTrophyScreen: {fileID: 0}
+  ps4LiveArea2DTrophyScreen2: {fileID: 0}
+  ps4LiveArea2DGenericScreen: {fileID: 0}
+  ps4LiveArea2DGenericScreen2: {fileID: 0}
+  ps4LiveArea2DConceptArt: {fileID: 0}
+  ps4LiveArea2DConceptArt2: {fileID: 0}
+  ps4LiveArea2DScreenshots: []
+  ps4LiveArea2DScreenshots2: []
+  ps4LiveArea2DPromoVideo: {fileID: 0}
+  ps4LiveArea2DPromoVideo2: {fileID: 0}
+  ps4LiveArea2DThumbnail: {fileID: 0}
+  ps4LiveArea2DThumbnail2: {fileID: 0}
+  ps4LiveArea2DVideo: {fileID: 0}
+  ps4LiveArea2DVideo2: {fileID: 0}
+  ps4UseAudio3dBackend: 0
+  ps4Audio3dVirtualSpeakerCount: 0
+  ps4ScriptOptimizationLevel: 0
+  ps4MonoEnvVars:
+  ps4NpTitleDatPath:
+  ps4NpTrophyPackPath:
+  ps4ScriptOptimizationLevel: 0
+  ps4Audio3dVirtualSpeakerCount: 0
+  ps4attribVrCameraAniso: 1
+  ps4attribVrCameraUsed: 0
+  ps4attribVrCameraSettings: 0
+  ps4EnableAdvancedMode: 0
+  ps4StartupUserAccountDisabled: 0
+  ps4ActivePlayerPushNotifications: 0
+  ps4attrib6DoFController: 0
+  ps4attribVrCameraAniso: 1
+  ps4attribVrCameraUsed: 0
+  ps4attribVrCameraSettings: 0
+  ps4EnableAdvancedMode: 0
+  ps4StartupUserAccountDisabled: 0
+  ps4ActivePlayerPushNotifications: 0
+  ps4attrib6DoFController: 0

@@ -42,6 +42,26 @@ class VRMMesh:
     normals: Optional[np.ndarray] = None
     texcoords: Optional[np.ndarray] = None
     material_index: Optional[int] = None
+    
+    def get_pyvista_faces(self) -> np.ndarray:
+        """
+        Convert faces to PyVista format.
+        
+        PyVista expects faces as [n_points_in_cell, point1, point2, point3] for each triangle.
+        
+        Returns:
+            Faces in PyVista format as a flat array
+        """
+        if self.faces is None or len(self.faces) == 0:
+            return np.array([], dtype=np.uint32)
+            
+        # Convert triangular faces to PyVista format
+        pv_faces = []
+        for face in self.faces:
+            if len(face) == 3:  # Triangular face
+                pv_faces.extend([3, face[0], face[1], face[2]])
+        
+        return np.array(pv_faces, dtype=np.uint32)
 
 @dataclass
 class VRMTexture:
@@ -524,6 +544,45 @@ class VRMLoader:
             return None
     
     @classmethod
+    def _validate_faces(cls, faces: np.ndarray, vertex_count: int, mesh_idx: int) -> np.ndarray:
+        """
+        Validate and fix face indices to prevent PyVista errors.
+        
+        Args:
+            faces: Face indices array
+            vertex_count: Number of vertices in the mesh
+            mesh_idx: Mesh index for logging
+            
+        Returns:
+            Validated face array safe for PyVista
+        """
+        if faces is None or faces.size == 0:
+            return np.array([], dtype=np.uint32).reshape(0, 3)
+        
+        faces = np.array(faces, dtype=np.uint32)
+        
+        # Ensure faces is 2D
+        if faces.ndim == 1:
+            if len(faces) % 3 == 0:
+                faces = faces.reshape(-1, 3)
+            else:
+                logger.warning(f"Face array length {len(faces)} not divisible by 3 for mesh {mesh_idx}, truncating")
+                faces = faces[:len(faces) // 3 * 3].reshape(-1, 3)
+        
+        # Validate face indices are within vertex bounds
+        if faces.size > 0:
+            max_index = faces.max()
+            if max_index >= vertex_count:
+                logger.warning(f"Invalid face indices detected in mesh {mesh_idx}: max index {max_index} >= vertex count {vertex_count}")
+                # Remove faces with invalid indices
+                valid_mask = np.all(faces < vertex_count, axis=1)
+                invalid_count = np.sum(~valid_mask)
+                faces = faces[valid_mask]
+                logger.warning(f"Removed {invalid_count} invalid faces from mesh {mesh_idx}, {len(faces)} remain")
+        
+        return faces
+
+    @classmethod
     def _load_meshes(cls, gltf: GLTF2) -> List[VRMMesh]:
         """Load meshes from the GLTF file.
         
@@ -664,6 +723,10 @@ class VRMLoader:
                     # No indices provided, create non-indexed geometry
                     logger.debug(f"Mesh {mesh_idx} has no indices, creating non-indexed geometry")
                     faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
+                
+                # Validate and fix face indices to prevent PyVista errors
+                if faces is not None and len(faces) > 0:
+                    faces = cls._validate_faces(faces, len(positions), mesh_idx)
                 
                 # Create the mesh
                 vrm_mesh = VRMMesh(

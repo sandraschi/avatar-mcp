@@ -1,0 +1,60 @@
+{
+  "name": "avatarmcp",
+  "version": "0.1.0",
+  "description": "MCP server for managing and animating VRM avatars with comprehensive 3D model support",
+  "author": "AvatarMCP Team",
+  "license": "MIT",
+  "mcp": {
+    "version": "2.12.0",
+    "server": {
+      "command": "python",
+      "args": ["src/avatarmcp/mcp_main.py"],
+      "transport": "stdio"
+    },
+    "capabilities": {
+      "tools": true
+    }
+  },
+  "dependencies": {
+    "python": ">=3.9",
+    "fastmcp": ">=2.12.0",
+    "numpy": ">=1.21.0",
+    "python-osc": ">=1.8.2",
+    "pygltflib": ">=1.14.0",
+    "trimesh": ">=3.9.0",
+    "pyvista": ">=0.35.0"
+  },
+  "build": {
+    "include": [
+      "src/avatarmcp/**/*",
+      "models/**/*",
+      "examples/**/*",
+      "docs/**/*",
+      "requirements.txt",
+      "pyproject.toml",
+      "README.md"
+    ],
+    "exclude": [
+      "**/.*",
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/tests/**",
+      "**/*.log",
+      "**/venv/**"
+    ]
+  },
+  "metadata": {
+    "homepage": "https://github.com/yourusername/avatarmcp",
+    "repository": "https://github.com/yourusername/avatarmcp.git",
+    "documentation": "https://github.com/yourusername/avatarmcp#readme",
+    "keywords": [
+      "mcp",
+      "avatar",
+      "vrm",
+      "3d-modeling",
+      "animation",
+      "claude-desktop"
+    ],
+    "platforms": ["win32", "darwin", "linux"]
+  }
+}

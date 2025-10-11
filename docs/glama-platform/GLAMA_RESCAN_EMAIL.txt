@@ -1,0 +1,45 @@
+Subject: Request for Repository Rescan - avatarmcp (Gold Status: 85/100)
+
+Dear Glama.ai Support Team,
+
+I am requesting a repository rescan for the avatarmcp project, which currently holds Gold Status certification with a quality score of 85/100.
+
+REPOSITORY DETAILS:
+- Repository: https://github.com/yourusername/avatarmcp
+- Current Status: Gold Status (85/100 points)
+- Last Assessment: October 11, 2025
+
+RECENT IMPROVEMENTS MADE:
+- Implemented MCPB packaging for one-click Claude Desktop installation
+- Added comprehensive CI/CD pipeline with multi-version Python testing
+- Enhanced documentation with complete API references
+- Improved test coverage and quality metrics
+- Added security scanning and dependency management
+
+SPECIFIC CHANGES REQUIRING RESCAN:
+1. New MCPB packaging implementation (+5 points potential)
+2. Enhanced CI/CD with automated testing (+3 points potential)
+3. Complete documentation suite (+2 points potential)
+4. Security improvements and scanning (+2 points potential)
+
+EXPECTED QUALITY SCORE IMPROVEMENT:
+- Current: 85/100 (Gold Status)
+- Expected: 90-95/100 (Gold++ to Platinum potential)
+
+TIMELINE REQUIREMENTS:
+- Repository is ready for immediate rescanning
+- All CI/CD pipelines are passing
+- Documentation is complete and up-to-date
+- Recent commits have been pushed to main branch
+
+CONTACT INFORMATION:
+- Name: AvatarMCP Team
+- Email: dev@avatarmcp.example.com
+- Repository: https://github.com/yourusername/avatarmcp
+
+Thank you for your assistance in maintaining the quality and visibility of the avatarmcp project within the Glama.ai platform.
+
+Best regards,
+AvatarMCP Team
+dev@avatarmcp.example.com
+https://github.com/yourusername/avatarmcp

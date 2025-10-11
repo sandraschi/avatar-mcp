@@ -1,0 +1,29 @@
+{
+  "window": {
+    "width": 800,
+    "height": 1200,
+    "transparent": true,
+    "clickThrough": false,
+    "alwaysOnTop": true,
+    "border": false,
+    "position": {
+      "x": 100,
+      "y": 100
+    }
+  },
+  "avatar": {
+    "defaultPath": "StreamingAssets/Avatars/default.vrm",
+    "scale": 1.0,
+    "autoLoad": true
+  },
+  "osc": {
+    "enabled": true,
+    "port": 9000,
+    "address": "127.0.0.1"
+  },
+  "performance": {
+    "targetFPS": 60,
+    "vSyncCount": 1,
+    "physicsRate": 0.02
+  }
+}
