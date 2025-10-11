@@ -1896,10 +1896,140 @@ class MCPServer:
             return self._execute_unity_config_update(params)
     
     def run(self):
-        """Run the FastMCP server."""
-        logger.info("Starting FastMCP server")
-        # FastMCP's run() method is synchronous and handles asyncio internally
-        self.mcp.run()
+        """Run the FastMCP server using manual stdio handling for MCP protocol."""
+        logger.info("Starting MCP server with manual stdio handling")
+
+        # Manual MCP protocol handling since FastMCP stdio doesn't work properly
+        import asyncio
+        import json
+        import sys
+
+        async def handle_stdio():
+            """Handle MCP protocol over stdio."""
+            loop = asyncio.get_event_loop()
+
+            while True:
+                try:
+                    # Read line from stdin
+                    line = await loop.run_in_executor(None, sys.stdin.readline)
+                    if not line:
+                        break
+
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    logger.debug(f"Received: {line}")
+
+                    # Parse JSON
+                    try:
+                        request = json.loads(line)
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Invalid JSON: {e}")
+                        continue
+
+                    # Handle request
+                    response = await self._handle_mcp_request(request)
+
+                    # Send response
+                    if response:
+                        response_json = json.dumps(response)
+                        logger.debug(f"Sending: {response_json}")
+                        print(response_json, flush=True)
+
+                except Exception as e:
+                    logger.error(f"Error in stdio loop: {e}")
+                    break
+
+        # Run the stdio handler
+        asyncio.run(handle_stdio())
+
+    async def _handle_mcp_request(self, request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Handle an MCP protocol request."""
+        try:
+            method = request.get("method")
+            params = request.get("params", {})
+            req_id = request.get("id")
+
+            if method == "initialize":
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {
+                        "protocolVersion": "2024-11-05",
+                        "capabilities": {
+                            "tools": {"listChanged": True}
+                        },
+                        "serverInfo": {
+                            "name": "avatarmcp",
+                            "version": "1.0.0"
+                        }
+                    }
+                }
+
+            elif method == "tools/list":
+                # Get tools from FastMCP
+                tools_data = await self.mcp.get_tools()
+                tools = []
+                for tool_name in tools_data:
+                    tool = await self.mcp.get_tool(tool_name)
+                    tools.append({
+                        "name": tool.name,
+                        "description": tool.description,
+                        "inputSchema": tool.parameters
+                    })
+
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {"tools": tools}
+                }
+
+            elif method == "tools/call":
+                tool_name = params.get("name")
+                tool_args = params.get("arguments", {})
+
+                if tool_name:
+                    # Call the tool through FastMCP
+                    result = await self.mcp.call_tool(tool_name, tool_args)
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "result": result
+                    }
+                else:
+                    return {
+                        "jsonrpc": "2.0",
+                        "id": req_id,
+                        "error": {
+                            "code": -32602,
+                            "message": "Invalid params",
+                            "data": "Tool name is required"
+                        }
+                    }
+
+            else:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "error": {
+                        "code": -32601,
+                        "message": "Method not found",
+                        "data": f"Unknown method: {method}"
+                    }
+                }
+
+        except Exception as e:
+            logger.error(f"Error handling MCP request: {e}", exc_info=True)
+            return {
+                "jsonrpc": "2.0",
+                "id": request.get("id"),
+                "error": {
+                    "code": -32603,
+                    "message": "Internal error",
+                    "data": str(e)
+                }
+            }
 
     def run_sync(self):
         """Synchronous fallback - not supported for FastMCP."""
