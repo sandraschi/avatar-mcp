@@ -46,8 +46,323 @@ class MCPServer:
         self._avatar_controls = {}
         self._import_errors = {}  # Track what failed to import
 
-        # Register all tools
+        # Register prompts and tools
+        self._register_prompts()
         self._register_tools()
+
+    def _register_prompts(self):
+        """Register useful MCP prompts for avatar management."""
+
+        @self.mcp.prompt()
+        def avatar_setup_guide():
+            """Complete guide for setting up and managing VRM avatars.
+
+            This prompt provides a comprehensive walkthrough for:
+            - Loading and configuring VRM avatar models
+            - Setting up animation and expression controls
+            - Configuring Unity desktop avatar integration
+            - Troubleshooting common issues
+
+            Use this prompt when you need to set up a new avatar system
+            or when users need guidance on avatar management workflows.
+            """
+            return """# AvatarMCP Setup and Management Guide
+
+## Quick Start
+1. **List available avatars**: Use `avatar_list` to see what VRM models are available
+2. **Load an avatar**: Use `avatar_load` with the avatar ID to load it into memory
+3. **Control animations**: Use `animation_play` to start animations on the loaded avatar
+4. **Unity Integration**: Use `unity_*` tools to control Unity desktop avatars
+
+## Available Tools
+
+### Core Avatar Management
+- `avatar_list`: Discover available VRM avatar models
+- `avatar_load`: Load a VRM model into memory for manipulation
+- `avatar_unload`: Remove an avatar from memory
+- `avatar_get_metadata`: Get detailed information about loaded avatars
+
+### Animation Control
+- `animation_play`: Start playing animations with loop and speed control
+- `animation_stop`: Stop current animations
+- `bone_control`: Directly manipulate skeleton bones for custom poses
+- `morph_control`: Control facial expressions using blend shapes
+
+### Unity Desktop Integration
+- `unity_system_status`: Check Unity application connection status
+- `unity_window_position`: Control avatar window position and size
+- `unity_window_transparency`: Adjust window opacity
+- `unity_window_visibility`: Show/hide the avatar window
+- `unity_window_mode`: Set interaction mode (click-through vs interactive)
+- `unity_avatar_load`: Load VRM models into Unity
+- `unity_avatar_expression`: Control facial expressions in Unity
+- `unity_avatar_animation`: Play animations in Unity
+- `unity_osc_bridge`: Configure OSC communication with Unity
+- `unity_plugin_load`: Manage Unity plugins
+- `unity_config_update`: Update Unity settings
+
+### Export and Visualization
+- `avatar_export`: Convert avatars to different formats (GLB, FBX, etc.)
+- `viewer_show`: Display avatars in 3D viewer for inspection
+
+## Common Workflows
+
+### Basic Avatar Setup
+```
+# List available avatars
+avatars = await avatar_list()
+
+# Load the first available avatar
+if avatars['count'] > 0:
+    avatar_id = avatars['avatars'][0]['id']
+    result = await avatar_load({'avatarId': avatar_id})
+
+    # Start a basic animation
+    await animation_play({
+        'avatarId': result['avatar_id'],
+        'animationName': 'Idle',
+        'loop': True
+    })
+```
+
+### Unity Desktop Avatar
+```
+# Check Unity status
+status = await unity_system_status()
+if status['unity_connected']:
+    # Load avatar into Unity
+    await unity_avatar_load({
+        'path': 'models/MyAvatar.vrm'
+    })
+
+    # Set happy expression
+    await unity_avatar_expression({
+        'expression': 'Joy',
+        'strength': 1.0
+    })
+
+    # Position window
+    await unity_window_position({
+        'x': 100,
+        'y': 100,
+        'width': 400,
+        'height': 600
+    })
+```
+
+### Custom Pose Creation
+```
+# Load avatar
+result = await avatar_load({'avatarId': 'character'})
+
+# Create custom pose using bone control
+await bone_control({
+    'avatarId': result['avatar_id'],
+    'boneName': 'LeftArm',
+    'rotation': {'x': 0.1, 'y': 0.2, 'z': 0.0, 'w': 0.97}
+})
+
+# Add facial expression
+await morph_control({
+    'avatarId': result['avatar_id'],
+    'morphName': 'Joy',
+    'value': 0.8
+})
+```
+
+## Troubleshooting
+
+### Avatar Won't Load
+- Check that the VRM file exists and is valid
+- Ensure the file path is correct
+- Try loading by direct path instead of avatar ID
+
+### Unity Not Connected
+- Make sure Unity desktop avatar application is running
+- Check OSC bridge configuration with `unity_osc_bridge`
+- Verify firewall isn't blocking OSC ports (9000/9001)
+
+### Animations Not Playing
+- Ensure avatar is loaded first with `avatar_load`
+- Check animation name exists in the VRM model
+- Try different animation names or check model documentation
+
+### Performance Issues
+- Use `unity_config_update` to adjust performance settings
+- Reduce texture quality or disable shadows
+- Lower target FPS if needed
+
+This guide covers the most common avatar management tasks. For specific tool details, refer to each tool's documentation."""
+
+        @self.mcp.prompt()
+        def unity_desktop_setup():
+            """Step-by-step guide for setting up Unity desktop avatar integration.
+
+            Provides detailed instructions for:
+            - Installing and configuring the Unity desktop avatar application
+            - Setting up OSC communication between AvatarMCP and Unity
+            - Configuring window properties and behavior
+            - Troubleshooting Unity integration issues
+
+            Use this when setting up Unity desktop avatars for the first time
+            or when experiencing connection issues.
+            """
+            return """# Unity Desktop Avatar Setup Guide
+
+## Prerequisites
+- Unity 2021.3 or later installed
+- AvatarMCP server running
+- Basic understanding of VRM models
+
+## Step 1: Unity Project Setup
+1. Create a new Unity project or open existing avatar project
+2. Install required packages:
+   - UnityOSC (for OSC communication)
+   - VRM package (for VRM model support)
+3. Set up the scene with:
+   - Main camera positioned appropriately
+   - Directional light for avatar illumination
+   - Canvas for UI elements (optional)
+
+## Step 2: OSC Communication Setup
+Configure OSC bridge for communication with AvatarMCP:
+
+```python
+# Enable OSC bridge
+await unity_osc_bridge({
+    'enable_bridge': True,
+    'receive_port': 9000,
+    'send_port': 9001
+})
+```
+
+## Step 3: Avatar Loading
+Load your VRM avatar into Unity:
+
+```python
+# Load avatar
+result = await unity_avatar_load({
+    'path': 'models/MyAvatar.vrm',
+    'preload_animations': True
+})
+
+if result['status'] == 'success':
+    print(f"Avatar loaded: {result['avatar_name']}")
+    print(f"Blend shapes: {result['blend_shape_count']}")
+```
+
+## Step 4: Window Configuration
+Set up the desktop window appearance:
+
+```python
+# Position and size the window
+await unity_window_position({
+    'x': 100,
+    'y': 100,
+    'width': 400,
+    'height': 600
+})
+
+# Make window transparent
+await unity_window_transparency({
+    'alpha': 0.9
+})
+
+# Set interaction mode
+await unity_window_mode({
+    'mode': 'interactive'
+})
+```
+
+## Step 5: Expression and Animation Setup
+Configure avatar behavior:
+
+```python
+# Set up facial expressions
+await unity_avatar_expression({
+    'expression': 'Neutral',
+    'transition_time': 0.5
+})
+
+# Start idle animation
+await unity_avatar_animation({
+    'action': 'play',
+    'animation_name': 'Idle',
+    'loop': True
+})
+```
+
+## Step 6: Plugin Integration (Optional)
+Add custom functionality through plugins:
+
+```python
+# Load custom plugins
+await unity_plugin_load({
+    'action': 'load',
+    'plugin_path': 'plugins/CustomExpressions.dll',
+    'config': {
+        'intensity': 1.2,
+        'smooth_transitions': True
+    }
+})
+```
+
+## Testing Your Setup
+Run this test sequence to verify everything works:
+
+```python
+# Check system status
+status = await unity_system_status()
+print(f"Unity connected: {status['unity_connected']}")
+print(f"OSC connected: {status['osc_connected']}")
+
+# Test expressions
+await unity_avatar_expression({
+    'expression': 'Joy',
+    'strength': 1.0
+})
+
+# Test animations
+await unity_avatar_animation({
+    'action': 'play',
+    'animation_name': 'WaveHello',
+    'loop': False
+})
+```
+
+## Troubleshooting
+
+### Connection Issues
+- Verify Unity application is running
+- Check OSC ports aren't blocked by firewall
+- Ensure AvatarMCP server is accessible
+- Try different port numbers if 9000/9001 are in use
+
+### Avatar Loading Problems
+- Confirm VRM file exists and is valid
+- Check file path is accessible to Unity
+- Verify VRM format is compatible (VRM 1.0)
+- Try loading without preloading animations first
+
+### Performance Issues
+- Adjust render settings: `unity_config_update({'config_section': 'rendering', 'settings': {'quality_level': 'Medium'}})`
+- Lower target FPS: `unity_config_update({'config_section': 'performance', 'settings': {'target_fps': 30}})`
+- Disable unnecessary features
+
+### Window Issues
+- Check window bounds are within screen
+- Verify transparency settings are appropriate
+- Test different interaction modes
+
+## Advanced Configuration
+For production use, consider:
+
+1. **OSC Security**: Configure network restrictions if needed
+2. **Performance Tuning**: Adjust based on system capabilities
+3. **Plugin Development**: Create custom plugins for specific needs
+4. **Multi-Monitor Setup**: Configure window positioning for multiple displays
+
+This setup provides a fully functional Unity desktop avatar system integrated with AvatarMCP."""
 
     def _register_tools(self):
         """Register all MCP tools using FastMCP decorators."""
@@ -1986,11 +2301,21 @@ class MCPServer:
                 }
 
             elif method == "prompts/list":
-                # This server doesn't provide prompts
+                # Get prompts from FastMCP
+                prompts_data = await self.mcp.get_prompts()
+                prompts = []
+                for prompt_name in prompts_data:
+                    prompt = await self.mcp.get_prompt(prompt_name)
+                    prompts.append({
+                        "name": prompt_name,
+                        "description": prompt.description if hasattr(prompt, 'description') else "",
+                        "arguments": prompt.arguments if hasattr(prompt, 'arguments') else []
+                    })
+
                 return {
                     "jsonrpc": "2.0",
                     "id": req_id,
-                    "result": {"prompts": []}
+                    "result": {"prompts": prompts}
                 }
 
             elif method == "resources/list":
