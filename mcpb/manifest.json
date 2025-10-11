@@ -336,6 +336,326 @@
         },
         "required": ["message"]
       }
+    },
+    {
+      "name": "unity_system_status",
+      "description": "Get Unity desktop avatar system status",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "detailed": {
+            "type": "boolean",
+            "description": "Include detailed performance metrics",
+            "default": false
+          },
+          "include_config": {
+            "type": "boolean",
+            "description": "Include current Unity configuration",
+            "default": false
+          }
+        }
+      }
+    },
+    {
+      "name": "unity_window_position",
+      "description": "Control Unity desktop avatar window position and size",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer",
+            "description": "X-coordinate for window position"
+          },
+          "y": {
+            "type": "integer",
+            "description": "Y-coordinate for window position"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Window width in pixels"
+          },
+          "height": {
+            "type": "integer",
+            "description": "Window height in pixels"
+          },
+          "monitor": {
+            "type": "integer",
+            "description": "Target monitor index",
+            "default": 0
+          },
+          "center_on_monitor": {
+            "type": "boolean",
+            "description": "Center window on specified monitor",
+            "default": false
+          }
+        }
+      }
+    },
+    {
+      "name": "unity_window_transparency",
+      "description": "Control Unity desktop avatar window transparency",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "alpha": {
+            "type": "number",
+            "description": "Transparency level (0.0 to 1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "transition_time": {
+            "type": "number",
+            "description": "Time in seconds for smooth transition",
+            "default": 0.0,
+            "minimum": 0.0,
+            "maximum": 5.0
+          }
+        },
+        "required": ["alpha"]
+      }
+    },
+    {
+      "name": "unity_window_visibility",
+      "description": "Control Unity desktop avatar window visibility",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "visible": {
+            "type": "boolean",
+            "description": "Whether the window should be visible"
+          },
+          "fade_transition": {
+            "type": "boolean",
+            "description": "Use smooth fade transition",
+            "default": true
+          }
+        },
+        "required": ["visible"]
+      }
+    },
+    {
+      "name": "unity_window_mode",
+      "description": "Control Unity desktop avatar window interaction mode",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Interaction mode",
+            "enum": ["interactive", "clickthrough"]
+          },
+          "transition_effect": {
+            "type": "boolean",
+            "description": "Show visual transition effect",
+            "default": true
+          }
+        },
+        "required": ["mode"]
+      }
+    },
+    {
+      "name": "unity_avatar_load",
+      "description": "Load VRM avatar into Unity desktop avatar system",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to VRM file"
+          },
+          "make_active": {
+            "type": "boolean",
+            "description": "Set as active avatar",
+            "default": true
+          },
+          "preload_animations": {
+            "type": "boolean",
+            "description": "Preload standard animations",
+            "default": true
+          },
+          "position_offset": {
+            "type": "object",
+            "description": "Position offset for avatar placement",
+            "properties": {
+              "x": {"type": "number"},
+              "y": {"type": "number"},
+              "z": {"type": "number"}
+            }
+          }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "unity_avatar_expression",
+      "description": "Control facial expressions on Unity desktop avatar",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "description": "Name of the facial expression"
+          },
+          "strength": {
+            "type": "number",
+            "description": "Expression strength (0.0 to 1.0)",
+            "default": 1.0,
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "transition_time": {
+            "type": "number",
+            "description": "Transition duration in seconds",
+            "default": 0.2,
+            "minimum": 0.0,
+            "maximum": 2.0
+          },
+          "blend_with_current": {
+            "type": "boolean",
+            "description": "Blend with current expressions",
+            "default": false
+          }
+        },
+        "required": ["expression"]
+      }
+    },
+    {
+      "name": "unity_avatar_animation",
+      "description": "Control animations on Unity desktop avatar",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Animation action to perform",
+            "enum": ["play", "stop", "pause", "resume", "loop"]
+          },
+          "animation_name": {
+            "type": "string",
+            "description": "Name of animation (required for 'play')"
+          },
+          "loop": {
+            "type": "boolean",
+            "description": "Whether animation should loop",
+            "default": true
+          },
+          "speed": {
+            "type": "number",
+            "description": "Animation playback speed multiplier",
+            "default": 1.0,
+            "minimum": 0.1,
+            "maximum": 3.0
+          },
+          "blend_time": {
+            "type": "number",
+            "description": "Blend time between animations",
+            "default": 0.3,
+            "minimum": 0.0
+          }
+        },
+        "required": ["action"]
+      }
+    },
+    {
+      "name": "unity_osc_bridge",
+      "description": "Configure OSC communication bridge for Unity avatar",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enable_bridge": {
+            "type": "boolean",
+            "description": "Enable or disable OSC bridge"
+          },
+          "receive_port": {
+            "type": "integer",
+            "description": "Port for receiving OSC messages",
+            "default": 9000,
+            "minimum": 1024,
+            "maximum": 65535
+          },
+          "send_port": {
+            "type": "integer",
+            "description": "Port for sending OSC messages",
+            "default": 9001,
+            "minimum": 1024,
+            "maximum": 65535
+          },
+          "server_ip": {
+            "type": "string",
+            "description": "IP address for OSC communication",
+            "default": "127.0.0.1"
+          },
+          "auto_reconnect": {
+            "type": "boolean",
+            "description": "Automatically reconnect on failures",
+            "default": true
+          },
+          "heartbeat_interval": {
+            "type": "integer",
+            "description": "Heartbeat interval in seconds",
+            "default": 30,
+            "minimum": 0,
+            "maximum": 300
+          }
+        },
+        "required": ["enable_bridge"]
+      }
+    },
+    {
+      "name": "unity_plugin_load",
+      "description": "Load and manage plugins in Unity desktop avatar system",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Plugin management action",
+            "enum": ["load", "unload", "list", "reload"]
+          },
+          "plugin_path": {
+            "type": "string",
+            "description": "Path to plugin file (for 'load')"
+          },
+          "plugin_name": {
+            "type": "string",
+            "description": "Name of plugin (for 'unload'/'reload')"
+          },
+          "config": {
+            "type": "object",
+            "description": "Plugin configuration settings"
+          }
+        },
+        "required": ["action"]
+      }
+    },
+    {
+      "name": "unity_config_update",
+      "description": "Update configuration settings for Unity desktop avatar",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "config_section": {
+            "type": "string",
+            "description": "Configuration section to update",
+            "enum": ["rendering", "performance", "behavior", "audio", "network"]
+          },
+          "settings": {
+            "type": "object",
+            "description": "Settings to update for the section"
+          },
+          "apply_immediately": {
+            "type": "boolean",
+            "description": "Apply changes immediately",
+            "default": true
+          },
+          "persist_changes": {
+            "type": "boolean",
+            "description": "Save changes to disk",
+            "default": true
+          }
+        },
+        "required": ["config_section", "settings"]
+      }
     }
   ],
   "compatibility": {

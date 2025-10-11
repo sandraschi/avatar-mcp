@@ -16,7 +16,7 @@
 ## 📁 **Complete Directory Tree**
 
 ```
-notepadpp-mcp/
+avatarmcp/
 │
 ├── docs/                                   📚 All documentation
 │   │
@@ -39,7 +39,7 @@ notepadpp-mcp/
 │   │   ├── GLAMA_AI_RESCAN_GUIDE.md
 │   │   └── GLAMA_RESCAN_EMAIL.txt
 │   │
-│   ├── notepadpp/                          📝 Notepad++ reference (5 files, 39+ pages!)
+│   ├── avatarmcp/                          📝 Notepad++ reference (5 files, 39+ pages!)
 │   │   ├── README.md                       → Notepad++ hub
 │   │   ├── NOTEPADPP_COMPLETE_GUIDE.md     → 15+ pages complete reference
 │   │   ├── PLUGIN_ECOSYSTEM_COMPREHENSIVE.md → 12+ pages plugin guide
@@ -72,7 +72,7 @@ notepadpp-mcp/
 │   ├── ORGANIZATION_SUMMARY.md             📋 Organization log
 │   └── COMPLETE_DOCUMENTATION_STRUCTURE.md 📊 This file
 │
-├── src/notepadpp_mcp/docs/                 📘 API documentation
+├── src/avatarmcp_mcp/docs/                 📘 API documentation
 │   ├── README.md
 │   ├── PRD.md
 │   ├── PLUGIN_ECOSYSTEM.md
@@ -97,7 +97,7 @@ notepadpp-mcp/
 |--------------|-------|------------|-------|-------|
 | **repository-protection** | 4 | ✅ | 20+ | Git safety & AI workflow |
 | **glama-platform** | 11 | ✅ | 50+ | Gold Status & platform |
-| **notepadpp** | 5 | ✅ | 39+ | Notepad++ reference |
+| **avatarmcp** | 5 | ✅ | 39+ | Notepad++ reference |
 | **development** | 7 | ✅ | 25+ | Dev practices |
 | **mcp-technical** | 6 | ✅ | 30+ | MCP technical |
 | **mcpb-packaging** | 3 | ✅ | 20+ | MCPB distribution |
@@ -111,7 +111,7 @@ notepadpp-mcp/
 
 **Start Here**:
 1. [Main README](../README.md) - Project overview (5 min)
-2. [Notepad++ Complete Guide](notepadpp/NOTEPADPP_COMPLETE_GUIDE.md) - Understanding Notepad++ (30 min)
+2. [Notepad++ Complete Guide](avatarmcp/NOTEPADPP_COMPLETE_GUIDE.md) - Understanding Notepad++ (30 min)
 3. [Installation](#) - Get up and running (10 min)
 
 **Total time**: 45 minutes to understand the project
@@ -217,7 +217,7 @@ notepadpp-mcp/
 Go directly to topic subdirectory:
 - `docs/repository-protection/` for Git safety
 - `docs/glama-platform/` for Gold Status
-- `docs/notepadpp/` for Notepad++ reference
+- `docs/avatarmcp/` for Notepad++ reference
 - `docs/development/` for dev guides
 - `docs/mcp-technical/` for MCP technical
 - `docs/mcpb-packaging/` for packaging
@@ -254,12 +254,12 @@ Links to all major documentation sections with clear categories.
 |----------|-------|-------|---------|
 | `docs/repository-protection/` | 4 | 20+ | Git safety |
 | `docs/glama-platform/` | 11 | 50+ | Quality |
-| `docs/notepadpp/` | 5 | 39+ | Reference |
+| `docs/avatarmcp/` | 5 | 39+ | Reference |
 | `docs/development/` | 7 | 25+ | Dev guides |
 | `docs/mcp-technical/` | 6 | 30+ | MCP tech |
 | `docs/mcpb-packaging/` | 3 | 20+ | Packaging |
 | `docs/` (root) | 2 | 5+ | Indexes |
-| `src/notepadpp_mcp/docs/` | 4 | 15+ | API |
+| `src/avatarmcp_mcp/docs/` | 4 | 15+ | API |
 | `scripts/` | 1 | 2+ | Scripts |
 | **Total** | **43** | **206+** | Complete |
 
@@ -335,7 +335,7 @@ Links to all major documentation sections with clear categories.
 **11 hub READMEs** for navigation:
 - repository-protection/README.md
 - glama-platform/README.md
-- notepadpp/README.md
+- avatarmcp/README.md
 - development/README.md
 - mcp-technical/README.md
 - mcpb-packaging/README.md
@@ -353,7 +353,7 @@ Links to all major documentation sections with clear categories.
 |------|-------|------|
 | **Protect my repo** | [repository-protection/](repository-protection/README.md) | 15 min |
 | **Understand Gold Status** | [glama-platform/](glama-platform/README.md) | 20 min |
-| **Learn about Notepad++** | [notepadpp/](notepadpp/README.md) | 1 hour |
+| **Learn about Notepad++** | [avatarmcp/](avatarmcp/README.md) | 1 hour |
 | **Develop features** | [development/](development/README.md) | 30 min |
 | **Deploy MCP server** | [mcp-technical/](mcp-technical/README.md) | 45 min |
 | **Package for distribution** | [mcpb-packaging/](mcpb-packaging/README.md) | 3 hours |
@@ -500,7 +500,7 @@ Links to all major documentation sections with clear categories.
 
 ## 🎊 **Summary**
 
-**The notepadpp-mcp documentation is now**:
+**The avatarmcp documentation is now**:
 
 ✅ **Comprehensive** - 206+ pages covering everything  
 ✅ **Organized** - 6 logical subdirectories  
@@ -527,7 +527,7 @@ Quality/Gold Status?
   └─> docs/glama-platform/
 
 Notepad++ info?
-  └─> docs/notepadpp/
+  └─> docs/avatarmcp/
 
 Development practices?
   └─> docs/development/

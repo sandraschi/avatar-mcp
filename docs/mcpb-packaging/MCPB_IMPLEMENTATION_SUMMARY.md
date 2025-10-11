@@ -15,7 +15,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 1. **MCPB CLI Installation** - Installed @anthropic-ai/mcpb v1.1.1
 2. **Configuration Files** - Created and validated mcpb.json and manifest.json
 3. **Build Script** - Created PowerShell build script with full validation
-4. **Package Build** - Successfully built notepadpp-mcp.mcpb (0.19 MB)
+4. **Package Build** - Successfully built avatarmcp.mcpb (0.19 MB)
 5. **GitHub Actions** - Created automated CI/CD workflow
 6. **Documentation** - Updated all documentation to v1.2.0
 
@@ -27,7 +27,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 | Property | Value |
 |----------|-------|
-| **Name** | notepadpp-mcp |
+| **Name** | avatarmcp |
 | **Version** | 1.2.0 |
 | **Size** | 0.19 MB |
 | **Format** | .mcpb (MCP Bundle) |
@@ -51,7 +51,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 ```json
 {
-  "name": "notepadpp-mcp",
+  "name": "avatarmcp",
   "version": "1.2.0",
   "description": "Comprehensive Notepad++ automation with 26 tools",
   "author": "Sandra Schi",
@@ -60,7 +60,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
     "version": "2.12.0",
     "server": {
       "command": "python",
-      "args": ["-m", "notepadpp_mcp.tools.server"],
+      "args": ["-m", "avatarmcp_mcp.tools.server"],
       "transport": "stdio"
     },
     "capabilities": {
@@ -79,7 +79,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 ```json
 {
   "manifest_version": "0.2",
-  "name": "notepadpp-mcp",
+  "name": "avatarmcp",
   "version": "1.2.0",
   "description": "Comprehensive Notepad++ automation with 26 powerful tools",
   "author": {
@@ -88,13 +88,13 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
   },
   "server": {
     "type": "python",
-    "entry_point": "src/notepadpp_mcp/tools/server.py",
+    "entry_point": "src/avatarmcp_mcp/tools/server.py",
     "mcp_config": {
       "command": "python",
-      "args": ["-m", "notepadpp_mcp.tools.server"],
+      "args": ["-m", "avatarmcp_mcp.tools.server"],
       "env": {
         "PYTHONPATH": "${PWD}",
-        "NOTEPADPP_PATH": "${user_config.notepadpp_path}",
+        "NOTEPADPP_PATH": "${user_config.avatarmcp_path}",
         "NOTEPADPP_AUTO_START": "${user_config.auto_start}",
         "NOTEPADPP_TIMEOUT": "${user_config.timeout}",
         "PYTHONUNBUFFERED": "1"
@@ -102,7 +102,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
     }
   },
   "user_config": {
-    "notepadpp_path": {
+    "avatarmcp_path": {
       "type": "file",
       "title": "Notepad++ Executable",
       "required": false,
@@ -188,7 +188,7 @@ Successfully implemented complete MCPB (MCP Bundle) packaging for the Notepad++ 
 
 ### Release Assets
 
-- **MCPB Package** - notepadpp-mcp.mcpb
+- **MCPB Package** - avatarmcp.mcpb
 - **Python Wheel** - .whl file
 - **Source Distribution** - .tar.gz file
 - **Auto-generated** release notes
@@ -262,7 +262,7 @@ The MCPB package prompts users for configuration:
    - Timeout for Notepad++ operations
 
 Configuration values are passed as environment variables:
-- `NOTEPADPP_PATH` = ${user_config.notepadpp_path}
+- `NOTEPADPP_PATH` = ${user_config.avatarmcp_path}
 - `NOTEPADPP_AUTO_START` = ${user_config.auto_start}
 - `NOTEPADPP_TIMEOUT` = ${user_config.timeout}
 
@@ -275,11 +275,11 @@ Updated documentation to reflect v1.2.0:
 ### Main Documentation
 - ✅ **README.md** - Updated to 26 tools, v1.2.0
 - ✅ **CHANGELOG.md** - Added v1.2.0 release notes
-- ✅ **src/notepadpp_mcp/docs/README.md** - Updated API docs
-- ✅ **src/notepadpp_mcp/docs/PRD.md** - Updated implementation status
+- ✅ **src/avatarmcp_mcp/docs/README.md** - Updated API docs
+- ✅ **src/avatarmcp_mcp/docs/PRD.md** - Updated implementation status
 
 ### New Documentation
-- ✅ **src/notepadpp_mcp/docs/PLUGIN_ECOSYSTEM.md** - 300+ lines
+- ✅ **src/avatarmcp_mcp/docs/PLUGIN_ECOSYSTEM.md** - 300+ lines
 - ✅ **docs/MCPB_IMPLEMENTATION_SUMMARY.md** - This file
 
 ---
@@ -293,7 +293,7 @@ Updated documentation to reflect v1.2.0:
 .\scripts\build-mcpb-package.ps1 -NoSign
 
 # 2. Test installation
-# Drag dist\notepadpp-mcp.mcpb to Claude Desktop
+# Drag dist\avatarmcp.mcpb to Claude Desktop
 
 # 3. Configure settings
 # Set Notepad++ path and preferences
@@ -377,7 +377,7 @@ The Notepad++ MCP Server now has:
 - ✅ Plugin ecosystem integration
 - ✅ Comprehensive documentation
 
-**Package Ready**: `dist/notepadpp-mcp.mcpb` (0.19 MB)
+**Package Ready**: `dist/avatarmcp.mcpb` (0.19 MB)
 
 ---
 

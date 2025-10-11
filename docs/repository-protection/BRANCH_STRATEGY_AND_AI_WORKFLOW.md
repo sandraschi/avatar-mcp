@@ -87,7 +87,7 @@ Enable these:
 ### **Step-by-Step Instructions**
 
 1. **Go to Repository Settings**
-   - Open: https://github.com/sandraschi/notepadpp-mcp
+   - Open: https://github.com/sandraschi/avatarmcp
    - Click: `Settings` tab (top right)
 
 2. **Navigate to Branch Protection**
@@ -476,7 +476,7 @@ git push --force  # Allowed! No protection here
 
 ### **Protection Setup** (Your Turn)
 
-Go to: https://github.com/sandraschi/notepadpp-mcp/settings/branches
+Go to: https://github.com/sandraschi/avatarmcp/settings/branches
 
 - [ ] Add rule for `main` (strict protection)
 - [ ] Add rule for `develop` (optional, moderate)

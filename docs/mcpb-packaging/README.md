@@ -44,7 +44,7 @@
 
 **Read Time**: 15 minutes  
 **Status**: ✅ **COMPLETED** implementation  
-**Package**: dist/notepadpp-mcp.mcpb (ready!)
+**Package**: dist/avatarmcp.mcpb (ready!)
 
 ---
 
@@ -67,12 +67,12 @@
 
 | Property | Value |
 |----------|-------|
-| **Name** | notepadpp-mcp.mcpb |
+| **Name** | avatarmcp.mcpb |
 | **Version** | 1.2.0 |
 | **Size** | 0.19 MB |
 | **Tools** | 26 |
 | **Status** | ✅ Production Ready |
-| **Location** | `dist/notepadpp-mcp.mcpb` |
+| **Location** | `dist/avatarmcp.mcpb` |
 
 ### **User Configuration**
 
@@ -100,7 +100,7 @@ When users install our MCPB package, they're prompted for:
 # Build MCPB package (development)
 .\scripts\build-mcpb-package.ps1 -NoSign
 
-# Output: dist/notepadpp-mcp.mcpb (0.19 MB)
+# Output: dist/avatarmcp.mcpb (0.19 MB)
 ```
 
 ### **Build Script Features**
@@ -165,7 +165,7 @@ When users install our MCPB package, they're prompted for:
 **Key Sections**:
 ```json
 {
-  "name": "notepadpp-mcp",
+  "name": "avatarmcp",
   "version": "1.2.0",
   "mcp": {
     "version": "2.12.0",
@@ -190,22 +190,22 @@ When users install our MCPB package, they're prompted for:
 ```json
 {
   "manifest_version": "0.2",
-  "name": "notepadpp-mcp",
+  "name": "avatarmcp",
   "version": "1.2.0",
   "server": {
     "type": "python",
-    "entry_point": "src/notepadpp_mcp/tools/server.py",
+    "entry_point": "src/avatarmcp_mcp/tools/server.py",
     "mcp_config": {
       "command": "python",
-      "args": ["-m", "notepadpp_mcp.tools.server"],
+      "args": ["-m", "avatarmcp_mcp.tools.server"],
       "env": {
         "PYTHONPATH": "${PWD}",
-        "NOTEPADPP_PATH": "${user_config.notepadpp_path}"
+        "NOTEPADPP_PATH": "${user_config.avatarmcp_path}"
       }
     }
   },
   "user_config": {
-    "notepadpp_path": { "type": "file", "title": "..." }
+    "avatarmcp_path": { "type": "file", "title": "..." }
   },
   "tools": [ /* 26 tools listed */ ]
 }
@@ -301,11 +301,11 @@ When users install our MCPB package, they're prompted for:
 ### **What's Inside the MCPB Package**
 
 ```
-notepadpp-mcp.mcpb (0.19 MB)
+avatarmcp.mcpb (0.19 MB)
 ├── manifest.json              # Runtime configuration
 ├── requirements.txt           # Python dependencies
 ├── src/                       # Source code
-│   └── notepadpp_mcp/
+│   └── avatarmcp_mcp/
 │       ├── __init__.py
 │       ├── tools/
 │       │   └── server.py      # Main server (2,424 lines)

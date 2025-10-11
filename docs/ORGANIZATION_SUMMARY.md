@@ -1,6 +1,6 @@
 # 📚 Documentation Organization Summary
 
-**Complete reorganization of notepadpp-mcp documentation - October 8, 2025**
+**Complete reorganization of avatarmcp documentation - October 8, 2025**
 
 ---
 
@@ -57,7 +57,7 @@ docs/
 │   ├── GLAMA_AI_RESCAN_GUIDE.md
 │   └── GLAMA_RESCAN_EMAIL.txt
 │
-├── notepadpp/                     📝 Complete Notepad++ reference (NEW!)
+├── avatarmcp/                     📝 Complete Notepad++ reference (NEW!)
 │   ├── README.md                  → Notepad++ hub (NEW!)
 │   ├── NOTEPADPP_COMPLETE_GUIDE.md → 15+ pages complete reference (NEW!)
 │   ├── PLUGIN_ECOSYSTEM_COMPREHENSIVE.md → 12+ pages plugin guide (NEW!)
@@ -75,7 +75,7 @@ scripts/
 ├── build-mcpb-package.ps1
 └── backup-repo.ps1
 
-src/notepadpp_mcp/docs/
+src/avatarmcp_mcp/docs/
 ├── README.md                      📘 API documentation
 ├── PRD.md
 ├── PLUGIN_ECOSYSTEM.md
@@ -129,7 +129,7 @@ src/notepadpp_mcp/docs/
 ---
 
 ### **Notepad++ Reference** (5 files) ✨ **NEW!**
-**Directory**: `docs/notepadpp/`
+**Directory**: `docs/avatarmcp/`
 
 | File | Purpose | Pages | Content |
 |------|---------|-------|---------|
@@ -237,7 +237,7 @@ src/notepadpp_mcp/docs/
 
 **Reorganized**: 30 files moved  
 **Created NEW**: 11 comprehensive documents  
-**New directories**: 6 (repository-protection, glama-platform, notepadpp, development, mcp-technical, mcpb-packaging)  
+**New directories**: 6 (repository-protection, glama-platform, avatarmcp, development, mcp-technical, mcpb-packaging)  
 **Total new pages**: 80+ pages of new documentation  
 **Total new words**: 25,000+  
 **Updated links**: Main README, Documentation Index, all subdirectory READMEs  
@@ -253,13 +253,13 @@ src/notepadpp_mcp/docs/
 |------|-------|
 | **Repository protection** | [docs/repository-protection/](repository-protection/README.md) |
 | **Glama.ai & Gold Status** | [docs/glama-platform/](glama-platform/README.md) |
-| **Notepad++ reference** | [docs/notepadpp/](notepadpp/README.md) |
+| **Notepad++ reference** | [docs/avatarmcp/](avatarmcp/README.md) |
 | **Development guides** | [docs/development/](development/README.md) |
 | **MCP technical** | [docs/mcp-technical/](mcp-technical/README.md) |
 | **MCPB packaging** | [docs/mcpb-packaging/](mcpb-packaging/README.md) |
 | **All documentation** | [docs/DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) |
 | **Scripts** | [scripts/README.md](../scripts/README.md) |
-| **API Reference** | [src/notepadpp_mcp/docs/README.md](../src/notepadpp_mcp/docs/README.md) |
+| **API Reference** | [src/avatarmcp_mcp/docs/README.md](../src/avatarmcp_mcp/docs/README.md) |
 
 ---
 
@@ -280,7 +280,7 @@ All documentation has been organized into **6 logical subdirectories**:
 ✅ **`docs/glama-platform/`** (11 files)
 - Gold Status, platform integration
 
-✅ **`docs/notepadpp/`** (5 files, 39+ pages NEW!)
+✅ **`docs/avatarmcp/`** (5 files, 39+ pages NEW!)
 - Complete Notepad++ reference
 
 ✅ **`docs/development/`** (7 files)

@@ -562,9 +562,9 @@ for file in test_files:
 
 ## Related Files
 
-- 📄 [file_validator.py](../../src/notepadpp_mcp/file_validator.py) - Validator implementation
+- 📄 [file_validator.py](../../src/avatarmcp_mcp/file_validator.py) - Validator implementation
 - 📄 [test_file_validator.py](../../tests/test_file_validator.py) - Comprehensive tests
-- 📄 [sync_health.py](../../src/notepadpp_mcp/sync_health.py) - Sync health monitoring
+- 📄 [sync_health.py](../../src/avatarmcp_mcp/sync_health.py) - Sync health monitoring
 
 ---
 

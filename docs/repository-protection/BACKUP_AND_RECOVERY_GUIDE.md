@@ -1,6 +1,6 @@
 # 🛡️ Git Repository Backup & Recovery Guide
 
-**Your Complete Protection Strategy for notepadpp-mcp**
+**Your Complete Protection Strategy for avatarmcp**
 
 ---
 
@@ -49,9 +49,9 @@ Even if your local repo is "borked":
 ```powershell
 # If local repo is broken, just re-clone
 cd D:\Dev\repos
-Rename-Item notepadpp-mcp notepadpp-mcp-broken
-git clone https://github.com/sandraschi/notepadpp-mcp.git
-cd notepadpp-mcp
+Rename-Item avatarmcp avatarmcp-broken
+git clone https://github.com/sandraschi/avatarmcp.git
+cd avatarmcp
 
 # Your code is back! ✅
 ```
@@ -148,8 +148,8 @@ A **single file** containing your entire repository:
 # Create backup
 .\scripts\backup-repo.ps1
 
-# Default location: D:\Backups\notepadpp-mcp\
-# Creates: notepadpp-mcp_2025-10-08_14-30-00.bundle
+# Default location: D:\Backups\avatarmcp\
+# Creates: avatarmcp_2025-10-08_14-30-00.bundle
 ```
 
 ### Automated Daily Backups
@@ -159,7 +159,7 @@ A **single file** containing your entire repository:
 ```powershell
 # Create scheduled task (run as Administrator)
 $Action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"D:\Dev\repos\notepadpp-mcp\scripts\backup-repo.ps1`""
+    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"D:\Dev\repos\avatarmcp\scripts\backup-repo.ps1`""
 
 $Trigger = New-ScheduledTaskTrigger -Daily -At 3:00AM
 
@@ -169,7 +169,7 @@ Register-ScheduledTask -TaskName "Notepadpp-MCP Backup" `
     -Action $Action `
     -Trigger $Trigger `
     -Settings $Settings `
-    -Description "Daily backup of notepadpp-mcp repository"
+    -Description "Daily backup of avatarmcp repository"
 
 # Verify
 Get-ScheduledTask -TaskName "Notepadpp-MCP Backup"
@@ -181,20 +181,20 @@ Get-ScheduledTask -TaskName "Notepadpp-MCP Backup"
 # Run backup manually
 .\scripts\backup-repo.ps1
 
-# Should create: D:\Backups\notepadpp-mcp\notepadpp-mcp_[timestamp].bundle
+# Should create: D:\Backups\avatarmcp\avatarmcp_[timestamp].bundle
 ```
 
 ### Restore from Bundle
 
 ```powershell
 # Option 1: Clone from bundle to new directory
-git clone D:\Backups\notepadpp-mcp\notepadpp-mcp_2025-10-08.bundle restored-repo
+git clone D:\Backups\avatarmcp\avatarmcp_2025-10-08.bundle restored-repo
 cd restored-repo
-git remote set-url origin https://github.com/sandraschi/notepadpp-mcp.git
+git remote set-url origin https://github.com/sandraschi/avatarmcp.git
 
 # Option 2: Restore to existing repo
-cd D:\Dev\repos\notepadpp-mcp
-git bundle unbundle D:\Backups\notepadpp-mcp\notepadpp-mcp_2025-10-08.bundle
+cd D:\Dev\repos\avatarmcp
+git bundle unbundle D:\Backups\avatarmcp\avatarmcp_2025-10-08.bundle
 git reset --hard origin/main
 ```
 
@@ -206,15 +206,15 @@ git reset --hard origin/main
 
 ```powershell
 # Add GitLab as backup remote
-git remote add backup https://gitlab.com/yourusername/notepadpp-mcp.git
+git remote add backup https://gitlab.com/yourusername/avatarmcp.git
 
 # Push to both remotes
 git push origin main
 git push backup main
 
 # Or push to both at once
-git remote set-url --add --push origin https://github.com/sandraschi/notepadpp-mcp.git
-git remote set-url --add --push origin https://gitlab.com/yourusername/notepadpp-mcp.git
+git remote set-url --add --push origin https://github.com/sandraschi/avatarmcp.git
+git remote set-url --add --push origin https://gitlab.com/yourusername/avatarmcp.git
 
 # Now 'git push origin main' pushes to BOTH!
 ```
@@ -223,10 +223,10 @@ git remote set-url --add --push origin https://gitlab.com/yourusername/notepadpp
 
 ```powershell
 # Create bare repo on network drive or second disk
-git clone --bare . E:\GitBackups\notepadpp-mcp.git
+git clone --bare . E:\GitBackups\avatarmcp.git
 
 # Add as remote
-git remote add localbackup E:\GitBackups\notepadpp-mcp.git
+git remote add localbackup E:\GitBackups\avatarmcp.git
 
 # Push to local backup
 git push localbackup --all
@@ -316,12 +316,12 @@ git push origin branch-name
 ```powershell
 # Nuclear option: Re-clone
 cd D:\Dev\repos
-Rename-Item notepadpp-mcp notepadpp-mcp-broken
-git clone https://github.com/sandraschi/notepadpp-mcp.git
-cd notepadpp-mcp
+Rename-Item avatarmcp avatarmcp-broken
+git clone https://github.com/sandraschi/avatarmcp.git
+cd avatarmcp
 
 # Copy over any uncommitted work
-Copy-Item ..\notepadpp-mcp-broken\scripts\new-script.ps1 .\scripts\
+Copy-Item ..\avatarmcp-broken\scripts\new-script.ps1 .\scripts\
 ```
 
 ### Scenario 4: Lost Uncommitted Work
@@ -410,7 +410,7 @@ git merge cursor-changes
 
 ```powershell
 # Verify backups exist
-Get-ChildItem D:\Backups\notepadpp-mcp\*.bundle | 
+Get-ChildItem D:\Backups\avatarmcp\*.bundle | 
     Sort-Object LastWriteTime -Descending | 
     Select-Object -First 5
 
@@ -441,7 +441,7 @@ If something goes wrong:
 
 1. **DON'T PANIC** - Your code is safe on GitHub
 2. **Check reflog** - `git reflog`
-3. **Check backups** - `Get-ChildItem D:\Backups\notepadpp-mcp\`
+3. **Check backups** - `Get-ChildItem D:\Backups\avatarmcp\`
 4. **Re-clone if needed** - GitHub has everything
 5. **Ask for help** - With reflog output
 

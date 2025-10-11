@@ -41,3 +41,6 @@ ENV/
 # VRM files
 *.vrm
 *.vroid
+
+# Serena MCP
+.serena/

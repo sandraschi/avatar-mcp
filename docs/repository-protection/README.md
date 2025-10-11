@@ -1,6 +1,6 @@
 # 🛡️ Repository Protection Documentation
 
-**Complete guide to keeping your notepadpp-mcp repository safe**
+**Complete guide to keeping your avatarmcp repository safe**
 
 ---
 
@@ -153,10 +153,10 @@ git reset --hard HEAD@{5}
 git reset --hard backup-safe-2025-10-08
 
 # Option 3: Restore from bundle
-git clone D:\Backups\notepadpp-mcp\[latest-bundle].bundle restored
+git clone D:\Backups\avatarmcp\[latest-bundle].bundle restored
 
 # Option 4: Re-clone from GitHub (nuclear option)
-git clone https://github.com/sandraschi/notepadpp-mcp.git
+git clone https://github.com/sandraschi/avatarmcp.git
 ```
 
 ---
@@ -202,7 +202,7 @@ git log --oneline -5
 
 ```powershell
 # Verify backups exist
-Get-ChildItem D:\Backups\notepadpp-mcp\
+Get-ChildItem D:\Backups\avatarmcp\
 
 # Sync branches
 git checkout develop
@@ -218,7 +218,7 @@ git push origin develop
 
 1. **Don't Panic** - Your code is safe on GitHub
 2. **Check Reflog** - `git reflog` shows everything
-3. **Check Backups** - Look in `D:\Backups\notepadpp-mcp\`
+3. **Check Backups** - Look in `D:\Backups\avatarmcp\`
 4. **Re-clone if Needed** - GitHub has everything
 
 ### **Common Issues**
@@ -318,9 +318,9 @@ With these three documents and tools, you have:
 
 ### **External Resources**
 
-- [GitHub Repository](https://github.com/sandraschi/notepadpp-mcp)
-- [Issue Tracker](https://github.com/sandraschi/notepadpp-mcp/issues)
-- [Pull Requests](https://github.com/sandraschi/notepadpp-mcp/pulls)
+- [GitHub Repository](https://github.com/sandraschi/avatarmcp)
+- [Issue Tracker](https://github.com/sandraschi/avatarmcp/issues)
+- [Pull Requests](https://github.com/sandraschi/avatarmcp/pulls)
 
 ---
 
