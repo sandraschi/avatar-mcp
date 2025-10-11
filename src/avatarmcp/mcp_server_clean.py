@@ -1985,6 +1985,22 @@ class MCPServer:
                     "result": {"tools": tools}
                 }
 
+            elif method == "prompts/list":
+                # This server doesn't provide prompts
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {"prompts": []}
+                }
+
+            elif method == "resources/list":
+                # This server doesn't provide resources
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {"resources": []}
+                }
+
             elif method == "tools/call":
                 tool_name = params.get("name")
                 tool_args = params.get("arguments", {})
