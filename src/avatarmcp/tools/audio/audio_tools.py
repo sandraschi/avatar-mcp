@@ -175,15 +175,22 @@ class AudioTools:
                     'message': 'lyrics parameter is required'
                 }
 
-            # Stub implementation - would synthesize singing audio
-            return {
-                'status': 'success',
-                'lyrics': lyrics,
-                'voice_style': voice_style,
-                'emotion': emotion,
-                'tempo': tempo,
-                'key': key,
-                'audio_duration': len(lyrics.split()) * 0.5,  # Rough estimate
-                'sample_rate': 44100,
-                'channels': 2
-            }
+            # Send OSC message to Unity desktop avatar for singing synthesis
+            osc_address = "/avatar/audio/singing/synthesize"
+            singing_config = f"{lyrics}|{voice_style}|{emotion}|{tempo}|{key}"
+            if self.mcp_server._send_osc_message(osc_address, singing_config):
+                return {
+                    'status': 'success',
+                    'lyrics': lyrics,
+                    'voice_style': voice_style,
+                    'emotion': emotion,
+                    'tempo': tempo,
+                    'key': key,
+                    'osc_message': f'{osc_address} {singing_config}',
+                    'estimated_duration': len(lyrics.split()) * 0.5
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send singing synthesis command to Unity desktop avatar'
+                }

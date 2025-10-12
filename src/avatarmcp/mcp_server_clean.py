@@ -8,7 +8,8 @@ import json
 import sys
 import os
 import logging
-from typing import Any, Dict
+import subprocess
+from typing import Any, Dict, Optional
 
 # Import FastMCP
 try:
@@ -16,6 +17,14 @@ try:
     FASTMCP_AVAILABLE = True
 except ImportError:
     FASTMCP_AVAILABLE = False
+
+# Import OSC client for Unity desktop avatar communication
+try:
+    from pythonosc.udp_client import SimpleUDPClient
+    OSC_AVAILABLE = True
+except ImportError:
+    OSC_AVAILABLE = False
+    logger.warning("python-osc not available - Unity desktop avatar integration disabled")
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +38,80 @@ class MCPServer:
         # Initialize FastMCP with minimal configuration like other MCP servers
         self.mcp = FastMCP("avatarmcp")
 
+        # Initialize OSC client for Unity desktop avatar communication
+        self.osc_client: Optional[SimpleUDPClient] = None
+        self.unity_app_process: Optional[subprocess.Popen] = None
+        self._init_osc_client()
+
         # Register prompts
         self._register_prompts()
 
         # Initialize tool modules (tools are registered within modules)
         self._init_tool_modules()
+
+    def _init_osc_client(self):
+        """Initialize OSC client for Unity desktop avatar communication."""
+        if OSC_AVAILABLE:
+            try:
+                # Unity desktop avatar listens on port 9000
+                self.osc_client = SimpleUDPClient("127.0.0.1", 9000)
+                logger.info("OSC client initialized for Unity desktop avatar (port 9000)")
+            except Exception as e:
+                logger.error(f"Failed to initialize OSC client: {e}")
+                self.osc_client = None
+        else:
+            logger.warning("OSC client not available - Unity integration disabled")
+
+    def _ensure_unity_app_running(self) -> bool:
+        """Ensure the Unity desktop avatar application is running."""
+        if not OSC_AVAILABLE:
+            logger.warning("OSC not available - cannot communicate with Unity app")
+            return False
+
+        # Check if process is still running
+        if self.unity_app_process and self.unity_app_process.poll() is None:
+            return True
+
+        # Try to find and launch the Unity desktop avatar
+        unity_app_paths = [
+            os.path.join(os.getcwd(), "unity-desktop-avatar", "Builds", "DesktopAvatar.exe"),
+            os.path.join(os.getcwd(), "unity-desktop-avatar", "DesktopAvatar.exe"),
+            os.path.join(os.path.dirname(os.getcwd()), "unity-desktop-avatar", "Builds", "DesktopAvatar.exe"),
+        ]
+
+        for app_path in unity_app_paths:
+            if os.path.exists(app_path):
+                try:
+                    logger.info(f"Launching Unity desktop avatar: {app_path}")
+                    self.unity_app_process = subprocess.Popen([app_path], cwd=os.path.dirname(app_path))
+                    # Give it time to start
+                    import time
+                    time.sleep(2)
+                    return True
+                except Exception as e:
+                    logger.error(f"Failed to launch Unity app at {app_path}: {e}")
+                    continue
+
+        logger.warning("Unity desktop avatar application not found. Please build it first using build.ps1")
+        return False
+
+    def _send_osc_message(self, address: str, *args) -> bool:
+        """Send an OSC message to the Unity desktop avatar."""
+        if not self.osc_client:
+            logger.error("OSC client not initialized")
+            return False
+
+        if not self._ensure_unity_app_running():
+            logger.error("Unity desktop avatar not running")
+            return False
+
+        try:
+            self.osc_client.send_message(address, args if len(args) > 1 else args[0] if args else [])
+            logger.debug(f"Sent OSC: {address} {args}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send OSC message {address}: {e}")
+            return False
 
     def _register_prompts(self):
         """Register useful MCP prompts for avatar management."""

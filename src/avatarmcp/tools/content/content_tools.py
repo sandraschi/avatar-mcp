@@ -168,11 +168,20 @@ class ContentTools:
                 - voice_custom_synthesis: Customize voices to match appearances
             """
             # Implementation for avatar_appearance_modify
-            return {
-    'status': 'success',
-    'message': 'avatar_appearance_modify tool executed successfully',
-    'params': params
-}
+    # Send OSC message to Unity desktop avatar
+    osc_address = "/avatar/avatar/appearance/modify"
+    if self.mcp_server._send_osc_message(osc_address, str(params)):
+        return {
+            'status': 'success',
+            'message': 'avatar_appearance_modify tool executed successfully',
+            'osc_message': f'{osc_address} {params}',
+            'params': params
+        }
+    else:
+        return {
+            'status': 'error',
+            'message': 'Failed to send avatar_appearance_modify command to Unity desktop avatar'
+        }
 
         @self.mcp_server.mcp.tool()
         def animation_custom_create(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -345,11 +354,20 @@ class ContentTools:
                 - performance_recording_system: Record custom animation creation
             """
             # Implementation for animation_custom_create
-            return {
-    'status': 'success',
-    'message': 'animation_custom_create tool executed successfully',
-    'params': params
-}
+    # Send OSC message to Unity desktop avatar
+    osc_address = "/avatar/animation/custom/create"
+    if self.mcp_server._send_osc_message(osc_address, str(params)):
+        return {
+            'status': 'success',
+            'message': 'animation_custom_create tool executed successfully',
+            'osc_message': f'{osc_address} {params}',
+            'params': params
+        }
+    else:
+        return {
+            'status': 'error',
+            'message': 'Failed to send animation_custom_create command to Unity desktop avatar'
+        }
 
         @self.mcp_server.mcp.tool()
         def voice_custom_synthesis(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -533,11 +551,20 @@ class ContentTools:
                 - avatar_appearance_modify: Match voice to appearance
             """
             # Implementation for voice_custom_synthesis
-            return {
-    'status': 'success',
-    'message': 'voice_custom_synthesis tool executed successfully',
-    'params': params
-}
+    # Send OSC message to Unity desktop avatar
+    osc_address = "/avatar/voice/custom/synthesis"
+    if self.mcp_server._send_osc_message(osc_address, str(params)):
+        return {
+            'status': 'success',
+            'message': 'voice_custom_synthesis tool executed successfully',
+            'osc_message': f'{osc_address} {params}',
+            'params': params
+        }
+    else:
+        return {
+            'status': 'error',
+            'message': 'Failed to send voice_custom_synthesis command to Unity desktop avatar'
+        }
 
         @self.mcp_server.mcp.tool()
         def scene_template_create(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -742,11 +769,20 @@ class ContentTools:
                 - show_script_create: Use templates in scripted performances
             """
             # Implementation for scene_template_create
-            return {
-    'status': 'success',
-    'message': 'scene_template_create tool executed successfully',
-    'params': params
-}
+    # Send OSC message to Unity desktop avatar
+    osc_address = "/avatar/scene/template/create"
+    if self.mcp_server._send_osc_message(osc_address, str(params)):
+        return {
+            'status': 'success',
+            'message': 'scene_template_create tool executed successfully',
+            'osc_message': f'{osc_address} {params}',
+            'params': params
+        }
+    else:
+        return {
+            'status': 'error',
+            'message': 'Failed to send scene_template_create command to Unity desktop avatar'
+        }
 
         @self.mcp_server.mcp.tool()
         def interaction_script_create(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -960,8 +996,17 @@ class ContentTools:
                 - show_script_create: Combine with performance scripts
             """
             # Implementation for interaction_script_create
-            return {
-    'status': 'success',
-    'message': 'interaction_script_create tool executed successfully',
-    'params': params
-}
+    # Send OSC message to Unity desktop avatar
+    osc_address = "/avatar/interaction/script/create"
+    if self.mcp_server._send_osc_message(osc_address, str(params)):
+        return {
+            'status': 'success',
+            'message': 'interaction_script_create tool executed successfully',
+            'osc_message': f'{osc_address} {params}',
+            'params': params
+        }
+    else:
+        return {
+            'status': 'error',
+            'message': 'Failed to send interaction_script_create command to Unity desktop avatar'
+        }

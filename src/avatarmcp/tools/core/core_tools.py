@@ -232,25 +232,38 @@ class CoreTools:
                     'message': 'avatar_id parameter is required'
                 }
 
-            # For now, just return success with stub data
-            # Full implementation would load VRM file and initialize avatar
-            return {
-                'status': 'success',
-                'avatar_id': avatar_id,
-                'load_time': 0.1,
-                'model_info': {
-                    'format': 'VRM',
-                    'version': '1.0',
-                    'bones': 50,
-                    'morphs': 20
-                },
-                'capabilities': [
-                    'animation',
-                    'expressions',
-                    'bone_control',
-                    'morph_control'
-                ]
-            }
+            # Find the full path to the VRM file
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
+            models_dir = os.path.join(project_root, "models")
+            vrm_path = os.path.join(models_dir, f"{avatar_id}.vrm")
+
+            if not os.path.exists(vrm_path):
+                return {
+                    'status': 'error',
+                    'message': f'VRM file not found: {vrm_path}'
+                }
+
+            # Send OSC message to Unity desktop avatar to load the avatar
+            osc_address = "/avatar/load"
+            if self.mcp_server._send_osc_message(osc_address, str(vrm_path)):
+                return {
+                    'status': 'success',
+                    'avatar_id': avatar_id,
+                    'vrm_path': vrm_path,
+                    'osc_message': f'{osc_address} {vrm_path}',
+                    'capabilities': [
+                        'animation',
+                        'expressions',
+                        'bone_control',
+                        'morph_control'
+                    ]
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send load command to Unity desktop avatar'
+                }
 
         # Register animation_play tool
         @self.mcp_server.mcp.tool()
@@ -354,6 +367,8 @@ class CoreTools:
             # Implementation for animation_play
             avatar_id = params.get('avatar_id')
             animation_name = params.get('animation_name')
+            loop = params.get('loop', False)
+            speed = params.get('speed', 1.0)
 
             if not avatar_id or not animation_name:
                 return {
@@ -361,15 +376,22 @@ class CoreTools:
                     'message': 'Both avatar_id and animation_name parameters are required'
                 }
 
-            # Stub implementation - would play animation on avatar
-            return {
-                'status': 'success',
-                'avatar_id': avatar_id,
-                'animation_name': animation_name,
-                'play_time': 0.05,
-                'duration': 2.5,  # seconds
-                'looping': False
-            }
+            # Send OSC message to Unity desktop avatar to play animation
+            osc_address = "/avatar/animation/play"
+            if self.mcp_server._send_osc_message(osc_address, animation_name, int(loop), float(speed)):
+                return {
+                    'status': 'success',
+                    'avatar_id': avatar_id,
+                    'animation_name': animation_name,
+                    'loop': loop,
+                    'speed': speed,
+                    'osc_message': f'{osc_address} {animation_name} {int(loop)} {float(speed)}'
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send animation play command to Unity desktop avatar'
+                }
 
         # Register bone_control tool
         @self.mcp_server.mcp.tool()
@@ -505,15 +527,52 @@ class CoreTools:
                     'message': 'Either rotation or translation parameter must be provided'
                 }
 
-            # Stub implementation - would control bone transformations
-            return {
-                'status': 'success',
-                'avatar_id': avatar_id,
-                'bone_name': bone_name,
-                'applied_rotation': rotation,
-                'applied_translation': translation,
-                'update_time': 0.02
-            }
+            # Send OSC message to Unity desktop avatar for bone control
+            success = True
+            messages_sent = []
+
+            if rotation:
+                # Send rotation as quaternion (x, y, z, w)
+                if isinstance(rotation, list) and len(rotation) == 4:
+                    osc_address = f"/avatar/bone/{bone_name}/rotation"
+                    if self.mcp_server._send_osc_message(osc_address, *rotation):
+                        messages_sent.append(f'{osc_address} {rotation}')
+                    else:
+                        success = False
+                else:
+                    return {
+                        'status': 'error',
+                        'message': 'rotation must be a list of 4 quaternion values [x, y, z, w]'
+                    }
+
+            if translation:
+                # Send translation as vector (x, y, z)
+                if isinstance(translation, list) and len(translation) == 3:
+                    osc_address = f"/avatar/bone/{bone_name}/translation"
+                    if self.mcp_server._send_osc_message(osc_address, *translation):
+                        messages_sent.append(f'{osc_address} {translation}')
+                    else:
+                        success = False
+                else:
+                    return {
+                        'status': 'error',
+                        'message': 'translation must be a list of 3 vector values [x, y, z]'
+                    }
+
+            if success:
+                return {
+                    'status': 'success',
+                    'avatar_id': avatar_id,
+                    'bone_name': bone_name,
+                    'applied_rotation': rotation,
+                    'applied_translation': translation,
+                    'osc_messages': messages_sent
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send bone control commands to Unity desktop avatar'
+                }
 
         # Register morph_control tool
         @self.mcp_server.mcp.tool()
@@ -643,14 +702,21 @@ class CoreTools:
                     'message': 'weight must be a number between 0.0 and 1.0'
                 }
 
-            # Stub implementation - would control morph target weights
-            return {
-                'status': 'success',
-                'avatar_id': avatar_id,
-                'morph_name': morph_name,
-                'applied_weight': weight,
-                'update_time': 0.01
-            }
+            # Send OSC message to Unity desktop avatar for morph control
+            osc_address = f"/avatar/expression/blendshape"
+            if self.mcp_server._send_osc_message(osc_address, morph_name, float(weight)):
+                return {
+                    'status': 'success',
+                    'avatar_id': avatar_id,
+                    'morph_name': morph_name,
+                    'applied_weight': weight,
+                    'osc_message': f'{osc_address} {morph_name} {float(weight)}'
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send morph control command to Unity desktop avatar'
+                }
 
         # Register avatar_export tool
         @self.mcp_server.mcp.tool()
@@ -779,13 +845,20 @@ class CoreTools:
                     'message': 'output_path parameter is required'
                 }
 
-            # Stub implementation - would export avatar in specified format
-            return {
-                'status': 'success',
-                'avatar_id': avatar_id,
-                'export_format': export_format,
-                'output_path': output_path,
-                'include_pose': include_pose,
-                'export_time': 0.5,
-                'file_size': 1024000  # 1MB example
-            }
+            # Send OSC message to Unity desktop avatar for export
+            osc_address = "/avatar/export"
+            export_config = f"{export_format},{output_path},{int(include_pose)}"
+            if self.mcp_server._send_osc_message(osc_address, export_config):
+                return {
+                    'status': 'success',
+                    'avatar_id': avatar_id,
+                    'export_format': export_format,
+                    'output_path': output_path,
+                    'include_pose': include_pose,
+                    'osc_message': f'{osc_address} {export_config}'
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send export command to Unity desktop avatar'
+                }
