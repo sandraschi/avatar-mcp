@@ -537,10 +537,10 @@ class EmotionTools:
                     'params': params
                 }
             else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send avatar_personality_create command to Unity desktop avatar'
-        }
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send avatar_personality_create command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def avatar_personality_apply(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -684,17 +684,17 @@ class EmotionTools:
                 - animation_sequence_play: Personality affects animation choice
             """
             # Implementation for avatar_personality_apply
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/avatar/personality/apply"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'avatar_personality_apply tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-    else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send avatar_personality_apply command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/avatar/personality/apply"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                    'status': 'success',
+                    'message': 'avatar_personality_apply tool executed successfully',
+                    'osc_message': f'{osc_address} {params}',
+                    'params': params
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send avatar_personality_apply command to Unity desktop avatar'
+                }

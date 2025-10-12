@@ -151,7 +151,7 @@ class CollaborationTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_scene_join command to Unity desktop avatar'
@@ -296,7 +296,7 @@ class CollaborationTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_group_create command to Unity desktop avatar'
@@ -451,7 +451,7 @@ class CollaborationTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_interaction_request command to Unity desktop avatar'
@@ -599,7 +599,7 @@ class CollaborationTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send scene_state_save command to Unity desktop avatar'
@@ -770,7 +770,7 @@ class CollaborationTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_message_send command to Unity desktop avatar'

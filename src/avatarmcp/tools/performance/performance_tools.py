@@ -155,7 +155,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send audio_lip_sync_analyze command to Unity desktop avatar'
@@ -324,7 +324,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send performance_lighting_control command to Unity desktop avatar'
@@ -521,7 +521,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send performance_particle_effects command to Unity desktop avatar'
@@ -662,7 +662,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send audience_response_analyze command to Unity desktop avatar'
@@ -851,7 +851,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send show_script_create command to Unity desktop avatar'
@@ -1036,7 +1036,7 @@ class PerformanceTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send performance_recording_system command to Unity desktop avatar'

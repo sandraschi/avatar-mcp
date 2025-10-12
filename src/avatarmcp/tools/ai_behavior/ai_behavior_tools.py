@@ -169,7 +169,7 @@ class AIBehaviorTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send ai_conversation_respond command to Unity desktop avatar'
@@ -325,7 +325,7 @@ class AIBehaviorTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send ai_behavior_adapt command to Unity desktop avatar'
@@ -480,7 +480,7 @@ class AIBehaviorTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send ai_personality_predict command to Unity desktop avatar'
@@ -651,7 +651,7 @@ class AIBehaviorTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send ai_context_analyze command to Unity desktop avatar'
@@ -841,7 +841,7 @@ class AIBehaviorTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send ai_interaction_learn command to Unity desktop avatar'

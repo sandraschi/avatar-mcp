@@ -180,20 +180,20 @@ class InteractiveTools:
                 - animation_blend_layers: Combine with layered animations
             """
             # Implementation for interactive_pose_control
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/interactive/pose/control"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'interactive_pose_control tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-    else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send interactive_pose_control command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/interactive/pose/control"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                    'status': 'success',
+                    'message': 'interactive_pose_control tool executed successfully',
+                    'osc_message': f'{osc_address} {params}',
+                    'params': params
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send interactive_pose_control command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def interactive_gesture_recognize(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -345,7 +345,7 @@ class InteractiveTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send interactive_gesture_recognize command to Unity desktop avatar'
@@ -519,7 +519,7 @@ class InteractiveTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send interactive_feedback_system command to Unity desktop avatar'
@@ -704,7 +704,7 @@ class InteractiveTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send interactive_scene_control command to Unity desktop avatar'

@@ -177,7 +177,7 @@ class ContentTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_appearance_modify command to Unity desktop avatar'
@@ -363,7 +363,7 @@ class ContentTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send animation_custom_create command to Unity desktop avatar'
@@ -560,7 +560,7 @@ class ContentTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send voice_custom_synthesis command to Unity desktop avatar'
@@ -778,7 +778,7 @@ class ContentTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send scene_template_create command to Unity desktop avatar'
@@ -1005,7 +1005,7 @@ class ContentTools:
             'osc_message': f'{osc_address} {params}',
             'params': params
         }
-    else:
+        else:
         return {
             'status': 'error',
             'message': 'Failed to send interaction_script_create command to Unity desktop avatar'
