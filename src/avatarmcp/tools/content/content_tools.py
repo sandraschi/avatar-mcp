@@ -144,7 +144,7 @@ class ContentTools:
                         'modifications': {'hair_color': 'red'}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Appearance modification failed: {result['message']}")
+                        logger.error(f"Appearance modification failed: {result['message']}")
                     # Check avatar exists and modification parameters are valid
 
             Raises:
@@ -314,7 +314,7 @@ class ContentTools:
                         'procedural_params': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Animation creation failed: {result['message']}")
+                        logger.error(f"Animation creation failed: {result['message']}")
                     # Check animation_name and required parameters
 
             Raises:
@@ -498,7 +498,7 @@ class ContentTools:
                         'voice_characteristics': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Voice synthesis failed: {result['message']}")
+                        logger.error(f"Voice synthesis failed: {result['message']}")
                     # Check voice_name and required parameters
 
             Raises:
@@ -702,7 +702,7 @@ class ContentTools:
                         'environmental_settings': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Scene template creation failed: {result['message']}")
+                        logger.error(f"Scene template creation failed: {result['message']}")
                     # Check template_name and required parameters
 
             Raises:
@@ -915,7 +915,7 @@ class ContentTools:
                         'response_actions': []
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Interaction script creation failed: {result['message']}")
+                        logger.error(f"Interaction script creation failed: {result['message']}")
                     # Check script_name and required parameters
 
             Raises:

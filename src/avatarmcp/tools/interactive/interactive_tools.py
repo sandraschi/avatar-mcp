@@ -155,7 +155,7 @@ class InteractiveTools:
                         'bone_controls': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Pose control failed: {result['message']}")
+                        logger.error(f"Pose control failed: {result['message']}")
                     # Check avatar exists and bone controls are provided
 
             Raises:
@@ -297,7 +297,7 @@ class InteractiveTools:
                         'gesture_types': []
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Gesture recognition failed: {result['message']}")
+                        logger.error(f"Gesture recognition failed: {result['message']}")
                     # Check avatar exists and is active
 
             Raises:
@@ -456,7 +456,7 @@ class InteractiveTools:
                         'feedback_responses': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Feedback system failed: {result['message']}")
+                        logger.error(f"Feedback system failed: {result['message']}")
                     # Check triggers and responses are properly configured
 
             Raises:
@@ -628,7 +628,7 @@ class InteractiveTools:
                         'avatars': {}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Scene control failed: {result['message']}")
+                        logger.error(f"Scene control failed: {result['message']}")
                     # Check scene_name and avatars are provided
 
             Raises:

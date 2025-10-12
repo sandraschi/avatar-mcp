@@ -354,7 +354,7 @@ class CoreTools:
                         'bone_transform': {'rotation': {'x': 0.1}}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Bone control failed: {result['message']}")
+                        logger.error(f"Bone control failed: {result['message']}")
                     # Check bone name exists in avatar skeleton
 
                 Sequential bone controls:
@@ -467,7 +467,7 @@ class CoreTools:
                         'morph_targets': {'nonexistent_morph': 0.5}
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Morph control failed: {result['message']}")
+                        logger.error(f"Morph control failed: {result['message']}")
                     # Check morph target names exist for avatar
 
                 Sequential expressions:
@@ -573,7 +573,7 @@ class CoreTools:
                         'export_path': '/readonly/readonly.vrm'
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Export failed: {result['message']}")
+                        logger.error(f"Export failed: {result['message']}")
                     # Check export path is writable
 
                 Batch export preparation:

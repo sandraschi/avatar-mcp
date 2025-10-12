@@ -159,7 +159,7 @@ class AnimationTools:
                         'steps': []
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Sequence creation failed: {result['message']}")
+                        logger.error(f"Sequence creation failed: {result['message']}")
                     # Check sequence_name and steps are provided
 
             Raises:
@@ -297,7 +297,7 @@ class AnimationTools:
                         'avatar_id': 'avatar1'
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Playback failed: {result['message']}")
+                        logger.error(f"Playback failed: {result['message']}")
                     # Check sequence exists and avatar is loaded
 
             Raises:
@@ -474,7 +474,7 @@ class AnimationTools:
                         'layers': []
                     })
                     if result['status'] == 'error':
-                        logger.error(logger.info(f"Layering failed: {result['message']}")
+                        logger.error(f"Layering failed: {result['message']}")
                     # Check layers array is not empty
 
             Raises:
