@@ -367,21 +367,10 @@ For production use, consider:
 
 This setup provides a fully functional Unity desktop avatar system integrated with AvatarMCP."""
 
-    def _register_tools(self):
-        """Register all MCP tools using FastMCP decorators."""
+    # Tool registrations moved to modular tool classes in tools/ directory
 
-        @self.mcp.tool()
-        def avatar_list(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''List all available avatars in the system with metadata.
-
-            Scans the configured models directory and returns a comprehensive list
-            of all available VRM avatar files with their metadata and current status.
-            Essential for discovering what avatars are available for loading.
-
-            Parameters:
-                None required - scans all configured model directories automatically
-
-            Returns:
+    # NOTE: Tool registrations have been moved to modular tool classes in the tools/ directory
+    # The _init_tool_modules method is defined later in this file
                 Dictionary containing:
                     - status: Either "success" or "error"
                     - avatars: List of avatar objects with metadata
@@ -4849,6 +4838,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
 
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
+        try:
+            # Import and initialize core tools
+            from .tools.core.core_tools import CoreTools
+            self.core_tools = CoreTools(self)
+            logger.info("Core tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import core tools: {e}")
+            self.core_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize core tools: {e}")
+            self.core_tools = None
+
         try:
             # Import and initialize audio tools
             from .tools.audio.audio_tools import AudioTools
