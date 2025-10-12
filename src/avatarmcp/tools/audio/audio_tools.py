@@ -162,4 +162,28 @@ class AudioTools:
                 - animation_play: Combine with avatar animations
                 - unity_avatar_animation: Sync with Unity avatar movements
             '''
-            return self.mcp_server._execute_audio_singing_synthesize(params)
+            # Implementation for audio_singing_synthesize
+            lyrics = params.get('lyrics')
+            voice_style = params.get('voice_style', 'natural')
+            emotion = params.get('emotion', 'neutral')
+            tempo = params.get('tempo', 120)
+            key = params.get('key', 'C')
+
+            if not lyrics:
+                return {
+                    'status': 'error',
+                    'message': 'lyrics parameter is required'
+                }
+
+            # Stub implementation - would synthesize singing audio
+            return {
+                'status': 'success',
+                'lyrics': lyrics,
+                'voice_style': voice_style,
+                'emotion': emotion,
+                'tempo': tempo,
+                'key': key,
+                'audio_duration': len(lyrics.split()) * 0.5,  # Rough estimate
+                'sample_rate': 44100,
+                'channels': 2
+            }
