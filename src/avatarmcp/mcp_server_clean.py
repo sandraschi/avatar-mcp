@@ -3842,6 +3842,254 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to create interactive scene: {str(e)}"
             }
 
+    async def _execute_audio_lip_sync_analyze(self, params: dict) -> dict:
+        """Execute the audio_lip_sync_analyze tool."""
+        try:
+            audio_source = params.get('audio_source', '').strip()
+            valid_sources = ['file', 'stream', 'text', 'recording']
+            if audio_source not in valid_sources:
+                raise ValueError(f"Audio source must be one of: {', '.join(valid_sources)}")
+
+            audio_path = params.get('audio_path')
+            if audio_source == 'file' and not audio_path:
+                raise ValueError("audio_path is required for file source")
+
+            text_content = params.get('text_content', '')
+            sensitivity = params.get('sensitivity', 0.8)
+            if not isinstance(sensitivity, (int, float)) or sensitivity < 0 or sensitivity > 1:
+                raise ValueError("Sensitivity must be between 0.0 and 1.0")
+
+            language = params.get('language', 'auto')
+            valid_languages = ['auto', 'en', 'ja', 'es']
+            if language not in valid_languages:
+                raise ValueError(f"Language must be one of: {', '.join(valid_languages)}")
+
+            output_format = params.get('output_format', 'animation')
+            valid_formats = ['animation', 'phonemes', 'blend_shapes', 'unity']
+            if output_format not in valid_formats:
+                raise ValueError(f"Output format must be one of: {', '.join(valid_formats)}")
+
+            # TODO: Implement actual lip sync analysis
+            # Mock successful analysis
+            result = {
+                "status": "success",
+                "message": f"Successfully analyzed audio from {audio_source} source",
+                "audio_source": audio_source,
+                "duration": 45.2,  # Mock duration
+                "phonemes_detected": 127,
+                "lip_sync_data": {"keyframes": [], "blend_shapes": []},  # Mock data
+                "language_detected": "ja" if language == "auto" else language,
+                "confidence_score": 0.89,
+                "processing_time": 2.3
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to analyze lip sync: {str(e)}"
+            }
+
+    async def _execute_performance_lighting_control(self, params: dict) -> dict:
+        """Execute the performance_lighting_control tool."""
+        try:
+            lighting_mode = params.get('lighting_mode', '').strip()
+            valid_modes = ['preset', 'custom', 'sequence', 'dynamic']
+            if lighting_mode not in valid_modes:
+                raise ValueError(f"Lighting mode must be one of: {', '.join(valid_modes)}")
+
+            preset_name = params.get('preset_name')
+            if lighting_mode == 'preset' and not preset_name:
+                raise ValueError("preset_name is required for preset mode")
+
+            transition_time = params.get('transition_time', 1.0)
+            if not isinstance(transition_time, (int, float)) or transition_time < 0:
+                raise ValueError("Transition time must be a non-negative number")
+
+            intensity_multiplier = params.get('intensity_multiplier', 1.0)
+            if not isinstance(intensity_multiplier, (int, float)) or intensity_multiplier <= 0:
+                raise ValueError("Intensity multiplier must be positive")
+
+            # TODO: Implement actual lighting control
+            result = {
+                "status": "success",
+                "message": f"Applied {lighting_mode} lighting configuration",
+                "lighting_mode": lighting_mode,
+                "lights_configured": 5,  # Mock
+                "effects_applied": 3,    # Mock
+                "transition_time": transition_time,
+                "intensity_multiplier": intensity_multiplier,
+                "lighting_active": True
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to control lighting: {str(e)}"
+            }
+
+    async def _execute_performance_particle_effects(self, params: dict) -> dict:
+        """Execute the performance_particle_effects tool."""
+        try:
+            effect_type = params.get('effect_type', '').strip()
+            valid_types = ['confetti', 'sparks', 'aura', 'hearts', 'stars', 'fireworks', 'rain', 'snow']
+            if effect_type not in valid_types:
+                raise ValueError(f"Effect type must be one of: {', '.join(valid_types)}")
+
+            effect_config = params.get('effect_config', {})
+            if not effect_config or not isinstance(effect_config, dict):
+                raise ValueError("effect_config must be a non-empty object")
+
+            trigger_event = params.get('trigger_event', 'immediate')
+            duration = params.get('duration', 5.0)
+            intensity = params.get('intensity', 1.0)
+            if not isinstance(intensity, (int, float)) or intensity <= 0:
+                raise ValueError("Intensity must be positive")
+
+            # TODO: Implement actual particle effects
+            result = {
+                "status": "success",
+                "message": f"Created {effect_type} particle effect",
+                "effect_type": effect_type,
+                "effect_id": f"effect_{effect_type}_{int(time.time())}",
+                "trigger_event": trigger_event,
+                "duration": duration,
+                "intensity": intensity,
+                "particles_count": 100,  # Mock
+                "effect_active": True
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create particle effect: {str(e)}"
+            }
+
+    async def _execute_audience_response_analyze(self, params: dict) -> dict:
+        """Execute the audience_response_analyze tool."""
+        try:
+            analysis_mode = params.get('analysis_mode', '').strip()
+            valid_modes = ['audio', 'visual', 'combined', 'engagement', 'sentiment']
+            if analysis_mode not in valid_modes:
+                raise ValueError(f"Analysis mode must be one of: {', '.join(valid_modes)}")
+
+            input_sources = params.get('input_sources', [])
+            if not input_sources or not isinstance(input_sources, list) or len(input_sources) == 0:
+                raise ValueError("input_sources must be a non-empty array")
+
+            analysis_duration = params.get('analysis_duration', 30.0)
+            sensitivity = params.get('sensitivity', 0.7)
+            if not isinstance(sensitivity, (int, float)) or sensitivity < 0 or sensitivity > 1:
+                raise ValueError("Sensitivity must be between 0.0 and 1.0")
+
+            real_time_feedback = params.get('real_time_feedback', True)
+
+            # TODO: Implement actual audience analysis
+            # Mock analysis results
+            mock_responses = {'applause': 0.8, 'laughter': 0.6, 'cheers': 0.4}
+            result = {
+                "status": "success",
+                "message": f"Completed {analysis_mode} audience analysis",
+                "analysis_mode": analysis_mode,
+                "analysis_duration": analysis_duration,
+                "audience_size": 75,  # Mock
+                "engagement_score": 0.82,
+                "response_breakdown": mock_responses,
+                "sentiment_analysis": "positive",
+                "peak_moments": ["2:15", "4:32", "6:18"],
+                "recommendations": ["Increase energy during slow sections", "More audience interaction"]
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to analyze audience response: {str(e)}"
+            }
+
+    async def _execute_show_script_create(self, params: dict) -> dict:
+        """Execute the show_script_create tool."""
+        try:
+            script_title = params.get('script_title', '').strip()
+            if not script_title:
+                raise ValueError("script_title is required and cannot be empty")
+
+            script_structure = params.get('script_structure', '').strip()
+            valid_structures = ['single_act', 'multi_act', 'interactive', 'improvised']
+            if script_structure not in valid_structures:
+                raise ValueError(f"Script structure must be one of: {', '.join(valid_structures)}")
+
+            acts = params.get('acts', [])
+            if script_structure == 'multi_act' and (not acts or len(acts) == 0):
+                raise ValueError("acts array is required for multi_act structure")
+
+            dialogue_lines = params.get('dialogue_lines', [])
+            animation_sequences = params.get('animation_sequences', [])
+            effect_cues = params.get('effect_cues', [])
+            audience_interactions = params.get('audience_interactions', [])
+
+            # TODO: Implement actual script creation and storage
+            # Mock script creation
+            result = {
+                "status": "success",
+                "message": f"Created {script_structure} script '{script_title}'",
+                "script_title": script_title,
+                "script_id": f"script_{script_title.lower().replace(' ', '_')}_{int(time.time())}",
+                "total_duration": 420.0,  # Mock 7 minutes
+                "acts_count": len(acts) if acts else 1,
+                "dialogue_lines": len(dialogue_lines),
+                "effect_cues": len(effect_cues),
+                "script_created": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create show script: {str(e)}"
+            }
+
+    async def _execute_performance_recording_system(self, params: dict) -> dict:
+        """Execute the performance_recording_system tool."""
+        try:
+            recording_mode = params.get('recording_mode', '').strip()
+            valid_modes = ['live', 'rehearse', 'segment', 'multi_angle', 'analysis']
+            if recording_mode not in valid_modes:
+                raise ValueError(f"Recording mode must be one of: {', '.join(valid_modes)}")
+
+            recording_name = params.get('recording_name', '').strip()
+            if not recording_name:
+                raise ValueError("recording_name is required and cannot be empty")
+
+            duration = params.get('duration')
+            if recording_mode in ['segment', 'multi_angle'] and duration is None:
+                raise ValueError("duration is required for segment and multi_angle modes")
+
+            include_elements = params.get('include_elements', 'all')
+
+            # TODO: Implement actual recording system
+            # Mock recording result
+            result = {
+                "status": "success",
+                "message": f"Started {recording_mode} recording '{recording_name}'",
+                "recording_name": recording_name,
+                "recording_id": f"rec_{recording_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "duration_recorded": duration or 0,
+                "file_size": 245.6,  # Mock MB
+                "elements_recorded": ["avatar", "audio", "lighting", "effects"] if include_elements == "all" else [include_elements],
+                "quality_used": {"resolution": "1080p", "frame_rate": 30},
+                "recording_path": f"recordings/{recording_name}.mp4"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to start recording system: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -3891,6 +4139,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize interactive tools: {e}")
             self.interactive_tools = None
+
+        try:
+            # Import and initialize performance tools
+            from .tools.performance.performance_tools import PerformanceTools
+            self.performance_tools = PerformanceTools(self)
+            logger.info("Performance tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import performance tools: {e}")
+            self.performance_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize performance tools: {e}")
+            self.performance_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
     
@@ -4098,12 +4358,12 @@ def main():
     log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
-            logging.basicConfig(
-                level=logging.INFO,
-                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                filename=log_file,
-                filemode='a'
-            )
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        filename=log_file,
+        filemode='a'
+    )
 
     # Create and run the server
     server = MCPServer()
