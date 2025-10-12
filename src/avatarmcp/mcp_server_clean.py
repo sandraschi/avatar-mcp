@@ -62,8 +62,8 @@ See individual tool docs for detailed usage."""
         """Initialize modular tool classes."""
         try:
             # Import and initialize core tools
-            from .tools.core.core_tools import CoreTools
-            self.core_tools = CoreTools(self)
+            import avatarmcp.tools.core.core_tools as core_module
+            self.core_tools = core_module.CoreTools(self)
             logger.info("Core tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import core tools: {e}")
@@ -74,8 +74,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize audio tools
-            from .tools.audio.audio_tools import AudioTools
-            self.audio_tools = AudioTools(self)
+            import avatarmcp.tools.audio.audio_tools as audio_module
+            self.audio_tools = audio_module.AudioTools(self)
             logger.info("Audio tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import audio tools: {e}")
@@ -86,8 +86,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize animation tools
-            from .tools.animation.animation_tools import AnimationTools
-            self.animation_tools = AnimationTools(self)
+            import avatarmcp.tools.animation.animation_tools as animation_module
+            self.animation_tools = animation_module.AnimationTools(self)
             logger.info("Animation tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import animation tools: {e}")
@@ -98,8 +98,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize emotion tools
-            from .tools.emotion.emotion_tools import EmotionTools
-            self.emotion_tools = EmotionTools(self)
+            import avatarmcp.tools.emotion.emotion_tools as emotion_module
+            self.emotion_tools = emotion_module.EmotionTools(self)
             logger.info("Emotion tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import emotion tools: {e}")
@@ -110,8 +110,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize interactive tools
-            from .tools.interactive.interactive_tools import InteractiveTools
-            self.interactive_tools = InteractiveTools(self)
+            import avatarmcp.tools.interactive.interactive_tools as interactive_module
+            self.interactive_tools = interactive_module.InteractiveTools(self)
             logger.info("Interactive tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import interactive tools: {e}")
@@ -122,8 +122,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize performance tools
-            from .tools.performance.performance_tools import PerformanceTools
-            self.performance_tools = PerformanceTools(self)
+            import avatarmcp.tools.performance.performance_tools as performance_module
+            self.performance_tools = performance_module.PerformanceTools(self)
             logger.info("Performance tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import performance tools: {e}")
@@ -134,8 +134,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize content creation tools
-            from .tools.content.content_tools import ContentTools
-            self.content_tools = ContentTools(self)
+            import avatarmcp.tools.content.content_tools as content_module
+            self.content_tools = content_module.ContentTools(self)
             logger.info("Content creation tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import content creation tools: {e}")
@@ -146,8 +146,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize collaboration tools
-            from .tools.collaboration.collaboration_tools import CollaborationTools
-            self.collaboration_tools = CollaborationTools(self)
+            import avatarmcp.tools.collaboration.collaboration_tools as collaboration_module
+            self.collaboration_tools = collaboration_module.CollaborationTools(self)
             logger.info("Collaboration tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import collaboration tools: {e}")
@@ -158,8 +158,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize AI behavior tools
-            from .tools.ai_behavior.ai_behavior_tools import AIBehaviorTools
-            self.ai_behavior_tools = AIBehaviorTools(self)
+            import avatarmcp.tools.ai_behavior.ai_behavior_tools as ai_behavior_module
+            self.ai_behavior_tools = ai_behavior_module.AIBehaviorTools(self)
             logger.info("AI behavior tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import AI behavior tools: {e}")
@@ -170,8 +170,8 @@ See individual tool docs for detailed usage."""
 
         try:
             # Import and initialize Unity tools
-            from .tools.unity.unity_tools import UnityTools
-            self.unity_tools = UnityTools(self)
+            import avatarmcp.tools.unity.unity_tools as unity_module
+            self.unity_tools = unity_module.UnityTools(self)
             logger.info("Unity tools initialized successfully")
         except ImportError as e:
             logger.warning(f"Failed to import Unity tools: {e}")
