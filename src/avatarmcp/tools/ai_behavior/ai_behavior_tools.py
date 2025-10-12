@@ -136,7 +136,7 @@ class AIBehaviorTools:
                         'user_input': 'Hello'
                     })
                     if result['status'] == 'error':
-                        print(f"AI conversation failed: {result['message']}")
+                        logger.error(logger.info(f"AI conversation failed: {result['message']}")
                     # Check avatar exists and has AI capabilities enabled
 
             Raises:
@@ -278,7 +278,7 @@ class AIBehaviorTools:
                         'adaptation_data': {}
                     })
                     if result['status'] == 'error':
-                        print(f"AI behavior adaptation failed: {result['message']}")
+                        logger.error(logger.info(f"AI behavior adaptation failed: {result['message']}")
                     # Check avatar exists and has learning capabilities
 
             Raises:
@@ -419,7 +419,7 @@ class AIBehaviorTools:
                         'prediction_context': {}
                     })
                     if result['status'] == 'error':
-                        print(f"AI prediction failed: {result['message']}")
+                        logger.error(logger.info(f"AI prediction failed: {result['message']}")
                     # Check avatar has sufficient interaction history for predictions
 
             Raises:
@@ -576,7 +576,7 @@ class AIBehaviorTools:
                         'context_data': {}
                     })
                     if result['status'] == 'error':
-                        print(f"AI context analysis failed: {result['message']}")
+                        logger.error(logger.info(f"AI context analysis failed: {result['message']}")
                     # Check avatar exists and context data is provided
 
             Raises:
@@ -752,7 +752,7 @@ class AIBehaviorTools:
                         'interaction_data': {}
                     })
                     if result['status'] == 'error':
-                        print(f"AI interaction learning failed: {result['message']}")
+                        logger.error(logger.info(f"AI interaction learning failed: {result['message']}")
                     # Check avatar has sufficient interaction history for learning
 
             Raises:

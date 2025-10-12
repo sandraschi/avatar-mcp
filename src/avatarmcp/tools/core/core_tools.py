@@ -59,9 +59,9 @@ class CoreTools:
                 Check scan results:
                     avatars = await avatar_list({})
                     if avatars['count'] == 0:
-                        print("No VRM files found - check models directory")
+                        logger.warning("No VRM files found - check models directory")
                     else:
-                        print(f"Found {avatars['count']} avatars")
+                        logger.info(f"Found {avatars['count']} avatars")
 
                 Filter for specific avatars:
                     all_avatars = await avatar_list({})
@@ -136,14 +136,14 @@ class CoreTools:
                 Error handling:
                     result = await avatar_load({'avatar_id': 'nonexistent'})
                     if result['status'] == 'error':
-                        print(f"Failed to load avatar: {result['message']}")
+                        logger.error(f"Failed to load avatar: {result['message']}")
                         # Check avatar exists with avatar_list first
 
                 Check loading success:
                     load_result = await avatar_load({'avatar_id': 'anime_girl'})
                     if load_result['status'] == 'success':
-                        print(f"Successfully loaded {load_result['avatar_id']}")
-                        print(f"Model has {len(load_result['capabilities'])} features")
+                        logger.info(f"Successfully loaded {load_result['avatar_id']}")
+                        logger.info(f"Model has {len(load_result['capabilities'])} features")
 
             Raises:
                 ValueError: If avatar_id is invalid or malformed
@@ -237,7 +237,7 @@ class CoreTools:
                         'animation_name': 'nonexistent_animation'
                     })
                     if result['status'] == 'error':
-                        print(f"Animation failed: {result['message']}")
+                        logger.error(f"Animation failed: {result['message']}")
                     # Check animation exists for the avatar
 
                 Animation sequencing:
@@ -354,7 +354,7 @@ class CoreTools:
                         'bone_transform': {'rotation': {'x': 0.1}}
                     })
                     if result['status'] == 'error':
-                        print(f"Bone control failed: {result['message']}")
+                        logger.error(logger.info(f"Bone control failed: {result['message']}")
                     # Check bone name exists in avatar skeleton
 
                 Sequential bone controls:
@@ -467,7 +467,7 @@ class CoreTools:
                         'morph_targets': {'nonexistent_morph': 0.5}
                     })
                     if result['status'] == 'error':
-                        print(f"Morph control failed: {result['message']}")
+                        logger.error(logger.info(f"Morph control failed: {result['message']}")
                     # Check morph target names exist for avatar
 
                 Sequential expressions:
@@ -573,7 +573,7 @@ class CoreTools:
                         'export_path': '/readonly/readonly.vrm'
                     })
                     if result['status'] == 'error':
-                        print(f"Export failed: {result['message']}")
+                        logger.error(logger.info(f"Export failed: {result['message']}")
                     # Check export path is writable
 
                 Batch export preparation:
@@ -584,7 +584,7 @@ class CoreTools:
                             'export_path': f'/exports/{avatar_id}_backup.vrm'
                         })
                         if result['status'] == 'success':
-                            print(f"Exported {avatar_id}")
+                            logger.info(f"Exported {avatar_id}")
 
             Raises:
                 ValueError: If avatar_id or export_path invalid

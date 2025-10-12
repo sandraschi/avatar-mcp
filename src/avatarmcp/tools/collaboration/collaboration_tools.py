@@ -119,7 +119,7 @@ class CollaborationTools:
                         'scene_id': 'enka_concert_hall'
                     })
                     if result['status'] == 'error':
-                        print(f"Scene join failed: {result['message']}")
+                        logger.error(logger.info(f"Scene join failed: {result['message']}")
                     # Check avatar and scene exist and are compatible
 
             Raises:
@@ -249,7 +249,7 @@ class CollaborationTools:
                         'group_type': 'performance'
                     })
                     if result['status'] == 'error':
-                        print(f"Group creation failed: {result['message']}")
+                        logger.error(logger.info(f"Group creation failed: {result['message']}")
                     # Check group_name and required parameters
 
             Raises:
@@ -389,7 +389,7 @@ class CollaborationTools:
                         'interaction_type': 'performance'
                     })
                     if result['status'] == 'error':
-                        print(f"Interaction request failed: {result['message']}")
+                        logger.error(logger.info(f"Interaction request failed: {result['message']}")
                     # Check avatars exist and are accessible
 
             Raises:
@@ -523,7 +523,7 @@ class CollaborationTools:
                         'save_name': 'test_save'
                     })
                     if result['status'] == 'error':
-                        print(f"Scene save failed: {result['message']}")
+                        logger.error(logger.info(f"Scene save failed: {result['message']}")
                     # Check scene exists and is accessible
 
             Raises:
@@ -680,7 +680,7 @@ class CollaborationTools:
                         'message_content': 'Hello!'
                     })
                     if result['status'] == 'error':
-                        print(f"Message send failed: {result['message']}")
+                        logger.error(logger.info(f"Message send failed: {result['message']}")
                     # Check sender avatar exists and has messaging permissions
 
             Raises:

@@ -120,7 +120,7 @@ class PerformanceTools:
                         'audio_path': 'nonexistent.wav'
                     })
                     if result['status'] == 'error':
-                        print(f"Lip sync analysis failed: {result['message']}")
+                        logger.error(logger.info(f"Lip sync analysis failed: {result['message']}")
                     # Check audio file exists and is valid
 
             Raises:
@@ -276,7 +276,7 @@ class PerformanceTools:
                         'preset_name': 'nonexistent'
                     })
                     if result['status'] == 'error':
-                        print(f"Lighting control failed: {result['message']}")
+                        logger.error(logger.info(f"Lighting control failed: {result['message']}")
                     # Check preset name exists and lighting system is available
 
             Raises:
@@ -459,7 +459,7 @@ class PerformanceTools:
                         'effect_config': {}
                     })
                     if result['status'] == 'error':
-                        print(f"Particle effect failed: {result['message']}")
+                        logger.error(logger.info(f"Particle effect failed: {result['message']}")
                     # Check effect type exists and config is valid
 
             Raises:
@@ -586,7 +586,7 @@ class PerformanceTools:
                         'input_sources': []  # Invalid: empty sources
                     })
                     if result['status'] == 'error':
-                        print(f"Audience analysis failed: {result['message']}")
+                        logger.error(logger.info(f"Audience analysis failed: {result['message']}")
                     # Check input sources are valid and available
 
             Raises:
@@ -760,7 +760,7 @@ class PerformanceTools:
                         'script_structure': 'single_act'
                     })
                     if result['status'] == 'error':
-                        print(f"Script creation failed: {result['message']}")
+                        logger.error(logger.info(f"Script creation failed: {result['message']}")
                     # Check script_title and required parameters
 
             Raises:
@@ -930,7 +930,7 @@ class PerformanceTools:
                         'duration': 60
                     })
                     if result['status'] == 'error':
-                        print(f"Recording failed: {result['message']}")
+                        logger.error(logger.info(f"Recording failed: {result['message']}")
                     # Check recording_name and parameters are valid
 
             Raises:

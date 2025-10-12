@@ -220,7 +220,8 @@ See individual tool docs for detailed usage."""
         import json
         import time
 
-        # Cache tools on startup
+        # CRITICAL: Cache tools BEFORE entering the main loop
+        # This ensures no output to stdout during request processing
         tools = self._get_cached_tools()
         logger.info(f"Cached {len(tools)} tools")
 

@@ -160,7 +160,7 @@ class EmotionTools:
                         'transitions': []
                     })
                     if result['status'] == 'error':
-                        print(f"State machine failed: {result['message']}")
+                        logger.error(logger.info(f"State machine failed: {result['message']}")
                     # Check states and transitions are properly defined
 
             Raises:
@@ -306,7 +306,7 @@ class EmotionTools:
                         'emotion': 'happy'
                     })
                     if result['status'] == 'error':
-                        print(f"Micro-expression failed: {result['message']}")
+                        logger.error(logger.info(f"Micro-expression failed: {result['message']}")
                     # Check avatar exists and emotion is valid
 
             Raises:
@@ -473,7 +473,7 @@ class EmotionTools:
                         'traits': {}
                     })
                     if result['status'] == 'error':
-                        print(f"Personality creation failed: {result['message']}")
+                        logger.error(logger.info(f"Personality creation failed: {result['message']}")
                     # Check personality_name and traits are provided
 
             Raises:
@@ -616,7 +616,7 @@ class EmotionTools:
                         'personality_name': 'nonexistent'
                     })
                     if result['status'] == 'error':
-                        print(f"Personality application failed: {result['message']}")
+                        logger.error(logger.info(f"Personality application failed: {result['message']}")
                     # Check personality_name exists and avatar is loaded
 
             Raises:

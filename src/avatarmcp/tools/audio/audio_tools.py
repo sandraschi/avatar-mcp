@@ -138,7 +138,7 @@ class AudioTools:
                         'melody': []
                     })
                     if result['status'] == 'error':
-                        print(f"Synthesis failed: {result['message']}")
+                        logger.error(logger.info(f"Synthesis failed: {result['message']}")
                     # Check lyrics and melody are provided
 
             Raises:
