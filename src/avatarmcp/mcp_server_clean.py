@@ -27,6 +27,16 @@ class MCPServer:
         if not FASTMCP_AVAILABLE:
             raise ImportError("FastMCP is required but not available")
 
+        # Ensure the package path is set up correctly
+        import os
+        import sys
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir not in sys.path:
+            sys.path.insert(0, parent_dir)
+        if current_dir not in sys.path:
+            sys.path.insert(0, current_dir)
+
         # Initialize FastMCP
         self.mcp = FastMCP("avatarmcp")
 
