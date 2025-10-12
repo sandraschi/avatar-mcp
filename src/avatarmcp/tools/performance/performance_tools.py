@@ -146,7 +146,7 @@ class PerformanceTools:
                 - performance_recording_system: Record performances with lip sync
             """
             # Implementation for audio_lip_sync_analyze
-return {
+            return {
     'status': 'success',
     'message': 'audio_lip_sync_analyze tool executed successfully',
     'params': params
@@ -306,7 +306,7 @@ return {
                 - animation_sequence_play: Time lighting with animations
             """
             # Implementation for performance_lighting_control
-return {
+            return {
     'status': 'success',
     'message': 'performance_lighting_control tool executed successfully',
     'params': params
@@ -494,7 +494,7 @@ return {
                 - audience_response_analyze: Trigger effects based on audience
             """
             # Implementation for performance_particle_effects
-return {
+            return {
     'status': 'success',
     'message': 'performance_particle_effects tool executed successfully',
     'params': params
@@ -626,7 +626,7 @@ return {
                 - interactive_feedback_system: Create responsive avatar behavior
             """
             # Implementation for audience_response_analyze
-return {
+            return {
     'status': 'success',
     'message': 'audience_response_analyze tool executed successfully',
     'params': params
@@ -806,7 +806,7 @@ return {
                 - audience_response_analyze: Adapt scripts based on audience feedback
             """
             # Implementation for show_script_create
-return {
+            return {
     'status': 'success',
     'message': 'show_script_create tool executed successfully',
     'params': params
@@ -982,7 +982,7 @@ return {
                 - performance_particle_effects: Include effects in recordings
             """
             # Implementation for performance_recording_system
-return {
+            return {
     'status': 'success',
     'message': 'performance_recording_system tool executed successfully',
     'params': params

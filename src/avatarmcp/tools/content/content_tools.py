@@ -168,7 +168,7 @@ class ContentTools:
                 - voice_custom_synthesis: Customize voices to match appearances
             """
             # Implementation for avatar_appearance_modify
-return {
+            return {
     'status': 'success',
     'message': 'avatar_appearance_modify tool executed successfully',
     'params': params
@@ -345,7 +345,7 @@ return {
                 - performance_recording_system: Record custom animation creation
             """
             # Implementation for animation_custom_create
-return {
+            return {
     'status': 'success',
     'message': 'animation_custom_create tool executed successfully',
     'params': params
@@ -533,7 +533,7 @@ return {
                 - avatar_appearance_modify: Match voice to appearance
             """
             # Implementation for voice_custom_synthesis
-return {
+            return {
     'status': 'success',
     'message': 'voice_custom_synthesis tool executed successfully',
     'params': params
@@ -742,7 +742,7 @@ return {
                 - show_script_create: Use templates in scripted performances
             """
             # Implementation for scene_template_create
-return {
+            return {
     'status': 'success',
     'message': 'scene_template_create tool executed successfully',
     'params': params
@@ -960,7 +960,7 @@ return {
                 - show_script_create: Combine with performance scripts
             """
             # Implementation for interaction_script_create
-return {
+            return {
     'status': 'success',
     'message': 'interaction_script_create tool executed successfully',
     'params': params

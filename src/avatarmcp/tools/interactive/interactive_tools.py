@@ -180,7 +180,7 @@ class InteractiveTools:
                 - animation_blend_layers: Combine with layered animations
             """
             # Implementation for interactive_pose_control
-return {
+            return {
     'status': 'success',
     'message': 'interactive_pose_control tool executed successfully',
     'params': params
@@ -327,7 +327,7 @@ return {
                 - unity_system_status: Check gesture recognition status
             """
             # Implementation for interactive_gesture_recognize
-return {
+            return {
     'status': 'success',
     'message': 'interactive_gesture_recognize tool executed successfully',
     'params': params
@@ -492,7 +492,7 @@ return {
                 - avatar_personality_apply: Apply personality to responses
             """
             # Implementation for interactive_feedback_system
-return {
+            return {
     'status': 'success',
     'message': 'interactive_feedback_system tool executed successfully',
     'params': params
@@ -668,7 +668,7 @@ return {
                 - avatar_load: Load avatars before adding to scenes
             """
             # Implementation for interactive_scene_control
-return {
+            return {
     'status': 'success',
     'message': 'interactive_scene_control tool executed successfully',
     'params': params

@@ -142,7 +142,7 @@ class CollaborationTools:
                 - avatar_message_broadcast: Communicate with scene participants
             """
             # Implementation for avatar_scene_join
-return {
+            return {
     'status': 'success',
     'message': 'avatar_scene_join tool executed successfully',
     'params': params
@@ -278,7 +278,7 @@ return {
                 - avatar_interaction_request: Request collaborative interactions within groups
             """
             # Implementation for avatar_group_create
-return {
+            return {
     'status': 'success',
     'message': 'avatar_group_create tool executed successfully',
     'params': params
@@ -424,7 +424,7 @@ return {
                 - scene_state_broadcast: Share state during collaborative activities
             """
             # Implementation for avatar_interaction_request
-return {
+            return {
     'status': 'success',
     'message': 'avatar_interaction_request tool executed successfully',
     'params': params
@@ -563,7 +563,7 @@ return {
                 - performance_recording_system: Record dynamic scene changes
             """
             # Implementation for scene_state_save
-return {
+            return {
     'status': 'success',
     'message': 'scene_state_save tool executed successfully',
     'params': params
@@ -725,7 +725,7 @@ return {
                 - avatar_group_create: Create communication groups
             """
             # Implementation for avatar_message_send
-return {
+            return {
     'status': 'success',
     'message': 'avatar_message_send tool executed successfully',
     'params': params

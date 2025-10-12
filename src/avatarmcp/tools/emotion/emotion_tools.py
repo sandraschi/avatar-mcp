@@ -185,11 +185,11 @@ class EmotionTools:
                 - animation_blend_layers: Combine with emotional animations
             """
             # Implementation for emotion_state_machine
-return {
-    'status': 'success',
-    'message': 'emotion_state_machine tool executed successfully',
-    'params': params
-}
+            return {
+                'status': 'success',
+                'message': 'emotion_state_machine tool executed successfully',
+                'params': params
+            }
 
         @self.mcp_server.mcp.tool()
         def emotion_micro_expressions(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -337,7 +337,7 @@ return {
                 - animation_sequence_play: Combine with emotional sequences
             """
             # Implementation for emotion_micro_expressions
-return {
+            return {
     'status': 'success',
     'message': 'emotion_micro_expressions tool executed successfully',
     'params': params
@@ -509,7 +509,7 @@ return {
                 - morph_control: Personality influences expression intensity
             """
             # Implementation for avatar_personality_create
-return {
+            return {
     'status': 'success',
     'message': 'avatar_personality_create tool executed successfully',
     'params': params
@@ -657,7 +657,7 @@ return {
                 - animation_sequence_play: Personality affects animation choice
             """
             # Implementation for avatar_personality_apply
-return {
+            return {
     'status': 'success',
     'message': 'avatar_personality_apply tool executed successfully',
     'params': params
