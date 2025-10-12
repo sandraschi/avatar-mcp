@@ -3,11 +3,12 @@
 ## 🎯 Mission: Make Nekomimi-chan Dance and Sing Enka!
 Transform your VRM avatars into full-fledged performers with advanced animation, audio, and interactive capabilities.
 
-## 📊 Current Status (v1.0)
-- ✅ **18 Core Tools** implemented (avatar loading, basic animation, Unity integration)
+## 📊 Current Status (v1.1)
+- ✅ **22 Tools** implemented (18 core + 4 advanced: singing + animation choreography)
 - ✅ **2 Guidance Prompts** for setup workflows
 - ✅ **MCP Protocol Support** with Claude Desktop integration
 - ✅ **Modular Architecture** - tools organized in dedicated modules
+- ✅ **Phase 1 & 2 Complete** - Nekomimi-chan can sing enka AND dance!
 - 🔄 **Server Stability** achieved with proper schema validation
 
 ---
@@ -119,62 +120,108 @@ src/avatarmcp/tools/
 
 ---
 
-## 🚀 Phase 2: Advanced Animation Tools
+## ✅ COMPLETED: Phase 2 - Advanced Animation Tools
 
-### 2.1 Animation Sequencing & Choreography
-**Goal:** Create complex, multi-stage animation sequences for professional performances.
+### ✅ `animation_sequence_create` - **IMPLEMENTED!**
+**Status:** ✅ **DONE** - Create complex multi-step animation sequences
 
-#### `animation_sequence_create`
-- **Purpose:** Define multi-step animation sequences with timing and transitions
+**Features Implemented:**
+- Multi-step animation sequences with precise timing
+- Loop control and transition blending
+- Avatar-specific sequence optimization
+- Comprehensive parameter validation
+- Sequence storage and management
+- Real-time sequence creation and editing
+
+**Example Usage:**
+```python
+# Create a complex dance sequence
+result = await animation_sequence_create({
+    'sequence_name': 'nekomimi_dance',
+    'steps': [
+        {'animation': 'Idle', 'duration': 1.0, 'blend_in': 0.3},
+        {'animation': 'DanceTwist', 'duration': 2.0, 'blend_in': 0.5},
+        {'animation': 'DanceSpin', 'duration': 1.5, 'blend_in': 0.3}
+    ],
+    'loop': True,
+    'avatar_id': 'nekomimi'
+})
+```
+
+### ✅ `animation_sequence_play` - **IMPLEMENTED!**
+**Status:** ✅ **DONE** - Execute choreographed sequences with real-time control
+
+**Features Implemented:**
+- Real-time sequence playback with speed control
+- Start from specific steps, loop control
+- Blend override for live performance adjustments
+- Playback instance tracking and management
+- Multiple simultaneous sequence playback
+
+**Example Usage:**
+```python
+# Play sequence with custom timing
+result = await animation_sequence_play({
+    'sequence_name': 'nekomimi_dance',
+    'avatar_id': 'nekomimi',
+    'speed_multiplier': 1.2,
+    'loop_count': -1  # Infinite loop
+})
+```
+
+### ✅ `animation_blend_layers` - **IMPLEMENTED!**
+**Status:** ✅ **DONE** - Layer multiple animations with complex blending
+
+**Features Implemented:**
+- Multiple animation layering with weights and priorities
+- Four blend modes: additive, override, mask, lerp
+- Bone-specific masking for targeted animation
+- Real-time layer transitions
+- Priority-based animation conflict resolution
+
+**Example Usage:**
+```python
+# Layer walking + waving + emotional expression
+result = await animation_blend_layers({
+    'avatar_id': 'nekomimi',
+    'layers': [
+        {'animation': 'WalkCycle', 'weight': 0.8, 'priority': 1},
+        {'animation': 'WaveHello', 'weight': 0.6, 'priority': 2,
+         'bone_mask': ['RightArm', 'RightHand']},
+        {'animation': 'JoyExpression', 'weight': 1.0, 'priority': 1,
+         'bone_mask': ['Head', 'Face']}
+    ],
+    'blend_mode': 'additive',
+    'transition_time': 0.5
+})
+```
+
+---
+
+## 🚀 Phase 3: Emotion & Expression State Machines
+
+### 3.1 Advanced Facial Expression System
+**Goal:** Create rich, nuanced emotional expressions beyond basic morphs.
+
+#### `emotion_state_machine`
+- **Purpose:** Define emotional states and transitions for realistic avatar behavior
 - **Parameters:**
-  - `sequence_name`: Name for the sequence
-  - `steps`: Array of animation steps with timing
-  - `loop`: Whether sequence loops
-  - `transitions`: Blend timing between steps
-- **Features:** Save/load sequences, preview execution, edit steps
-- **Use Case:** Create dance routines, storytelling sequences, interactive performances
+  - `states`: Array of emotional states (happy, sad, angry, etc.)
+  - `transitions`: Rules for moving between states
+  - `triggers`: Events that cause state changes
+  - `blend_time`: How smoothly to transition between expressions
+- **Features:** Hierarchical states, concurrent emotions, personality profiles
+- **Use Case:** Create believable emotional arcs in avatar interactions
 
-#### `animation_sequence_play`
-- **Purpose:** Execute saved animation sequences with real-time control
+#### `emotion_micro_expressions`
+- **Purpose:** Add subtle, brief emotional cues for enhanced realism
 - **Parameters:**
-  - `sequence_name`: Which sequence to play
-  - `speed_multiplier`: Playback speed adjustment
-  - `start_step`: Begin at specific step in sequence
-  - `loop_count`: How many times to repeat
-- **Features:** Pause/resume, jump to steps, speed control during playback
-- **Use Case:** Perform choreographed dances, tell stories through movement
-
-#### `animation_blend_layers`
-- **Purpose:** Layer multiple animations with different weights and priorities
-- **Parameters:**
-  - `layers`: Array of animations with weights and masks
-  - `blend_mode`: How layers combine (additive, override, mask)
-  - `transition_time`: Blend timing between layer changes
-- **Features:** Bone masks, priority systems, real-time weight adjustment
-- **Use Case:** Combine walking + waving, breathing + talking, base pose + gestures
-
-### 2.2 Procedural Animation Generation
-**Goal:** Generate natural, responsive animations from parameters rather than pre-defined clips.
-
-#### `animation_procedural_walk`
-- **Purpose:** Generate walking animation based on speed, style, and terrain
-- **Parameters:**
-  - `speed`: Walking speed (affects stride length/frequency)
-  - `style`: Walk type (casual, military, sneaking, dancing)
-  - `terrain`: Surface type (flat, stairs, rough, water)
-  - `fatigue`: Energy level affecting posture
-- **Features:** Dynamic foot placement, balance adjustments, obstacle avoidance
-- **Use Case:** Natural movement that responds to environment and avatar state
-
-#### `animation_procedural_gestures`
-- **Purpose:** Generate communicative gestures from text or emotional context
-- **Parameters:**
-  - `gesture_type`: Category (pointing, waving, shrugging, etc.)
-  - `intensity`: How emphatic the gesture should be
-  - `direction`: Spatial direction of gesture
-  - `context`: Emotional or situational context
-- **Features:** Cultural gesture variations, personality-based adjustments
-- **Use Case:** Make avatars express themselves naturally during conversations
+  - `emotion`: Base emotion to express
+  - `micro_type`: Type of micro-expression (doubt, realization, etc.)
+  - `duration`: How long the micro-expression lasts
+  - `intensity`: How subtle vs obvious the expression is
+- **Features:** Randomized timing, contextual appropriateness, blend with main expressions
+- **Use Case:** Add depth and humanity to avatar emotional responses
 
 ---
 

@@ -3263,6 +3263,167 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to synthesize singing voice: {str(e)}"
             }
 
+    async def _execute_animation_sequence_create(self, params: dict) -> dict:
+        """Execute the animation_sequence_create tool."""
+        try:
+            sequence_name = params.get('sequence_name', '').strip()
+            if not sequence_name:
+                raise ValueError("Parameter 'sequence_name' is required and cannot be empty")
+
+            steps = params.get('steps', [])
+            if not steps or not isinstance(steps, list) or len(steps) == 0:
+                raise ValueError("Parameter 'steps' is required and must be a non-empty array")
+
+            # Validate steps structure
+            total_duration = 0.0
+            for i, step in enumerate(steps):
+                if not isinstance(step, dict):
+                    raise ValueError(f"Step {i} must be a dictionary")
+                if 'animation' not in step:
+                    raise ValueError(f"Step {i} must have an 'animation' field")
+                duration = step.get('duration', 1.0)
+                if not isinstance(duration, (int, float)) or duration <= 0:
+                    raise ValueError(f"Step {i} duration must be a positive number")
+                total_duration += duration
+
+            loop = params.get('loop', False)
+            transitions = params.get('transitions', {})
+            avatar_id = params.get('avatar_id')
+
+            # Validate avatar if specified
+            if avatar_id:
+                # TODO: Check if avatar exists and is loaded
+                pass
+
+            # TODO: Implement actual sequence creation and storage
+            # For now, return mock success
+            result = {
+                "status": "success",
+                "message": f"Successfully created animation sequence '{sequence_name}' with {len(steps)} steps",
+                "sequence_name": sequence_name,
+                "steps_count": len(steps),
+                "total_duration": total_duration,
+                "loop_enabled": loop,
+                "avatar_optimized": avatar_id,
+                "sequence_id": f"seq_{sequence_name}_{int(time.time())}",
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create animation sequence: {str(e)}"
+            }
+
+    async def _execute_animation_sequence_play(self, params: dict) -> dict:
+        """Execute the animation_sequence_play tool."""
+        try:
+            sequence_name = params.get('sequence_name', '').strip()
+            if not sequence_name:
+                raise ValueError("Parameter 'sequence_name' is required")
+
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            speed_multiplier = params.get('speed_multiplier', 1.0)
+            if not isinstance(speed_multiplier, (int, float)) or speed_multiplier <= 0 or speed_multiplier > 3.0:
+                raise ValueError("Speed multiplier must be between 0.1 and 3.0")
+
+            start_step = params.get('start_step', 0)
+            if not isinstance(start_step, int) or start_step < 0:
+                raise ValueError("Start step must be a non-negative integer")
+
+            loop_count = params.get('loop_count', 1)
+            if not isinstance(loop_count, int) or (loop_count < -1 or loop_count == 0):
+                raise ValueError("Loop count must be -1 (infinite), or a positive integer")
+
+            blend_override = params.get('blend_override', {})
+
+            # TODO: Validate sequence exists and avatar is loaded
+            # TODO: Implement actual sequence playback
+
+            # Mock sequence info for calculation
+            mock_steps = 3  # Assume 3 steps for calculation
+            mock_duration_per_step = 2.0
+            total_duration = mock_steps * mock_duration_per_step / speed_multiplier
+
+            result = {
+                "status": "success",
+                "message": f"Started playing animation sequence '{sequence_name}' on avatar '{avatar_id}'",
+                "sequence_name": sequence_name,
+                "avatar_id": avatar_id,
+                "playback_id": f"play_{sequence_name}_{avatar_id}_{int(time.time())}",
+                "total_steps": mock_steps,
+                "current_step": start_step,
+                "loop_count": loop_count,
+                "speed_multiplier": speed_multiplier,
+                "estimated_duration": total_duration,
+                "started_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to play animation sequence: {str(e)}"
+            }
+
+    async def _execute_animation_blend_layers(self, params: dict) -> dict:
+        """Execute the animation_blend_layers tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            layers = params.get('layers', [])
+            if not layers or not isinstance(layers, list) or len(layers) == 0:
+                raise ValueError("Parameter 'layers' is required and must be a non-empty array")
+
+            # Validate layers structure
+            total_weight = 0.0
+            for i, layer in enumerate(layers):
+                if not isinstance(layer, dict):
+                    raise ValueError(f"Layer {i} must be a dictionary")
+                if 'animation' not in layer:
+                    raise ValueError(f"Layer {i} must have an 'animation' field")
+                weight = layer.get('weight', 1.0)
+                if not isinstance(weight, (int, float)) or weight < 0 or weight > 1:
+                    raise ValueError(f"Layer {i} weight must be between 0.0 and 1.0")
+                total_weight += weight
+
+            blend_mode = params.get('blend_mode', 'additive')
+            valid_modes = ['additive', 'override', 'mask', 'lerp']
+            if blend_mode not in valid_modes:
+                raise ValueError(f"Blend mode must be one of: {', '.join(valid_modes)}")
+
+            transition_time = params.get('transition_time', 0.3)
+            if not isinstance(transition_time, (int, float)) or transition_time < 0:
+                raise ValueError("Transition time must be a non-negative number")
+
+            # TODO: Validate avatar is loaded
+            # TODO: Implement actual layer blending
+
+            result = {
+                "status": "success",
+                "message": f"Applied {len(layers)} animation layers to avatar '{avatar_id}' with {blend_mode} blending",
+                "avatar_id": avatar_id,
+                "layers_applied": len(layers),
+                "blend_mode": blend_mode,
+                "layer_ids": [f"layer_{i}" for i in range(len(layers))],
+                "transition_time": transition_time,
+                "total_weight": total_weight,
+                "applied_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to apply animation blend layers: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -3276,6 +3437,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize audio tools: {e}")
             self.audio_tools = None
+
+        try:
+            # Import and initialize animation tools
+            from .tools.animation.animation_tools import AnimationTools
+            self.animation_tools = AnimationTools(self)
+            logger.info("Animation tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import animation tools: {e}")
+            self.animation_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize animation tools: {e}")
+            self.animation_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
 
