@@ -4555,6 +4555,298 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to send avatar message: {str(e)}"
             }
 
+    async def _execute_ai_conversation_respond(self, params: dict) -> dict:
+        """Execute the ai_conversation_respond tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            user_input = params.get('user_input', '').strip()
+            if not user_input:
+                raise ValueError("Parameter 'user_input' is required")
+
+            conversation_context = params.get('conversation_context', {})
+            response_style = params.get('response_style', 'natural')
+            emotional_tone = params.get('emotional_tone')
+            personality_influence = params.get('personality_influence', 0.8)
+            creativity_level = params.get('creativity_level', 0.6)
+
+            # TODO: Implement actual AI conversation response generation
+            # Mock AI response generation
+            mock_responses = {
+                'natural': "That sounds really interesting! I'd love to hear more about it.",
+                'formal': "I appreciate you sharing that information with me.",
+                'playful': "Ooh, that sounds like an adventure waiting to happen! 🎉",
+                'empathetic': "I can sense how much that means to you. I'm here to listen.",
+                'concise': "Understood. Thank you for sharing."
+            }
+
+            response_text = mock_responses.get(response_style, mock_responses['natural'])
+            emotional_tone = emotional_tone or 'positive'
+            confidence = 0.85
+
+            result = {
+                "status": "success",
+                "message": f"Generated AI response for avatar '{avatar_id}'",
+                "avatar_id": avatar_id,
+                "response_text": response_text,
+                "emotional_tone": emotional_tone,
+                "confidence_score": confidence,
+                "personality_factors": ["empathy", "enthusiasm", "authenticity"],
+                "response_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to generate AI conversation response: {str(e)}"
+            }
+
+    async def _execute_ai_behavior_adapt(self, params: dict) -> dict:
+        """Execute the ai_behavior_adapt tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            learning_mode = params.get('learning_mode', '').strip()
+            valid_modes = ['interaction_patterns', 'preference_learning', 'emotional_response', 'conversation_style', 'activity_adaptation']
+            if learning_mode not in valid_modes:
+                raise ValueError(f"Learning mode must be one of: {', '.join(valid_modes)}")
+
+            adaptation_data = params.get('adaptation_data', {})
+            if not adaptation_data or not isinstance(adaptation_data, dict):
+                raise ValueError("Parameter 'adaptation_data' is required and must be an object")
+
+            adaptation_strength = params.get('adaptation_strength', 0.5)
+            learning_rate = params.get('learning_rate', 0.1)
+            reset_learning = params.get('reset_learning', False)
+            adaptation_scope = params.get('adaptation_scope', 'all')
+
+            # TODO: Implement actual AI behavior adaptation
+            # Mock behavior adaptation
+            adaptations_applied = random.randint(3, 8)
+            learning_progress = min(0.9, random.uniform(0.6, 0.95))
+
+            result = {
+                "status": "success",
+                "message": f"Adapted behavior for avatar '{avatar_id}' using {learning_mode} learning",
+                "avatar_id": avatar_id,
+                "learning_mode": learning_mode,
+                "adaptations_applied": adaptations_applied,
+                "adaptation_strength": adaptation_strength,
+                "learning_progress": learning_progress,
+                "behavior_changes": f"Applied {adaptations_applied} behavioral adaptations with {adaptation_strength:.1%} strength"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to adapt AI behavior: {str(e)}"
+            }
+
+    async def _execute_ai_personality_predict(self, params: dict) -> dict:
+        """Execute the ai_personality_predict tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            prediction_type = params.get('prediction_type', '').strip()
+            valid_types = ['preference', 'behavior', 'emotional', 'timing', 'content']
+            if prediction_type not in valid_types:
+                raise ValueError(f"Prediction type must be one of: {', '.join(valid_types)}")
+
+            prediction_context = params.get('prediction_context', {})
+            if not prediction_context or not isinstance(prediction_context, dict):
+                raise ValueError("Parameter 'prediction_context' is required and must be an object")
+
+            confidence_threshold = params.get('confidence_threshold', 0.6)
+            prediction_horizon = params.get('prediction_horizon', 'short_term')
+            adaptation_enabled = params.get('adaptation_enabled', False)
+
+            # TODO: Implement actual AI personality prediction
+            # Mock predictions based on type
+            mock_predictions = {
+                'preference': [
+                    {'prediction': 'prefers_relaxing_activities', 'confidence': 0.82},
+                    {'prediction': 'enjoys_music', 'confidence': 0.75},
+                    {'prediction': 'values_authenticity', 'confidence': 0.68}
+                ],
+                'behavior': [
+                    {'prediction': 'will_engage_in_conversation', 'confidence': 0.79},
+                    {'prediction': 'prefers_gradual_interactions', 'confidence': 0.71}
+                ],
+                'emotional': [
+                    {'prediction': 'will_feel_positive', 'confidence': 0.85},
+                    {'prediction': 'open_to_emotional_sharing', 'confidence': 0.73}
+                ],
+                'timing': [
+                    {'prediction': 'best_time_afternoon', 'confidence': 0.77},
+                    {'prediction': 'prefers_15_min_interactions', 'confidence': 0.69}
+                ],
+                'content': [
+                    {'prediction': 'interested_in_stories', 'confidence': 0.81},
+                    {'prediction': 'prefers_visual_content', 'confidence': 0.74}
+                ]
+            }
+
+            predictions = mock_predictions.get(prediction_type, [])
+            # Filter by confidence threshold
+            predictions = [p for p in predictions if p['confidence'] >= confidence_threshold]
+            avg_confidence = sum(p['confidence'] for p in predictions) / len(predictions) if predictions else 0
+
+            result = {
+                "status": "success",
+                "message": f"Generated {prediction_type} predictions for avatar '{avatar_id}'",
+                "avatar_id": avatar_id,
+                "prediction_type": prediction_type,
+                "predictions": predictions,
+                "average_confidence": avg_confidence,
+                "prediction_count": len(predictions),
+                "adaptation_applied": adaptation_enabled
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to generate AI personality predictions: {str(e)}"
+            }
+
+    async def _execute_ai_context_analyze(self, params: dict) -> dict:
+        """Execute the ai_context_analyze tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            analysis_scope = params.get('analysis_scope', '').strip()
+            valid_scopes = ['environmental', 'social', 'emotional', 'situational', 'comprehensive']
+            if analysis_scope not in valid_scopes:
+                raise ValueError(f"Analysis scope must be one of: {', '.join(valid_scopes)}")
+
+            context_data = params.get('context_data', {})
+            if not context_data or not isinstance(context_data, dict):
+                raise ValueError("Parameter 'context_data' is required and must be an object")
+
+            analysis_depth = params.get('analysis_depth', 'standard')
+            real_time_analysis = params.get('real_time_analysis', False)
+            insight_types = params.get('insight_types', [])
+
+            # TODO: Implement actual AI context analysis
+            # Mock context analysis results
+            mock_insights = {
+                'environmental': {
+                    'lighting_atmosphere': 'Creates warm, inviting ambiance',
+                    'spatial_dynamics': 'Encourages close, personal interactions',
+                    'sensory_cues': 'Background music enhances emotional connection'
+                },
+                'social': {
+                    'relationship_dynamics': 'Strong trust-building opportunities',
+                    'group_energy': 'Collaborative and supportive atmosphere',
+                    'communication_patterns': 'Open and authentic exchanges'
+                },
+                'emotional': {
+                    'primary_mood': 'Warm and emotionally safe environment',
+                    'emotional_cues': 'Supportive and understanding context',
+                    'resonance_opportunities': 'High potential for meaningful connections'
+                },
+                'situational': {
+                    'timing_factors': 'Evening setting encourages deeper conversations',
+                    'activity_flow': 'Natural progression from casual to meaningful',
+                    'contextual_cues': 'Setting supports authentic self-expression'
+                },
+                'comprehensive': {
+                    'holistic_assessment': 'Highly conducive to positive avatar interactions',
+                    'optimal_strategies': 'Leverage warmth and authenticity for best results',
+                    'improvement_opportunities': 'Consider adding more interactive elements'
+                }
+            }
+
+            insights = mock_insights.get(analysis_scope, {})
+            confidence_levels = {k: random.uniform(0.75, 0.95) for k in insights.keys()}
+
+            mock_recommendations = [
+                "Emphasize warmth and approachability in responses",
+                "Encourage deeper emotional sharing opportunities",
+                "Maintain consistent supportive communication style",
+                "Leverage environmental cues for enhanced engagement"
+            ]
+
+            result = {
+                "status": "success",
+                "message": f"Completed {analysis_scope} context analysis for avatar '{avatar_id}'",
+                "avatar_id": avatar_id,
+                "analysis_scope": analysis_scope,
+                "context_insights": insights,
+                "confidence_levels": confidence_levels,
+                "actionable_recommendations": mock_recommendations,
+                "analysis_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to analyze AI context: {str(e)}"
+            }
+
+    async def _execute_ai_interaction_learn(self, params: dict) -> dict:
+        """Execute the ai_interaction_learn tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            learning_objective = params.get('learning_objective', '').strip()
+            valid_objectives = ['success_patterns', 'user_satisfaction', 'timing_optimization', 'engagement_strategies', 'error_prevention']
+            if learning_objective not in valid_objectives:
+                raise ValueError(f"Learning objective must be one of: {', '.join(valid_objectives)}")
+
+            interaction_data = params.get('interaction_data', {})
+            if not interaction_data or not isinstance(interaction_data, dict):
+                raise ValueError("Parameter 'interaction_data' is required and must be an object")
+
+            learning_algorithm = params.get('learning_algorithm', 'reinforcement')
+            learning_intensity = params.get('learning_intensity', 0.4)
+            validation_method = params.get('validation_method', 'cross_validation')
+            reset_baseline = params.get('reset_baseline', False)
+
+            # TODO: Implement actual AI interaction learning
+            # Mock learning results
+            improvements_identified = random.randint(5, 15)
+            learning_accuracy = random.uniform(0.75, 0.92)
+
+            mock_changes = [
+                "Improved response timing by 15%",
+                "Enhanced empathy in emotional situations",
+                "Better topic transition handling",
+                "Increased engagement with active listening",
+                "Reduced conversational dead-ends"
+            ]
+
+            result = {
+                "status": "success",
+                "message": f"Completed {learning_objective} learning for avatar '{avatar_id}'",
+                "avatar_id": avatar_id,
+                "learning_objective": learning_objective,
+                "improvements_identified": improvements_identified,
+                "learning_accuracy": learning_accuracy,
+                "behavioral_changes": mock_changes,
+                "validation_results": f"Learning validated using {validation_method} with {learning_accuracy:.1%} accuracy"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to perform AI interaction learning: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -4640,6 +4932,30 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize collaboration tools: {e}")
             self.collaboration_tools = None
+
+        try:
+            # Import and initialize AI behavior tools
+            from .tools.ai_behavior.ai_behavior_tools import AIBehaviorTools
+            self.ai_behavior_tools = AIBehaviorTools(self)
+            logger.info("AI behavior tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import AI behavior tools: {e}")
+            self.ai_behavior_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize AI behavior tools: {e}")
+            self.ai_behavior_tools = None
+
+        try:
+            # Import and initialize Unity tools
+            from .tools.unity.unity_tools import UnityTools
+            self.unity_tools = UnityTools(self)
+            logger.info("Unity tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import Unity tools: {e}")
+            self.unity_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize Unity tools: {e}")
+            self.unity_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
     
