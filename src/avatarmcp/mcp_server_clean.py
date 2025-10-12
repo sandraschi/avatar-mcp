@@ -2251,7 +2251,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     if not line:
                         continue
 
-                    logger.debug(f"Received: {line}")
+                    # logger.debug(f"Received: {line}")  # Commented out to reduce spam
 
                     # Parse JSON
                     try:
@@ -2266,7 +2266,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     # Send response
                     if response:
                         response_json = json.dumps(response)
-                        logger.debug(f"Sending: {response_json}")
+                        # logger.debug(f"Sending: {response_json}")  # Commented out to reduce spam
                         print(response_json, flush=True)
 
                 except Exception as e:
@@ -4098,12 +4098,12 @@ def main():
     log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        filename=log_file,
-        filemode='a'
-    )
+            logging.basicConfig(
+                level=logging.INFO,
+                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                filename=log_file,
+                filemode='a'
+            )
 
     # Create and run the server
     server = MCPServer()
