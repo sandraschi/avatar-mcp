@@ -59,8 +59,8 @@ class EnhancedMCPServer:
         self.logger = logging.getLogger(__name__)
         
         # Load base MCP server
-        mcp_server_path = pathlib.Path(__file__).parent / "mcp_server.py"
-        spec = importlib.util.spec_from_file_location("mcp_server", mcp_server_path)
+        mcp_server_path = pathlib.Path(__file__).parent / "mcp_server_clean.py"
+        spec = importlib.util.spec_from_file_location("mcp_server_clean", mcp_server_path)
         self.mcp_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.mcp_module)
         
