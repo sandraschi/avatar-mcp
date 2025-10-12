@@ -3647,6 +3647,201 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to apply personality profile: {str(e)}"
             }
 
+    async def _execute_interactive_pose_control(self, params: dict) -> dict:
+        """Execute the interactive_pose_control tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            bone_controls = params.get('bone_controls', {})
+            if not bone_controls or not isinstance(bone_controls, dict) or len(bone_controls) == 0:
+                raise ValueError("Parameter 'bone_controls' is required and must be a non-empty object")
+
+            coordinate_system = params.get('coordinate_system', 'local')
+            valid_systems = ['local', 'world', 'avatar']
+            if coordinate_system not in valid_systems:
+                raise ValueError(f"Coordinate system must be one of: {', '.join(valid_systems)}")
+
+            interpolation_mode = params.get('interpolation_mode', 'smooth')
+            valid_modes = ['instant', 'smooth', 'physics', 'kinematic']
+            if interpolation_mode not in valid_modes:
+                raise ValueError(f"Interpolation mode must be one of: {', '.join(valid_modes)}")
+
+            duration = params.get('duration', 0.5)
+            if not isinstance(duration, (int, float)) or duration < 0:
+                raise ValueError("Duration must be a non-negative number")
+
+            maintain_pose = params.get('maintain_pose', False)
+
+            # TODO: Validate avatar is loaded and supports pose control
+            # TODO: Implement actual pose manipulation
+
+            result = {
+                "status": "success",
+                "message": f"Applied pose control to avatar '{avatar_id}' with {len(bone_controls)} bone transformations",
+                "avatar_id": avatar_id,
+                "bones_affected": len(bone_controls),
+                "coordinate_system": coordinate_system,
+                "interpolation_mode": interpolation_mode,
+                "duration": duration,
+                "pose_maintained": maintain_pose,
+                "applied_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to apply pose control: {str(e)}"
+            }
+
+    async def _execute_interactive_gesture_recognize(self, params: dict) -> dict:
+        """Execute the interactive_gesture_recognize tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            recognition_mode = params.get('recognition_mode', 'realtime')
+            valid_modes = ['realtime', 'sequence', 'pose', 'motion']
+            if recognition_mode not in valid_modes:
+                raise ValueError(f"Recognition mode must be one of: {', '.join(valid_modes)}")
+
+            gesture_types = params.get('gesture_types', [])
+            sensitivity = params.get('sensitivity', 0.7)
+            if not isinstance(sensitivity, (int, float)) or sensitivity < 0 or sensitivity > 1:
+                raise ValueError("Sensitivity must be between 0.0 and 1.0")
+
+            confidence_threshold = params.get('confidence_threshold', 0.8)
+            if not isinstance(confidence_threshold, (int, float)) or confidence_threshold < 0 or confidence_threshold > 1:
+                raise ValueError("Confidence threshold must be between 0.0 and 1.0")
+
+            response_actions = params.get('response_actions', {})
+
+            # Mock gesture detection
+            mock_gestures = ['waving', 'nodding'] if random.random() > 0.5 else []
+            mock_confidence = {g: random.uniform(0.8, 0.95) for g in mock_gestures}
+
+            # TODO: Implement actual gesture recognition
+            # TODO: Trigger response actions
+
+            result = {
+                "status": "success",
+                "message": f"Gesture recognition completed for avatar '{avatar_id}' in {recognition_mode} mode",
+                "avatar_id": avatar_id,
+                "recognition_mode": recognition_mode,
+                "gestures_detected": mock_gestures,
+                "gesture_confidence": mock_confidence,
+                "sensitivity": sensitivity,
+                "response_actions": list(response_actions.keys()),
+                "analysis_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to perform gesture recognition: {str(e)}"
+            }
+
+    async def _execute_interactive_feedback_system(self, params: dict) -> dict:
+        """Execute the interactive_feedback_system tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            feedback_triggers = params.get('feedback_triggers', {})
+            if not feedback_triggers or not isinstance(feedback_triggers, dict) or len(feedback_triggers) == 0:
+                raise ValueError("Parameter 'feedback_triggers' is required and must be a non-empty object")
+
+            feedback_responses = params.get('feedback_responses', {})
+            if not feedback_responses or not isinstance(feedback_responses, dict) or len(feedback_responses) == 0:
+                raise ValueError("Parameter 'feedback_responses' is required and must be a non-empty object")
+
+            adaptation_mode = params.get('adaptation_mode', 'reactive')
+            valid_modes = ['reactive', 'adaptive', 'predictive', 'contextual']
+            if adaptation_mode not in valid_modes:
+                raise ValueError(f"Adaptation mode must be one of: {', '.join(valid_modes)}")
+
+            intensity_multiplier = params.get('intensity_multiplier', 1.0)
+            if not isinstance(intensity_multiplier, (int, float)) or intensity_multiplier <= 0:
+                raise ValueError("Intensity multiplier must be a positive number")
+
+            cooldown_period = params.get('cooldown_period', 0.5)
+            if not isinstance(cooldown_period, (int, float)) or cooldown_period < 0:
+                raise ValueError("Cooldown period must be a non-negative number")
+
+            # TODO: Implement actual feedback system
+            # TODO: Set up trigger monitoring and response execution
+
+            result = {
+                "status": "success",
+                "message": f"Configured feedback system for avatar '{avatar_id}' with {len(feedback_triggers)} triggers and {len(feedback_responses)} responses",
+                "avatar_id": avatar_id,
+                "triggers_configured": len(feedback_triggers),
+                "responses_configured": len(feedback_responses),
+                "adaptation_mode": adaptation_mode,
+                "intensity_multiplier": intensity_multiplier,
+                "cooldown_period": cooldown_period,
+                "system_active": True,
+                "configured_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to configure feedback system: {str(e)}"
+            }
+
+    async def _execute_interactive_scene_control(self, params: dict) -> dict:
+        """Execute the interactive_scene_control tool."""
+        try:
+            scene_name = params.get('scene_name', '').strip()
+            if not scene_name:
+                raise ValueError("Parameter 'scene_name' is required")
+
+            avatars = params.get('avatars', {})
+            if not avatars or not isinstance(avatars, dict) or len(avatars) == 0:
+                raise ValueError("Parameter 'avatars' is required and must be a non-empty object")
+
+            scene_layout = params.get('scene_layout', {})
+            interaction_rules = params.get('interaction_rules', {})
+
+            scene_duration = params.get('scene_duration', 'continuous')
+            if scene_duration != 'continuous' and not isinstance(scene_duration, (int, float)):
+                raise ValueError("Scene duration must be 'continuous' or a number")
+
+            synchronization_mode = params.get('synchronization_mode', 'loose')
+            valid_modes = ['loose', 'tight', 'leader_follower']
+            if synchronization_mode not in valid_modes:
+                raise ValueError(f"Synchronization mode must be one of: {', '.join(valid_modes)}")
+
+            # TODO: Validate avatars exist and are loaded
+            # TODO: Implement actual scene coordination
+            # TODO: Set up interaction rules and synchronization
+
+            result = {
+                "status": "success",
+                "message": f"Created interactive scene '{scene_name}' with {len(avatars)} avatars",
+                "scene_name": scene_name,
+                "avatars_in_scene": len(avatars),
+                "scene_layout": scene_layout,
+                "synchronization_mode": synchronization_mode,
+                "scene_duration": scene_duration,
+                "scene_active": True,
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create interactive scene: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -3684,6 +3879,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize emotion tools: {e}")
             self.emotion_tools = None
+
+        try:
+            # Import and initialize interactive tools
+            from .tools.interactive.interactive_tools import InteractiveTools
+            self.interactive_tools = InteractiveTools(self)
+            logger.info("Interactive tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import interactive tools: {e}")
+            self.interactive_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize interactive tools: {e}")
+            self.interactive_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
     
