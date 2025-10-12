@@ -89,8 +89,12 @@ class CoreTools:
             start_time = time.time()
 
             try:
-                # Get models directory from current working directory
-                models_dir = os.path.join(os.getcwd(), "models")
+                # Get models directory from project root (relative to this script)
+                # Script is at src/avatarmcp/tools/core/core_tools.py
+                # Project root is two levels up: ../../../../
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
+                models_dir = os.path.join(project_root, "models")
 
                 if not os.path.exists(models_dir):
                     return {
