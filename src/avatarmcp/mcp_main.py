@@ -25,14 +25,12 @@ def main():
     log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
-    # Configure logging to file AND stderr only - NEVER stdout
+    # Configure logging to stderr only (MCP best practice)
     # MCP protocol requires stdout for JSON-RPC only
     logging.basicConfig(
-        level=logging.INFO,  # Reduced from DEBUG to reduce spam
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        filename=log_file,
-        filemode='a',
-        stream=sys.stderr  # Explicitly send to stderr
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        stream=sys.stderr  # Send to stderr for Claude Desktop logs
     )
 
     logger = logging.getLogger(__name__)

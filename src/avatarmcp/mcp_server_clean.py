@@ -58,29 +58,29 @@ See individual tool docs for detailed usage."""
 4. Position: unity_window_position({'x': 100, 'y': 100})"""
 
     def _init_tool_modules(self):
-        """Initialize modular tool classes like other MCP servers do."""
-        # Initialize all tool modules - keep it simple like other MCP servers
-        from .tools.core.core_tools import CoreTools
-        from .tools.audio.audio_tools import AudioTools
-        from .tools.animation.animation_tools import AnimationTools
-        from .tools.emotion.emotion_tools import EmotionTools
-        from .tools.interactive.interactive_tools import InteractiveTools
-        from .tools.performance.performance_tools import PerformanceTools
-        from .tools.content.content_tools import ContentTools
-        from .tools.collaboration.collaboration_tools import CollaborationTools
-        from .tools.ai_behavior.ai_behavior_tools import AIBehaviorTools
-        from .tools.unity.unity_tools import UnityTools
+        """Initialize modular tool classes with absolute imports for compatibility."""
+        # Use absolute imports to work whether run as module or script
+        import avatarmcp.tools.core.core_tools as core_module
+        import avatarmcp.tools.audio.audio_tools as audio_module
+        import avatarmcp.tools.animation.animation_tools as animation_module
+        import avatarmcp.tools.emotion.emotion_tools as emotion_module
+        import avatarmcp.tools.interactive.interactive_tools as interactive_module
+        import avatarmcp.tools.performance.performance_tools as performance_module
+        import avatarmcp.tools.content.content_tools as content_module
+        import avatarmcp.tools.collaboration.collaboration_tools as collaboration_module
+        import avatarmcp.tools.ai_behavior.ai_behavior_tools as ai_behavior_module
+        import avatarmcp.tools.unity.unity_tools as unity_module
 
-        self.core_tools = CoreTools(self)
-        self.audio_tools = AudioTools(self)
-        self.animation_tools = AnimationTools(self)
-        self.emotion_tools = EmotionTools(self)
-        self.interactive_tools = InteractiveTools(self)
-        self.performance_tools = PerformanceTools(self)
-        self.content_tools = ContentTools(self)
-        self.collaboration_tools = CollaborationTools(self)
-        self.ai_behavior_tools = AIBehaviorTools(self)
-        self.unity_tools = UnityTools(self)
+        self.core_tools = core_module.CoreTools(self)
+        self.audio_tools = audio_module.AudioTools(self)
+        self.animation_tools = animation_module.AnimationTools(self)
+        self.emotion_tools = emotion_module.EmotionTools(self)
+        self.interactive_tools = interactive_module.InteractiveTools(self)
+        self.performance_tools = performance_module.PerformanceTools(self)
+        self.content_tools = content_module.ContentTools(self)
+        self.collaboration_tools = collaboration_module.CollaborationTools(self)
+        self.ai_behavior_tools = ai_behavior_module.AIBehaviorTools(self)
+        self.unity_tools = unity_module.UnityTools(self)
 
 
     def run(self):
