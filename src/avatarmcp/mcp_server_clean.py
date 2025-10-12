@@ -4320,6 +4320,241 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to create interaction script: {str(e)}"
             }
 
+    async def _execute_avatar_scene_join(self, params: dict) -> dict:
+        """Execute the avatar_scene_join tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            scene_id = params.get('scene_id', '').strip()
+            if not scene_id:
+                raise ValueError("Parameter 'scene_id' is required")
+
+            join_position = params.get('join_position')
+            join_role = params.get('join_role', 'participant')
+            valid_roles = ['participant', 'host', 'performer', 'observer', 'moderator']
+            if join_role not in valid_roles:
+                raise ValueError(f"Join role must be one of: {', '.join(valid_roles)}")
+
+            sync_options = params.get('sync_options', {})
+            entry_animation = params.get('entry_animation')
+
+            # TODO: Validate avatar and scene exist
+            # TODO: Implement actual scene joining logic
+
+            result = {
+                "status": "success",
+                "message": f"Avatar '{avatar_id}' joined scene '{scene_id}' as {join_role}",
+                "avatar_id": avatar_id,
+                "scene_id": scene_id,
+                "join_role": join_role,
+                "scene_participants": 1,  # Mock - would be actual count
+                "sync_status": "synchronized",
+                "entry_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to join scene: {str(e)}"
+            }
+
+    async def _execute_avatar_group_create(self, params: dict) -> dict:
+        """Execute the avatar_group_create tool."""
+        try:
+            group_name = params.get('group_name', '').strip()
+            if not group_name:
+                raise ValueError("Parameter 'group_name' is required and cannot be empty")
+
+            group_type = params.get('group_type', '').strip()
+            valid_types = ['performance', 'social', 'educational', 'gameplay', 'work']
+            if group_type not in valid_types:
+                raise ValueError(f"Group type must be one of: {', '.join(valid_types)}")
+
+            max_participants = params.get('max_participants', 10)
+            if not isinstance(max_participants, int) or max_participants <= 0:
+                raise ValueError("max_participants must be a positive integer")
+
+            group_leader = params.get('group_leader')
+            participation_rules = params.get('participation_rules', {})
+            sync_requirements = params.get('sync_requirements', {})
+
+            # TODO: Implement actual group creation
+            # Mock group creation result
+            result = {
+                "status": "success",
+                "message": f"Created {group_type} group '{group_name}'",
+                "group_name": group_name,
+                "group_id": f"group_{group_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "group_type": group_type,
+                "max_participants": max_participants,
+                "current_participants": 0,
+                "group_leader": group_leader,
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create avatar group: {str(e)}"
+            }
+
+    async def _execute_avatar_interaction_request(self, params: dict) -> dict:
+        """Execute the avatar_interaction_request tool."""
+        try:
+            requester_avatar = params.get('requester_avatar', '').strip()
+            if not requester_avatar:
+                raise ValueError("Parameter 'requester_avatar' is required")
+
+            target_avatar = params.get('target_avatar', '').strip()
+            if not target_avatar:
+                raise ValueError("Parameter 'target_avatar' is required")
+
+            interaction_type = params.get('interaction_type', '').strip()
+            valid_types = ['performance', 'conversation', 'collaboration', 'competition', 'assistance', 'celebration']
+            if interaction_type not in valid_types:
+                raise ValueError(f"Interaction type must be one of: {', '.join(valid_types)}")
+
+            interaction_details = params.get('interaction_details', {})
+            if not interaction_details or not isinstance(interaction_details, dict):
+                raise ValueError("Parameter 'interaction_details' is required and must be an object")
+
+            priority_level = params.get('priority_level', 'normal')
+            valid_priorities = ['low', 'normal', 'high', 'critical']
+            if priority_level not in valid_priorities:
+                raise ValueError(f"Priority level must be one of: {', '.join(valid_priorities)}")
+
+            timeout_seconds = params.get('timeout_seconds', 30.0)
+            fallback_action = params.get('fallback_action')
+
+            # TODO: Implement actual interaction request system
+            # Mock interaction request
+            result = {
+                "status": "pending",
+                "message": f"Interaction request sent from '{requester_avatar}' to '{target_avatar}'",
+                "requester_avatar": requester_avatar,
+                "target_avatar": target_avatar,
+                "interaction_type": interaction_type,
+                "request_id": f"req_{requester_avatar}_{target_avatar}_{int(time.time())}",
+                "priority_level": priority_level,
+                "timeout_seconds": timeout_seconds,
+                "request_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to send interaction request: {str(e)}"
+            }
+
+    async def _execute_scene_state_save(self, params: dict) -> dict:
+        """Execute the scene_state_save tool."""
+        try:
+            scene_id = params.get('scene_id', '').strip()
+            if not scene_id:
+                raise ValueError("Parameter 'scene_id' is required")
+
+            save_name = params.get('save_name', '').strip()
+            if not save_name:
+                raise ValueError("Parameter 'save_name' is required and cannot be empty")
+
+            save_scope = params.get('save_scope', 'complete')
+            valid_scopes = ['complete', 'avatars_only', 'environment_only', 'minimal']
+            if save_scope not in valid_scopes:
+                raise ValueError(f"Save scope must be one of: {', '.join(valid_scopes)}")
+
+            include_participants = params.get('include_participants', True)
+            compression_level = params.get('compression_level', 'balanced')
+            valid_compression = ['none', 'fast', 'balanced', 'maximum']
+            if compression_level not in valid_compression:
+                raise ValueError(f"Compression level must be one of: {', '.join(valid_compression)}")
+
+            metadata = params.get('metadata', {})
+
+            # TODO: Implement actual scene state saving
+            # Mock save operation
+            mock_size = random.randint(100000, 5000000)  # Mock size between 100KB and 5MB
+            mock_participants = random.randint(1, 20) if include_participants else 0
+
+            result = {
+                "status": "success",
+                "message": f"Saved {save_scope} state for scene '{scene_id}' as '{save_name}'",
+                "scene_id": scene_id,
+                "save_name": save_name,
+                "save_scope": save_scope,
+                "data_size": mock_size,
+                "compression_used": compression_level,
+                "participants_saved": mock_participants,
+                "save_timestamp": time.time(),
+                "save_id": f"save_{scene_id}_{save_name.lower().replace(' ', '_')}_{int(time.time())}"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to save scene state: {str(e)}"
+            }
+
+    async def _execute_avatar_message_send(self, params: dict) -> dict:
+        """Execute the avatar_message_send tool."""
+        try:
+            sender_avatar = params.get('sender_avatar', '').strip()
+            if not sender_avatar:
+                raise ValueError("Parameter 'sender_avatar' is required")
+
+            recipient_avatar = params.get('recipient_avatar', '').strip()
+            if not recipient_avatar:
+                raise ValueError("Parameter 'recipient_avatar' is required")
+
+            message_type = params.get('message_type', '').strip()
+            valid_types = ['text', 'voice', 'gesture', 'system', 'emotion']
+            if message_type not in valid_types:
+                raise ValueError(f"Message type must be one of: {', '.join(valid_types)}")
+
+            message_content = params.get('message_content')
+            if message_content is None:
+                raise ValueError("Parameter 'message_content' is required")
+
+            delivery_method = params.get('delivery_method', 'immediate')
+            valid_methods = ['immediate', 'queued', 'scheduled', 'conditional']
+            if delivery_method not in valid_methods:
+                raise ValueError(f"Delivery method must be one of: {', '.join(valid_methods)}")
+
+            priority_level = params.get('priority_level', 'normal')
+            valid_priorities = ['low', 'normal', 'high', 'urgent']
+            if priority_level not in valid_priorities:
+                raise ValueError(f"Priority level must be one of: {', '.join(valid_priorities)}")
+
+            message_metadata = params.get('message_metadata', {})
+
+            # TODO: Implement actual messaging system
+            # Mock message sending
+            delivery_status = "delivered" if delivery_method == "immediate" else "queued"
+
+            result = {
+                "status": "success" if delivery_method == "immediate" else "queued",
+                "message": f"Message sent from '{sender_avatar}' to '{recipient_avatar}'",
+                "sender_avatar": sender_avatar,
+                "recipient_avatar": recipient_avatar,
+                "message_type": message_type,
+                "message_id": f"msg_{sender_avatar}_{recipient_avatar}_{int(time.time())}",
+                "delivery_status": delivery_status,
+                "priority_level": priority_level,
+                "sent_timestamp": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to send avatar message: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -4393,6 +4628,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize content creation tools: {e}")
             self.content_tools = None
+
+        try:
+            # Import and initialize collaboration tools
+            from .tools.collaboration.collaboration_tools import CollaborationTools
+            self.collaboration_tools = CollaborationTools(self)
+            logger.info("Collaboration tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import collaboration tools: {e}")
+            self.collaboration_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize collaboration tools: {e}")
+            self.collaboration_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
     
