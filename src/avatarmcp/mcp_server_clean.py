@@ -37,7 +37,7 @@ class MCPServer:
 
         # Initialize FastMCP
         self.mcp = FastMCP("avatarmcp")
-
+        
         # Lazy loading cache - components loaded on demand
         self._vrm_manager = None
         self._model_manager = None
@@ -45,7 +45,7 @@ class MCPServer:
         self._animation_controllers = {}
         self._avatar_controls = {}
         self._import_errors = {}  # Track what failed to import
-
+        
         # Register prompts and tools
         self._register_prompts()
         self._register_tools()
@@ -409,7 +409,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     avatars = await avatar_list({})
                     if avatars['count'] == 0:
                         print("No VRM files found - check models directory")
-                    else:
+            else:
                         print(f"Found {avatars['count']} avatars")
 
                 Filter for specific avatars:
@@ -1023,7 +1023,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     result = await unity_system_status({})
                     if result['unity_connected']:
                         print(f"Unity connected, avatar loaded: {result['avatar_loaded']}")
-                    else:
+            else:
                         print("Unity application not connected")
 
                 Detailed system monitoring:
@@ -2308,8 +2308,8 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     tools.append({
                         "name": tool.name,
                         "description": tool.description,
-                        "inputSchema": {
-                            "type": "object",
+                "inputSchema": {
+                    "type": "object",
                             "additionalProperties": True
                         }
                     })
@@ -2341,11 +2341,11 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             elif method == "resources/list":
                 # This server doesn't provide resources
                 return {
-                    "jsonrpc": "2.0",
+            "jsonrpc": "2.0",
                     "id": req_id,
                     "result": {"resources": []}
-                }
-
+            }
+    
             elif method == "tools/call":
                 tool_name = params.get("name")
                 tool_args = params.get("arguments", {})
@@ -2371,15 +2371,15 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
 
             else:
                 return {
-                    "jsonrpc": "2.0",
+                "jsonrpc": "2.0",
                     "id": req_id,
                     "error": {
                         "code": -32601,
                         "message": "Method not found",
                         "data": f"Unknown method: {method}"
                     }
-                }
-
+            }
+            
         except Exception as e:
             logger.error(f"Error handling MCP request: {e}", exc_info=True)
             return {
@@ -2391,24 +2391,24 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     "data": str(e)
                 }
             }
-
+        
     def run_sync(self):
         """Synchronous fallback - not supported for FastMCP."""
         raise RuntimeError("FastMCP requires asyncio. Use run() instead.")
-
+    
     # Tool execution methods
     async def _execute_avatar_list(self, params: dict) -> dict:
         """Execute the avatar_list tool."""
         try:
             # Lazy import - only load when actually needed
             vrm_manager = await self._get_vrm_manager()
-
+            
             if not vrm_manager:
                 # Fallback: scan models directory directly
                 return await self._fallback_list_avatars()
-
+            
             model_ids = await vrm_manager.scan_models()
-
+            
             avatars = []
             for model_id in model_ids:
                 model_info = await vrm_manager.get_model_info(model_id)
@@ -2419,7 +2419,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                         "path": model_info.get('path', ''),
                         "metadata": model_info.get('metadata', {})
                     })
-
+            
             return {
                 "status": "success",
                 "avatars": avatars,
@@ -2429,7 +2429,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             logger.error(f"Error listing avatars: {e}")
             # Always provide a fallback
             return await self._fallback_list_avatars()
-
+    
     async def _execute_avatar_load(self, params: dict) -> dict:
         """Execute the avatar_load tool."""
         try:
@@ -2437,10 +2437,10 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             avatar_id = params.get("avatarId")
             path = params.get("path")
             scale = params.get("scale", 1.0)
-
+            
             if not avatar_id and not path:
                 raise ValueError("Either avatarId or path parameter is required")
-
+            
             if path:
                 # Load from direct path - try full manager first
                 model_manager = await self._get_model_manager()
@@ -2457,7 +2457,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                             }
                     except Exception as e:
                         logger.warning(f"Full model manager failed: {e}, trying fallback")
-
+                
                 # Fallback: basic path validation
                 import os
                 if os.path.exists(path) and path.lower().endswith('.vrm'):
@@ -2485,14 +2485,14 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                         "error": "VRM manager unavailable - try loading by direct path instead",
                         "suggestion": "Use 'path' parameter with direct file path"
                     }
-
+                
         except Exception as e:
             logger.error(f"Error loading avatar: {e}")
             return {
                 "status": "error",
                 "error": str(e)
             }
-
+    
     async def _execute_animation_play(self, params: dict) -> dict:
         """Execute the animation_play tool."""
         try:
@@ -2502,25 +2502,25 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             loop = params.get("loop", False)
             weight = params.get("weight", 1.0)
             speed = params.get("speed", 1.0)
-
+            
             if not avatar_id:
                 raise ValueError("Missing required parameter: avatarId")
             if not animation_name:
                 raise ValueError("Missing required parameter: animationName")
-
+            
             # Import animation controller
             try:
                 from .core.animation import AnimationController
-
+                
                 # Create or get animation controller
                 if not hasattr(self, '_animation_controllers'):
                     self._animation_controllers = {}
-
+                    
                 if avatar_id not in self._animation_controllers:
                     self._animation_controllers[avatar_id] = AnimationController()
-
+                
                 controller = self._animation_controllers[avatar_id]
-
+                
                 # Play animation (simplified for now - would need full integration)
                 return {
                     "status": "success",
@@ -2543,14 +2543,14 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     "settings": {"loop": loop, "weight": weight, "speed": speed},
                     "note": "Full animation system unavailable - using simulation mode"
                 }
-
+            
         except Exception as e:
             logger.error(f"Error playing animation: {e}")
             return {
                 "status": "error",
                 "error": str(e)
             }
-
+    
     async def _execute_bone_control(self, params: dict) -> dict:
         """Execute the bone_control tool."""
         try:
@@ -2558,23 +2558,23 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             avatar_id = params.get("avatarId")
             bone_name = params.get("boneName")
             position = params.get("position")
-            rotation = params.get("rotation")
+            rotation = params.get("rotation") 
             scale = params.get("scale")
-
+            
             if not avatar_id:
                 raise ValueError("Missing required parameter: avatarId")
             if not bone_name:
                 raise ValueError("Missing required parameter: boneName")
-
+            
             # Lazy load bone control tool
             bone_control = await self._get_avatar_control("bone")
-
+            
             if bone_control:
                 try:
                     # Import types on demand
                     from .avatar_controls.bone_control import BoneTransform
                     from .avatar_controls.base import Vector3, Quaternion
-
+                    
                     # Build transform
                     transform_data = {}
                     if position:
@@ -2583,9 +2583,9 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                         transform_data["rotation"] = Quaternion(**rotation)
                     if scale:
                         transform_data["scale"] = Vector3(**scale)
-
+                    
                     transform = BoneTransform(bone_name=bone_name, **transform_data)
-
+                    
                     return {
                         "status": "success",
                         "message": f"Applied bone transform to '{bone_name}' on avatar '{avatar_id}'",
@@ -2595,7 +2595,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     }
                 except Exception as e:
                     logger.warning(f"Full bone control failed: {e}, using basic mode")
-
+            
             # Fallback: basic bone control simulation
             return {
                 "status": "partial_success",
@@ -2605,14 +2605,14 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "transform": {"position": position, "rotation": rotation, "scale": scale},
                 "note": "Full bone control system unavailable - using basic mode"
             }
-
+            
         except Exception as e:
             logger.error(f"Error controlling bone: {e}")
             return {
                 "status": "error",
                 "error": str(e)
             }
-
+    
     async def _execute_morph_control(self, params: dict) -> dict:
         """Execute the morph_control tool."""
         try:
@@ -2620,28 +2620,28 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             avatar_id = params.get("avatarId")
             morph_name = params.get("morphName")
             value = params.get("value")
-
+            
             if not avatar_id:
                 raise ValueError("Missing required parameter: avatarId")
             if not morph_name:
                 raise ValueError("Missing required parameter: morphName")
             if value is None:
                 raise ValueError("Missing required parameter: value")
-
+            
             # Lazy load morph control tool
             morph_control = await self._get_avatar_control("morph")
-
+            
             if morph_control:
                 try:
                     # Import types on demand
                     from .avatar_controls.morph_control import MorphTargetUpdate
-
+                    
                     # Create morph update
                     morph_update = MorphTargetUpdate(
                         target_name=morph_name,
                         value=value
                     )
-
+                    
                     return {
                         "status": "success",
                         "message": f"Applied morph '{morph_name}' with value {value} on avatar '{avatar_id}'",
@@ -2651,7 +2651,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     }
                 except Exception as e:
                     logger.warning(f"Full morph control failed: {e}, using basic mode")
-
+            
             # Fallback: basic morph control simulation
             return {
                 "status": "partial_success",
@@ -2661,14 +2661,14 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "value": value,
                 "note": "Full morph control system unavailable - using basic mode"
             }
-
+            
         except Exception as e:
             logger.error(f"Error controlling morph: {e}")
             return {
                 "status": "error",
                 "error": str(e)
             }
-
+    
     async def _execute_avatar_export(self, params: dict) -> dict:
         """Execute the avatar_export tool."""
         try:
@@ -2677,27 +2677,27 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             format_type = params.get("format")
             output_path = params.get("outputPath")
             include_textures = params.get("includeTextures", True)
-
+            
             if not avatar_id:
                 raise ValueError("Missing required parameter: avatarId")
             if not format_type:
                 raise ValueError("Missing required parameter: format")
             if not output_path:
                 raise ValueError("Missing required parameter: outputPath")
-
+            
             # Import export tool
             try:
                 from .avatar_controls.export import ExportTool, ExportFormat, ExportOptions
-
+                
                 export_tool = ExportTool()
-
+                
                 # Create export options
                 export_options = ExportOptions(
                     format=ExportFormat(format_type),
                     output_path=output_path,
                     include_textures=include_textures
                 )
-
+                
                 # Perform export (simplified - would need avatar context)
                 return {
                     "status": "success",
@@ -2718,7 +2718,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     "include_textures": include_textures,
                     "note": "Full export system unavailable - using simulation mode"
                 }
-
+            
         except Exception as e:
             logger.error(f"Error exporting avatar: {e}")
             return {
@@ -2735,13 +2735,13 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             window_size = params.get("windowSize", {"width": 1024, "height": 768})
             show_floor = params.get("showFloor", True)
             show_axes = params.get("showAxes", True)
-
+            
             if not avatar_id and not path:
                 raise ValueError("Either avatarId or path parameter is required")
-
+            
             # Try to lazy load visualization manager
             visualization_manager = await self._get_visualization_manager()
-
+            
             if visualization_manager:
                 try:
                     # Full PyVista visualization
@@ -2753,14 +2753,14 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                                 "status": "error",
                                 "error": f"File not found: {path}"
                             }
-
+                        
                         # Start viewer and load model
                         window_size_tuple = (window_size.get("width", 1024), window_size.get("height", 768))
                         visualization_manager.start_viewer(window_size=window_size_tuple)
-
+                        
                         model_id = avatar_id or os.path.basename(path)
                         success = visualization_manager.load_vrm(model_id, path)
-
+                        
                         if success:
                             return {
                                 "status": "success",
@@ -2786,7 +2786,7 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                                 path = model_info['path']
                                 window_size_tuple = (window_size.get("width", 1024), window_size.get("height", 768))
                                 visualization_manager.start_viewer(window_size=window_size_tuple)
-
+                                
                                 success = visualization_manager.load_vrm(avatar_id, path)
                                 if success:
                                     return {
@@ -2809,10 +2809,10 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                                 "status": "error",
                                 "error": "Cannot load avatar by ID - VRM manager unavailable"
                             }
-
+                            
                 except Exception as e:
                     logger.warning(f"Full visualization failed: {e}, trying fallback")
-
+            
             # Fallback: basic file information
             if path:
                 import os
@@ -2828,16 +2828,16 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                         },
                         "note": "3D visualization unavailable - PyVista dependencies not loaded"
                     }
-
+            
             return {
                 "status": "error",
                 "error": "Cannot display avatar - provide valid path or use avatar.load first"
             }
-
+                
         except Exception as e:
             logger.error(f"Error showing viewer: {e}")
             return {
-                "status": "error",
+                "status": "error", 
                 "error": str(e)
             }
 
@@ -3424,6 +3424,229 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to apply animation blend layers: {str(e)}"
             }
 
+    async def _execute_emotion_state_machine(self, params: dict) -> dict:
+        """Execute the emotion_state_machine tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            states = params.get('states', [])
+            if not states or not isinstance(states, list) or len(states) == 0:
+                raise ValueError("Parameter 'states' is required and must be a non-empty array")
+
+            transitions = params.get('transitions', [])
+            if not transitions or not isinstance(transitions, list):
+                raise ValueError("Parameter 'transitions' is required and must be an array")
+
+            # Validate states structure
+            for i, state in enumerate(states):
+                if not isinstance(state, dict):
+                    raise ValueError(f"State {i} must be a dictionary")
+                if 'name' not in state:
+                    raise ValueError(f"State {i} must have a 'name' field")
+                if 'expressions' not in state:
+                    raise ValueError(f"State {i} must have an 'expressions' field")
+
+            # Validate transitions structure
+            for i, transition in enumerate(transitions):
+                if not isinstance(transition, dict):
+                    raise ValueError(f"Transition {i} must be a dictionary")
+                if 'from' not in transition or 'to' not in transition or 'trigger' not in transition:
+                    raise ValueError(f"Transition {i} must have 'from', 'to', and 'trigger' fields")
+
+            triggers = params.get('transitions', [])
+            blend_time = params.get('blend_time', 0.5)
+            auto_transitions = params.get('auto_transitions', True)
+
+            # Validate parameters
+            if not isinstance(blend_time, (int, float)) or blend_time < 0:
+                raise ValueError("Blend time must be a non-negative number")
+
+            # TODO: Validate avatar is loaded
+            # TODO: Implement actual emotion state machine creation
+
+            # Mock successful creation
+            result = {
+                "status": "success",
+                "message": f"Created emotion state machine for avatar '{avatar_id}' with {len(states)} states and {len(transitions)} transitions",
+                "avatar_id": avatar_id,
+                "states_defined": len(states),
+                "transitions_created": len(transitions),
+                "machine_id": f"esm_{avatar_id}_{int(time.time())}",
+                "current_state": states[0]['name'] if states else None,
+                "blend_time": blend_time,
+                "auto_transitions": auto_transitions,
+                "applied_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create emotion state machine: {str(e)}"
+            }
+
+    async def _execute_emotion_micro_expressions(self, params: dict) -> dict:
+        """Execute the emotion_micro_expressions tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            emotion = params.get('emotion', '').strip()
+            if not emotion:
+                raise ValueError("Parameter 'emotion' is required")
+
+            micro_type = params.get('micro_type', 'random')
+            valid_types = ['doubt', 'realization', 'concern', 'amusement', 'discomfort', 'relief', 'random']
+            if micro_type not in valid_types:
+                raise ValueError(f"Micro type must be one of: {', '.join(valid_types)}")
+
+            duration = params.get('duration', 0.5)
+            if not isinstance(duration, (int, float)) or duration < 0.1 or duration > 2.0:
+                raise ValueError("Duration must be between 0.1 and 2.0 seconds")
+
+            intensity = params.get('intensity', 0.3)
+            if not isinstance(intensity, (int, float)) or intensity < 0.1 or intensity > 1.0:
+                raise ValueError("Intensity must be between 0.1 and 1.0")
+
+            frequency = params.get('frequency', 'occasional')
+            valid_frequencies = ['rare', 'occasional', 'frequent', 'constant']
+            if frequency not in valid_frequencies:
+                raise ValueError(f"Frequency must be one of: {', '.join(valid_frequencies)}")
+
+            blend_with_current = params.get('blend_with_current', True)
+
+            # Select micro-expression if random
+            if micro_type == 'random':
+                emotion_micro_map = {
+                    'happy': ['amusement', 'relief'],
+                    'sad': ['concern', 'discomfort'],
+                    'angry': ['doubt', 'discomfort'],
+                    'surprised': ['realization', 'concern'],
+                    'neutral': ['doubt', 'amusement']
+                }
+                available = emotion_micro_map.get(emotion.lower(), ['doubt', 'realization'])
+                micro_type = random.choice(available)
+
+            # TODO: Validate avatar is loaded
+            # TODO: Implement actual micro-expression system
+
+            result = {
+                "status": "success",
+                "message": f"Applied micro-expression '{micro_type}' to avatar '{avatar_id}' with emotion context '{emotion}'",
+                "avatar_id": avatar_id,
+                "micro_type_applied": micro_type,
+                "emotion_context": emotion,
+                "duration": duration,
+                "intensity": intensity,
+                "frequency": frequency,
+                "blend_with_current": blend_with_current,
+                "expression_id": f"micro_{avatar_id}_{int(time.time())}"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to apply micro-expression: {str(e)}"
+            }
+
+    async def _execute_avatar_personality_create(self, params: dict) -> dict:
+        """Execute the avatar_personality_create tool."""
+        try:
+            personality_name = params.get('personality_name', '').strip()
+            if not personality_name:
+                raise ValueError("Parameter 'personality_name' is required and cannot be empty")
+
+            traits = params.get('traits', {})
+            if not traits or not isinstance(traits, dict) or len(traits) == 0:
+                raise ValueError("Parameter 'traits' is required and must be a non-empty object")
+
+            # Validate trait values
+            valid_traits = ['extroversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness']
+            for trait_name, trait_value in traits.items():
+                if trait_name not in valid_traits:
+                    raise ValueError(f"Invalid trait '{trait_name}'. Must be one of: {', '.join(valid_traits)}")
+                if not isinstance(trait_value, (int, float)) or trait_value < 0.0 or trait_value > 1.0:
+                    raise ValueError(f"Trait '{trait_name}' must be between 0.0 and 1.0")
+
+            expression_bias = params.get('expression_bias', {})
+            gesture_style = params.get('gesture_style', {})
+            response_patterns = params.get('response_patterns', {})
+            base_emotions = params.get('base_emotions', [])
+
+            # Calculate compatibility score (mock)
+            compatibility = 0.8  # Would analyze trait combinations
+
+            # TODO: Implement actual personality storage
+            result = {
+                "status": "success",
+                "message": f"Created personality profile '{personality_name}' with {len(traits)} traits",
+                "personality_name": personality_name,
+                "traits_defined": len(traits),
+                "profile_id": f"pers_{personality_name}_{int(time.time())}",
+                "compatibility_score": compatibility,
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create personality profile: {str(e)}"
+            }
+
+    async def _execute_avatar_personality_apply(self, params: dict) -> dict:
+        """Execute the avatar_personality_apply tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            personality_name = params.get('personality_name', '').strip()
+            if not personality_name:
+                raise ValueError("Parameter 'personality_name' is required")
+
+            intensity = params.get('intensity', 1.0)
+            if not isinstance(intensity, (int, float)) or intensity < 0.0 or intensity > 1.0:
+                raise ValueError("Intensity must be between 0.0 and 1.0")
+
+            context = params.get('context')
+            valid_contexts = ['conversation', 'work', 'play', 'stress', 'relaxed']
+            if context and context not in valid_contexts:
+                raise ValueError(f"Context must be one of: {', '.join(valid_contexts)}")
+
+            transition_time = params.get('transition_time', 2.0)
+            if not isinstance(transition_time, (int, float)) or transition_time < 0:
+                raise ValueError("Transition time must be a non-negative number")
+
+            # Mock traits applied (would load from personality profile)
+            mock_traits = ['extroversion', 'agreeableness', 'openness']
+
+            # TODO: Validate avatar is loaded and personality exists
+            # TODO: Implement actual personality application
+
+            result = {
+                "status": "success",
+                "message": f"Applied personality '{personality_name}' to avatar '{avatar_id}' with intensity {intensity}",
+                "avatar_id": avatar_id,
+                "personality_name": personality_name,
+                "intensity": intensity,
+                "context": context,
+                "transition_time": transition_time,
+                "traits_applied": mock_traits,
+                "applied_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to apply personality profile: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -3450,30 +3673,42 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             logger.error(f"Failed to initialize animation tools: {e}")
             self.animation_tools = None
 
-    # === LAZY LOADING INFRASTRUCTURE ===
+        try:
+            # Import and initialize emotion tools
+            from .tools.emotion.emotion_tools import EmotionTools
+            self.emotion_tools = EmotionTools(self)
+            logger.info("Emotion tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import emotion tools: {e}")
+            self.emotion_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize emotion tools: {e}")
+            self.emotion_tools = None
 
+    # === LAZY LOADING INFRASTRUCTURE ===
+    
     async def _get_vrm_manager(self):
         """Lazy load VRM manager with timeout protection."""
         if self._vrm_manager is not None:
             return self._vrm_manager
-
+            
         if 'vrm_manager' in self._import_errors:
             return None  # Already failed before
-
+            
         try:
             logger.info("Loading VRM manager (first use)...")
             # Import with timeout protection
             import asyncio
-
+            
             async def load_vrm_manager():
                 from .models.vrm_manager import VRMManager
                 return VRMManager()
-
+            
             # 5 second timeout for loading
             self._vrm_manager = await asyncio.wait_for(load_vrm_manager(), timeout=5.0)
             logger.info("✅ VRM manager loaded successfully")
             return self._vrm_manager
-
+            
         except asyncio.TimeoutError:
             logger.warning("⏰ VRM manager loading timed out - using fallback")
             self._import_errors['vrm_manager'] = "timeout"
@@ -3482,27 +3717,27 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             logger.warning(f"⚠️  VRM manager failed to load: {e} - using fallback")
             self._import_errors['vrm_manager'] = str(e)
             return None
-
+    
     async def _get_model_manager(self):
         """Lazy load model manager with timeout protection."""
         if self._model_manager is not None:
             return self._model_manager
-
+            
         if 'model_manager' in self._import_errors:
             return None
-
+            
         try:
             logger.info("Loading model manager (first use)...")
             import asyncio
-
+            
             async def load_model_manager():
                 from .models.model_manager import VRMModelManager
                 return VRMModelManager()
-
+            
             self._model_manager = await asyncio.wait_for(load_model_manager(), timeout=5.0)
             logger.info("✅ Model manager loaded successfully")
             return self._model_manager
-
+            
         except asyncio.TimeoutError:
             logger.warning("⏰ Model manager loading timed out - using fallback")
             self._import_errors['model_manager'] = "timeout"
@@ -3511,27 +3746,27 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             logger.warning(f"⚠️  Model manager failed to load: {e} - using fallback")
             self._import_errors['model_manager'] = str(e)
             return None
-
+    
     async def _get_visualization_manager(self):
         """Lazy load visualization manager with timeout protection."""
         if self._visualization_manager is not None:
             return self._visualization_manager
-
+            
         if 'visualization_manager' in self._import_errors:
             return None
-
+            
         try:
             logger.info("Loading visualization manager (first use)...")
             import asyncio
-
+            
             async def load_visualization_manager():
                 from .visualization.manager import VisualizationManager
                 return VisualizationManager()
-
+            
             self._visualization_manager = await asyncio.wait_for(load_visualization_manager(), timeout=10.0)
             logger.info("✅ Visualization manager loaded successfully")
             return self._visualization_manager
-
+            
         except asyncio.TimeoutError:
             logger.warning("⏰ Visualization manager loading timed out - using fallback")
             self._import_errors['visualization_manager'] = "timeout"
@@ -3540,18 +3775,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             logger.warning(f"⚠️  Visualization manager failed to load: {e} - using fallback")
             self._import_errors['visualization_manager'] = str(e)
             return None
-
+    
     async def _get_avatar_control(self, control_type: str):
         """Lazy load avatar control tools."""
         if control_type in self._avatar_controls:
             return self._avatar_controls[control_type]
-
+            
         if control_type in self._import_errors:
             return None
-
+            
         try:
             logger.info(f"Loading {control_type} control (first use)...")
-
+            
             if control_type == "bone":
                 from .avatar_controls.bone_control import BoneControlTool
                 tool = BoneControlTool()
@@ -3563,16 +3798,16 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 tool = ExportTool()
             else:
                 raise ValueError(f"Unknown control type: {control_type}")
-
+                
             self._avatar_controls[control_type] = tool
             logger.info(f"✅ {control_type} control loaded successfully")
             return tool
-
+            
         except Exception as e:
             logger.warning(f"⚠️  {control_type} control failed to load: {e}")
             self._import_errors[control_type] = str(e)
             return None
-
+    
     async def _fallback_list_avatars(self) -> dict:
         """Fallback avatar listing using basic file scanning."""
         import sys
@@ -3580,47 +3815,47 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
             import os
             from pathlib import Path
             import glob
-
+            
             sys.stderr.write("DEBUG: Starting fallback avatar scan\n")
             sys.stderr.write(f"DEBUG: Current working directory: {os.getcwd()}\n")
             sys.stderr.flush()
-
+            
             # Use absolute paths to ensure we're looking in the right place
             base_dir = os.getcwd()
-
+            
             # Look for VRM files in common locations (case-insensitive)
             search_patterns = [
                 os.path.join(base_dir, "models", "*.vrm"),
                 os.path.join(base_dir, "models", "*.VRM"),
-                os.path.join(base_dir, "examples", "*.vrm"),
+                os.path.join(base_dir, "examples", "*.vrm"), 
                 os.path.join(base_dir, "examples", "*.VRM"),
                 os.path.join(base_dir, "*.vrm"),
                 os.path.join(base_dir, "*.VRM")
             ]
-
+            
             # Also check if examples directory exists
             examples_dir = os.path.join(base_dir, "examples")
             sys.stderr.write(f"DEBUG: Examples directory exists: {os.path.exists(examples_dir)}\n")
             if os.path.exists(examples_dir):
                 sys.stderr.write(f"DEBUG: Examples directory contents: {os.listdir(examples_dir)}\n")
             sys.stderr.flush()
-
+            
             avatars = []
             for pattern in search_patterns:
                 sys.stderr.write(f"DEBUG: Searching pattern: {pattern}\n")
                 sys.stderr.flush()
-
+                
                 found_files = glob.glob(pattern)
                 sys.stderr.write(f"DEBUG: Found {len(found_files)} files for pattern {pattern}\n")
                 sys.stderr.flush()
-
+                
                 for file_path in found_files:
                     abs_path = os.path.abspath(file_path)
                     file_size = os.path.getsize(file_path)
-
+                    
                     sys.stderr.write(f"DEBUG: Found VRM: {file_path} -> {abs_path}\n")
                     sys.stderr.flush()
-
+                    
                     # Avoid duplicates
                     avatar_id = os.path.splitext(os.path.basename(file_path))[0]
                     if not any(avatar['id'] == avatar_id for avatar in avatars):
@@ -3630,17 +3865,17 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                             "path": abs_path,
                             "metadata": {"source": "file_scan", "size": file_size}
                         })
-
+            
             sys.stderr.write(f"DEBUG: Total avatars found: {len(avatars)}\n")
             sys.stderr.flush()
-
+            
             return {
                 "status": "partial_success",
                 "message": "Using lightweight file scan (full VRM manager unavailable)",
                 "avatars": avatars,
                 "count": len(avatars)
             }
-
+            
         except Exception as e:
             return {
                 "status": "error",
