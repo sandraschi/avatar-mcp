@@ -7,6 +7,7 @@ Transform your VRM avatars into full-fledged performers with advanced animation,
 - ✅ **18 Core Tools** implemented (avatar loading, basic animation, Unity integration)
 - ✅ **2 Guidance Prompts** for setup workflows
 - ✅ **MCP Protocol Support** with Claude Desktop integration
+- ✅ **Modular Architecture** - tools organized in dedicated modules
 - 🔄 **Server Stability** achieved with proper schema validation
 
 ---
@@ -40,6 +41,81 @@ result = await audio_singing_synthesize({
     'emotion': 'passionate'
 })
 ```
+
+---
+
+## 🏗️ **Modular Architecture Guide**
+
+### Tool Organization Structure
+```
+src/avatarmcp/tools/
+├── __init__.py                    # Tools package
+├── audio/                         # Audio & singing tools
+│   ├── __init__.py
+│   └── audio_tools.py            # AudioTools class
+├── animation/                     # Animation & choreography tools
+│   ├── __init__.py
+│   └── animation_tools.py        # AnimationTools class
+├── emotion/                       # Expression & emotion tools
+│   ├── __init__.py
+│   └── emotion_tools.py          # EmotionTools class
+└── performance/                   # Stage & performance tools
+    ├── __init__.py
+    └── performance_tools.py      # PerformanceTools class
+```
+
+### How to Add New Tools
+
+1. **Create tool category directory:**
+   ```bash
+   mkdir -p src/avatarmcp/tools/{category}
+   ```
+
+2. **Create package files:**
+   ```python
+   # src/avatarmcp/tools/{category}/__init__.py
+   from .{category}_tools import {Category}Tools
+   __all__ = ['{Category}Tools']
+   ```
+
+3. **Create tool class:**
+   ```python
+   # src/avatarmcp/tools/{category}/{category}_tools.py
+   class {Category}Tools:
+       def __init__(self, mcp_server):
+           self.mcp_server = mcp_server
+           self._register_tools()
+
+       def _register_tools(self):
+           @self.mcp_server.mcp.tool()
+           def tool_name(params: Dict[str, Any]) -> Dict[str, Any]:
+               '''Tool documentation...'''
+               return self.mcp_server._execute_tool_name(params)
+   ```
+
+4. **Add handler to server:**
+   ```python
+   # In mcp_server_clean.py
+   async def _execute_tool_name(self, params: dict) -> dict:
+       """Execute the tool_name tool."""
+       # Implementation here
+   ```
+
+5. **Initialize in server:**
+   ```python
+   # In MCPServer.__init__()
+   def _init_tool_modules(self):
+       # ... existing audio tools ...
+       from .tools.{category}.{category}_tools import {Category}Tools
+       self.{category}_tools = {Category}Tools(self)
+   ```
+
+### Benefits of Modular Design
+- **Maintainability**: Each tool category is self-contained
+- **Scalability**: Easy to add new tool categories
+- **Organization**: Related tools grouped together
+- **Testing**: Individual modules can be tested separately
+- **Performance**: Lazy loading prevents importing unused tools
 
 ---
 
