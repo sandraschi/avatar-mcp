@@ -11,6 +11,8 @@ import logging
 import subprocess
 from typing import Any, Dict, Optional
 
+logger = logging.getLogger(__name__)
+
 # Import FastMCP
 try:
     from fastmcp import FastMCP
@@ -25,8 +27,6 @@ try:
 except ImportError:
     OSC_AVAILABLE = False
     logger.warning("python-osc not available - Unity desktop avatar integration disabled")
-
-logger = logging.getLogger(__name__)
 
 class MCPServer:
     """Clean MCP server that delegates all functionality to modular tool classes."""
@@ -63,36 +63,41 @@ class MCPServer:
             logger.warning("OSC client not available - Unity integration disabled")
 
     def _ensure_unity_app_running(self) -> bool:
-        """Ensure the Unity desktop avatar application is running."""
+        """Ensure the desktop avatar viewer application is running."""
         if not OSC_AVAILABLE:
-            logger.warning("OSC not available - cannot communicate with Unity app")
+            logger.warning("OSC not available - cannot communicate with avatar viewer")
             return False
 
         # Check if process is still running
         if self.unity_app_process and self.unity_app_process.poll() is None:
             return True
 
-        # Try to find and launch the Unity desktop avatar
-        unity_app_paths = [
-            os.path.join(os.getcwd(), "unity-desktop-avatar", "Builds", "DesktopAvatar.exe"),
-            os.path.join(os.getcwd(), "unity-desktop-avatar", "DesktopAvatar.exe"),
-            os.path.join(os.path.dirname(os.getcwd()), "unity-desktop-avatar", "Builds", "DesktopAvatar.exe"),
+        # Try to launch the Python desktop avatar viewer
+        viewer_paths = [
+            os.path.join(os.getcwd(), "desktop_avatar_viewer.py"),
+            os.path.join(os.getcwd(), "src", "desktop_avatar_viewer.py"),
         ]
 
-        for app_path in unity_app_paths:
-            if os.path.exists(app_path):
+        for viewer_path in viewer_paths:
+            if os.path.exists(viewer_path):
                 try:
-                    logger.info(f"Launching Unity desktop avatar: {app_path}")
-                    self.unity_app_process = subprocess.Popen([app_path], cwd=os.path.dirname(app_path))
+                    logger.info(f"Launching desktop avatar viewer: {viewer_path}")
+                    # Launch in background
+                    self.unity_app_process = subprocess.Popen(
+                        [sys.executable, viewer_path],
+                        cwd=os.getcwd(),
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
                     # Give it time to start
                     import time
-                    time.sleep(2)
+                    time.sleep(3)
                     return True
                 except Exception as e:
-                    logger.error(f"Failed to launch Unity app at {app_path}: {e}")
+                    logger.error(f"Failed to launch avatar viewer at {viewer_path}: {e}")
                     continue
 
-        logger.warning("Unity desktop avatar application not found. Please build it first using build.ps1")
+        logger.warning("Desktop avatar viewer not found. Please ensure desktop_avatar_viewer.py exists")
         return False
 
     def _send_osc_message(self, address: str, *args) -> bool:

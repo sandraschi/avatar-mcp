@@ -185,20 +185,20 @@ class EmotionTools:
                 - animation_blend_layers: Combine with emotional animations
             """
             # Implementation for emotion_state_machine
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/emotion/state/machine"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'emotion_state_machine tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-    else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send emotion_state_machine command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/emotion/state/machine"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                    'status': 'success',
+                    'message': 'emotion_state_machine tool executed successfully',
+                    'osc_message': f'{osc_address} {params}',
+                    'params': params
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': 'Failed to send emotion_state_machine command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def emotion_micro_expressions(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -346,17 +346,17 @@ class EmotionTools:
                 - animation_sequence_play: Combine with emotional sequences
             """
             # Implementation for emotion_micro_expressions
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/emotion/micro/expressions"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'emotion_micro_expressions tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-    else:
-        return {
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/emotion/micro/expressions"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                    'status': 'success',
+                    'message': 'emotion_micro_expressions tool executed successfully',
+                    'osc_message': f'{osc_address} {params}',
+                    'params': params
+                }
+            else:
+                return {
             'status': 'error',
             'message': 'Failed to send emotion_micro_expressions command to Unity desktop avatar'
         }
@@ -527,16 +527,16 @@ class EmotionTools:
                 - morph_control: Personality influences expression intensity
             """
             # Implementation for avatar_personality_create
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/avatar/personality/create"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'avatar_personality_create tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-    else:
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/avatar/personality/create"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                    'status': 'success',
+                    'message': 'avatar_personality_create tool executed successfully',
+                    'osc_message': f'{osc_address} {params}',
+                    'params': params
+                }
+            else:
         return {
             'status': 'error',
             'message': 'Failed to send avatar_personality_create command to Unity desktop avatar'
