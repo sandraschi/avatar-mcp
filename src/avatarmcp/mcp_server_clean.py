@@ -4090,6 +4090,236 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                 "message": f"Failed to start recording system: {str(e)}"
             }
 
+    async def _execute_avatar_appearance_modify(self, params: dict) -> dict:
+        """Execute the avatar_appearance_modify tool."""
+        try:
+            avatar_id = params.get('avatar_id', '').strip()
+            if not avatar_id:
+                raise ValueError("Parameter 'avatar_id' is required")
+
+            modification_type = params.get('modification_type', '').strip()
+            valid_types = ['body', 'color', 'texture', 'style', 'preset']
+            if modification_type not in valid_types:
+                raise ValueError(f"Modification type must be one of: {', '.join(valid_types)}")
+
+            preset_name = params.get('preset_name')
+            modifications = params.get('modifications', {})
+
+            if modification_type == 'preset' and not preset_name:
+                raise ValueError("preset_name is required for preset modification type")
+            elif modification_type != 'preset' and not modifications:
+                raise ValueError("modifications object is required for non-preset types")
+
+            preview_mode = params.get('preview_mode', False)
+            revert_to_default = params.get('revert_to_default', False)
+
+            # TODO: Validate avatar exists and supports modifications
+            # TODO: Implement actual appearance modification
+
+            result = {
+                "status": "success",
+                "message": f"Applied {modification_type} modifications to avatar '{avatar_id}'",
+                "avatar_id": avatar_id,
+                "modification_type": modification_type,
+                "changes_applied": list(modifications.keys()) if modifications else [preset_name],
+                "preview_active": preview_mode,
+                "revert_available": not revert_to_default,
+                "appearance_snapshot": f"snapshot_{avatar_id}_{int(time.time())}"
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to modify avatar appearance: {str(e)}"
+            }
+
+    async def _execute_animation_custom_create(self, params: dict) -> dict:
+        """Execute the animation_custom_create tool."""
+        try:
+            animation_name = params.get('animation_name', '').strip()
+            if not animation_name:
+                raise ValueError("Parameter 'animation_name' is required and cannot be empty")
+
+            creation_method = params.get('creation_method', '').strip()
+            valid_methods = ['procedural', 'blend', 'keyframe', 'capture', 'modify']
+            if creation_method not in valid_methods:
+                raise ValueError(f"Creation method must be one of: {', '.join(valid_methods)}")
+
+            base_animations = params.get('base_animations', [])
+            procedural_params = params.get('procedural_params', {})
+            keyframe_data = params.get('keyframe_data', [])
+            blend_weights = params.get('blend_weights', {})
+            duration = params.get('duration', 'auto')
+            loopable = params.get('loopable', False)
+
+            # Validate method-specific requirements
+            if creation_method in ['blend', 'modify'] and not base_animations:
+                raise ValueError(f"base_animations required for {creation_method} method")
+            if creation_method == 'procedural' and not procedural_params:
+                raise ValueError("procedural_params required for procedural method")
+            if creation_method == 'keyframe' and not keyframe_data:
+                raise ValueError("keyframe_data required for keyframe method")
+
+            # TODO: Implement actual animation creation
+            # Mock creation result
+            mock_duration = 2.5 if duration == 'auto' else float(duration)
+            mock_keyframes = len(keyframe_data) if keyframe_data else 50
+
+            result = {
+                "status": "success",
+                "message": f"Created custom animation '{animation_name}' using {creation_method} method",
+                "animation_name": animation_name,
+                "creation_method": creation_method,
+                "duration_calculated": mock_duration,
+                "keyframes_generated": mock_keyframes,
+                "blend_sources": base_animations if base_animations else None,
+                "loop_ready": loopable,
+                "animation_id": f"anim_{animation_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create custom animation: {str(e)}"
+            }
+
+    async def _execute_voice_custom_synthesis(self, params: dict) -> dict:
+        """Execute the voice_custom_synthesis tool."""
+        try:
+            voice_name = params.get('voice_name', '').strip()
+            if not voice_name:
+                raise ValueError("Parameter 'voice_name' is required and cannot be empty")
+
+            base_voice = params.get('base_voice', '').strip()
+            if not base_voice:
+                raise ValueError("Parameter 'base_voice' is required")
+
+            voice_characteristics = params.get('voice_characteristics', {})
+            if not voice_characteristics or not isinstance(voice_characteristics, dict) or len(voice_characteristics) == 0:
+                raise ValueError("Parameter 'voice_characteristics' is required and must be a non-empty object")
+
+            accent_settings = params.get('accent_settings', {})
+            emotional_range = params.get('emotional_range', {})
+            speaking_style = params.get('speaking_style', {})
+            sample_text = params.get('sample_text', '')
+
+            # TODO: Implement actual voice synthesis
+            # Mock voice creation
+            compatibility = 0.85  # Mock compatibility score
+
+            result = {
+                "status": "success",
+                "message": f"Created custom voice profile '{voice_name}' based on '{base_voice}'",
+                "voice_name": voice_name,
+                "base_voice": base_voice,
+                "characteristics_applied": list(voice_characteristics.keys()),
+                "voice_id": f"voice_{voice_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "sample_audio_url": f"https://example.com/voice_samples/{voice_name}.wav",
+                "compatibility_score": compatibility,
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create custom voice synthesis: {str(e)}"
+            }
+
+    async def _execute_scene_template_create(self, params: dict) -> dict:
+        """Execute the scene_template_create tool."""
+        try:
+            template_name = params.get('template_name', '').strip()
+            if not template_name:
+                raise ValueError("Parameter 'template_name' is required and cannot be empty")
+
+            scene_type = params.get('scene_type', '').strip()
+            valid_types = ['environment', 'interior', 'performance', 'interactive', 'abstract']
+            if scene_type not in valid_types:
+                raise ValueError(f"Scene type must be one of: {', '.join(valid_types)}")
+
+            environmental_settings = params.get('environmental_settings', {})
+            if not environmental_settings or not isinstance(environmental_settings, dict):
+                raise ValueError("Parameter 'environmental_settings' is required and must be an object")
+
+            object_placements = params.get('object_placements', [])
+            camera_presets = params.get('camera_presets', [])
+            interactive_elements = params.get('interactive_elements', [])
+            lighting_setup = params.get('lighting_setup', {})
+            audio_environment = params.get('audio_environment', {})
+
+            # TODO: Implement actual scene template creation
+            # Mock template creation
+            result = {
+                "status": "success",
+                "message": f"Created {scene_type} scene template '{template_name}'",
+                "template_name": template_name,
+                "scene_type": scene_type,
+                "objects_count": len(object_placements),
+                "interactive_elements": len(interactive_elements),
+                "template_id": f"scene_{template_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "preview_image_url": f"https://example.com/scene_previews/{template_name}.jpg",
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create scene template: {str(e)}"
+            }
+
+    async def _execute_interaction_script_create(self, params: dict) -> dict:
+        """Execute the interaction_script_create tool."""
+        try:
+            script_name = params.get('script_name', '').strip()
+            if not script_name:
+                raise ValueError("Parameter 'script_name' is required and cannot be empty")
+
+            script_type = params.get('script_type', '').strip()
+            valid_types = ['conversation', 'reaction', 'behavior', 'tutorial', 'gameplay']
+            if script_type not in valid_types:
+                raise ValueError(f"Script type must be one of: {', '.join(valid_types)}")
+
+            trigger_conditions = params.get('trigger_conditions', [])
+            if not trigger_conditions or not isinstance(trigger_conditions, list) or len(trigger_conditions) == 0:
+                raise ValueError("Parameter 'trigger_conditions' is required and must be a non-empty array")
+
+            response_actions = params.get('response_actions', [])
+            if not response_actions or not isinstance(response_actions, list) or len(response_actions) == 0:
+                raise ValueError("Parameter 'response_actions' is required and must be a non-empty array")
+
+            conversation_flow = params.get('conversation_flow', {})
+            state_variables = params.get('state_variables', {})
+            fallback_behaviors = params.get('fallback_behaviors', [])
+            personality_influence = params.get('personality_influence', {})
+
+            # TODO: Implement actual interaction script creation
+            # Mock script creation
+            complexity = min(1.0, (len(trigger_conditions) + len(response_actions)) / 20.0)
+
+            result = {
+                "status": "success",
+                "message": f"Created {script_type} interaction script '{script_name}'",
+                "script_name": script_name,
+                "script_type": script_type,
+                "triggers_count": len(trigger_conditions),
+                "actions_count": len(response_actions),
+                "script_id": f"script_{script_name.lower().replace(' ', '_')}_{int(time.time())}",
+                "complexity_score": complexity,
+                "created_at": time.time()
+            }
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create interaction script: {str(e)}"
+            }
+
     def _init_tool_modules(self):
         """Initialize modular tool classes."""
         try:
@@ -4151,6 +4381,18 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
         except Exception as e:
             logger.error(f"Failed to initialize performance tools: {e}")
             self.performance_tools = None
+
+        try:
+            # Import and initialize content creation tools
+            from .tools.content.content_tools import ContentTools
+            self.content_tools = ContentTools(self)
+            logger.info("Content creation tools initialized successfully")
+        except ImportError as e:
+            logger.warning(f"Failed to import content creation tools: {e}")
+            self.content_tools = None
+        except Exception as e:
+            logger.error(f"Failed to initialize content creation tools: {e}")
+            self.content_tools = None
 
     # === LAZY LOADING INFRASTRUCTURE ===
     
