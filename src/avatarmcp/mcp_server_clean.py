@@ -8,8 +8,7 @@ import json
 import sys
 import os
 import logging
-import asyncio
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # Import FastMCP
 try:
@@ -45,6 +44,9 @@ class MCPServer:
 
         # Initialize tool modules (tools are registered within modules)
         self._init_tool_modules()
+
+        # Cache tool information to avoid repeated lookups
+        self._cached_tools = None
 
     def _register_prompts(self):
         """Register useful MCP prompts for avatar management."""
@@ -190,145 +192,123 @@ See individual tool docs for detailed usage."""
             logger.error(f"Failed to initialize Unity tools: {e}")
             self.unity_tools = None
 
-    def run(self):
-        """Run the FastMCP server using manual stdio handling for MCP protocol."""
-        logger.info("Starting MCP server with manual stdio handling")
-
-        # Manual MCP protocol handling since FastMCP stdio doesn't work properly
-        import asyncio
-        import json
-        import sys
-
-        async def handle_stdio():
-            """Handle MCP protocol over stdio."""
-            loop = asyncio.get_event_loop()
-
-            while True:
-                try:
-                    # Read line from stdin
-                    line = await loop.run_in_executor(None, sys.stdin.readline)
-                    if not line:
-                        break
-
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    # logger.debug(f"Received: {line}")  # Commented out to reduce spam
-
-                    # Parse JSON
-                    try:
-                        request = json.loads(line)
-                    except json.JSONDecodeError as e:
-                        logger.error(f"Invalid JSON: {e}")
-                        continue
-
-                    # Handle request
-                    response = await self._handle_mcp_request(request)
-
-                    # Send response
-                    if response:
-                        response_json = json.dumps(response)
-                        # logger.debug(f"Sending: {response_json}")  # Commented out to reduce spam
-                        print(response_json, flush=True)
-
-                except Exception as e:
-                    logger.error(f"Error in stdio loop: {e}")
-                    break
-
-        # Run the stdio handler
-        asyncio.run(handle_stdio())
-
-    async def _handle_mcp_request(self, request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Handle an MCP protocol request."""
-        try:
-            method = request.get("method")
-            params = request.get("params", {})
-            req_id = request.get("id")
-
-            if method == "initialize":
-                return {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {
-                        "protocolVersion": "2024-11-05",
-                        "capabilities": {
-                            "tools": {"listChanged": True}
-                        },
-                        "serverInfo": {
-                            "name": "avatarmcp",
-                            "version": "1.0.0"
-                        }
-                    }
-                }
-
-            elif method == "tools/list":
-                # Get tools from FastMCP
-                tools_data = await self.mcp.get_tools()
+    def _get_cached_tools(self):
+        """Get cached tools information."""
+        if self._cached_tools is None:
+            try:
+                tools_data = self.mcp.get_tools()
                 tools = []
                 for tool_name in tools_data:
-                    tool = await self.mcp.get_tool(tool_name)
+                    tool = self.mcp.get_tool(tool_name)
                     tools.append({
                         "name": tool.name,
                         "description": tool.description,
-                        "inputSchema": {
-                            "type": "object",
-                            "additionalProperties": True
+                        "inputSchema": {"type": "object", "additionalProperties": True}
+                    })
+                self._cached_tools = tools
+            except Exception as e:
+                logger.error(f"Error caching tools: {e}")
+                self._cached_tools = []
+        return self._cached_tools
+
+    def run(self):
+        """Run the MCP server with manual stdio handling."""
+        logger.info("Starting MCP server with manual stdio handling")
+
+        # Manual stdio handling to avoid Windows subprocess issues
+        import sys
+        import json
+        import time
+
+        # Cache tools on startup
+        tools = self._get_cached_tools()
+        logger.info(f"Cached {len(tools)} tools")
+
+        try:
+            while True:
+                # Read line from stdin
+                line = sys.stdin.readline()
+                if not line:
+                    break
+
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
+                    request = json.loads(line)
+                    method = request.get("method")
+                    req_id = request.get("id")
+
+                    if method == "initialize":
+                        response = {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "result": {
+                                "protocolVersion": "2024-11-05",
+                                "capabilities": {"tools": {"listChanged": True}},
+                                "serverInfo": {"name": "avatarmcp", "version": "1.0.0"}
+                            }
                         }
-                    })
+                        print(json.dumps(response), flush=True)
 
-                return {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {"tools": tools}
-                }
+                    elif method == "tools/list":
+                        response = {"jsonrpc": "2.0", "id": req_id, "result": {"tools": tools}}
+                        print(json.dumps(response), flush=True)
 
-            elif method == "prompts/list":
-                # Get prompts from FastMCP
-                prompts_data = await self.mcp.get_prompts()
-                prompts = []
-                for prompt_name in prompts_data:
-                    prompt = await self.mcp.get_prompt(prompt_name)
-                    prompts.append({
-                        "name": prompt_name,
-                        "description": prompt.description if hasattr(prompt, 'description') else "",
-                        "arguments": prompt.arguments if hasattr(prompt, 'arguments') else []
-                    })
+                    elif method == "tools/call":
+                        # Handle tool calls
+                        tool_name = request.get("params", {}).get("name")
+                        tool_args = request.get("params", {}).get("arguments", {})
 
-                return {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {"prompts": prompts}
-                }
+                        try:
+                            # Call tool synchronously
+                            result = self.mcp.call_tool(tool_name, tool_args)
+                            response = {"jsonrpc": "2.0", "id": req_id, "result": result}
+                        except Exception as e:
+                            response = {
+                                "jsonrpc": "2.0",
+                                "id": req_id,
+                                "error": {"code": -32603, "message": str(e)}
+                            }
+                        print(json.dumps(response), flush=True)
 
-            elif method == "resources/list":
-                # This server doesn't provide resources
-                return {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {"resources": []}
-                }
+                    elif method == "prompts/list":
+                        try:
+                            prompts_data = self.mcp.get_prompts()
+                            prompts = []
+                            for prompt_name in prompts_data:
+                                prompt = self.mcp.get_prompt(prompt_name)
+                                prompts.append({
+                                    "name": prompt_name,
+                                    "description": getattr(prompt, 'description', ""),
+                                    "arguments": getattr(prompt, 'arguments', [])
+                                })
+                            response = {"jsonrpc": "2.0", "id": req_id, "result": {"prompts": prompts}}
+                        except Exception as e:
+                            response = {"jsonrpc": "2.0", "id": req_id, "result": {"prompts": []}}
+                        print(json.dumps(response), flush=True)
 
-            elif method == "tools/call":
-                tool_name = params.get("name")
-                tool_args = params.get("arguments", {})
+                    elif method == "resources/list":
+                        response = {"jsonrpc": "2.0", "id": req_id, "result": {"resources": []}}
+                        print(json.dumps(response), flush=True)
 
-                if tool_name:
-                    # Call the tool through FastMCP
-                    result = await self.mcp.call_tool(tool_name, tool_args)
-                    return {
+                except json.JSONDecodeError as e:
+                    logger.error(f"Invalid JSON: {e}")
+                    continue
+                except Exception as e:
+                    logger.error(f"Error handling request: {e}")
+                    error_response = {
                         "jsonrpc": "2.0",
-                        "id": req_id,
-                        "result": result
+                        "id": request.get("id"),
+                        "error": {"code": -32603, "message": str(e)}
                     }
+                    print(json.dumps(error_response), flush=True)
 
+        except KeyboardInterrupt:
+            logger.info("Server shutting down")
         except Exception as e:
-            logger.error(f"Error handling MCP request: {e}")
-            return {
-                "jsonrpc": "2.0",
-                "id": request.get("id"),
-                "error": {
-                    "code": -32603,
-                    "message": str(e)
-                }
-            }
+            logger.error(f"Fatal error in server: {e}")
+            sys.stderr.write(f"Fatal error: {e}\n")
+            sys.stderr.flush()
+
