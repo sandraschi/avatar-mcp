@@ -2291,7 +2291,10 @@ This setup provides a fully functional Unity desktop avatar system integrated wi
                     tools.append({
                         "name": tool.name,
                         "description": tool.description,
-                        "inputSchema": tool.parameters
+                        "inputSchema": {
+                            "type": "object",
+                            "additionalProperties": True
+                        }
                     })
 
                 return {
