@@ -160,20 +160,20 @@ class AIBehaviorTools:
                 - ai_context_analyze: Understand conversation context
             """
             # Implementation for ai_conversation_respond
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/ai/conversation/respond"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'ai_conversation_respond tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send ai_conversation_respond command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/ai/conversation/respond"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'ai_conversation_respond tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send ai_conversation_respond command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def ai_behavior_adapt(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -316,20 +316,20 @@ class AIBehaviorTools:
                 - ai_personality_predict: Predict user preferences for adaptation
             """
             # Implementation for ai_behavior_adapt
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/ai/behavior/adapt"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'ai_behavior_adapt tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send ai_behavior_adapt command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/ai/behavior/adapt"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'ai_behavior_adapt tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send ai_behavior_adapt command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def ai_personality_predict(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -471,20 +471,20 @@ class AIBehaviorTools:
                 - ai_conversation_respond: Use predictions in conversation responses
             """
             # Implementation for ai_personality_predict
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/ai/personality/predict"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'ai_personality_predict tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send ai_personality_predict command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/ai/personality/predict"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'ai_personality_predict tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send ai_personality_predict command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def ai_context_analyze(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -642,20 +642,20 @@ class AIBehaviorTools:
                 - scene_state_broadcast: Share context awareness with scene
             """
             # Implementation for ai_context_analyze
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/ai/context/analyze"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'ai_context_analyze tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send ai_context_analyze command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/ai/context/analyze"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'ai_context_analyze tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send ai_context_analyze command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def ai_interaction_learn(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -832,17 +832,17 @@ class AIBehaviorTools:
                 - ai_personality_predict: Use learning for better predictions
             """
             # Implementation for ai_interaction_learn
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/ai/interaction/learn"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'ai_interaction_learn tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send ai_interaction_learn command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/ai/interaction/learn"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'ai_interaction_learn tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send ai_interaction_learn command to Unity desktop avatar'
+                }

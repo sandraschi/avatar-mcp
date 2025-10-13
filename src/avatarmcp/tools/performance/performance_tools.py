@@ -146,20 +146,20 @@ class PerformanceTools:
                 - performance_recording_system: Record performances with lip sync
             """
             # Implementation for audio_lip_sync_analyze
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/audio/lip/sync/analyze"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'audio_lip_sync_analyze tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send audio_lip_sync_analyze command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/audio/lip/sync/analyze"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'audio_lip_sync_analyze tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send audio_lip_sync_analyze command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def performance_lighting_control(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -315,20 +315,20 @@ class PerformanceTools:
                 - animation_sequence_play: Time lighting with animations
             """
             # Implementation for performance_lighting_control
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/performance/lighting/control"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'performance_lighting_control tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send performance_lighting_control command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/performance/lighting/control"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'performance_lighting_control tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send performance_lighting_control command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def performance_particle_effects(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -512,20 +512,20 @@ class PerformanceTools:
                 - audience_response_analyze: Trigger effects based on audience
             """
             # Implementation for performance_particle_effects
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/performance/particle/effects"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'performance_particle_effects tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send performance_particle_effects command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/performance/particle/effects"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'performance_particle_effects tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send performance_particle_effects command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def audience_response_analyze(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -653,20 +653,20 @@ class PerformanceTools:
                 - interactive_feedback_system: Create responsive avatar behavior
             """
             # Implementation for audience_response_analyze
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/audience/response/analyze"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'audience_response_analyze tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send audience_response_analyze command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/audience/response/analyze"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'audience_response_analyze tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send audience_response_analyze command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def show_script_create(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -842,20 +842,20 @@ class PerformanceTools:
                 - audience_response_analyze: Adapt scripts based on audience feedback
             """
             # Implementation for show_script_create
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/show/script/create"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'show_script_create tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send show_script_create command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/show/script/create"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'show_script_create tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send show_script_create command to Unity desktop avatar'
+                }
 
         @self.mcp_server.mcp.tool()
         def performance_recording_system(params: Dict[str, Any]) -> Dict[str, Any]:
@@ -1027,17 +1027,17 @@ class PerformanceTools:
                 - performance_particle_effects: Include effects in recordings
             """
             # Implementation for performance_recording_system
-    # Send OSC message to Unity desktop avatar
-    osc_address = "/avatar/performance/recording/system"
-    if self.mcp_server._send_osc_message(osc_address, str(params)):
-        return {
-            'status': 'success',
-            'message': 'performance_recording_system tool executed successfully',
-            'osc_message': f'{osc_address} {params}',
-            'params': params
-        }
-        else:
-        return {
-            'status': 'error',
-            'message': 'Failed to send performance_recording_system command to Unity desktop avatar'
-        }
+            # Send OSC message to Unity desktop avatar
+            osc_address = "/avatar/performance/recording/system"
+            if self.mcp_server._send_osc_message(osc_address, str(params)):
+                return {
+                'status': 'success',
+                'message': 'performance_recording_system tool executed successfully',
+                'osc_message': f'{osc_address} {params}',
+                'params': params
+                }
+            else:
+                return {
+                'status': 'error',
+                'message': 'Failed to send performance_recording_system command to Unity desktop avatar'
+                }

@@ -147,23 +147,13 @@ See individual tool docs for detailed usage."""
         import avatarmcp.tools.audio.audio_tools as audio_module
         import avatarmcp.tools.animation.animation_tools as animation_module
         import avatarmcp.tools.emotion.emotion_tools as emotion_module
-        import avatarmcp.tools.interactive.interactive_tools as interactive_module
-        import avatarmcp.tools.performance.performance_tools as performance_module
-        import avatarmcp.tools.content.content_tools as content_module
-        import avatarmcp.tools.collaboration.collaboration_tools as collaboration_module
-        import avatarmcp.tools.ai_behavior.ai_behavior_tools as ai_behavior_module
-        import avatarmcp.tools.unity.unity_tools as unity_module
+        import avatarmcp.tools.resonite.resonite_tools as resonite_module
 
         self.core_tools = core_module.CoreTools(self)
         self.audio_tools = audio_module.AudioTools(self)
         self.animation_tools = animation_module.AnimationTools(self)
         self.emotion_tools = emotion_module.EmotionTools(self)
-        self.interactive_tools = interactive_module.InteractiveTools(self)
-        self.performance_tools = performance_module.PerformanceTools(self)
-        self.content_tools = content_module.ContentTools(self)
-        self.collaboration_tools = collaboration_module.CollaborationTools(self)
-        self.ai_behavior_tools = ai_behavior_module.AIBehaviorTools(self)
-        self.unity_tools = unity_module.UnityTools(self)
+        self.resonite_tools = resonite_module.ResoniteTools(self)
 
 
     def run(self):
