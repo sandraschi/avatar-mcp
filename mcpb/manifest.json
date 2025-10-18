@@ -9,7 +9,10 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/yourusername/avatarmcp",
-  "repository": "https://github.com/yourusername/avatarmcp.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/avatarmcp.git"
+  },
   "server": {
     "type": "python",
     "entry_point": "src/avatarmcp/mcp_main.py",
@@ -46,621 +49,160 @@
       "type": "string",
       "title": "OSC Client Address",
       "description": "IP address for OSC client (sending messages)",
-      "default": "127.0.0.1",
-      "depends_on": "osc_enabled"
+      "default": "127.0.0.1"
     },
     "osc_client_port": {
       "type": "string",
       "title": "OSC Client Port",
       "description": "Port for OSC client (sending messages)",
-      "default": "9000",
-      "depends_on": "osc_enabled"
+      "default": "9000"
     },
     "osc_server_address": {
       "type": "string",
       "title": "OSC Server Address",
       "description": "IP address for OSC server (receiving messages)",
-      "default": "127.0.0.1",
-      "depends_on": "osc_enabled"
+      "default": "127.0.0.1"
     },
     "osc_server_port": {
       "type": "string",
       "title": "OSC Server Port",
       "description": "Port for OSC server (receiving messages)",
-      "default": "9001",
-      "depends_on": "osc_enabled"
+      "default": "9001"
     }
   },
   "tools": [
     {
       "name": "initialize",
-      "description": "Initialize the AvatarMCP server and scan for VRM models",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "models_dir": {
-            "type": "string",
-            "description": "Directory to scan for VRM models"
-          }
-        }
-      }
+      "description": "Initialize the AvatarMCP server and scan for VRM models"
     },
     {
       "name": "shutdown",
-      "description": "Shutdown the AvatarMCP server",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Shutdown the AvatarMCP server"
     },
     {
       "name": "avatar_load",
-      "description": "Load a VRM avatar model",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to VRM file or model ID"
-          },
-          "make_active": {
-            "type": "boolean",
-            "description": "Set as active avatar",
-            "default": true
-          },
-          "metadata": {
-            "type": "object",
-            "description": "Additional metadata for the avatar"
-          }
-        },
-        "required": ["path"]
-      }
+      "description": "Load a VRM avatar model"
     },
     {
       "name": "avatar_unload",
-      "description": "Unload a VRM avatar model",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Avatar ID to unload"
-          },
-          "force": {
-            "type": "boolean",
-            "description": "Force unload even if active",
-            "default": false
-          }
-        },
-        "required": ["id"]
-      }
+      "description": "Unload a VRM avatar model"
     },
     {
       "name": "avatar_list",
-      "description": "List available and loaded avatar models",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "loaded_only": {
-            "type": "boolean",
-            "description": "Show only loaded avatars",
-            "default": false
-          },
-          "include_metadata": {
-            "type": "boolean",
-            "description": "Include detailed metadata",
-            "default": false
-          }
-        }
-      }
+      "description": "List available and loaded avatar models"
     },
     {
       "name": "avatar_set_active",
-      "description": "Set the active avatar model",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Avatar ID to set as active"
-          }
-        },
-        "required": ["id"]
-      }
+      "description": "Set the active avatar model"
     },
     {
       "name": "avatar_get_active",
-      "description": "Get the currently active avatar model",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Get the currently active avatar model"
     },
     {
       "name": "avatar_get_metadata",
-      "description": "Get detailed metadata for an avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Avatar ID (defaults to active)"
-          }
-        }
-      }
+      "description": "Get detailed metadata for an avatar"
     },
     {
       "name": "animation_play",
-      "description": "Play an animation on the active avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Animation name to play"
-          }
-        },
-        "required": ["name"]
-      }
+      "description": "Play an animation on the active avatar"
     },
     {
       "name": "animation_stop",
-      "description": "Stop the current animation",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Stop the current animation"
     },
     {
       "name": "animation_list",
-      "description": "List available animations",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "List available animations"
     },
     {
       "name": "parameter_set",
-      "description": "Set an avatar parameter value",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Parameter name"
-          },
-          "value": {
-            "type": ["number", "string"],
-            "description": "Parameter value"
-          }
-        },
-        "required": ["name", "value"]
-      }
+      "description": "Set an avatar parameter value"
     },
     {
       "name": "parameter_get",
-      "description": "Get an avatar parameter value",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Parameter name"
-          }
-        },
-        "required": ["name"]
-      }
+      "description": "Get an avatar parameter value"
     },
     {
       "name": "osc_send",
-      "description": "Send an OSC message",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "address": {
-            "type": "string",
-            "description": "OSC address pattern"
-          },
-          "value": {
-            "type": ["number", "string"],
-            "description": "Value to send"
-          }
-        },
-        "required": ["address", "value"]
-      }
+      "description": "Send an OSC message"
     },
     {
       "name": "osc_receive",
-      "description": "Receive OSC messages",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Receive OSC messages"
     },
     {
       "name": "chat_start",
-      "description": "Start a chat session",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Start a chat session"
     },
     {
       "name": "chat_send_message",
-      "description": "Send a message in the chat session",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Message to send"
-          }
-        },
-        "required": ["message"]
-      }
+      "description": "Send a message in the chat session"
     },
     {
       "name": "chat_stop",
-      "description": "Stop the current chat session",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Stop the current chat session"
     },
     {
       "name": "chat_get_state",
-      "description": "Get the current chat session state",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Get the current chat session state"
     },
     {
       "name": "system_status",
-      "description": "Get system status and diagnostics",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
+      "description": "Get system status and diagnostics"
     },
     {
       "name": "debug_echo",
-      "description": "Echo debug message for testing",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "object",
-            "description": "Message to echo back"
-          }
-        },
-        "required": ["message"]
-      }
+      "description": "Echo debug message for testing"
     },
     {
       "name": "unity_system_status",
-      "description": "Get Unity desktop avatar system status",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "detailed": {
-            "type": "boolean",
-            "description": "Include detailed performance metrics",
-            "default": false
-          },
-          "include_config": {
-            "type": "boolean",
-            "description": "Include current Unity configuration",
-            "default": false
-          }
-        }
-      }
+      "description": "Get Unity desktop avatar system status"
     },
     {
       "name": "unity_window_position",
-      "description": "Control Unity desktop avatar window position and size",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "x": {
-            "type": "integer",
-            "description": "X-coordinate for window position"
-          },
-          "y": {
-            "type": "integer",
-            "description": "Y-coordinate for window position"
-          },
-          "width": {
-            "type": "integer",
-            "description": "Window width in pixels"
-          },
-          "height": {
-            "type": "integer",
-            "description": "Window height in pixels"
-          },
-          "monitor": {
-            "type": "integer",
-            "description": "Target monitor index",
-            "default": 0
-          },
-          "center_on_monitor": {
-            "type": "boolean",
-            "description": "Center window on specified monitor",
-            "default": false
-          }
-        }
-      }
+      "description": "Control Unity desktop avatar window position and size"
     },
     {
       "name": "unity_window_transparency",
-      "description": "Control Unity desktop avatar window transparency",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "alpha": {
-            "type": "number",
-            "description": "Transparency level (0.0 to 1.0)",
-            "minimum": 0.0,
-            "maximum": 1.0
-          },
-          "transition_time": {
-            "type": "number",
-            "description": "Time in seconds for smooth transition",
-            "default": 0.0,
-            "minimum": 0.0,
-            "maximum": 5.0
-          }
-        },
-        "required": ["alpha"]
-      }
+      "description": "Control Unity desktop avatar window transparency"
     },
     {
       "name": "unity_window_visibility",
-      "description": "Control Unity desktop avatar window visibility",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "visible": {
-            "type": "boolean",
-            "description": "Whether the window should be visible"
-          },
-          "fade_transition": {
-            "type": "boolean",
-            "description": "Use smooth fade transition",
-            "default": true
-          }
-        },
-        "required": ["visible"]
-      }
+      "description": "Control Unity desktop avatar window visibility"
     },
     {
       "name": "unity_window_mode",
-      "description": "Control Unity desktop avatar window interaction mode",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "mode": {
-            "type": "string",
-            "description": "Interaction mode",
-            "enum": ["interactive", "clickthrough"]
-          },
-          "transition_effect": {
-            "type": "boolean",
-            "description": "Show visual transition effect",
-            "default": true
-          }
-        },
-        "required": ["mode"]
-      }
+      "description": "Control Unity desktop avatar window interaction mode"
     },
     {
       "name": "unity_avatar_load",
-      "description": "Load VRM avatar into Unity desktop avatar system",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "description": "Path to VRM file"
-          },
-          "make_active": {
-            "type": "boolean",
-            "description": "Set as active avatar",
-            "default": true
-          },
-          "preload_animations": {
-            "type": "boolean",
-            "description": "Preload standard animations",
-            "default": true
-          },
-          "position_offset": {
-            "type": "object",
-            "description": "Position offset for avatar placement",
-            "properties": {
-              "x": {"type": "number"},
-              "y": {"type": "number"},
-              "z": {"type": "number"}
-            }
-          }
-        },
-        "required": ["path"]
-      }
+      "description": "Load VRM avatar into Unity desktop avatar system"
     },
     {
       "name": "unity_avatar_expression",
-      "description": "Control facial expressions on Unity desktop avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "expression": {
-            "type": "string",
-            "description": "Name of the facial expression"
-          },
-          "strength": {
-            "type": "number",
-            "description": "Expression strength (0.0 to 1.0)",
-            "default": 1.0,
-            "minimum": 0.0,
-            "maximum": 1.0
-          },
-          "transition_time": {
-            "type": "number",
-            "description": "Transition duration in seconds",
-            "default": 0.2,
-            "minimum": 0.0,
-            "maximum": 2.0
-          },
-          "blend_with_current": {
-            "type": "boolean",
-            "description": "Blend with current expressions",
-            "default": false
-          }
-        },
-        "required": ["expression"]
-      }
+      "description": "Control facial expressions on Unity desktop avatar"
     },
     {
       "name": "unity_avatar_animation",
-      "description": "Control animations on Unity desktop avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "action": {
-            "type": "string",
-            "description": "Animation action to perform",
-            "enum": ["play", "stop", "pause", "resume", "loop"]
-          },
-          "animation_name": {
-            "type": "string",
-            "description": "Name of animation (required for 'play')"
-          },
-          "loop": {
-            "type": "boolean",
-            "description": "Whether animation should loop",
-            "default": true
-          },
-          "speed": {
-            "type": "number",
-            "description": "Animation playback speed multiplier",
-            "default": 1.0,
-            "minimum": 0.1,
-            "maximum": 3.0
-          },
-          "blend_time": {
-            "type": "number",
-            "description": "Blend time between animations",
-            "default": 0.3,
-            "minimum": 0.0
-          }
-        },
-        "required": ["action"]
-      }
+      "description": "Control animations on Unity desktop avatar"
     },
     {
       "name": "unity_osc_bridge",
-      "description": "Configure OSC communication bridge for Unity avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "enable_bridge": {
-            "type": "boolean",
-            "description": "Enable or disable OSC bridge"
-          },
-          "receive_port": {
-            "type": "integer",
-            "description": "Port for receiving OSC messages",
-            "default": 9000,
-            "minimum": 1024,
-            "maximum": 65535
-          },
-          "send_port": {
-            "type": "integer",
-            "description": "Port for sending OSC messages",
-            "default": 9001,
-            "minimum": 1024,
-            "maximum": 65535
-          },
-          "server_ip": {
-            "type": "string",
-            "description": "IP address for OSC communication",
-            "default": "127.0.0.1"
-          },
-          "auto_reconnect": {
-            "type": "boolean",
-            "description": "Automatically reconnect on failures",
-            "default": true
-          },
-          "heartbeat_interval": {
-            "type": "integer",
-            "description": "Heartbeat interval in seconds",
-            "default": 30,
-            "minimum": 0,
-            "maximum": 300
-          }
-        },
-        "required": ["enable_bridge"]
-      }
+      "description": "Configure OSC communication bridge for Unity avatar"
     },
     {
       "name": "unity_plugin_load",
-      "description": "Load and manage plugins in Unity desktop avatar system",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "action": {
-            "type": "string",
-            "description": "Plugin management action",
-            "enum": ["load", "unload", "list", "reload"]
-          },
-          "plugin_path": {
-            "type": "string",
-            "description": "Path to plugin file (for 'load')"
-          },
-          "plugin_name": {
-            "type": "string",
-            "description": "Name of plugin (for 'unload'/'reload')"
-          },
-          "config": {
-            "type": "object",
-            "description": "Plugin configuration settings"
-          }
-        },
-        "required": ["action"]
-      }
+      "description": "Load and manage plugins in Unity desktop avatar system"
     },
     {
       "name": "unity_config_update",
-      "description": "Update configuration settings for Unity desktop avatar",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "config_section": {
-            "type": "string",
-            "description": "Configuration section to update",
-            "enum": ["rendering", "performance", "behavior", "audio", "network"]
-          },
-          "settings": {
-            "type": "object",
-            "description": "Settings to update for the section"
-          },
-          "apply_immediately": {
-            "type": "boolean",
-            "description": "Apply changes immediately",
-            "default": true
-          },
-          "persist_changes": {
-            "type": "boolean",
-            "description": "Save changes to disk",
-            "default": true
-          }
-        },
-        "required": ["config_section", "settings"]
-      }
+      "description": "Update configuration settings for Unity desktop avatar"
     }
   ],
   "compatibility": {
     "platforms": ["win32", "darwin", "linux"],
-    "python_version": ">=3.9",
+    "python_version": ">=3.10",
     "dependencies": {
       "fastmcp": ">=2.12.0",
       "numpy": ">=1.21.0",
@@ -670,14 +212,6 @@
       "pyvista": ">=0.35.0"
     }
   },
-  "categories": [
-    "avatar",
-    "3d-modeling",
-    "animation",
-    "osc",
-    "real-time",
-    "virtual-reality"
-  ],
   "keywords": [
     "VRM",
     "avatar",
