@@ -3,8 +3,6 @@
 Working Face Viewer - Back to what was actually working before
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_working_viewer():
@@ -14,7 +12,7 @@ def create_working_viewer():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🎌 Back to working viewer - Face + Clothing")
+        print("🎌 Back to working viewer - Face + Clothing")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -54,11 +52,11 @@ def create_working_viewer():
         plotter.camera_position = [(0.5, 0.2, 0.8), (0, 0, 0), (0, 1, 0)]
         plotter.enable_trackball_style()
         
-        print(f"🎌 Ready! You should see:")
-        print(f"  - Face (light coral)")
-        print(f"  - Body/Clothing (light blue)")
-        print(f"  - Hair (light green)")
-        print(f"  - NO little balls - solid surfaces!")
+        print("🎌 Ready! You should see:")
+        print("  - Face (light coral)")
+        print("  - Body/Clothing (light blue)")
+        print("  - Hair (light green)")
+        print("  - NO little balls - solid surfaces!")
         
         # Show
         plotter.show()
@@ -70,6 +68,8 @@ def create_working_viewer():
 
 if __name__ == "__main__":
     create_working_viewer()
+
+
 
 
 

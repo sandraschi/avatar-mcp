@@ -3,7 +3,6 @@
 Bone Name Debug - Find out what bone names actually exist in VRM
 """
 import sys
-import os
 sys.path.insert(0, 'src')
 
 def debug_bone_names():
@@ -18,7 +17,7 @@ def debug_bone_names():
         vrm_model = VRMLoader.from_file(vrm_path)
         print(f"✅ Loaded: {len(vrm_model.bones)} bones")
         
-        print(f"\n🦴 ACTUAL BONE NAMES IN VRM:")
+        print("\n🦴 ACTUAL BONE NAMES IN VRM:")
         bone_names = list(vrm_model.bones.keys())
         bone_names.sort()
         
@@ -33,7 +32,7 @@ def debug_bone_names():
             print(f"  ... and {len(bone_names) - 20} more bones")
         
         # Look for key body bones using different naming patterns
-        print(f"\n🔍 SEARCHING FOR KEY BODY BONES:")
+        print("\n🔍 SEARCHING FOR KEY BODY BONES:")
         key_patterns = [
             ['hip', 'hips', 'pelvis'],
             ['spine', 'back'],
@@ -58,9 +57,9 @@ def debug_bone_names():
             else:
                 print(f"  {patterns[0].upper()}: ❌ NOT FOUND")
         
-        print(f"\n📊 SUMMARY:")
+        print("\n📊 SUMMARY:")
         print(f"The VRM has {len(vrm_model.bones)} bones but uses different naming convention.")
-        print(f"The missing torso is because the VRM loader doesn't apply bone transforms.")
+        print("The missing torso is because the VRM loader doesn't apply bone transforms.")
         
     except Exception as e:
         print(f"❌ Error: {e}")

@@ -4,7 +4,6 @@ Minimal MCP server for testing - avoids complex imports that cause Windows issue
 """
 import json
 import sys
-import os
 import logging
 
 # Set up basic logging to stderr only

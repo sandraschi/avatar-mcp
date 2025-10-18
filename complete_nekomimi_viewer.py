@@ -3,8 +3,6 @@
 Complete Nekomimi Viewer - Render all three meshes (Face, Body, Hair)
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_complete_viewer():
@@ -14,7 +12,7 @@ def create_complete_viewer():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🎌 Creating complete Nekomimi-chan viewer")
+        print("🎌 Creating complete Nekomimi-chan viewer")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -27,7 +25,7 @@ def create_complete_viewer():
         colors = ['lightcoral', 'lightblue', 'lightgreen']  # Face, Body, Hair
         names = ['Face', 'Body', 'Hair']
         
-        print(f"\n🎌 RENDERING ALL MESHES:")
+        print("\n🎌 RENDERING ALL MESHES:")
         
         for i, mesh in enumerate(vrm_model.meshes):
             print(f"\n--- MESH {i}: {mesh.name} ---")
@@ -38,7 +36,7 @@ def create_complete_viewer():
             vertices = mesh.vertices.copy()
             vertices[:, 1] -= 1.3  # Center vertically based on face position
             
-            print(f"Bounds after centering:")
+            print("Bounds after centering:")
             print(f"  X: {vertices[:, 0].min():.3f} to {vertices[:, 0].max():.3f}")
             print(f"  Y: {vertices[:, 1].min():.3f} to {vertices[:, 1].max():.3f}")
             print(f"  Z: {vertices[:, 2].min():.3f} to {vertices[:, 2].max():.3f}")
@@ -82,13 +80,13 @@ def create_complete_viewer():
         # Enable mouse interaction
         plotter.enable_trackball_style()
         
-        print(f"\n🎌 Complete Nekomimi-chan viewer ready!")
-        print(f"You should see the full character:")
-        print(f"  🔴 Light coral face")
-        print(f"  🔵 Light blue body/clothing")  
-        print(f"  🟢 Light green hair")
-        print(f"  🔴 Red dot at origin")
-        print(f"Use mouse to rotate, zoom, and pan!")
+        print("\n🎌 Complete Nekomimi-chan viewer ready!")
+        print("You should see the full character:")
+        print("  🔴 Light coral face")
+        print("  🔵 Light blue body/clothing")  
+        print("  🟢 Light green hair")
+        print("  🔴 Red dot at origin")
+        print("Use mouse to rotate, zoom, and pan!")
         
         # Show
         plotter.show()
@@ -100,6 +98,8 @@ def create_complete_viewer():
 
 if __name__ == "__main__":
     create_complete_viewer()
+
+
 
 
 

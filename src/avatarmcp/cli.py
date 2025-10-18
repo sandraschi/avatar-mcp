@@ -4,7 +4,6 @@ AvatarMCP Command Line Interface
 import sys
 import asyncio
 import logging
-from typing import Optional
 
 from .core.app import AvatarMCP
 

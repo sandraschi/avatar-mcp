@@ -4,17 +4,14 @@ VRM 2.0 Loader
 This module provides functionality to load and parse VRM 2.0 files,
 extracting model data, materials, and animations using pygltflib and trimesh.
 """
-import json
 import logging
-import struct
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union, BinaryIO
+from typing import Dict, List, Optional, Tuple, Any, Union
 
 import numpy as np
-import trimesh
-from pygltflib import GLTF2, BufferFormat, BUFFERVIEW_TARGETS, COMPONENT_TYPES
+from pygltflib import GLTF2
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +100,19 @@ class VRMBone:
     position: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     rotation: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)  # quaternion (x, y, z, w)
     scale: Tuple[float, float, float] = (1.0, 1.0, 1.0)
+
+@dataclass
+class VRMHumanoid:
+    """VRM humanoid bone mapping."""
+    human_bones: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class VRMFirstPerson:
+    """VRM first-person view settings."""
+    first_person_bone: Optional[str] = None
+    first_person_bone_offset: Tuple[float, float, float] = (0, 0, 0)
+    look_at_type_name: str = "Bone"
+    look_at_blend_shape_name: Optional[str] = None
 
 class VRMLoader:
     """Loads and parses VRM 2.0 files using pygltflib and trimesh."""
@@ -841,7 +851,6 @@ class VRMLoader:
                 node = gltf.nodes[joint_idx]
                 
                 # Find parent node
-                parent_bone = None
                 if hasattr(node, 'children') and node.children:
                     # In GLTF, nodes have children, but we need to find the parent
                     for child_idx in node.children:

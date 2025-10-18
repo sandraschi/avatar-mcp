@@ -5,13 +5,10 @@ These tests verify that the server can start up and handle basic operations.
 """
 
 import asyncio
-import json
 import logging
 import os
 import sys
-import time
 from pathlib import Path
-from typing import Dict, Any, Optional
 
 import pytest
 import httpx

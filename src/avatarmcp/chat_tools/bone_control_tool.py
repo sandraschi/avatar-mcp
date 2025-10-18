@@ -4,7 +4,7 @@ Bone Control Tool for AvatarMCP
 Provides FastMCP 2.12 compatible endpoints for direct bone manipulation.
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 import logging
 from pydantic import BaseModel, Field
 from .base_tool import ChatTool, ToolResult, ToolParameter, ToolParameterType, ToolExecutionStatus

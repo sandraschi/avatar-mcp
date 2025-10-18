@@ -6,16 +6,13 @@ for voice interaction with the avatar system.
 """
 
 import asyncio
-import json
 import logging
 import os
-import re
 import time
 import wave
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
-from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union, Callable, Awaitable
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import sounddevice as sd

@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 import asyncio
 from pathlib import Path
 
@@ -54,7 +53,7 @@ async def test_vrm_viewer():
     # Enable debug logging
     import logging
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
     
     # Path to the VRM model
     vrm_path = os.path.join("examples", "Nekomimi-chan.vrm")

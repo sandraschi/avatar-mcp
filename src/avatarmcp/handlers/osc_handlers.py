@@ -8,9 +8,9 @@ and animations via OSC messages.
 import asyncio
 import logging
 import socket
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any, Dict, Callable
 
-from pythonosc import udp_client, dispatcher, osc_server
+from pythonosc import udp_client, dispatcher
 from pythonosc.osc_server import AsyncIOOSCUDPServer
 
 from .base_handler import BaseHandler

@@ -4,7 +4,6 @@ Test script for FastMCP 2.10+ server
 import json
 import subprocess
 import sys
-from pathlib import Path
 
 def test_mcp_server():
     # Start the server as a subprocess

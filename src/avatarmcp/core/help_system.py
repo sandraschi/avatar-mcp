@@ -5,7 +5,7 @@ This module provides a comprehensive help system for MCP tools with multi-level
 documentation, command registration, and decorator-based help text.
 """
 
-from typing import Dict, List, Optional, Callable, Any, TypeVar, Type, Union
+from typing import Dict, List, Optional, Callable, Any, TypeVar, Type
 from dataclasses import dataclass, field
 from functools import wraps
 import inspect
@@ -63,7 +63,6 @@ class CommandInfo:
         if self.parameters:
             lines.append("Parameters:")
             for param in self.parameters.values():
-                req = "" if param.required else "(optional) "
                 default = f" (default: {param.default!r})" if param.default is not inspect.Parameter.empty else ""
                 lines.append(f"  {param.name}: {param.type.__name__}{default}")
                 if param.description:

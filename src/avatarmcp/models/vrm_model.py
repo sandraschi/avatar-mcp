@@ -1,11 +1,9 @@
 """
 VRM Model class for handling VRM avatar data and operations.
 """
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 import os
-import json
 
-import numpy as np
 from pygltflib import GLTF2
 
 class VRMModel:

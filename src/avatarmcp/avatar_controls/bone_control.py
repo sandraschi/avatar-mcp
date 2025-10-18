@@ -4,8 +4,8 @@ Provides functionality for direct bone manipulation in avatars.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from typing import Dict, List
+from pydantic import Field
 
 from .base import (
     AvatarControlBase,

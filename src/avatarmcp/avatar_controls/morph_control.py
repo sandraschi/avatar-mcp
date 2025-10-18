@@ -5,7 +5,7 @@ Provides functionality for controlling morph targets (blendshapes) in avatars.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
 from pydantic import BaseModel, Field, field_validator
 
 from .base import (

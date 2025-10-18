@@ -4,7 +4,6 @@ Loki log handler for the Avatar MCP server.
 This module provides a log handler that sends logs to a Loki instance.
 """
 
-import json
 import logging
 import time
 from typing import Any, Dict, List, Optional, Union
@@ -13,7 +12,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from .base_handler import BaseHandler
+logger = logging.getLogger(__name__)
+
 
 class LokiLogHandler(logging.Handler):
     """Log handler that sends logs to a Loki instance."""

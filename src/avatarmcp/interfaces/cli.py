@@ -5,13 +5,13 @@ This module provides a command-line interface for the AvatarMCP server.
 """
 
 import argparse
+import logging
 import uvicorn
-import sys
 from pathlib import Path
-from typing import Optional
 
-from ..network.api import AvatarAPI
 from . import __version__
+
+logger = logging.getLogger(__name__)
 
 def parse_args():
     """Parse command line arguments."""

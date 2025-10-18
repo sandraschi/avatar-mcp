@@ -1,10 +1,7 @@
 """
 Script to connect a VRoid avatar to Claude Desktop using AvatarMCP.
 """
-import os
 import sys
-import json
-import time
 import logging
 from pathlib import Path
 
@@ -69,7 +66,7 @@ def main():
     logger.info("\n=== Setup Complete! ===")
     logger.info("The avatar is now loaded in the AvatarMCP server.")
     logger.info("\nIn Claude Desktop, use these settings to connect:")
-    logger.info(f"- MCP Server: localhost:8080")
+    logger.info("- MCP Server: localhost:8080")
     logger.info(f"- Avatar ID: {avatar_id}")
     logger.info("\nMake sure to enable MCP support in Claude Desktop settings.")
 

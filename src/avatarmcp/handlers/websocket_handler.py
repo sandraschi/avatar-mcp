@@ -9,7 +9,7 @@ import asyncio
 import json
 import logging
 import uuid
-from typing import Any, Dict, List, Optional, Set, Callable, Awaitable
+from typing import Any, Dict, Optional, Set, Callable
 from dataclasses import dataclass, field
 
 from fastapi import WebSocket, WebSocketDisconnect

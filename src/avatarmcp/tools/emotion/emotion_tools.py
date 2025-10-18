@@ -5,10 +5,7 @@ This module contains tools for emotional expression, state machines,
 and personality-driven avatar behavior for lifelike interactions.
 """
 
-import os
-import time
-import random
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 
 class EmotionTools:

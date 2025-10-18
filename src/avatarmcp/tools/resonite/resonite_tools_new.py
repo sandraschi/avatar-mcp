@@ -127,3 +127,5 @@ class ResoniteTools:
         """Validate Resonite world path format."""
         valid_prefixes = ['resonite://', 'file://', 'inventory://']
         return any(world_path.startswith(prefix) for prefix in valid_prefixes)
+
+

@@ -3,8 +3,6 @@
 Matplotlib VRM Viewer - Reliable 3D visualization using matplotlib
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_matplotlib_viewer():
@@ -13,7 +11,6 @@ def create_matplotlib_viewer():
     try:
         from avatarmcp.models.vrm_loader import VRMLoader
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -26,7 +23,7 @@ def create_matplotlib_viewer():
         fig = plt.figure(figsize=(14, 10))
         ax = fig.add_subplot(111, projection='3d')
         
-        print(f"\n📊 RENDERING WITH MATPLOTLIB:")
+        print("\n📊 RENDERING WITH MATPLOTLIB:")
         
         colors = ['lightcoral', 'lightblue', 'lightgreen']
         
@@ -40,7 +37,7 @@ def create_matplotlib_viewer():
             print(f"  Faces: {len(faces)}")
             
             if len(vertices) == 0 or len(faces) == 0:
-                print(f"  ⚠️ Empty mesh, skipping")
+                print("  ⚠️ Empty mesh, skipping")
                 continue
             
             try:
@@ -76,7 +73,7 @@ def create_matplotlib_viewer():
                         vertices[:, 2]
                     )
                 else:
-                    print(f"  ⚠️ No valid triangles")
+                    print("  ⚠️ No valid triangles")
                     
             except Exception as e:
                 print(f"  ❌ Error rendering mesh {i}: {e}")
@@ -107,9 +104,9 @@ def create_matplotlib_viewer():
         # Better viewing angle
         ax.view_init(elev=20, azim=45)
         
-        print(f"\n✅ Matplotlib viewer ready!")
-        print(f"🎌 Should show Nekomimi-chan with proper surfaces!")
-        print(f"Use mouse to rotate the view")
+        print("\n✅ Matplotlib viewer ready!")
+        print("🎌 Should show Nekomimi-chan with proper surfaces!")
+        print("Use mouse to rotate the view")
         
         plt.tight_layout()
         plt.show()
@@ -121,6 +118,8 @@ def create_matplotlib_viewer():
 
 if __name__ == "__main__":
     create_matplotlib_viewer()
+
+
 
 
 

@@ -1,7 +1,7 @@
 """
 Animation Controller for managing VRM model animations.
 """
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List
 import time
 
 class AnimationController:

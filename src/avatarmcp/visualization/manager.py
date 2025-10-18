@@ -4,9 +4,8 @@ Visualization manager for the AvatarMCP server.
 This module provides a thread-safe interface for managing the 3D visualization
 of VRM models using PyVista.
 """
-import asyncio
 import threading
-from typing import Dict, Any, Optional, Tuple
+from typing import Optional, Tuple
 import logging
 
 from .viewer import VRMViewer

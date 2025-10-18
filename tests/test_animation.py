@@ -1,8 +1,6 @@
 """
 Tests for the animation system.
 """
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
 
 class TestAnimationSystem:

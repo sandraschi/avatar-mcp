@@ -1,8 +1,8 @@
 import pyvista as pv
 import numpy as np
 import os
-import json
 import logging
+from pygltflib import GLTF2
 
 # Configure logging
 logging.basicConfig(
@@ -11,7 +11,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
-from pygltflib import GLTF2
 
 class VRMViewer:
     def __init__(self, window_size=(1024, 768)):

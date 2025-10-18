@@ -7,9 +7,7 @@ It builds on top of the existing OSC server and integration code.
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional, List, Callable, Union, Tuple
-from dataclasses import dataclass, field
-from enum import Enum
+from typing import Dict, Any, Optional
 
 from fastmcp import FastMCP
 

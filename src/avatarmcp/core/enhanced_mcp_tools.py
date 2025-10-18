@@ -3,9 +3,8 @@ Enhanced MCP Tools for AvatarMCP with advanced avatar controls.
 
 This module provides FastMCP 2.12+ compatible tools for advanced avatar manipulation.
 """
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Type, Union
+from typing import Dict, Any, Optional
 
 from .mcp_tools import MCPTools
 

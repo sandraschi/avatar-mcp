@@ -1,17 +1,14 @@
 """
 Enhanced VRM Model class for handling VRM 2.0 avatar data and operations.
 """
-from typing import Dict, Any, List, Optional, Tuple, BinaryIO, Union
+from typing import Dict, Any, List, Optional, BinaryIO, Union
 import os
-import json
-import hashlib
 import time
 from pathlib import Path
 from dataclasses import dataclass, field
 
-import numpy as np
 from pygltflib import GLTF2
-from pyvrm import VrmData, HumanBoneName, HumanBoneSpecification
+from pyvrm import VrmData
 
 @dataclass
 class VRMBlendShape:

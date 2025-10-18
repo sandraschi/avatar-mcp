@@ -1,13 +1,11 @@
-""
+"""
 Test cases for the AvatarMCP API endpoints.
 """
 import pytest
 import httpx
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional
 import asyncio
-import os
 
 # Test configuration
 TEST_MODEL_PATH = Path("tests/test_assets/sample.vrm")  # Update this path as needed

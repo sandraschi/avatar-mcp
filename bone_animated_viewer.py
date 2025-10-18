@@ -7,7 +7,6 @@ import os
 import time
 import threading
 import numpy as np
-from typing import Dict, List, Optional
 sys.path.insert(0, 'src')
 
 class BoneAnimatedViewer:

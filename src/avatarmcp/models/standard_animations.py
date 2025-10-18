@@ -3,8 +3,7 @@ Standard animations for VRM avatars.
 
 This module provides pre-defined animations for common movements like walking, dancing, etc.
 """
-from typing import Dict, Any, List, Tuple, Optional
-import math
+from typing import Dict, Any, List, Optional
 
 # Standard animation presets
 ANIMATION_PRESETS = {

@@ -6,12 +6,10 @@ Shows live animations from the AvatarMCP system
 import sys
 import os
 import time
-import threading
 sys.path.insert(0, 'src')
 
 def main():
     try:
-        import pyvista as pv
         from avatarmcp.models.vrm_loader import VRMLoader
         from avatarmcp.visualization.manager import VisualizationManager
         
@@ -66,7 +64,7 @@ def main():
         try:
             if 'viz_manager' in locals():
                 viz_manager.stop_viewer()
-        except:
+        except Exception:
             pass
 
 if __name__ == "__main__":

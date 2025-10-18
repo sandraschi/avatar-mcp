@@ -5,7 +5,6 @@ Skinned VRM Viewer - Apply bone transformations to fix missing torso
 import sys
 import os
 import numpy as np
-from pathlib import Path
 sys.path.insert(0, 'src')
 
 def apply_skinning_to_mesh(mesh, bones, bone_indices_map=None):
@@ -90,7 +89,7 @@ def apply_skinning_to_mesh(mesh, bones, bone_indices_map=None):
         else:
             skinned_vertices[vertex_idx] = vertex
     
-    print(f"  ✅ Skinning applied successfully")
+    print("  ✅ Skinning applied successfully")
     return skinned_vertices
 
 def create_skinned_vrm_viewer():
@@ -117,7 +116,7 @@ def create_skinned_vrm_viewer():
             title="🎌 Skinned VRM Viewer - With Bone Transformations"
         )
         
-        print(f"\n🦴 APPLYING SKINNING TRANSFORMATIONS:")
+        print("\n🦴 APPLYING SKINNING TRANSFORMATIONS:")
         
         colors = ['lightsalmon', 'lightblue', 'darkseagreen']
         
@@ -186,11 +185,11 @@ def create_skinned_vrm_viewer():
         plotter.camera_position = [(3, 2, 3), (0, 1, 0), (0, 0, 1)]
         plotter.enable_trackball_style()
         
-        print(f"\n✅ Skinned VRM viewer setup complete!")
-        print(f"🎮 Controls:")
-        print(f"  - Mouse: Rotate, pan, zoom")
-        print(f"  - Bone transformations applied to fix missing torso")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n✅ Skinned VRM viewer setup complete!")
+        print("🎮 Controls:")
+        print("  - Mouse: Rotate, pan, zoom")
+        print("  - Bone transformations applied to fix missing torso")
+        print("  - Press Ctrl+C to exit")
         
         # Show viewer
         plotter.show()

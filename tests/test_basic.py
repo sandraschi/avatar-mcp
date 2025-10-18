@@ -4,15 +4,12 @@ Basic tests for the AvatarMCP server.
 These tests verify that the server can start up and handle basic operations.
 """
 
-import asyncio
 import os
 import sys
-import json
 import logging
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
 
 # Add the project root to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -60,16 +57,17 @@ async def test_server_startup(test_app):
         await test_app.start()
         
         # Verify server is running
-        assert test_app.is_running() is True
+        assert test_app.running is True
         
         # Test basic functionality
-        assert test_app.osc is not None
+        # OSC is disabled in test mode, so it should be None
+        assert test_app.osc is None  # OSC disabled in test mode
         assert test_app.mcp is not None
         
     finally:
         # Clean up
         await test_app.stop()
-        assert test_app.is_running() is False
+        assert test_app.running is False
 
 @pytest.mark.asyncio
 async def test_vrm_loading(test_app, test_assets_dir):
@@ -79,12 +77,13 @@ async def test_vrm_loading(test_app, test_assets_dir):
         await test_app.start()
         
         # Load a test model
-        model = await test_app.load_vrm_model(TEST_MODEL_PATH)
-        assert model is not None
+        result = await test_app.load_model("test_model", TEST_MODEL_PATH)
+        assert result is not None
+        assert result.get('status') == 'success'
         
         # Verify the model was loaded
-        assert model.model_id in test_app.models
-        assert test_app.active_model_id == model.model_id
+        assert "test_model" in test_app.models
+        assert test_app.active_model_id == "test_model"
         
         # List models
         models = await test_app.list_models()
@@ -92,8 +91,8 @@ async def test_vrm_loading(test_app, test_assets_dir):
         assert len(models) > 0
         
         # Unload the model
-        await test_app.unload_model(model.model_id)
-        assert model.model_id not in test_app.models
+        await test_app.unload_model("test_model")
+        assert "test_model" not in test_app.models
         
     finally:
         # Clean up

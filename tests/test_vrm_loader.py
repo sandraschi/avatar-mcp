@@ -2,7 +2,6 @@
 Tests for the VRM loader module.
 """
 import pytest
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 class TestVRMLoader:
@@ -10,7 +9,7 @@ class TestVRMLoader:
     
     def test_load_vrm_file_not_found(self, tmp_path):
         """Test loading a non-existent VRM file raises FileNotFoundError."""
-        from avatarmcp.vrm_loader import VRMLoader, VRMError
+        from avatarmcp.vrm_loader import VRMLoader
         
         non_existent_file = tmp_path / "nonexistent.vrm"
         with pytest.raises(FileNotFoundError):

@@ -9,9 +9,9 @@ from __future__ import annotations
 import json
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, TypeVar, Callable, Awaitable, Union
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class ToolResult:
         )
     
     @classmethod
-    def error(cls, message: str, **metadata) -> 'ToolResult':
+    def create_error(cls, message: str, **metadata) -> 'ToolResult':
         """Create an error tool result."""
         return cls(
             status=ToolExecutionStatus.ERROR,

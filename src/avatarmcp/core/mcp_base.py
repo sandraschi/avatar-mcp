@@ -3,7 +3,7 @@ Base classes for MCP tools.
 
 This module provides base classes for MCP tools and related functionality.
 """
-from typing import Any, Dict, Optional, Type, TypeVar, Generic, Callable, Awaitable
+from typing import Any, Dict, TypeVar, Callable
 
 T = TypeVar('T')
 

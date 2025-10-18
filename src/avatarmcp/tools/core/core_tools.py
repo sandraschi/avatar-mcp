@@ -5,9 +5,12 @@ This module contains fundamental avatar operations including loading, listing,
 basic animation control, and core avatar management functionality.
 """
 
+import logging
 import os
 import time
 from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
 
 
 class CoreTools:
@@ -85,7 +88,6 @@ class CoreTools:
             """
             # Implementation for avatar_list
             import os
-            import time
             start_time = time.time()
 
             try:
@@ -703,7 +705,7 @@ class CoreTools:
                 }
 
             # Send OSC message to Unity desktop avatar for morph control
-            osc_address = f"/avatar/expression/blendshape"
+            osc_address = "/avatar/expression/blendshape"
             if self.mcp_server._send_osc_message(osc_address, morph_name, float(weight)):
                 return {
                     'status': 'success',
@@ -861,114 +863,4 @@ class CoreTools:
                 return {
                     'status': 'error',
                     'message': 'Failed to send export command to Unity desktop avatar'
-                }
-
-        @self.mcp_server.mcp.tool()
-        def bone_control(params: Dict[str, Any]) -> Dict[str, Any]:
-            """Control individual bones for posing and animation.
-
-            Manipulates specific bones in the avatar's skeleton to create poses,
-            gestures, and animations. Essential for creating natural character movements
-            and expressions through direct bone manipulation.
-
-            Parameters:
-                bone_name (str): Name of the bone to control (e.g., 'head', 'left_arm', 'spine')
-                rotation (dict, optional): Rotation as quaternion {'x': float, 'y': float, 'z': float, 'w': float}
-                translation (dict, optional): Translation vector {'x': float, 'y': float, 'z': float}
-                scale (dict, optional): Scale vector {'x': float, 'y': float, 'z': float}
-                relative (bool, optional): Whether transform is relative to parent bone (default: True)
-                smooth (bool, optional): Whether to interpolate movement smoothly (default: True)
-
-            Returns:
-                Dictionary containing:
-                    - status: Either "success" or "error"
-                    - bone_name: Name of the controlled bone
-                    - transform_applied: Type of transform applied
-                    - current_pose: Current bone transform state
-                    - affected_children: Number of child bones affected
-                    - animation_time: Time taken to apply pose change
-
-            Usage:
-                Pose the avatar's head:
-                    result = await bone_control({
-                        'bone_name': 'head',
-                        'rotation': {'x': 0.0, 'y': 0.1, 'z': 0.0, 'w': 0.995}
-                    })
-
-                Move the left arm:
-                    result = await bone_control({
-                        'bone_name': 'left_arm',
-                        'rotation': {'x': 0.2, 'y': 0.0, 'z': 0.0, 'w': 0.98},
-                        'translation': {'x': 0.1, 'y': 0.0, 'z': 0.0}
-                    })
-
-            Notes:
-                - Bone names follow VRM/humanoid naming conventions
-                - Rotations use quaternion representation for smooth interpolation
-                - Transforms can be absolute or relative to parent bones
-                - Smooth interpolation prevents jarring pose changes
-                - Child bones automatically follow parent transformations
-                - Pose changes persist until explicitly reset
-
-            Examples:
-                Head rotation:
-                    await bone_control({'bone_name': 'head', 'rotation': {'x': 0, 'y': 0.1, 'z': 0, 'w': 0.995}})
-
-                Arm gesture:
-                    await bone_control({'bone_name': 'left_arm', 'rotation': {'x': 0.3, 'y': 0, 'z': 0, 'w': 0.95}})
-
-            See Also:
-                - animation_play: For pre-defined animation sequences
-                - morph_control: For facial expressions and blendshapes
-            """
-            try:
-                bone_name = params.get('bone_name', '')
-                if not bone_name:
-                    return {
-                        'status': 'error',
-                        'message': 'bone_name parameter is required'
-                    }
-
-                # Handle rotation
-                if 'rotation' in params:
-                    rot = params['rotation']
-                    if isinstance(rot, dict) and all(k in rot for k in ['x', 'y', 'z', 'w']):
-                        # Send quaternion rotation
-                        osc_address = f"/avatar/bone/{bone_name}/rotation"
-                        self.mcp_server._send_osc_message(osc_address,
-                                                        rot['x'], rot['y'], rot['z'], rot['w'])
-                        return {
-                            'status': 'success',
-                            'message': f'Applied rotation to bone {bone_name}',
-                            'bone_name': bone_name,
-                            'transform_type': 'rotation',
-                            'rotation': rot
-                        }
-
-                # Handle translation
-                if 'translation' in params:
-                    trans = params['translation']
-                    if isinstance(trans, dict) and all(k in trans for k in ['x', 'y', 'z']):
-                        # Send translation
-                        osc_address = f"/avatar/bone/{bone_name}/translation"
-                        self.mcp_server._send_osc_message(osc_address,
-                                                        trans['x'], trans['y'], trans['z'])
-                        return {
-                            'status': 'success',
-                            'message': f'Applied translation to bone {bone_name}',
-                            'bone_name': bone_name,
-                            'transform_type': 'translation',
-                            'translation': trans
-                        }
-
-                return {
-                    'status': 'error',
-                    'message': 'No valid rotation or translation parameters provided'
-                }
-
-            except Exception as e:
-                logger.error(f"Bone control failed: {e}")
-                return {
-                    'status': 'error',
-                    'message': f'Bone control failed: {str(e)}'
                 }

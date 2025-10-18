@@ -7,10 +7,9 @@ import json
 import os
 import shutil
 import sys
-import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # Package information
 PACKAGE_NAME = "avatarmcp"
@@ -104,7 +103,7 @@ def copy_required_files(temp_dir: Path) -> None:
         print("Created README.md")
 
 def create_dxt_package() -> bool:
-    """Create the DXT package.
+    """Create the DXT package."""
     # Validate the manifest first
     manifest = validate_manifest(Path("dxt_manifest.json"))
     version = manifest.get("version", VERSION)

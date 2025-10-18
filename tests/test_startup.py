@@ -5,7 +5,6 @@ Test script to verify server startup and basic functionality.
 import asyncio
 import logging
 import sys
-import os
 from pathlib import Path
 
 # Configure logging

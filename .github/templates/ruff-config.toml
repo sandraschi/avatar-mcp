@@ -1,0 +1,40 @@
+# Ruff Configuration Template
+# Add this to your pyproject.toml
+
+[tool.ruff]
+target-version = "{{MIN_PYTHON_VERSION}}"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E402", # Module level import not at top of file (intentional in some cases)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Optional: Add more rules for stricter checking
+# [tool.ruff.lint]
+# select = [
+#     "E", "W", "F", "I", "B", "C4", "UP",  # Basic rules
+#     "S",   # flake8-bandit (security)
+#     "TCH", # flake8-type-checking
+#     "SIM", # flake8-simplify
+# ]
+# ignore = [
+#     "E402",  # Module level import not at top
+#     "S101",  # Use of assert detected
+#     "TCH001", # Move standard library import into TYPE_CHECKING
+# ]

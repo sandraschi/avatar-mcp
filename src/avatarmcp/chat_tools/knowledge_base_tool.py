@@ -5,16 +5,14 @@ This tool allows the chatbot to query a knowledge base for information.
 """
 
 import asyncio
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List
 
 from .base_tool import (
     ChatTool,
     ToolResult,
     ToolParameter,
     ToolParameterType,
-    ToolExecutionStatus,
 )
 
 logger = logging.getLogger(__name__)

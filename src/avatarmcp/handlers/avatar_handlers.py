@@ -5,9 +5,8 @@ This module provides handlers for managing VRM avatars, including loading,
 unloading, and querying avatar information.
 """
 
-import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base_handler import BaseHandler
 

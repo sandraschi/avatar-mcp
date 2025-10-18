@@ -1,10 +1,12 @@
 """
 Simple chatbot implementation for avatar interactions.
 """
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any
 import random
-import json
-import os
+import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Chatbot:
     def __init__(self, personality: str = "friendly"):

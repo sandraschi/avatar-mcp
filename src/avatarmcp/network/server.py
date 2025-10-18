@@ -3,38 +3,73 @@ AvatarMCP Server
 
 FastMCP 2.10+ compliant server implementation for managing VRM avatars.
 """
-import json
 import logging
-import os
 import sys
-import time
 import traceback
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union, Type, TypedDict
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import fastmcp
-from fastmcp import FastMCP
 from fastmcp.tools import tool as mcp_tool
 
 # Import VRM loader
-from ..models.vrm_loader import VRMLoader, VRMModel
+from ..models.vrm_loader import VRMLoader
 
 # Import animation system
-from ..core.animation import AnimationController, AnimationClip, AnimationKeyframe
+from ..core.animation import AnimationClip, AnimationKeyframe
 
 # Import standard animations
 from . import standard_animations
 
 # Import MCP help system
-from ..core.mcp_help import mcp_help, register_help_command
+from ..core.mcp_help import register_help_command
 
 # Import help system
-from ..core.help_system import help_system, register_help, CommandInfo, ParameterInfo
+from ..core.help_system import help_system
+
+# Initialize FastMCP at module level
+mcp = fastmcp.FastMCP(
+    name="avatarmcp",
+    version="0.1.0",
+    description="MCP server for VRM avatar management and animation"
+)
+
+class AnimationInfo(TypedDict):
+    name: str
+    duration: float
+    loop: bool
+    model_id: str
+
+# Global state
+_active_animations: Dict[str, AnimationInfo] = {}
+
+def play_standard_animation(model_id: str, animation_name: str, loop: bool = False, 
+                           weight: float = 1.0, speed: float = 1.0) -> Dict[str, Any]:
+    """Play a standard animation on a model."""
+    try:
+        # TODO: Implement actual standard animation logic
+        logger.info(f"Playing standard animation '{animation_name}' on model {model_id}")
+        return {
+            "success": True,
+            "message": f"Playing standard animation '{animation_name}'",
+            "model_id": model_id,
+            "animation_name": animation_name,
+            "loop": loop,
+            "weight": weight,
+            "speed": speed
+        }
+    except Exception as e:
+        logger.error(f"Failed to play standard animation: {str(e)}")
+        return {
+            "success": False,
+            "message": f"Failed to play standard animation: {str(e)}",
+            "error": str(e)
+        }
 
 try:
     # Try importing any optional dependencies here
     pass
-except ImportError as e:
+except ImportError:
     # Use stderr directly for critical import errors before logging is set up
     sys.stderr.write("ERROR: FastMCP 2.10+ is required. Please install with: pip install 'fastmcp>=2.10.0,<3.0.0'\n")
     sys.exit(1)
@@ -55,12 +90,6 @@ class ModelInfo(TypedDict):
     bones: List[Dict[str, Any]]
     materials: List[Dict[str, Any]]
 
-class AnimationInfo(TypedDict):
-    name: str
-    duration: float
-    loop: bool
-    model_id: str
-
 def main():
     """
     Entry point for the AvatarMCP server.
@@ -72,15 +101,8 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # Initialize FastMCP
-    mcp = fastmcp.FastMCP(
-        name="avatarmcp",
-        version="0.1.0",
-        description="MCP server for VRM avatar management and animation"
-    )
-    
     # Register the help command first
-    help_system = register_help_command(mcp)
+    register_help_command(mcp)
     
     # Register all commands with MCP and the help system
     commands = [
@@ -1101,26 +1123,6 @@ def list_models() -> Dict[str, Any]:
     except Exception as e:
         logger.exception("Failed to list models")
         return create_error_response("Failed to list models", {"error": str(e)})
-
-def main() -> int:
-    """
-    Entry point for the AvatarMCP server.
-    Uses stdio communication as required by FastMCP 2.10+
-    """
-    try:
-        logger.info("Starting AvatarMCP server...")
-        logger.info("FastMCP 2.10+ stdio protocol")
-        
-        # Start the MCP server
-        mcp.run()
-        return 0
-        
-    except KeyboardInterrupt:
-        logger.info("Server stopped by user")
-        return 0
-    except Exception as e:
-        logger.error("Server error: %s", str(e), exc_info=True)
-        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

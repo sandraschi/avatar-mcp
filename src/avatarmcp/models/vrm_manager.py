@@ -9,8 +9,9 @@ and converting between different formats. It supports both humanoid and non-huma
 import os
 import json
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 import aiofiles
 

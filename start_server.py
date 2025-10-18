@@ -4,10 +4,7 @@ Simple script to start the AvatarMCP server with debug output.
 import os
 import sys
 import logging
-import json
 from pathlib import Path
-import time
-from typing import Dict, Any
 
 # Add the src directory to the Python path at the very beginning
 src_dir = str(Path(__file__).parent / "src")
@@ -123,7 +120,7 @@ def main():
             logger.error("Python path: %s", sys.path)
             return 1
             
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error in main:")
         return 1
 

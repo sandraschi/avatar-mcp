@@ -1,5 +1,4 @@
 import pyvista as pv
-import numpy as np
 
 def main():
     # Create a plotter
@@ -9,7 +8,7 @@ def main():
     cube = pv.Cube()
     
     # Add the cube to the plotter
-    actor = plotter.add_mesh(cube, color='lightblue', show_edges=True)
+    plotter.add_mesh(cube, color='lightblue', show_edges=True)
     
     # Set a nice camera position
     plotter.camera_position = 'xy'

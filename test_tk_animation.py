@@ -1,5 +1,4 @@
 import tkinter as tk
-import math
 import time
 
 class AnimationTest:
@@ -83,7 +82,7 @@ class AnimationTest:
 
 def main():
     root = tk.Tk()
-    app = AnimationTest(root)
+    AnimationTest(root)
     
     # Center the window
     window_width = 420

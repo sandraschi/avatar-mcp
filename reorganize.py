@@ -1,5 +1,4 @@
 """Script to reorganize the AvatarMCP codebase into a more structured layout."""
-import os
 import shutil
 from pathlib import Path
 

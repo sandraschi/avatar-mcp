@@ -5,8 +5,7 @@ This module provides the CommandRegistry class which handles registration and ma
 of all commands available in the AvatarMCP server.
 """
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
-from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 import inspect
 
 # Type variable for generic function type

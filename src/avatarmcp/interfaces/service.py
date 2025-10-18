@@ -4,17 +4,14 @@ AvatarMCP Service
 Main service class for managing VRM avatars and animations using the VRMModelManager.
 """
 from pathlib import Path
-from typing import Dict, Optional, List, Any, Tuple, Union
-import json
+from typing import Dict, Optional, List, Tuple, Union
 import logging
 import time
-import numpy as np
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from dataclasses import dataclass, field
 
 # Local imports
-from ..models.vrm_loader import VRMModel as VRMLoaderModel, VRMBone, VRMBlendShape, VRMMaterial, VRMTexture
-from ..models.model_manager import VRMModelManager, ModelCacheEntry
+from ..models.vrm_loader import VRMModel as VRMLoaderModel
+from ..models.model_manager import VRMModelManager
 
 # Configure logging
 logging.basicConfig(
@@ -302,7 +299,7 @@ class AvatarService:
             # Remove the avatar
             del self.avatars[avatar_id]
             logger.info(f"Unloaded avatar: {avatar_id}" + 
-                      (f" and removed from cache" if remove_from_cache else ""))
+                      (" and removed from cache" if remove_from_cache else ""))
             return True
             
         return False

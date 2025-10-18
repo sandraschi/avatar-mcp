@@ -5,10 +5,7 @@ This module contains tools for professional avatar performances, including
 lip sync, lighting, audience interaction, show management, and recording systems.
 """
 
-import os
-import time
-import random
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 
 class PerformanceTools:

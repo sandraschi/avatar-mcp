@@ -8,12 +8,11 @@ for the AI NPC system, with support for multiple backends and configurations.
 import asyncio
 import logging
 import json
-import re
 import wave
 import io
 import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, Optional, Callable
 from enum import Enum, auto
 
 logger = logging.getLogger(__name__)
@@ -340,7 +339,7 @@ class SpeechProcessor:
             channels=self.config.channels,
             callback=audio_callback,
             blocksize=int(self.config.sample_rate * 0.1)  # 100ms chunks
-        ) as stream:
+        ):
             logger.info("Listening... (press Ctrl+C to stop)")
             
             while not self._stop_listening:
@@ -385,7 +384,6 @@ class SpeechProcessor:
         import whisper
         import torch
         import io
-        import soundfile as sf
         
         try:
             # If no audio data provided, use the microphone
@@ -403,7 +401,7 @@ class SpeechProcessor:
                 audio_data = (audio_data * 32767).astype('int16').tobytes()
             
             # Convert bytes to numpy array
-            audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+            np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
             
             # Save to a temporary WAV file
             with io.BytesIO() as wav_io:
@@ -440,7 +438,6 @@ class SpeechProcessor:
     async def _recognize_vosk(self, audio_data: Optional[bytes]) -> Optional[str]:
         """Recognize speech using Vosk."""
         import vosk
-        import json
         
         if audio_data is None:
             logger.error("Vosk requires pre-recorded audio")
@@ -564,7 +561,7 @@ class SpeechProcessor:
     
     async def _synthesize_elevenlabs(self, text: str, **kwargs) -> Optional[bytes]:
         """Synthesize speech using ElevenLabs."""
-        from elevenlabs import generate, set_api_key
+        from elevenlabs import generate
         
         try:
             # Generate speech
@@ -584,13 +581,10 @@ class SpeechProcessor:
         """Synthesize speech using pyttsx3."""
         import pyttsx3
         import io
-        import wave
-        import pyaudio
-        import numpy as np
         
         try:
             # Create an in-memory file
-            with io.BytesIO() as wav_io:
+            with io.BytesIO():
                 # Configure the engine
                 engine = pyttsx3.init()
                 

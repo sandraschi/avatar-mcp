@@ -4,8 +4,6 @@ Test script for AvatarMCP server.
 import asyncio
 import logging
 import sys
-import json
-import time
 
 # Configure logging
 logging.basicConfig(

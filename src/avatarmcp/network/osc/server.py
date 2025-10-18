@@ -5,7 +5,6 @@ This module provides OSC (Open Sound Control) server functionality for
 receiving and processing VRChat avatar parameters in real-time.
 """
 import asyncio
-import json
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, Callable, List
 import logging
@@ -165,7 +164,7 @@ class VRChatOSCServer:
         ]
         if viseme not in valid_visemes:
             raise ValueError(f"Invalid viseme. Must be one of: {valid_visemes}")
-        self._client.send_message(f"/avatar/parameters/Viseme", viseme)
-        self._client.send_message(f"/avatar/parameters/VisemeWeight", strength)
+        self._client.send_message("/avatar/parameters/Viseme", viseme)
+        self._client.send_message("/avatar/parameters/VisemeWeight", strength)
         self.set_parameter("Viseme", viseme)
         self.set_parameter("VisemeWeight", float(strength))

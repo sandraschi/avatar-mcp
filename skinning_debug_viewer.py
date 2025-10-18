@@ -5,7 +5,6 @@ Skinning Debug Viewer - Analyze why torso is missing from VRM models
 import sys
 import os
 import numpy as np
-from pathlib import Path
 sys.path.insert(0, 'src')
 
 def analyze_vrm_skinning():
@@ -13,7 +12,6 @@ def analyze_vrm_skinning():
     
     try:
         from avatarmcp.models.vrm_loader import VRMLoader
-        import pyvista as pv
         
         # Test with Nekomimi-chan first
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -26,7 +24,7 @@ def analyze_vrm_skinning():
         vrm_model = VRMLoader.from_file(vrm_path)
         print(f"✅ Loaded: {len(vrm_model.meshes)} meshes, {len(vrm_model.bones)} bones")
         
-        print(f"\n🦴 BONE ANALYSIS:")
+        print("\n🦴 BONE ANALYSIS:")
         print(f"  Total bones: {len(vrm_model.bones)}")
         
         # List key bones
@@ -38,7 +36,7 @@ def analyze_vrm_skinning():
             else:
                 print(f"  ❌ {bone_name}: NOT FOUND")
         
-        print(f"\n🔍 MESH SKINNING ANALYSIS:")
+        print("\n🔍 MESH SKINNING ANALYSIS:")
         for i, mesh in enumerate(vrm_model.meshes):
             print(f"\n--- MESH {i} ({mesh.name}) ---")
             print(f"  Vertices: {len(mesh.vertices)}")
@@ -95,11 +93,11 @@ def analyze_vrm_skinning():
                 
                 # Check if this might be the missing torso
                 if "BODY" in mesh_type or "TORSO" in mesh_type:
-                    print(f"  🚨 THIS MIGHT BE THE MISSING TORSO!")
+                    print("  🚨 THIS MIGHT BE THE MISSING TORSO!")
                     
                     # Check if skinning data exists for body mesh
                     if not (has_joint_indices and has_joint_weights):
-                        print(f"  🔥 PROBLEM: Body mesh has no skinning data!")
+                        print("  🔥 PROBLEM: Body mesh has no skinning data!")
                     elif has_joint_weights:
                         # Check if weights are valid
                         weights = mesh.attributes['joint_weights']
@@ -107,13 +105,13 @@ def analyze_vrm_skinning():
                         print(f"  Zero-weight vertices: {zero_weight_verts}/{len(weights)} ({100*zero_weight_verts/len(weights):.1f}%)")
                         
                         if zero_weight_verts > len(weights) * 0.5:
-                            print(f"  🔥 PROBLEM: Too many vertices have zero weights!")
+                            print("  🔥 PROBLEM: Too many vertices have zero weights!")
         
-        print(f"\n📊 SUMMARY:")
-        print(f"The missing torso issue is likely caused by:")
-        print(f"1. Missing or invalid bone weights for body mesh vertices")
-        print(f"2. VRM loader not applying skinning transformations")
-        print(f"3. Body mesh vertices positioned incorrectly without bone influence")
+        print("\n📊 SUMMARY:")
+        print("The missing torso issue is likely caused by:")
+        print("1. Missing or invalid bone weights for body mesh vertices")
+        print("2. VRM loader not applying skinning transformations")
+        print("3. Body mesh vertices positioned incorrectly without bone influence")
         
     except Exception as e:
         print(f"❌ Error in skinning analysis: {e}")

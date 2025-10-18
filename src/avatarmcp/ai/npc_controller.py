@@ -10,14 +10,13 @@ import json
 import logging
 import os
 import time
-from dataclasses import dataclass, field
+import numpy as np
 from enum import Enum, auto
-from pathlib import Path
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, List, Optional, Any
 
 # Import our modules
-from ..ai.speech import SpeechProcessor, SpeechConfig, SpeechBackend
-from ..ai.vision import VisionProcessor, VisionConfig, VisionBackend, Detection
+from ..ai.speech import SpeechProcessor, SpeechConfig
+from ..ai.vision import VisionProcessor, VisionConfig, Detection
 from ..network.osc.tools import VRChatOSCController
 
 logger = logging.getLogger(__name__)

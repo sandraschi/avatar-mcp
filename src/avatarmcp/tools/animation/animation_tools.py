@@ -5,9 +5,7 @@ This module contains tools for advanced animation control, choreography,
 and complex animation sequences for VRM avatars.
 """
 
-import os
-import time
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 
 class AnimationTools:

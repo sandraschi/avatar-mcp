@@ -3,8 +3,6 @@
 Centered VRM Viewer - Center both sphere and VRM mesh for better viewing
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_centered_viewer():
@@ -14,7 +12,7 @@ def create_centered_viewer():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🎌 Creating centered VRM viewer")
+        print("🎌 Creating centered VRM viewer")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -52,7 +50,7 @@ def create_centered_viewer():
             name='vrm_face'
         )
         
-        print(f"✅ Both meshes added and centered")
+        print("✅ Both meshes added and centered")
         
         # Setup scene
         plotter.show_axes()
@@ -62,7 +60,7 @@ def create_centered_viewer():
         plotter.camera_position = [(0.5, 0.3, 0.5), (0, 0, 0), (0, 1, 0)]
         plotter.reset_camera()
         
-        print(f"🎌 Viewer ready - face should be clearly visible now!")
+        print("🎌 Viewer ready - face should be clearly visible now!")
         
         # Show
         plotter.show()
@@ -74,6 +72,8 @@ def create_centered_viewer():
 
 if __name__ == "__main__":
     create_centered_viewer()
+
+
 
 
 

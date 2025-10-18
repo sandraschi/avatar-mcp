@@ -8,9 +8,7 @@ This script demonstrates how to use the MCP visualization tools to:
 4. Control the camera and model transforms
 """
 import asyncio
-import json
 import logging
-import sys
 from pathlib import Path
 
 # Configure logging

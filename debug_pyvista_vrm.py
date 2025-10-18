@@ -3,8 +3,6 @@
 Debug PyVista VRM - Test PyVista with VRM data step by step
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def debug_pyvista_vrm():
@@ -14,7 +12,7 @@ def debug_pyvista_vrm():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🔍 STEP 1: Test basic PyVista")
+        print("🔍 STEP 1: Test basic PyVista")
         
         # First, confirm PyVista works with a sphere
         sphere = pv.Sphere()
@@ -25,14 +23,14 @@ def debug_pyvista_vrm():
         
         # Add sphere as reference
         plotter.add_mesh(sphere, color='green', opacity=0.3, name='reference_sphere')
-        print(f"✅ Reference sphere added")
+        print("✅ Reference sphere added")
         
-        print(f"\n🔍 STEP 2: Load VRM data")
+        print("\n🔍 STEP 2: Load VRM data")
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
         vrm_model = VRMLoader.from_file(vrm_path)
         print(f"✅ VRM loaded: {len(vrm_model.meshes)} meshes")
         
-        print(f"\n🔍 STEP 3: Test one VRM mesh")
+        print("\n🔍 STEP 3: Test one VRM mesh")
         
         # Get just the face mesh (smallest one)
         face_mesh = vrm_model.meshes[0]
@@ -42,12 +40,12 @@ def debug_pyvista_vrm():
         
         # Check vertex bounds
         vertices = face_mesh.vertices
-        print(f"Vertex bounds:")
+        print("Vertex bounds:")
         print(f"  X: {vertices[:, 0].min():.3f} to {vertices[:, 0].max():.3f}")
         print(f"  Y: {vertices[:, 1].min():.3f} to {vertices[:, 1].max():.3f}")
         print(f"  Z: {vertices[:, 2].min():.3f} to {vertices[:, 2].max():.3f}")
         
-        print(f"\n🔍 STEP 4: Create PyVista mesh from VRM data")
+        print("\n🔍 STEP 4: Create PyVista mesh from VRM data")
         
         # Use our new PyVista face format
         pv_faces = face_mesh.get_pyvista_faces()
@@ -73,7 +71,7 @@ def debug_pyvista_vrm():
                 edge_color='black',
                 line_width=1
             )
-            print(f"✅ VRM mesh added to plotter")
+            print("✅ VRM mesh added to plotter")
             
         except Exception as e:
             print(f"❌ Error creating PyVista mesh: {e}")
@@ -81,7 +79,7 @@ def debug_pyvista_vrm():
             traceback.print_exc()
             return
         
-        print(f"\n🔍 STEP 5: Setup scene and show")
+        print("\n🔍 STEP 5: Setup scene and show")
         
         # Setup scene
         plotter.show_axes()
@@ -90,11 +88,11 @@ def debug_pyvista_vrm():
         # Position camera to see both
         plotter.camera_position = [(3, 2, 3), (0, 0, 0), (0, 1, 0)]
         
-        print(f"✅ Debug viewer ready!")
-        print(f"You should see:")
-        print(f"  - Green transparent sphere (PyVista test)")
-        print(f"  - Blue face mesh with wireframe (VRM data)")
-        print(f"If you only see the sphere, there's an issue with VRM->PyVista conversion")
+        print("✅ Debug viewer ready!")
+        print("You should see:")
+        print("  - Green transparent sphere (PyVista test)")
+        print("  - Blue face mesh with wireframe (VRM data)")
+        print("If you only see the sphere, there's an issue with VRM->PyVista conversion")
         
         # Show
         plotter.show()
@@ -106,6 +104,8 @@ def debug_pyvista_vrm():
 
 if __name__ == "__main__":
     debug_pyvista_vrm()
+
+
 
 
 

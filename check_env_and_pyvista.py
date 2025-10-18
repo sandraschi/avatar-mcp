@@ -1,6 +1,5 @@
 import sys
 import platform
-import subprocess
 
 def check_python():
     print("=== Python Environment ===")

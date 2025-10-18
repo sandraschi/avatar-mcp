@@ -12,14 +12,11 @@ import inspect
 import json
 import logging
 import os
-import pkgutil
 import sys
-import traceback
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Set, Type, TypeVar, Union, Callable, Awaitable
+from typing import Any, Dict, List, Optional, Set, TypeVar, Union, Callable
 from dataclasses import dataclass, field, asdict
-from importlib.machinery import ModuleSpec
 
 from .base_handler import BaseHandler
 

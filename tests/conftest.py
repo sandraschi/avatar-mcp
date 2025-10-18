@@ -2,10 +2,9 @@
 Pytest configuration and fixtures for AvatarMCP tests.
 """
 import pytest
-import os
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 # Add the src directory to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))

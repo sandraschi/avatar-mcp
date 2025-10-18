@@ -4,12 +4,10 @@ Export Tool for AvatarMCP
 Provides FastMCP 2.12 compatible endpoints for exporting avatars to Unity/VRChat.
 """
 
-import os
-import json
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from enum import Enum
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from pathlib import Path
 from .base_tool import ChatTool, ToolResult, ToolParameter, ToolParameterType, ToolExecutionStatus
 

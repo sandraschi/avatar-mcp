@@ -4,9 +4,9 @@ Morph Target Control Tool for AvatarMCP
 Provides FastMCP 2.12 compatible endpoints for morph target control.
 """
 
-from typing import Dict, List, Optional, Any, Union
+from typing import List
 import logging
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from .base_tool import ChatTool, ToolResult, ToolParameter, ToolParameterType, ToolExecutionStatus
 
 logger = logging.getLogger(__name__)

@@ -7,14 +7,13 @@ including object detection, face recognition, and environment analysis.
 
 import asyncio
 import logging
-import json
+import os
 import numpy as np
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Any, Callable
 from enum import Enum, auto
 import cv2
 import mss
-from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +105,6 @@ class VisionProcessor:
                     logger.warning("Model files not found, using default COCO model")
                     # Try to download the model if not found
                     import urllib.request
-                    import os
                     
                     base_url = "https://github.com/opencv/opencv_extra/raw/master/testdata/dnn/"
                     if not os.path.exists(model_file):
@@ -151,9 +149,7 @@ class VisionProcessor:
     def _init_yolo(self):
         """Initialize YOLO-based object detection."""
         try:
-            import torch
             from models.experimental import attempt_load
-            from utils.general import non_max_suppression, scale_coords
             from utils.torch_utils import select_device
             
             # Select device
@@ -172,7 +168,7 @@ class VisionProcessor:
             
             logger.info("Initialized YOLO vision backend")
             
-        except ImportError as e:
+        except ImportError:
             logger.error("YOLOv5 not available. Install with: pip install -r requirements.txt")
             raise
     
@@ -200,15 +196,13 @@ class VisionProcessor:
             
             logger.info("Initialized TensorFlow vision backend")
             
-        except ImportError as e:
+        except ImportError:
             logger.error("TensorFlow Object Detection API not available. Install with: pip install tensorflow")
             raise
     
     def _init_torchvision(self):
         """Initialize TorchVision-based object detection."""
         try:
-            import torch
-            import torchvision
             from torchvision.models.detection import fasterrcnn_resnet50_fpn
             from torchvision import transforms
             
@@ -239,7 +233,7 @@ class VisionProcessor:
             
             logger.info("Initialized TorchVision vision backend")
             
-        except ImportError as e:
+        except ImportError:
             logger.error("TorchVision not available. Install with: pip install torch torchvision")
             raise
     
@@ -285,7 +279,7 @@ class VisionProcessor:
             
             logger.info("Initialized MediaPipe vision backend")
             
-        except ImportError as e:
+        except ImportError:
             logger.error("MediaPipe not available. Install with: pip install mediapipe")
             raise
     
@@ -515,7 +509,6 @@ class VisionProcessor:
     async def _process_mediapipe(self, frame: np.ndarray) -> List[Detection]:
         """Process a frame using MediaPipe."""
         try:
-            import mediapipe as mp
             
             # Convert BGR to RGB
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

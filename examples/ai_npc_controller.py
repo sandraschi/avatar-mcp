@@ -7,7 +7,6 @@ with speech, listening, and vision capabilities.
 
 import asyncio
 import logging
-import json
 from typing import Dict, Any, Optional, List
 import numpy as np
 
@@ -72,7 +71,6 @@ class AINPCController:
         try:
             # Try to import speech modules
             import speech_recognition as sr
-            from gtts import gTTS
             import pygame
             
             self.speech_recognizer = sr.Recognizer()
@@ -95,9 +93,7 @@ class AINPCController:
             
         try:
             # Try to import vision modules
-            import cv2
             import mss
-            from PIL import Image
             
             self.screen_capture = mss.mss()
             logger.info("Vision components initialized")

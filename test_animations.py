@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 import asyncio
 from pathlib import Path
 
@@ -45,7 +44,7 @@ async def test_animation():
         viewer.plotter.add_mesh(cube, name="test_cube")
     
     # Create and play test animation
-    animation = create_test_animation()
+    create_test_animation()
     print("Playing test animation...")
     viewer.play_animation("test_model" if os.path.exists(test_model_path) else "test_cube", "bounce")
     

@@ -11,13 +11,11 @@ FIXES:
 import asyncio
 import fnmatch
 import inspect
-import json
 import logging
 import os
-import signal
 import sys
 import time
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, Optional
 
 try:
     import aiofiles
@@ -28,10 +26,6 @@ from fastmcp import FastMCP
 
 from .models.vrm_model import VRMModel
 from .models.vrm_manager import VRMManager
-from .handlers.logging_handler import LoggingHandler
-from .handlers.settings_handler import SettingsHandler
-from .handlers.rest_handler import RESTHandler
-from .handlers.websocket_handler import WebSocketHandler
 from .tools.chat_tools import ChatTool
 from .handlers.chatbot_handler import ChatbotHandler
 from .metrics import MetricsCollector
@@ -378,7 +372,7 @@ class AvatarMCPServer:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
                 
-            loaded_only = params.get("loaded_only", False)
+            params.get("loaded_only", False)
             include_metadata = params.get("include_metadata", False)
             
             avatars = []
@@ -579,7 +573,7 @@ async def run_server(
         handlers=[logging.StreamHandler(sys.stderr)]
     )
     
-    logger.info(f"Starting AvatarMCP server (FastMCP 2.11.3+ compatible)")
+    logger.info("Starting AvatarMCP server (FastMCP 2.11.3+ compatible)")
     
     try:
         # Create the server

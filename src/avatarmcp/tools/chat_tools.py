@@ -4,12 +4,11 @@ MCP Tools for chat functionality.
 This module provides MCP-compatible tools for interacting with the chatbot handler.
 """
 
-from typing import Dict, Any, Optional, List, Union
-import asyncio
+from typing import Dict, Any, Optional, List
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from ..handlers.chatbot_handler import ChatbotHandler, ChatState, ChatMessage, MessageRole
+from ..handlers.chatbot_handler import ChatbotHandler
 
 logger = logging.getLogger(__name__)
 

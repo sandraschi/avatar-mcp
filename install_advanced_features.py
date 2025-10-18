@@ -5,8 +5,6 @@ This script helps users install optional dependencies for enhanced functionality
 """
 import subprocess
 import sys
-import os
-from pathlib import Path
 
 def print_status(message, status="info"):
     """Print colored status messages."""

@@ -5,9 +5,7 @@ This package contains various chat tools that can be used by the chatbot handler
 to provide functionality like web search, knowledge base querying, and more.
 """
 
-from typing import List, Dict, Any, Optional, Type, TypeVar
-from dataclasses import dataclass, field
-from enum import Enum
+from typing import Dict, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,7 +28,6 @@ from .animation_control_tool import AnimationControlTool
 from .avatar_control_tool import AvatarControlTool
 from .knowledge_base_tool import KnowledgeBaseTool
 from .system_info_tool import SystemInfoTool
-from .web_search_tool import WebSearchTool
 
 # Import new advanced tools
 from .bone_control_tool import BoneControlTool

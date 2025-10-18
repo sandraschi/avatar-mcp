@@ -13,13 +13,11 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Type, TypeVar, Tuple, Callable, Awaitable
+from typing import Any, Dict, Optional, Union
 from dataclasses import dataclass, field, asdict
 import json
 import traceback
 import inspect
-import threading
-import queue
 
 from .base_handler import BaseHandler
 
@@ -301,7 +299,7 @@ class LoggingHandler(BaseHandler):
                 # Use logger or fallback to stderr for critical logging errors
                 try:
                     logger.error(f"Error in log consumer: {str(e)}")
-                except:
+                except Exception:
                     sys.stderr.write(f"Error in log consumer: {str(e)}\n")
     
     async def _process_log_message(self, log_data: Dict[str, Any]) -> None:

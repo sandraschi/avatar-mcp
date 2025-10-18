@@ -4,9 +4,7 @@ Comparison VRM Viewer - Compare AnimeGirl2 vs Nekomimi-chan mesh issues
 """
 import sys
 import os
-import time
 import numpy as np
-from pathlib import Path
 sys.path.insert(0, 'src')
 
 def compare_vrm_models():
@@ -126,20 +124,20 @@ def compare_vrm_models():
                 print(f"  AnimeGirl2 Size  : ({anime_size[0]:.3f}, {anime_size[1]:.3f}, {anime_size[2]:.3f})")
         
         # Bone comparison
-        print(f"\n🦴 BONE COMPARISON:")
+        print("\n🦴 BONE COMPARISON:")
         print(f"  Nekomimi-chan : {len(nekomimi_model.bones)} bones")
         print(f"  AnimeGirl2    : {len(animegirl2_model.bones)} bones")
         
         # Blend shape comparison
-        print(f"\n😮 BLEND SHAPE COMPARISON:")
+        print("\n😮 BLEND SHAPE COMPARISON:")
         print(f"  Nekomimi-chan : {len(nekomimi_model.blend_shapes)} blend shapes")
         print(f"  AnimeGirl2    : {len(animegirl2_model.blend_shapes)} blend shapes")
         
-        print(f"\n✅ Comparison viewer setup complete!")
-        print(f"🎮 Controls:")
-        print(f"  - Mouse: Rotate, pan, zoom each view independently")
-        print(f"  - Both models should show the same issues if VRM loader is the problem")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n✅ Comparison viewer setup complete!")
+        print("🎮 Controls:")
+        print("  - Mouse: Rotate, pan, zoom each view independently")
+        print("  - Both models should show the same issues if VRM loader is the problem")
+        print("  - Press Ctrl+C to exit")
         
         # Show comparison
         plotter.show()

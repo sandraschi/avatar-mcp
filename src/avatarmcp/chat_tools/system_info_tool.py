@@ -4,23 +4,19 @@ System information tool for the Avatar MCP chatbot.
 This tool allows the chatbot to query system information and status.
 """
 
-import asyncio
-import json
 import logging
 import platform
 import psutil
 import socket
-import sys
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .base_tool import (
     ChatTool,
     ToolResult,
     ToolParameter,
     ToolParameterType,
-    ToolExecutionStatus,
 )
 
 logger = logging.getLogger(__name__)
@@ -153,7 +149,7 @@ class SystemInfoTool(ChatTool):
     def _get_disk_info(self) -> Dict[str, Any]:
         """Get disk information."""
         try:
-            disk_usage = psutil.disk_usage('/')
+            psutil.disk_usage('/')
             disk_io = psutil.disk_io_counters()
             
             return {

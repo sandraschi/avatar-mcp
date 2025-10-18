@@ -3,9 +3,8 @@ Tests for the AvatarMCP server.
 """
 import unittest
 from unittest.mock import MagicMock, patch
-import json
 
-from src.avatarmcp.app import AvatarMCP
+from src.avatarmcp.core.app import AvatarMCP
 from src.avatarmcp.models.vrm_model import VRMModel
 from src.avatarmcp.models.animation_controller import AnimationController
 

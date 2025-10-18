@@ -11,9 +11,8 @@ import json
 import asyncio
 import websockets
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Optional, List
 import httpx
-from uuid import uuid4
 
 # Configuration
 API_BASE_URL = "http://localhost:8080/api/v1"

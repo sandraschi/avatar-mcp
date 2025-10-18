@@ -3,7 +3,6 @@
 Ultra Simple VRM Viewer - Minimal PyVista approach to avoid shader issues
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -23,7 +22,7 @@ def create_ultra_simple_viewer():
         # Use the simplest possible PyVista setup
         plotter = pv.Plotter(title="🎌 Ultra Simple VRM Viewer")
         
-        print(f"\n🔧 ULTRA SIMPLE RENDERING:")
+        print("\n🔧 ULTRA SIMPLE RENDERING:")
         
         for i, mesh in enumerate(vrm_model.meshes):
             print(f"\n--- MESH {i} ({mesh.name}) ---")
@@ -70,9 +69,9 @@ def create_ultra_simple_viewer():
         # Minimal scene setup
         plotter.show_axes()
         
-        print(f"\n✅ Ultra simple viewer ready!")
-        print(f"If you see wireframes instead of surfaces, that's expected due to OpenGL issues")
-        print(f"The important thing is that the mesh structure is correct")
+        print("\n✅ Ultra simple viewer ready!")
+        print("If you see wireframes instead of surfaces, that's expected due to OpenGL issues")
+        print("The important thing is that the mesh structure is correct")
         
         # Show viewer
         plotter.show()
@@ -84,6 +83,8 @@ def create_ultra_simple_viewer():
 
 if __name__ == "__main__":
     create_ultra_simple_viewer()
+
+
 
 
 

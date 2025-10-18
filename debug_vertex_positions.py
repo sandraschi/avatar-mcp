@@ -3,7 +3,6 @@
 Debug Vertex Positions - Check if vertices are in valid ranges
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -27,7 +26,7 @@ def debug_vertex_positions():
             title="🎌 Debug VRM Vertex Positions - No Skinning"
         )
         
-        print(f"\n📊 VERTEX POSITION ANALYSIS:")
+        print("\n📊 VERTEX POSITION ANALYSIS:")
         
         colors = ['red', 'green', 'blue']
         all_vertices = []
@@ -62,7 +61,7 @@ def debug_vertex_positions():
                 print(f"  Too large (>1000): {too_large}")
                 
                 if has_nan or has_inf or too_large:
-                    print(f"  🚨 PROBLEMATIC VERTICES DETECTED!")
+                    print("  🚨 PROBLEMATIC VERTICES DETECTED!")
                     continue
                 
                 all_vertices.append(vertices)
@@ -77,7 +76,7 @@ def debug_vertex_positions():
                         render_points_as_spheres=True,
                         name=f"points_mesh_{i}"
                     )
-                    print(f"  ✅ Rendered as point cloud")
+                    print("  ✅ Rendered as point cloud")
                     
                     # Also try with faces if they exist
                     if len(faces) > 0 and faces.ndim == 2 and faces.shape[1] == 3:
@@ -93,7 +92,7 @@ def debug_vertex_positions():
                                     show_edges=True,
                                     name=f"faces_mesh_{i}"
                                 )
-                                print(f"  ✅ Rendered with faces")
+                                print("  ✅ Rendered with faces")
                             except Exception as face_error:
                                 print(f"  ⚠️ Face rendering failed: {face_error}")
                         else:
@@ -112,7 +111,7 @@ def debug_vertex_positions():
             scene_center = combined_vertices.mean(axis=0)
             scene_size = scene_max - scene_min
             
-            print(f"\n🌍 OVERALL SCENE:")
+            print("\n🌍 OVERALL SCENE:")
             print(f"  Total vertices: {len(combined_vertices)}")
             print(f"  Scene bounds: ({scene_min[0]:.3f}, {scene_min[1]:.3f}, {scene_min[2]:.3f}) to ({scene_max[0]:.3f}, {scene_max[1]:.3f}, {scene_max[2]:.3f})")
             print(f"  Scene center: ({scene_center[0]:.3f}, {scene_center[1]:.3f}, {scene_center[2]:.3f})")
@@ -126,21 +125,21 @@ def debug_vertex_positions():
                 (0, 1, 0)
             ]
         else:
-            print(f"\n❌ NO VALID VERTICES FOUND!")
+            print("\n❌ NO VALID VERTICES FOUND!")
             # Add a test sphere to verify the viewer works
             test_sphere = pv.Sphere(radius=0.1, center=(0, 0, 0))
             plotter.add_mesh(test_sphere, color='yellow', name='test_sphere')
-            print(f"  Added test sphere to verify viewer functionality")
+            print("  Added test sphere to verify viewer functionality")
         
         # Add reference objects
         plotter.add_axes(xlabel='X', ylabel='Y', zlabel='Z')
         plotter.show_grid()
         
-        print(f"\n✅ Debug viewer setup complete!")
-        print(f"🎮 Controls:")
-        print(f"  - Mouse: Rotate, pan, zoom")
-        print(f"  - If empty, vertices might be at unexpected positions")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n✅ Debug viewer setup complete!")
+        print("🎮 Controls:")
+        print("  - Mouse: Rotate, pan, zoom")
+        print("  - If empty, vertices might be at unexpected positions")
+        print("  - Press Ctrl+C to exit")
         
         # Show viewer
         plotter.show()
@@ -152,6 +151,8 @@ def debug_vertex_positions():
 
 if __name__ == "__main__":
     debug_vertex_positions()
+
+
 
 
 

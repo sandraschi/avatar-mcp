@@ -3,11 +3,10 @@ FastMCP 2.10+ compatible help system.
 
 Provides decorator-based help documentation for MCP commands.
 """
-from typing import Dict, List, Optional, Callable, Any, TypeVar, Type, Union
+from typing import Dict, List, Optional, Callable, Any, TypeVar
 from dataclasses import dataclass, field
 from functools import wraps
 import inspect
-import textwrap
 
 # Type variable for generic function type
 F = TypeVar('F', bound=Callable[..., Any])
@@ -53,8 +52,9 @@ class MCPHelpSystem:
             doc_lines = [line.strip() for line in doc.split('\n')]
             
             # Extract description if not provided
-            if not description and doc_lines:
-                description = doc_lines[0]
+            cmd_description = description
+            if not cmd_description and doc_lines:
+                cmd_description = doc_lines[0]
             
             # Parse parameters
             parameters = {}
@@ -85,7 +85,7 @@ class MCPHelpSystem:
             # Create command documentation
             cmd_doc = CommandDoc(
                 name=cmd_name,
-                description=description,
+                description=cmd_description,
                 parameters=parameters,
                 returns=returns if 'returns' in locals() else "",
                 deprecated=deprecated,

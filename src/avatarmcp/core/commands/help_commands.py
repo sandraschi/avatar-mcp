@@ -1,7 +1,7 @@
 """
 Help system commands for AvatarMCP.
 """
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 
 def register_commands(registry):

@@ -1,0 +1,53 @@
+{
+  "resonite": {
+    "enabled": true,
+    "connection": {
+      "osc_port": 9000,
+      "osc_address": "127.0.0.1",
+      "auto_connect": true,
+      "connection_timeout_ms": 5000,
+      "reconnect_attempts": 3
+    },
+    "worlds": {
+      "default_world": "resonite://AvatarMCP-Studio",
+      "avatar_control_world": "resonite://AvatarMCP-Studio",
+      "performance_world": "resonite://AvatarMCP-Stage",
+      "collaboration_world": "resonite://AvatarMCP-Collaborative"
+    },
+    "avatars": {
+      "max_slots": 8,
+      "default_scale": 1.0,
+      "auto_sync": true,
+      "sync_interval_ms": 16,
+      "quality_preset": "high"
+    },
+    "recording": {
+      "default_duration_seconds": 30,
+      "default_quality": "high",
+      "default_format": "resonite",
+      "auto_save": true,
+      "save_directory": "recordings"
+    },
+    "features": {
+      "protoflux_integration": true,
+      "real_time_sync": true,
+      "multi_user_support": true,
+      "performance_recording": true,
+      "gesture_recognition": true,
+      "facial_tracking": true
+    },
+    "performance": {
+      "target_fps": 90,
+      "max_latency_ms": 10,
+      "sync_quality": "perfect",
+      "bandwidth_limit_kbps": 10000
+    },
+    "debug": {
+      "log_osc_messages": false,
+      "show_sync_metrics": false,
+      "enable_profiling": false
+    }
+  }
+}
+
+

@@ -4,7 +4,6 @@ This creates a rotating cube to test if 3D rendering works.
 """
 import sys
 import time
-import numpy as np
 import pyvista as pv
 
 def main():
@@ -52,7 +51,6 @@ def main():
     # Animation loop
     print("Starting animation (press 'q' to quit)...")
     
-    angle = 0
     while plotter.ren_win and plotter.iren._active:
         # Rotate the cube
         cube.rotate_y(1, inplace=True)

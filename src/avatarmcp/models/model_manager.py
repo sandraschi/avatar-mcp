@@ -7,14 +7,12 @@ and lifecycle management for VRM models.
 import hashlib
 import json
 import logging
-import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-import numpy as np
-from ..models.vrm_loader import VRMLoader, VRMModel, VRMFileType
+from ..models.vrm_loader import VRMLoader, VRMModel
 
 logger = logging.getLogger(__name__)
 

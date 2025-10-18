@@ -18,16 +18,11 @@ from typing import Optional, Any, Dict
 from .utils.logging_utils import setup_logging
 from .server import OSCConfig, AvatarMCPServer
 
-import os
-from logging.handlers import RotatingFileHandler
-import logging
-import sys
 
 # Don't set up logging here, we'll do it after parsing arguments
 logger = logging.getLogger(__name__)
 
 # Now import the rest of the application
-from .server import AvatarMCPServer, run_server
 
 # Global server instance
 mcp_server: Optional[AvatarMCPServer] = None
@@ -128,7 +123,7 @@ def main():
         )
         
         # Create the MCP server with OSC configuration
-        mcp_server = AvatarMCPServer(
+        AvatarMCPServer(
             osc_config=osc_config,
             enable_osc=True
         )
@@ -156,7 +151,7 @@ def main():
             
     except asyncio.CancelledError:
         logger.info("Shutting down...")
-    except Exception as e:
+    except Exception:
         logger.exception("Fatal error in main loop")
         return 1
     
@@ -177,7 +172,7 @@ if __name__ == "__main__":
         try:
             logger = logging.getLogger(__name__)
             logger.error(f"Fatal error: {str(e)}", exc_info=True)
-        except:
+        except Exception:
             import traceback
             sys.stderr.write(f"Fatal error: {str(e)}\n")
             sys.stderr.write(traceback.format_exc() + "\n")

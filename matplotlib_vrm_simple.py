@@ -3,7 +3,6 @@
 Matplotlib VRM Simple - Use matplotlib instead of PyVista
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -13,10 +12,9 @@ def create_matplotlib_viewer():
     try:
         from avatarmcp.models.vrm_loader import VRMLoader
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         
-        print(f"📊 Matplotlib VRM Viewer (more reliable)")
+        print("📊 Matplotlib VRM Viewer (more reliable)")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -48,7 +46,7 @@ def create_matplotlib_viewer():
                 alpha=0.6,
                 label=f"{mesh.name} vertices"
             )
-            print(f"  ✅ Added vertex scatter")
+            print("  ✅ Added vertex scatter")
             
             # Try to add some triangular surfaces (just first 100 for performance)
             if len(faces) > 0:
@@ -89,9 +87,9 @@ def create_matplotlib_viewer():
             all_vertices[:, 2]
         )
         
-        print(f"\n📊 Matplotlib viewer ready!")
-        print(f"This should DEFINITELY show something!")
-        print(f"Look for colored point clouds representing the character parts")
+        print("\n📊 Matplotlib viewer ready!")
+        print("This should DEFINITELY show something!")
+        print("Look for colored point clouds representing the character parts")
         
         plt.tight_layout()
         plt.show()
@@ -103,6 +101,8 @@ def create_matplotlib_viewer():
 
 if __name__ == "__main__":
     create_matplotlib_viewer()
+
+
 
 
 

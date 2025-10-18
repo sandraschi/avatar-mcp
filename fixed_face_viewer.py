@@ -3,7 +3,6 @@
 Fixed Face Viewer - Properly render faces as triangular surfaces, not point clouds
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -27,7 +26,7 @@ def create_fixed_face_viewer():
             title="🎌 Fixed Face VRM Viewer - Proper Triangular Surfaces"
         )
         
-        print(f"\n🔧 FIXING FACE RENDERING:")
+        print("\n🔧 FIXING FACE RENDERING:")
         
         colors = ['lightcoral', 'lightblue', 'lightgreen']
         
@@ -41,7 +40,7 @@ def create_fixed_face_viewer():
             print(f"  Original faces shape: {faces.shape}")
             
             if len(vertices) == 0:
-                print(f"  ⚠️ No vertices, skipping")
+                print("  ⚠️ No vertices, skipping")
                 continue
             
             # Analyze and fix faces for proper PyVista rendering
@@ -74,7 +73,7 @@ def create_fixed_face_viewer():
                                 name=f"mesh_{i}"
                             )
                             
-                            print(f"  ✅ Rendered as solid triangular surface")
+                            print("  ✅ Rendered as solid triangular surface")
                             
                         except Exception as e:
                             print(f"  ❌ PyVista surface error: {e}")
@@ -87,13 +86,13 @@ def create_fixed_face_viewer():
                                 render_points_as_spheres=False,  # Use simple points, not spheres
                                 name=f"points_{i}"
                             )
-                            print(f"  ⚠️ Fallback to point cloud")
+                            print("  ⚠️ Fallback to point cloud")
                     else:
-                        print(f"  ❌ No valid faces found")
+                        print("  ❌ No valid faces found")
                 else:
                     print(f"  ❌ Invalid face shape: expected Nx3, got {faces.shape}")
             else:
-                print(f"  ❌ No face data or invalid format")
+                print("  ❌ No face data or invalid format")
                 
         # Add lighting and environment
         plotter.add_axes(xlabel='X', ylabel='Y', zlabel='Z')
@@ -106,13 +105,13 @@ def create_fixed_face_viewer():
         plotter.camera_position = [(2, 1.5, 2), (0, 1, 0), (0, 1, 0)]
         plotter.enable_trackball_style()
         
-        print(f"\n✅ Fixed face viewer ready!")
-        print(f"🎮 Features:")
-        print(f"  - Proper triangular surface rendering (no more balls!)")
-        print(f"  - Solid surfaces with lighting")
-        print(f"  - All clothing parts should appear as continuous surfaces")
-        print(f"  - Mouse: Rotate, pan, zoom")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n✅ Fixed face viewer ready!")
+        print("🎮 Features:")
+        print("  - Proper triangular surface rendering (no more balls!)")
+        print("  - Solid surfaces with lighting")
+        print("  - All clothing parts should appear as continuous surfaces")
+        print("  - Mouse: Rotate, pan, zoom")
+        print("  - Press Ctrl+C to exit")
         
         # Show viewer
         plotter.show()
@@ -124,6 +123,8 @@ def create_fixed_face_viewer():
 
 if __name__ == "__main__":
     create_fixed_face_viewer()
+
+
 
 
 

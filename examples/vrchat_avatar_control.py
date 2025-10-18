@@ -9,7 +9,7 @@ import asyncio
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 # Configure logging
 logging.basicConfig(

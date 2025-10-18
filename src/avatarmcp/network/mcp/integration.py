@@ -6,13 +6,13 @@ controlling VRChat avatars through the MCP ecosystem.
 """
 import asyncio
 import logging
-from typing import Dict, Any, Optional, List, Callable, Union
+from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 
 from fastmcp import FastMCP
 from ..network.osc.server import VRChatOSCServer
-from ..models.vrm_loader import VRMLoader, VRMBlendShape
+from ..models.vrm_loader import VRMLoader
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class AvatarOSCIntegrator:
         try:
             # Register our OSC endpoints with OSCMCP
             await self.mcp.tools.create_route(
-                source=f"/avatar/parameters/*",
+                source="/avatar/parameters/*",
                 target=f"osc://{self.config.server_ip}:{self.config.receive_port}/avatar/parameters/{0}",
                 transform={"type": "pass_through"}
             )

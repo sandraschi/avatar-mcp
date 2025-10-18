@@ -5,16 +5,14 @@ This tool allows the chatbot to control avatar animations.
 """
 
 import asyncio
-import json
 import logging
-from typing import Any, Dict, List, Optional, Literal
+from typing import List, Optional
 
 from .base_tool import (
     ChatTool,
     ToolResult,
     ToolParameter,
     ToolParameterType,
-    ToolExecutionStatus,
 )
 
 logger = logging.getLogger(__name__)

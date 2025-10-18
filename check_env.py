@@ -5,7 +5,6 @@ import os
 import sys
 import platform
 import importlib
-import traceback
 import logging
 from pathlib import Path
 
@@ -75,7 +74,7 @@ def check_avatarmcp():
         
         # Try to import server
         try:
-            from avatarmcp import server
+            import avatarmcp.server
             logger.info("✓ avatarmcp.server imported successfully")
             return True
         except ImportError as e:

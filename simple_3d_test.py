@@ -1,6 +1,4 @@
-import sys
 import time
-import numpy as np
 
 def test_3d_visualization():
     try:

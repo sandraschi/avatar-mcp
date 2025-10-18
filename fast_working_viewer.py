@@ -3,8 +3,6 @@
 Fast Working Viewer - Uses the new PyVista face format method
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_fast_viewer():
@@ -24,7 +22,7 @@ def create_fast_viewer():
         pv.set_plot_theme('document')
         plotter = pv.Plotter(title="🎌 Fast Working VRM Viewer")
         
-        print(f"\n🚀 FAST RENDERING WITH FIXED FACES:")
+        print("\n🚀 FAST RENDERING WITH FIXED FACES:")
         
         # Just render one mesh for speed
         mesh = vrm_model.meshes[0]  # Face mesh
@@ -48,13 +46,13 @@ def create_fast_viewer():
             show_edges=False
         )
         
-        print(f"✅ Successfully rendered face mesh!")
+        print("✅ Successfully rendered face mesh!")
         
         # Quick scene setup
         plotter.show_axes()
         plotter.camera_position = [(2, 1, 2), (0, 0, 0), (0, 1, 0)]
         
-        print(f"🎌 Opening viewer - should show Nekomimi-chan's face as a proper surface!")
+        print("🎌 Opening viewer - should show Nekomimi-chan's face as a proper surface!")
         
         # Show viewer
         plotter.show()
@@ -66,6 +64,8 @@ def create_fast_viewer():
 
 if __name__ == "__main__":
     create_fast_viewer()
+
+
 
 
 

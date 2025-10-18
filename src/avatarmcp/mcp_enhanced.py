@@ -7,7 +7,7 @@ import sys
 import os
 import asyncio
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict
 
 # Import the base MCP server
 import importlib.util
@@ -23,28 +23,21 @@ def check_dependencies() -> Dict[str, bool]:
     }
     
     try:
-        import pyvista
-        import vtk
         deps['visualization'] = True
     except ImportError:
         pass
     
     try:
-        import torch
-        import transformers
         deps['ai_ml'] = True
     except ImportError:
         pass
     
     try:
-        import pyaudio
-        import speech_recognition
         deps['audio'] = True
     except ImportError:
         pass
     
     try:
-        import cv2
         deps['opencv'] = True
     except ImportError:
         pass
@@ -249,7 +242,7 @@ class EnhancedMCPServer:
             from ..visualization.manager import VisualizationManager
             
             # This would be the actual implementation
-            viz_manager = VisualizationManager()
+            VisualizationManager()
             
             return {
                 "success": True,

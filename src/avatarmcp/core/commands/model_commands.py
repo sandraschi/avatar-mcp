@@ -5,11 +5,10 @@ This module provides commands for loading, managing, and manipulating
 VRM models in the AvatarMCP server.
 """
 from __future__ import annotations
-from typing import Dict, Any, List, Optional, TYPE_CHECKING
+from typing import Dict, Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..app import AvatarMCP
-    from ..models.vrm_model import VRMModel
 
 # Re-export for easy imports
 __all__ = ['register_commands']
@@ -20,7 +19,6 @@ def register_commands(registry):
     Args:
         registry: Command registry instance to register commands with
     """
-    app = registry.app
     
     @registry.register(
         name="load_model",

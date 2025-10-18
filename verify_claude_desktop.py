@@ -6,11 +6,6 @@ This script verifies that the AvatarMCP server is properly configured
 and working with Claude Desktop.
 """
 import json
-import sys
-import os
-import subprocess
-import time
-import threading
 from pathlib import Path
 
 def print_status(message, status="info"):
@@ -37,7 +32,6 @@ def check_dependencies():
     print_status("Checking dependencies...", "info")
     
     try:
-        import fastmcp
         print_status("FastMCP is installed", "success")
     except ImportError:
         print_status("FastMCP is not installed. Run: pip install fastmcp", "error")

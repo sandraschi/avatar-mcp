@@ -7,7 +7,7 @@ and provides a centralized configuration object.
 
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 from pydantic import BaseSettings, Field, validator
 
 class Settings(BaseSettings):

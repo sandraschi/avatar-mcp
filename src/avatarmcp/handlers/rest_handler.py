@@ -5,16 +5,15 @@ This module provides a FastAPI-based REST API for controlling the Avatar MCP ser
 and its components through HTTP requests.
 """
 
-import json
+import asyncio
 import logging
-from typing import Any, Dict, List, Optional, Union, Callable, Awaitable
+from typing import Any, Dict, List, Optional
 from enum import Enum
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, status, Depends, Header
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 
 from .base_handler import BaseHandler
 

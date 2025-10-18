@@ -1,5 +1,3 @@
-import os
-import sys
 
 def tail_log(file_path, num_lines=20):
     try:

@@ -3,8 +3,6 @@
 Original Position Viewer - Use VRM vertices exactly as they are
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_original_viewer():
@@ -14,7 +12,7 @@ def create_original_viewer():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🎌 Original Position Viewer")
+        print("🎌 Original Position Viewer")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -33,7 +31,7 @@ def create_original_viewer():
         for i, mesh in enumerate(vrm_model.meshes):
             print(f"Mesh {i} ({mesh.name}):")
             print(f"  Vertices: {len(mesh.vertices)}")
-            print(f"  Original bounds:")
+            print("  Original bounds:")
             print(f"    X: {mesh.vertices[:, 0].min():.3f} to {mesh.vertices[:, 0].max():.3f}")
             print(f"    Y: {mesh.vertices[:, 1].min():.3f} to {mesh.vertices[:, 1].max():.3f}")
             print(f"    Z: {mesh.vertices[:, 2].min():.3f} to {mesh.vertices[:, 2].max():.3f}")
@@ -53,16 +51,16 @@ def create_original_viewer():
                 name=f'mesh_{i}'
             )
             
-            print(f"  ✅ Added at original position")
+            print("  ✅ Added at original position")
         
         # Position camera to see the character at its natural position
         # Face is around Y=1.2-1.4, so look there
         plotter.camera_position = [(2, 1.3, 2), (0, 1.3, 0), (0, 1, 0)]
         plotter.show_axes()
         
-        print(f"\n🎌 Viewing at original VRM coordinates")
-        print(f"Camera aimed at Y=1.3 where the character should be")
-        print(f"Red dot = origin, Character should be above it")
+        print("\n🎌 Viewing at original VRM coordinates")
+        print("Camera aimed at Y=1.3 where the character should be")
+        print("Red dot = origin, Character should be above it")
         
         plotter.show()
         
@@ -73,6 +71,8 @@ def create_original_viewer():
 
 if __name__ == "__main__":
     create_original_viewer()
+
+
 
 
 

@@ -71,7 +71,7 @@ def test_animation(vrm_path: str):
         )
         
         if play_result.get('status') == 'success':
-            print(f"✅ Playing animation for 3 seconds...")
+            print("✅ Playing animation for 3 seconds...")
             time.sleep(3)
             
             # 4. Stop the animation

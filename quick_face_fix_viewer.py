@@ -3,7 +3,6 @@
 Quick Face Fix Viewer - Fix the PyVista face format issue
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -23,7 +22,7 @@ def create_quick_fix_viewer():
         # Simple PyVista setup
         plotter = pv.Plotter(title="🎌 Fixed Face VRM Viewer")
         
-        print(f"\n🔧 FIXING FACE FORMAT:")
+        print("\n🔧 FIXING FACE FORMAT:")
         
         for i, mesh in enumerate(vrm_model.meshes[:1]):  # Just load first mesh for speed
             print(f"\n--- MESH {i} ({mesh.name}) ---")
@@ -63,7 +62,7 @@ def create_quick_fix_viewer():
                         line_width=1
                     )
                     
-                    print(f"  ✅ Successfully added mesh with fixed faces!")
+                    print("  ✅ Successfully added mesh with fixed faces!")
                     break  # Just show one mesh for now
                     
                 else:
@@ -76,8 +75,8 @@ def create_quick_fix_viewer():
         plotter.show_axes()
         plotter.camera_position = [(2, 1, 2), (0, 0, 0), (0, 1, 0)]
         
-        print(f"\n✅ Fixed face viewer ready!")
-        print(f"Should show the face/head mesh as a proper surface now!")
+        print("\n✅ Fixed face viewer ready!")
+        print("Should show the face/head mesh as a proper surface now!")
         
         # Show viewer
         plotter.show()
@@ -89,6 +88,8 @@ def create_quick_fix_viewer():
 
 if __name__ == "__main__":
     create_quick_fix_viewer()
+
+
 
 
 

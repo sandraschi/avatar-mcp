@@ -6,7 +6,7 @@ including common types, enums, and base classes.
 """
 
 from enum import Enum
-from typing import Dict, List, Optional, Any, TypeVar, Generic, Type
+from typing import Dict, Optional, Any, TypeVar
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
 
@@ -65,7 +65,7 @@ class ControlResult:
         return cls(success=True, message=message, data=data)
 
     @classmethod
-    def error(cls, message: str, error: Optional[str] = None) -> 'ControlResult':
+    def create_error(cls, message: str, error: Optional[str] = None) -> 'ControlResult':
         """Create an error result."""
         return cls(success=False, message=message, error=error or message)
 

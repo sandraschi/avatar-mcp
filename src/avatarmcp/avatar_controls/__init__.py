@@ -7,9 +7,7 @@ This package provides advanced controls for manipulating avatars, including:
 - Export functionality
 """
 
-from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, Any, Optional, List, Tuple, Union
+from typing import Dict, Optional
 
 # Re-export all public classes and functions
 from .base import (

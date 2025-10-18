@@ -6,17 +6,16 @@ with users through speech and text interfaces.
 """
 
 import asyncio
-import json
 import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union, Callable, Awaitable, Tuple
+from typing import Any, Dict, List, Optional, Callable, Awaitable
 
 from pydantic import BaseModel, Field
 
 from .base_handler import BaseHandler
-from .speech_handler import SpeechHandler, SpeechRecognitionResult
+from .speech_handler import SpeechHandler
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +289,7 @@ class ChatbotHandler(BaseHandler):
         
         try:
             # Prepare conversation history for the AI
-            messages = [
+            [
                 {"role": msg.role.value, "content": msg.content}
                 for msg in self.conversation_history
             ]

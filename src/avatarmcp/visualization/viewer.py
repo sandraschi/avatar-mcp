@@ -1,11 +1,8 @@
 """
 3D visualization for VRM models using PyVista.
 """
-import numpy as np
 import pyvista as pv
-from typing import Optional, Dict, Any, List, Tuple
 import logging
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -208,72 +205,7 @@ class VRMViewer:
             logger.error(f"Unexpected error in animation loop: {e}")
             self.is_playing = False
     
-    def play_animation(self, model_id: str, animation_name: str, loop: bool = True, speed: float = 1.0) -> bool:
-        """Play an animation on a model.
         
-        Args:
-            model_id: ID of the model to animate
-            animation_name: Name of the animation to play
-            loop: Whether to loop the animation
-            speed: Playback speed multiplier
-            
-        Returns:
-            bool: True if animation was started successfully
-        """
-        logger.info(f"Playing animation '{animation_name}' on model '{model_id}'")
-        
-        # Check if model exists
-        if model_id not in self.models:
-            logger.warning(f"Model {model_id} not found")
-            return False
-            
-        # Store animation data
-        self.active_animations[model_id] = {
-            'animation': animation_name,
-            'start_time': self.animation_time,
-            'loop': loop,
-            'speed': speed
-        }
-            
-        # Reset animation state
-        import time
-        self.animation_speed = speed
-        self.animation_time = 0.0
-        self._last_update_time = time.time()
-        self.is_playing = True
-        
-        # Start the animation loop
-        self._update_animations()
-            
-        return True
-        
-    def stop_animation(self, model_id: str, animation_name: str = None, fade_out: float = 0.0) -> bool:
-        """Stop an animation.
-        
-        Args:
-            model_id: ID of the model
-            animation_name: Optional name of the animation to stop (stops all if None)
-            fade_out: Fade out duration in seconds
-            
-        Returns:
-            bool: True if animation was stopped
-        """
-        if model_id not in self.active_animations:
-            return False
-            
-        if animation_name:
-            # Stop specific animation if it matches
-            anim_data = self.active_animations[model_id]
-            if anim_data['animation'].name == animation_name:
-                del self.active_animations[model_id]
-                logger.info(f"Stopped animation '{animation_name}' on model {model_id}")
-                return True
-            return False
-        else:
-            # Stop all animations for this model
-            del self.active_animations[model_id]
-            logger.info(f"Stopped all animations on model {model_id}")
-            return True
     
     def show(self):
         """Show the viewer window."""

@@ -3,13 +3,15 @@ Voice and chatbot controller for avatar interactions.
 Handles speech recognition, text-to-speech, and chatbot integration.
 """
 import asyncio
-import json
-from typing import Dict, Optional, Callable, Any
+import logging
+from typing import Optional
 import speech_recognition as sr
 import pyttsx3
 from dataclasses import dataclass
 from queue import Queue
 from threading import Thread
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class VoiceConfig:

@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set, Any, Callable, Union
-from collections import defaultdict, deque
+from collections import defaultdict
 import bisect
 
 logger = logging.getLogger(__name__)

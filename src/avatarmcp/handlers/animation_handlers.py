@@ -5,9 +5,8 @@ This module provides handlers for managing avatar animations, including playing,
 stopping, and querying animation states.
 """
 
-import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .base_handler import BaseHandler
 

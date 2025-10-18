@@ -7,12 +7,10 @@ import asyncio
 import logging
 import os
 import datetime
-from dataclasses import dataclass
-from typing import Dict, Any, List, Optional, Union, Type, TypeVar, Generic, Callable, Awaitable
-from pathlib import Path
+from typing import Dict, Any, Union
 import inspect
 
-from .mcp_base import MCPTool, MCPToolsBase
+from .mcp_base import MCPToolsBase
 
 # NO duplicate FastMCP instance - will use the one from server.py
 

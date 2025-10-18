@@ -1,0 +1,18 @@
+# Dependency Review Configuration Template
+# Save as .github/dependency-review-config.yml
+
+version: 2
+updates:
+  # Allow all dependency updates
+  - match:
+      update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
+  # Block security updates that might break things
+  - match:
+      update-types: ["version-update:semver-major"]
+      dependency-names: ["numpy", "pandas", "scipy"]
+      allow: false
+  # Allow security updates for dev dependencies
+  - match:
+      update-types: ["version-update:semver-major"]
+      dependency-names: ["pytest", "ruff", "mypy", "bandit"]
+      allow: true

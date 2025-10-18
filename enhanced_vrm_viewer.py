@@ -4,10 +4,8 @@ Enhanced VRM Viewer - Properly identifies and positions mesh components
 """
 import sys
 import os
-import time
-import threading
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Tuple
 sys.path.insert(0, 'src')
 
 class EnhancedVRMViewer:
@@ -173,7 +171,7 @@ class EnhancedVRMViewer:
             self.plotter.camera_position = [(3, 2, 3), (0, 1, 0), (0, 0, 1)]
             self.plotter.enable_trackball_style()
             
-            print(f"\n✅ Enhanced viewer setup complete!")
+            print("\n✅ Enhanced viewer setup complete!")
             return True
             
         except Exception as e:

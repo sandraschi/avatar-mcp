@@ -69,7 +69,7 @@ def test_model_loading():
     if model_cached is model:
         print(f"✅ Used cached model (took {load_time:.4f} seconds)")
     else:
-        print(f"❌ Caching not working as expected")
+        print("❌ Caching not working as expected")
     
     # Force reload
     print("\nForce reloading model...")

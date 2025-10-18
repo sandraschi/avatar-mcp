@@ -4,7 +4,6 @@ Basic VRM Viewer - Use original vertices, no skinning transformations
 Just focus on getting the meshes to display correctly as-is
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -28,7 +27,7 @@ def create_basic_vrm_viewer():
             title="🎌 Basic VRM Viewer - Original T-Pose"
         )
         
-        print(f"\n🎭 RENDERING MESHES IN ORIGINAL T-POSE:")
+        print("\n🎭 RENDERING MESHES IN ORIGINAL T-POSE:")
         
         colors = ['lightcoral', 'lightblue', 'lightgreen']
         
@@ -44,7 +43,7 @@ def create_basic_vrm_viewer():
             print(f"  Faces: {len(faces)}")
             
             if len(vertices) == 0:
-                print(f"  ⚠️ No vertices, skipping")
+                print("  ⚠️ No vertices, skipping")
                 continue
                 
             # Analyze mesh bounds
@@ -69,7 +68,7 @@ def create_basic_vrm_viewer():
                         name=f"mesh_{i}_{mesh.name.replace(' ', '_')}"
                     )
                     
-                    print(f"  ✅ Rendered mesh with faces")
+                    print("  ✅ Rendered mesh with faces")
                     mesh_count += 1
                 else:
                     # Render as point cloud if no faces
@@ -81,18 +80,18 @@ def create_basic_vrm_viewer():
                         render_points_as_spheres=True,
                         name=f"points_{i}"
                     )
-                    print(f"  ✅ Rendered as point cloud")
+                    print("  ✅ Rendered as point cloud")
                     mesh_count += 1
                     
             except Exception as e:
                 print(f"  ❌ Failed to render mesh {i}: {e}")
         
         if mesh_count == 0:
-            print(f"\n❌ No meshes were rendered successfully!")
+            print("\n❌ No meshes were rendered successfully!")
             # Add test object to verify viewer works
             test_sphere = pv.Sphere(radius=0.1, center=(0, 1, 0))
             plotter.add_mesh(test_sphere, color='yellow')
-            print(f"Added test sphere")
+            print("Added test sphere")
         else:
             print(f"\n✅ Successfully rendered {mesh_count} meshes")
         
@@ -104,13 +103,13 @@ def create_basic_vrm_viewer():
         plotter.camera_position = [(2, 1.5, 2), (0, 1, 0), (0, 1, 0)]
         plotter.enable_trackball_style()
         
-        print(f"\n🎌 Basic VRM viewer ready!")
-        print(f"🎮 Features:")
-        print(f"  - Original T-pose vertices (no deformation)")
-        print(f"  - All mesh components should be visible") 
-        print(f"  - Mouse: Rotate, pan, zoom")
-        print(f"  - The torso should be visible if it exists")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n🎌 Basic VRM viewer ready!")
+        print("🎮 Features:")
+        print("  - Original T-pose vertices (no deformation)")
+        print("  - All mesh components should be visible") 
+        print("  - Mouse: Rotate, pan, zoom")
+        print("  - The torso should be visible if it exists")
+        print("  - Press Ctrl+C to exit")
         
         # Show viewer
         plotter.show()
@@ -122,6 +121,8 @@ def create_basic_vrm_viewer():
 
 if __name__ == "__main__":
     create_basic_vrm_viewer()
+
+
 
 
 

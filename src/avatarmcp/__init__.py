@@ -5,11 +5,9 @@ This package provides tools for loading, animating, and managing VRM avatar mode
 in a FastMCP 2.10+ environment with VRChat OSC integration.
 """
 
-import asyncio
 import logging
 import sys
-import os
-from typing import Optional, Dict, Any, Tuple, List, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 # Configure logging before any other imports
 logging.basicConfig(
@@ -53,13 +51,14 @@ def _ensure_heavy_imports():
             _heavy_imports_loaded = True
         except ImportError as e:
             # If heavy imports fail, define stub classes
+            error_msg = f"Heavy dependencies not available: {e}"
             class AvatarMCP:
-                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
+                def __init__(self): raise ImportError(error_msg)
             class AvatarMCPServer:
-                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
-            def run_server(): raise ImportError(f"Heavy dependencies not available: {e}")
+                def __init__(self): raise ImportError(error_msg)
+            def run_server(): raise ImportError(error_msg)
             class VRChatOSC:
-                def __init__(self): raise ImportError(f"Heavy dependencies not available: {e}")
+                def __init__(self): raise ImportError(error_msg)
 
 # Always available lightweight components
 try:
@@ -97,6 +96,11 @@ __all__ = [
     # Server and execution
     'server_main'
 ]
+
+def server_main():
+    """Main entry point for the server."""
+    _ensure_heavy_imports()
+    run_server()
 
 if __name__ == "__main__":
     server_main()

@@ -3,7 +3,6 @@
 Trimesh VRM Viewer - Use trimesh for better 3D model support
 """
 import sys
-import os
 import numpy as np
 sys.path.insert(0, 'src')
 
@@ -20,7 +19,7 @@ def create_trimesh_viewer():
         vrm_model = VRMLoader.from_file(vrm_path)
         print(f"✅ Loaded: {len(vrm_model.meshes)} meshes")
         
-        print(f"\n🔧 CREATING TRIMESH SCENE:")
+        print("\n🔧 CREATING TRIMESH SCENE:")
         
         # Create a trimesh scene
         scene = trimesh.Scene()
@@ -42,7 +41,7 @@ def create_trimesh_viewer():
             print(f"  Faces: {len(faces)} shape: {faces.shape}")
             
             if len(vertices) == 0 or len(faces) == 0:
-                print(f"  ⚠️ Empty mesh, skipping")
+                print("  ⚠️ Empty mesh, skipping")
                 continue
                 
             try:
@@ -61,7 +60,7 @@ def create_trimesh_viewer():
                     # Add to scene
                     scene.add_geometry(mesh, node_name=f"mesh_{i}")
                     
-                    print(f"  ✅ Added to trimesh scene")
+                    print("  ✅ Added to trimesh scene")
                     print(f"  Mesh bounds: {mesh.bounds}")
                     print(f"  Mesh volume: {mesh.volume:.4f}")
                     print(f"  Is watertight: {mesh.is_watertight}")
@@ -75,24 +74,24 @@ def create_trimesh_viewer():
                 print(f"  ❌ Error creating trimesh: {e}")
         
         if mesh_count == 0:
-            print(f"\n❌ No meshes were added to scene!")
+            print("\n❌ No meshes were added to scene!")
             return
             
         print(f"\n✅ Scene created with {mesh_count} meshes")
         print(f"Scene bounds: {scene.bounds}")
         
         # Show the scene
-        print(f"\n🎌 Opening trimesh viewer...")
-        print(f"This should open a new window with the 3D model")
-        print(f"Use mouse to rotate, zoom, and pan")
+        print("\n🎌 Opening trimesh viewer...")
+        print("This should open a new window with the 3D model")
+        print("Use mouse to rotate, zoom, and pan")
         
         # Trimesh has a built-in viewer
         scene.show()
         
     except ImportError as e:
         print(f"❌ Import error: {e}")
-        print(f"Trimesh might not be installed or might have issues")
-        print(f"Let's try a basic matplotlib 3D plot instead...")
+        print("Trimesh might not be installed or might have issues")
+        print("Let's try a basic matplotlib 3D plot instead...")
         
         # Fallback to matplotlib
         try_matplotlib_viewer()
@@ -107,11 +106,10 @@ def try_matplotlib_viewer():
     try:
         from avatarmcp.models.vrm_loader import VRMLoader
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
         
-        print(f"📊 Fallback: matplotlib 3D plot")
+        print("📊 Fallback: matplotlib 3D plot")
         vrm_model = VRMLoader.from_file(vrm_path)
         
         fig = plt.figure(figsize=(12, 8))
@@ -142,7 +140,7 @@ def try_matplotlib_viewer():
         ax.legend()
         ax.set_title('VRM Model - Point Cloud View')
         
-        print(f"✅ Matplotlib viewer ready!")
+        print("✅ Matplotlib viewer ready!")
         plt.show()
         
     except Exception as e:
@@ -150,6 +148,8 @@ def try_matplotlib_viewer():
 
 if __name__ == "__main__":
     create_trimesh_viewer()
+
+
 
 
 

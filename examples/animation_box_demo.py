@@ -119,7 +119,7 @@ async def main():
             
     except KeyboardInterrupt:
         logger.info("Shutting down...")
-    except Exception as e:
+    except Exception:
         logger.exception("An error occurred:")
     finally:
         await app.shutdown()

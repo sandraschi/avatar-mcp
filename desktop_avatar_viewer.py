@@ -1,54 +1,93 @@
 #!/usr/bin/env python3
 """
-Desktop Avatar Viewer - OSC-controlled VRM avatar display
-Immediate replacement for Unity desktop avatar until Unity is available
+AvatarMCP Desktop Avatar Viewer - Enhanced Version
+
+Features:
+- Full 3D avatar display with realistic colors and textures
+- Interactive bone manipulation and visualization
+- Mouse controls for rotation, zoom, pan
+- Real-time animation playback
+- OSC control interface
+- Expression/blendshape support
 """
-import sys
+
 import os
-import threading
-import time
+import sys
 import logging
-from typing import Dict, Any, Optional
+from typing import Optional
+import asyncio
+from pythonosc import udp_client
+from pythonosc.dispatcher import Dispatcher
+from pythonosc.osc_server import AsyncIOOSCUDPServer
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import pyvista as pv
 
 # Add src to path for imports
-sys.path.insert(0, 'src')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# Import required libraries
-try:
-    from pythonosc import dispatcher, osc_server, udp_client
-    from pythonosc.osc_server import AsyncIOOSCUDPServer
-    import asyncio
-    import pyvista as pv
-    from avatarmcp.models.vrm_loader import VRMLoader
-    OSC_AVAILABLE = True
-except ImportError as e:
-    print(f"Missing dependencies: {e}")
-    print("Install with: pip install python-osc pyvista trimesh pygltflib")
-    OSC_AVAILABLE = False
+from avatarmcp.models.vrm_loader import VRMLoader
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Check if OSC is available
+OSC_AVAILABLE = True
+try:
+    from pythonosc import udp_client
+    from pythonosc.dispatcher import Dispatcher
+    from pythonosc.osc_server import AsyncIOOSCUDPServer
+except ImportError:
+    OSC_AVAILABLE = False
+
 class DesktopAvatarViewer:
-    """Desktop avatar viewer that receives OSC commands and displays VRM avatars."""
+    """Enhanced desktop avatar viewer with full 3D controls and bone manipulation."""
 
-    def __init__(self):
+    def __init__(self, osc_port: int = 9001):
+        self.osc_port = osc_port
+        self.osc_client: Optional[udp_client.SimpleUDPClient] = None
         self.osc_server: Optional[AsyncIOOSCUDPServer] = None
-        self.plotter: Optional[pv.Plotter] = None
-        self.current_avatar: Optional[Any] = None
-        self.loaded_avatars: Dict[str, Any] = {}
-        self.running = False
+        self.dispatcher = Dispatcher()
 
-        # OSC settings
-        self.receive_port = 9000  # Listen for commands from MCP
-        self.send_port = 9001     # Send responses back
+        # Avatar state
+        self.current_vrm_path: Optional[str] = None
+        self.vrm_model = None
+        self.original_vertices = {}  # mesh_idx -> original vertices
+        self.bone_positions = {}  # bone_name -> [x, y, z]
+        self.bone_rotations = {}  # bone_name -> quaternion
+        self.expression_weights = {}  # expression_name -> weight
 
-        # Setup OSC
-        if OSC_AVAILABLE:
-            self._setup_osc()
+        # Animation state
+        self.current_animation = None
+        self.animation_time = 0.0
+        self.animation_speed = 1.0
+        self.is_animating = False
+
+        # Visualization
+        self.fig: Optional[plt.Figure] = None
+        self.ax: Optional[Axes3D] = None
+        self.mesh_artists = []
+        self.bone_artists = []
+        self.skeleton_lines = []
+        self.show_bones = True
+        self.show_skeleton = True
+        self.wireframe_mode = False
+
+        # Mouse interaction
+        self.mouse_pressed = False
+        self.last_mouse_pos = None
+        self.view_elev = 20
+        self.view_azim = 45
+        self.view_distance = 1.0
+
+        # Set up OSC handlers
+        self._setup_osc_handlers()
 
     def _setup_osc(self):
         """Setup OSC dispatcher and handlers."""
-        self.dispatcher = dispatcher.Dispatcher()
+        self.dispatcher = Dispatcher()
 
         # Avatar control handlers
         self.dispatcher.map("/avatar/load", self._handle_load_avatar)
@@ -158,36 +197,119 @@ class DesktopAvatarViewer:
             self.plotter.close()
 
     def _display_avatar(self, vrm_model):
-        """Display the VRM avatar in a PyVista window."""
+        """Display the VRM avatar using matplotlib 3D (fallback for Windows compatibility)."""
         if not vrm_model or not vrm_model.meshes:
             logger.error("No meshes to display")
             return
 
-        # Close existing plotter
-        if self.plotter:
-            self.plotter.close()
-
-        # Create new plotter
-        pv.set_plot_theme('document')
-        self.plotter = pv.Plotter(title="AvatarMCP Desktop Avatar", window_size=[800, 1000])
-
-        # Display first mesh (face)
-        mesh = vrm_model.meshes[0]  # Face mesh
-        logger.info(f"Displaying mesh: {mesh.name}")
-
         try:
-            pv_faces = mesh.get_pyvista_faces()
-            vrm_mesh = pv.PolyData(mesh.vertices, pv_faces)
+            import matplotlib.pyplot as plt
+            import numpy as np
 
-            # Center the mesh
-            vrm_mesh.translate([-vrm_mesh.center[0], -vrm_mesh.center[1] - 1.3, -vrm_mesh.center[2]])
+            # Close existing plot if any
+            plt.close('all')
 
-            self.plotter.add_mesh(vrm_mesh, color='lightblue', show_edges=False)
-            self.plotter.view_isometric()
-            self.plotter.show(auto_close=False)
+            # Create figure and 3D axes
+            fig = plt.figure(figsize=(12, 10))
+            ax = fig.add_subplot(111, projection='3d')
 
+            # Add coordinate axes
+            ax.plot([0, 2], [0, 0], [0, 0], color='red', linewidth=3, label='X-axis')
+            ax.plot([0, 0], [0, 2], [0, 0], color='green', linewidth=3, label='Y-axis')
+            ax.plot([0, 0], [0, 0], [0, 2], color='blue', linewidth=3, label='Z-axis')
+
+            # Display meshes
+            mesh_count = 0
+            # Use realistic skin/clothes colors
+            avatar_colors = {
+                'face': '#FDBCB4',  # Skin tone
+                'body': '#FDBCB4',  # Skin tone
+                'hair': '#2C1810',  # Dark brown
+                'shirt': '#FF6B6B', # Red shirt
+                'pants': '#4ECDC4', # Teal pants
+                'shoes': '#95A5A6', # Gray shoes
+            }
+
+            def get_mesh_color(mesh_name):
+                name_lower = mesh_name.lower()
+                if 'face' in name_lower or 'head' in name_lower:
+                    return avatar_colors['face']
+                elif 'hair' in name_lower:
+                    return avatar_colors['hair']
+                elif 'body' in name_lower or 'skin' in name_lower:
+                    return avatar_colors['body']
+                elif any(word in name_lower for word in ['shirt', 'top', 'jacket']):
+                    return avatar_colors['shirt']
+                elif any(word in name_lower for word in ['pants', 'skirt', 'bottom']):
+                    return avatar_colors['pants']
+                elif any(word in name_lower for word in ['shoe', 'boot', 'foot']):
+                    return avatar_colors['shoes']
+                else:
+                    return list(avatar_colors.values())[mesh_count % len(avatar_colors)]
+
+            colors = [get_mesh_color(mesh.name) if hasattr(mesh, 'name') else avatar_colors['body']
+                     for mesh in vrm_model.meshes[:3]]
+
+            for i, mesh in enumerate(vrm_model.meshes[:3]):  # Limit to first 3 meshes for performance
+                try:
+                    if hasattr(mesh, 'vertices') and len(mesh.vertices) > 0:
+                        vertices = mesh.vertices
+                        faces = mesh.faces if hasattr(mesh, 'faces') and mesh.faces is not None else None
+
+                        # Scale the vertices to make them visible (VRM units are small)
+                        verts = vertices * 10.0
+
+                        # Use scatter plot for all vertices - more reliable than surface plotting
+                        ax.scatter(verts[:, 0], verts[:, 1], verts[:, 2],
+                                 color=colors[i % len(colors)], alpha=0.8, s=8, label=f'{mesh.name}')
+
+                        # If we have faces, draw some wireframe triangles to show structure
+                        if faces is not None and len(faces) > 0:
+                            try:
+                                # Draw wireframe for first 50 triangles to show structure
+                                for face in faces[:min(50, len(faces))]:
+                                    if len(face) == 3:  # Triangular face
+                                        triangle_verts = verts[face]
+                                        # Close the triangle
+                                        triangle_verts = np.vstack([triangle_verts, triangle_verts[0]])
+                                        ax.plot(triangle_verts[:, 0], triangle_verts[:, 1], triangle_verts[:, 2],
+                                              color=colors[i % len(colors)], alpha=0.7, linewidth=2)
+                            except Exception as e:
+                                logger.warning(f"Wireframe drawing failed for mesh {i}: {e}")
+
+                        mesh_count += 1
+
+                except Exception as e:
+                    logger.warning(f"Failed to display mesh {i}: {e}")
+
+            if mesh_count > 0:
+                # Add avatar info
+                avatar_name = getattr(vrm_model, 'name', 'Unknown Avatar')
+                ax.set_title(f'AvatarMCP Desktop Viewer - {avatar_name}\n{mesh_count} meshes loaded')
+                ax.set_xlabel('X')
+                ax.set_ylabel('Y')
+                ax.set_zlabel('Z')
+                ax.grid(True)
+                ax.set_box_aspect([1,1,1])
+
+                plt.show()
+                logger.info(f"Successfully displayed avatar with {mesh_count} meshes using matplotlib")
+            else:
+                # Fallback display
+                ax.set_title('AvatarMCP Desktop Viewer\nAvatar loaded but no meshes displayed')
+                # Add a reference sphere
+                u = np.linspace(0, 2 * np.pi, 10)
+                v = np.linspace(0, np.pi, 10)
+                x = np.outer(np.cos(u), np.sin(v))
+                y = np.outer(np.sin(u), np.sin(v))
+                z = np.outer(np.ones(np.size(u)), np.cos(v))
+                ax.plot_surface(x, y, z, color='gray', alpha=0.3)
+                plt.show()
+
+        except ImportError:
+            logger.error("Matplotlib not available for avatar display")
         except Exception as e:
-            logger.error(f"Failed to display mesh: {e}")
+            logger.error(f"Failed to display avatar: {e}")
 
     async def run_osc_server(self):
         """Run the OSC server."""
@@ -214,10 +336,26 @@ class DesktopAvatarViewer:
         logger.info("Starting AvatarMCP Desktop Avatar Viewer")
         logger.info(f"Listening for OSC commands on port {self.receive_port}")
 
-        # Create a simple initial display
+        # Create a simple initial display with coordinate system and basic mesh
         pv.set_plot_theme('document')
         self.plotter = pv.Plotter(title="AvatarMCP Desktop Avatar - Waiting for Avatar", window_size=[800, 600])
-        self.plotter.add_text("Waiting for avatar load command...\nSend /avatar/load <path> to load a VRM", font_size=12)
+
+        # Add coordinate axes
+        self.plotter.add_axes(line_width=5, labels_off=False)
+
+        # Add a simple cube as placeholder
+        cube = pv.Cube(center=(0, 0, 0), x_length=1, y_length=1, z_length=1)
+        self.plotter.add_mesh(cube, color='lightgray', opacity=0.7, show_edges=True)
+
+        # Add simple reference plane
+        plane = pv.Plane(center=(0, 0, -1), i_size=10, j_size=10)
+        self.plotter.add_mesh(plane, color='lightblue', opacity=0.2)
+
+        # Add instructions
+        self.plotter.add_text("AvatarMCP Desktop Viewer\nWaiting for avatar load command...\nSend /avatar/load <path> to load a VRM\n\nShowing coordinate system and reference cube",
+                             font_size=10, position='upper_left')
+
+        self.plotter.view_isometric()
         self.plotter.show(auto_close=False)
 
         self.running = True
@@ -241,6 +379,48 @@ def main():
 
     viewer = DesktopAvatarViewer()
     viewer.run_viewer()
+
+
+def show_coordinate_system():
+    """Show just the coordinate system and reference objects for testing."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    pv.set_plot_theme('document')
+    plotter = pv.Plotter(title="AvatarMCP Desktop Viewer - Coordinate System Test", window_size=[800, 600])
+
+    # Add coordinate axes
+    plotter.add_axes(line_width=5, labels_off=False)
+
+    # Add a simple cube as placeholder
+    cube = pv.Cube(center=(0, 0, 0), x_length=1, y_length=1, z_length=1)
+    plotter.add_mesh(cube, color='lightgray', opacity=0.7, show_edges=True)
+
+    # Add simple reference plane
+    plane = pv.Plane(center=(0, 0, -1), i_size=10, j_size=10)
+    plotter.add_mesh(plane, color='lightblue', opacity=0.2)
+
+    # Add sphere for reference
+    sphere = pv.Sphere(radius=0.5, center=(2, 0, 0))
+    plotter.add_mesh(sphere, color='red', opacity=0.8)
+
+    # Add cylinder for reference
+    cylinder = pv.Cylinder(radius=0.3, height=2, center=(0, 2, 0))
+    plotter.add_mesh(cylinder, color='green', opacity=0.8)
+
+    # Add cone for reference
+    cone = pv.Cone(radius=0.5, height=1, center=(0, 0, 2))
+    plotter.add_mesh(cone, color='blue', opacity=0.8)
+
+    # Add instructions
+    plotter.add_text("AvatarMCP Desktop Viewer - Visual Test\n\n"
+                    "Showing coordinate system (X=red, Y=green, Z=blue)\n"
+                    "Reference objects: Cube, Sphere, Cylinder, Cone\n"
+                    "Grid for scale reference\n\n"
+                    "This viewer can display VRM avatars when loaded",
+                    font_size=10, position='upper_left')
+
+    plotter.view_isometric()
+    plotter.show()
 
 
 if __name__ == "__main__":

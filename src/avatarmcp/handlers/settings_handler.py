@@ -9,9 +9,9 @@ settings from various sources.
 import os
 import json
 import logging
-import shutil
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Type, TypeVar, get_type_hints
+from typing import Any, Dict, List, Optional, Union, Type, TypeVar
 from enum import Enum
 from dataclasses import dataclass, field, asdict, is_dataclass
 import yaml

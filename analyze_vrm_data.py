@@ -13,7 +13,7 @@ def analyze_vrm_data():
     try:
         from avatarmcp.models.vrm_loader import VRMLoader
         
-        print(f"📊 ANALYZING VRM DATA")
+        print("📊 ANALYZING VRM DATA")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -23,13 +23,13 @@ def analyze_vrm_data():
         
         vrm_model = VRMLoader.from_file(vrm_path)
         
-        print(f"\n✅ VRM LOADED")
+        print("\n✅ VRM LOADED")
         print(f"Meshes: {len(vrm_model.meshes)}")
         print(f"Bones: {len(vrm_model.bones)}")
         print(f"Materials: {len(vrm_model.materials)}")
         print(f"Textures: {len(vrm_model.textures)}")
         
-        print(f"\n📊 DETAILED MESH ANALYSIS:")
+        print("\n📊 DETAILED MESH ANALYSIS:")
         
         for i, mesh in enumerate(vrm_model.meshes):
             print(f"\n=== MESH {i}: {mesh.name} ===")
@@ -41,7 +41,7 @@ def analyze_vrm_data():
             print(f"Faces: {len(faces)} (shape: {faces.shape})")
             
             if len(vertices) > 0:
-                print(f"Vertex statistics:")
+                print("Vertex statistics:")
                 print(f"  X range: {vertices[:, 0].min():.6f} to {vertices[:, 0].max():.6f}")
                 print(f"  Y range: {vertices[:, 1].min():.6f} to {vertices[:, 1].max():.6f}")
                 print(f"  Z range: {vertices[:, 2].min():.6f} to {vertices[:, 2].max():.6f}")
@@ -56,13 +56,13 @@ def analyze_vrm_data():
                 print(f"  All Z zero: {z_zero}")
                 
                 # Sample vertices
-                print(f"  First 3 vertices:")
+                print("  First 3 vertices:")
                 for j in range(min(3, len(vertices))):
                     v = vertices[j]
                     print(f"    {j}: [{v[0]:.6f}, {v[1]:.6f}, {v[2]:.6f}]")
             
             if len(faces) > 0:
-                print(f"Face statistics:")
+                print("Face statistics:")
                 print(f"  Index range: {faces.min()} to {faces.max()}")
                 print(f"  Max vertex index: {len(vertices) - 1}")
                 
@@ -72,7 +72,7 @@ def analyze_vrm_data():
                 print(f"  Invalid faces: {invalid_count}/{len(faces)}")
                 
                 # Sample faces
-                print(f"  First 3 faces:")
+                print("  First 3 faces:")
                 for j in range(min(3, len(faces))):
                     face = faces[j]
                     print(f"    {j}: [{face[0]}, {face[1]}, {face[2]}]")
@@ -87,11 +87,11 @@ def analyze_vrm_data():
                     print(f"PyVista faces: {len(pv_faces)} values")
                     print(f"  Sample: {pv_faces[:12]}")
                 else:
-                    print(f"❌ No get_pyvista_faces method!")
+                    print("❌ No get_pyvista_faces method!")
             except Exception as e:
                 print(f"❌ PyVista face conversion failed: {e}")
         
-        print(f"\n🔍 CONCLUSION:")
+        print("\n🔍 CONCLUSION:")
         if len(vrm_model.meshes) == 3:
             face_mesh = vrm_model.meshes[0]
             body_mesh = vrm_model.meshes[1] 
@@ -103,17 +103,17 @@ def analyze_vrm_data():
             
             # Check if data looks reasonable
             if len(face_mesh.vertices) > 1000 and len(face_mesh.faces) > 500:
-                print(f"✅ Face mesh data looks reasonable")
+                print("✅ Face mesh data looks reasonable")
             else:
-                print(f"❌ Face mesh data looks insufficient")
+                print("❌ Face mesh data looks insufficient")
                 
             if len(body_mesh.vertices) > 5000 and len(body_mesh.faces) > 3000:
-                print(f"✅ Body mesh data looks reasonable") 
+                print("✅ Body mesh data looks reasonable") 
             else:
-                print(f"❌ Body mesh data looks insufficient")
+                print("❌ Body mesh data looks insufficient")
         
-        print(f"\nThe VRM data analysis is complete.")
-        print(f"If the data looks good but rendering fails, it's a PyVista/rendering issue.")
+        print("\nThe VRM data analysis is complete.")
+        print("If the data looks good but rendering fails, it's a PyVista/rendering issue.")
         
     except Exception as e:
         print(f"❌ Error analyzing VRM: {e}")
@@ -122,6 +122,8 @@ def analyze_vrm_data():
 
 if __name__ == "__main__":
     analyze_vrm_data()
+
+
 
 
 

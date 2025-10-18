@@ -25,11 +25,9 @@ Examples:
 import asyncio
 import sys
 import logging
-from typing import List, Optional
 
 # Add the parent directory to the path so we can import from src
 import os
-import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.avatarmcp.osc_server import VRChatOSCServer

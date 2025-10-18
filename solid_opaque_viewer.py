@@ -3,8 +3,6 @@
 Solid Opaque Viewer - No transparency, solid colors
 """
 import sys
-import os
-import numpy as np
 sys.path.insert(0, 'src')
 
 def create_solid_viewer():
@@ -14,7 +12,7 @@ def create_solid_viewer():
         from avatarmcp.models.vrm_loader import VRMLoader
         import pyvista as pv
         
-        print(f"🎌 SOLID OPAQUE Viewer - No transparency!")
+        print("🎌 SOLID OPAQUE Viewer - No transparency!")
         
         # Load VRM
         vrm_path = r'C:\Users\sandr\.avatarmcp\models\Nekomimi-chan.vrm'
@@ -71,13 +69,13 @@ def create_solid_viewer():
         # Better lighting
         plotter.enable_shadows()
         
-        print(f"\n🎌 SOLID viewer ready!")
-        print(f"Should see BRIGHT, SOLID colors:")
-        print(f"  🔴 RED face (completely opaque)")
-        print(f"  🔵 BLUE body (completely opaque)")
-        print(f"  🟢 GREEN hair (completely opaque)")
-        print(f"  🟡 YELLOW reference sphere")
-        print(f"NO transparency - everything should be clearly visible!")
+        print("\n🎌 SOLID viewer ready!")
+        print("Should see BRIGHT, SOLID colors:")
+        print("  🔴 RED face (completely opaque)")
+        print("  🔵 BLUE body (completely opaque)")
+        print("  🟢 GREEN hair (completely opaque)")
+        print("  🟡 YELLOW reference sphere")
+        print("NO transparency - everything should be clearly visible!")
         
         plotter.show()
         
@@ -88,6 +86,8 @@ def create_solid_viewer():
 
 if __name__ == "__main__":
     create_solid_viewer()
+
+
 
 
 

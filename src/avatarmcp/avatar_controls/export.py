@@ -5,12 +5,10 @@ Provides functionality for exporting avatars to various formats including
 Unity 3D and VRChat SDK.
 """
 
-import os
-import json
 import logging
 from pathlib import Path
 from enum import Enum
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 from .base import (

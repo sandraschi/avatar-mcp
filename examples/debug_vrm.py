@@ -12,7 +12,6 @@ def debug_script():
     try:
         # Test basic imports
         print("\n=== Testing Imports ===")
-        import json
         from pygltflib import GLTF2
         print("✓ All required imports successful")
         

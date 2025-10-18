@@ -7,13 +7,10 @@ This script demonstrates the usage of the new animation system with:
 - Event handling
 - State management
 """
-import os
 import sys
 import time
-import json
 import math
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
 
 # Add the parent directory to the path so we can import avatarmcp
 sys.path.append(str(Path(__file__).parent.parent))

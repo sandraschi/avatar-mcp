@@ -2,9 +2,9 @@ import os
 import sys
 import logging
 import numpy as np
+import pyvista as pv
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any, Union
-import math
+from typing import Optional
 
 # Add the project root to the Python path
 project_root = str(Path(__file__).parent.absolute())
@@ -22,33 +22,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-import pyvista as pv
-from pyvista import themes
-from pyvista.core.utilities import wrap
-
 # Try to import VTK for bone visualization
 VTK_AVAILABLE = False
 VTK_IMPORT_ERROR = None
 
 try:
-    import vtk
     logger.debug("Successfully imported vtk package")
     try:
         from vtk import (
-            vtkPoints, vtkCellArray, vtkPolyData, vtkPolyDataMapper, vtkActor,
-            vtkLineSource, vtkConeSource, vtkSphereSource, vtkPolyDataNormals
+            vtkPolyDataMapper, vtkActor,
+            vtkLineSource, vtkConeSource, vtkSphereSource
         )
         logger.debug("Successfully imported vtk components from vtk package")
         VTK_AVAILABLE = True
     except ImportError as e:
         VTK_IMPORT_ERROR = f"Failed to import VTK components: {e}"
         logger.warning(VTK_IMPORT_ERROR)
-except ImportError as e:
+except ImportError:
     try:
         logger.debug("Trying to import from vtkmodules...")
         from vtkmodules.all import (
-            vtkPoints, vtkCellArray, vtkPolyData, vtkPolyDataMapper, vtkActor,
-            vtkLineSource, vtkConeSource, vtkSphereSource, vtkPolyDataNormals
+            vtkPolyDataMapper, vtkActor,
+            vtkLineSource, vtkConeSource, vtkSphereSource
         )
         logger.debug("Successfully imported vtk components from vtkmodules")
         VTK_AVAILABLE = True
@@ -62,15 +57,7 @@ if not VTK_AVAILABLE:
         logger.debug(f"VTK import error details: {VTK_IMPORT_ERROR}")
 
 try:
-    import pyvista as pv
-    from pyvista import PolyData
-    import trimesh
-    from trimesh import Trimesh
-    from trimesh.voxel import creation
-    from pygltflib import GLTF2
-    
-    # Import local modules
-    from src.avatarmcp.models.vrm_loader import VRMLoader, VRMModel, VRMMesh, VRMMaterial
+    from src.avatarmcp.models.vrm_loader import VRMLoader, VRMModel
     from src.avatarmcp.utils.logging_utils import setup_logging
     
     # Set up logging
@@ -196,7 +183,7 @@ def load_texture(texture_data: bytes, mime_type: str) -> Optional[pv.Texture]:
         # Clean up the temporary file
         try:
             os.unlink(temp_file_path)
-        except:
+        except OSError:
             pass
             
         return texture
@@ -258,7 +245,7 @@ def visualize_bones(plotter: pv.Plotter, model: VRMModel, bone_scale: float = 0.
             sphere_mapper.SetInput(sphere.GetOutput())
         
         # Create a line source for bone connections
-        line_source = vtkLineSource()
+        vtkLineSource()
         
         # Create mappers and actors for bones
         for name, bone in model.bones.items():

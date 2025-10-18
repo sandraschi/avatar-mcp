@@ -5,7 +5,6 @@ Fixed VRM Viewer - Addresses the face array validation issues
 import sys
 import os
 import numpy as np
-from pathlib import Path
 sys.path.insert(0, 'src')
 
 def validate_and_fix_faces(faces, vertex_count):
@@ -131,11 +130,11 @@ def create_fixed_vrm_viewer():
                 import traceback
                 traceback.print_exc()
         
-        print(f"\n✅ Fixed VRM viewer setup complete!")
-        print(f"🎮 Controls:")
-        print(f"  - Mouse: Rotate, pan, zoom each view independently")
-        print(f"  - Face arrays validated and fixed")
-        print(f"  - Press Ctrl+C to exit")
+        print("\n✅ Fixed VRM viewer setup complete!")
+        print("🎮 Controls:")
+        print("  - Mouse: Rotate, pan, zoom each view independently")
+        print("  - Face arrays validated and fixed")
+        print("  - Press Ctrl+C to exit")
         
         # Show comparison
         plotter.show()

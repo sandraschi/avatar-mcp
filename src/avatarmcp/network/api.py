@@ -4,17 +4,13 @@ AvatarMCP API Module
 This module provides a comprehensive API for interacting with AvatarMCP,
 including RESTful endpoints, WebSocket support, and event streaming.
 """
-import asyncio
 import json
 import logging
-import os
 import time
 import uuid
-from dataclasses import asdict, dataclass
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Callable, Awaitable, Set, Tuple
+from typing import Any, Dict, Optional, Callable, Awaitable, Set
 
 import aiohttp
 import aiohttp.web
@@ -25,9 +21,9 @@ from fastmcp import FastMCP
 # Create a FastMCP instance for the API
 mcp = FastMCP("AvatarAPI")
 
-from .animation_v2 import AnimationController, AnimationClip, AnimationEventType
-from ..models.model_manager import VRMModelManager, ModelCacheEntry
-from ..interfaces.service import AvatarService, VRMModel
+from .animation_v2 import AnimationController, AnimationClip
+from ..models.model_manager import VRMModelManager
+from ..interfaces.service import AvatarService
 
 logger = logging.getLogger(__name__)
 
@@ -595,7 +591,7 @@ class AvatarAPI:
     async def _handle_command(self, ws: web.WebSocketResponse, data: dict) -> None:
         """Handle command execution requests."""
         command = data.get('command')
-        params = data.get('params', {})
+        data.get('params', {})
         
         # TODO: Implement command handling
         await ws.send_json({

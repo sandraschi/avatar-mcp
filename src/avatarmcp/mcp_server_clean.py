@@ -4,12 +4,11 @@ Clean MCP Server - AvatarMCP
 Minimal MCP server implementation focused on protocol handling and tool delegation.
 All tools are implemented in modular classes within the tools/ directory.
 """
-import json
 import sys
 import os
 import logging
 import subprocess
-from typing import Any, Dict, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
