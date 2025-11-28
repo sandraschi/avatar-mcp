@@ -10,6 +10,13 @@ from typing import Optional, Dict, Any
 # Import core components
 from .service import AvatarService, VRMModel
 from .server import AvatarMCP, main as server_main
+from .fractals import (
+    FractalGenerator,
+    FractalConfig,
+    ColorPalette,
+    get_interesting_locations,
+    get_interesting_julia_params
+)
 
 # Package metadata
 __version__ = "0.1.0"
@@ -23,7 +30,12 @@ __all__ = [
     'AvatarMCP',
     'server_main',
     'load_vrm',
-    'create_service'
+    'create_service',
+    'FractalGenerator',
+    'FractalConfig',
+    'ColorPalette',
+    'get_interesting_locations',
+    'get_interesting_julia_params'
 ]
 
 # Global service instance
