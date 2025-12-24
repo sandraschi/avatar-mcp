@@ -8,7 +8,7 @@ basic animation control, and core avatar management functionality.
 import logging
 import os
 import time
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +23,10 @@ class CoreTools:
 
     def _register_tools(self):
         """Register all core avatar tools with the MCP server."""
+
         # Register avatar_list tool
         @self.mcp_server.mcp.tool()
-        def avatar_list(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_list(params: dict[str, Any]) -> dict[str, Any]:
             """List all available avatars in the system with metadata.
 
             Scans the configured models directory and returns a comprehensive list
@@ -53,7 +54,8 @@ class CoreTools:
                     # Returns: {
                     #     'status': 'success',
                     #     'avatars': [
-                    #         {'id': 'anime-girl', 'name': 'Anime Girl', 'path': '/models/anime.vrm'},
+                    #         {'id': 'anime-girl', 'name': 'Anime Girl',
+                    #          'path': '/models/anime.vrm'},
                     #         {'id': 'robot', 'name': 'Robot Avatar', 'path': '/models/robot.vrm'}
                     #     ],
                     #     'count': 2
@@ -88,6 +90,7 @@ class CoreTools:
             """
             # Implementation for avatar_list
             import os
+
             start_time = time.time()
 
             try:
@@ -95,62 +98,66 @@ class CoreTools:
                 # Script is at src/avatarmcp/tools/core/core_tools.py
                 # Project root is two levels up: ../../../../
                 script_dir = os.path.dirname(os.path.abspath(__file__))
-                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
+                project_root = os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
+                )
                 models_dir = os.path.join(project_root, "models")
 
                 if not os.path.exists(models_dir):
                     return {
-                        'status': 'error',
-                        'message': f'Models directory not found: {models_dir}',
-                        'avatars': [],
-                        'count': 0,
-                        'scan_time': time.time() - start_time
+                        "status": "error",
+                        "message": f"Models directory not found: {models_dir}",
+                        "avatars": [],
+                        "count": 0,
+                        "scan_time": time.time() - start_time,
                     }
 
                 avatars = []
-                for root, dirs, files in os.walk(models_dir):
+                for root, _dirs, files in os.walk(models_dir):
                     for file in files:
-                        if file.lower().endswith('.vrm'):
+                        if file.lower().endswith(".vrm"):
                             full_path = os.path.join(root, file)
                             rel_path = os.path.relpath(full_path, models_dir)
 
                             # Create avatar ID from filename (without extension)
                             avatar_id = os.path.splitext(file)[0]
-                            avatar_name = avatar_id.replace('_', ' ').replace('-', ' ').title()
+                            avatar_name = avatar_id.replace("_", " ").replace("-", " ").title()
 
                             try:
                                 stat = os.stat(full_path)
-                                avatars.append({
-                                    'id': avatar_id,
-                                    'name': avatar_name,
-                                    'path': rel_path,
-                                    'size': stat.st_size,
-                                    'modified': stat.st_mtime,
-                                    'full_path': full_path
-                                })
+                                avatars.append(
+                                    {
+                                        "id": avatar_id,
+                                        "name": avatar_name,
+                                        "path": rel_path,
+                                        "size": stat.st_size,
+                                        "modified": stat.st_mtime,
+                                        "full_path": full_path,
+                                    }
+                                )
                             except OSError:
                                 # Skip files we can't stat
                                 continue
 
                 return {
-                    'status': 'success',
-                    'avatars': avatars,
-                    'count': len(avatars),
-                    'scan_time': time.time() - start_time
+                    "status": "success",
+                    "avatars": avatars,
+                    "count": len(avatars),
+                    "scan_time": time.time() - start_time,
                 }
 
             except Exception as e:
                 return {
-                    'status': 'error',
-                    'message': f'Failed to scan avatars: {str(e)}',
-                    'avatars': [],
-                    'count': 0,
-                    'scan_time': time.time() - start_time
+                    "status": "error",
+                    "message": f"Failed to scan avatars: {str(e)}",
+                    "avatars": [],
+                    "count": 0,
+                    "scan_time": time.time() - start_time,
                 }
 
         # Register avatar_load tool
         @self.mcp_server.mcp.tool()
-        def avatar_load(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_load(params: dict[str, Any]) -> dict[str, Any]:
             """Load a VRM avatar into the system for manipulation and animation.
 
             Loads a specified VRM avatar file from the models directory and prepares
@@ -227,49 +234,40 @@ class CoreTools:
                 - animation_play: Animate loaded avatar
             """
             # Implementation for avatar_load
-            avatar_id = params.get('avatar_id')
+            avatar_id = params.get("avatar_id")
             if not avatar_id:
-                return {
-                    'status': 'error',
-                    'message': 'avatar_id parameter is required'
-                }
+                return {"status": "error", "message": "avatar_id parameter is required"}
 
             # Find the full path to the VRM file
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
+            project_root = os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
+            )
             models_dir = os.path.join(project_root, "models")
             vrm_path = os.path.join(models_dir, f"{avatar_id}.vrm")
 
             if not os.path.exists(vrm_path):
-                return {
-                    'status': 'error',
-                    'message': f'VRM file not found: {vrm_path}'
-                }
+                return {"status": "error", "message": f"VRM file not found: {vrm_path}"}
 
             # Send OSC message to Unity desktop avatar to load the avatar
             osc_address = "/avatar/load"
             if self.mcp_server._send_osc_message(osc_address, str(vrm_path)):
                 return {
-                    'status': 'success',
-                    'avatar_id': avatar_id,
-                    'vrm_path': vrm_path,
-                    'osc_message': f'{osc_address} {vrm_path}',
-                    'capabilities': [
-                        'animation',
-                        'expressions',
-                        'bone_control',
-                        'morph_control'
-                    ]
+                    "status": "success",
+                    "avatar_id": avatar_id,
+                    "vrm_path": vrm_path,
+                    "osc_message": f"{osc_address} {vrm_path}",
+                    "capabilities": ["animation", "expressions", "bone_control", "morph_control"],
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send load command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send load command to Unity desktop avatar",
                 }
 
         # Register animation_play tool
         @self.mcp_server.mcp.tool()
-        def animation_play(params: Dict[str, Any]) -> Dict[str, Any]:
+        def animation_play(params: dict[str, Any]) -> dict[str, Any]:
             """Play an animation on a loaded avatar.
 
             Triggers playback of a specified animation on a loaded avatar with
@@ -367,37 +365,39 @@ class CoreTools:
                 - animation_sequence_create: Create complex animation sequences
             """
             # Implementation for animation_play
-            avatar_id = params.get('avatar_id')
-            animation_name = params.get('animation_name')
-            loop = params.get('loop', False)
-            speed = params.get('speed', 1.0)
+            avatar_id = params.get("avatar_id")
+            animation_name = params.get("animation_name")
+            loop = params.get("loop", False)
+            speed = params.get("speed", 1.0)
 
             if not avatar_id or not animation_name:
                 return {
-                    'status': 'error',
-                    'message': 'Both avatar_id and animation_name parameters are required'
+                    "status": "error",
+                    "message": "Both avatar_id and animation_name parameters are required",
                 }
 
             # Send OSC message to Unity desktop avatar to play animation
             osc_address = "/avatar/animation/play"
-            if self.mcp_server._send_osc_message(osc_address, animation_name, int(loop), float(speed)):
+            if self.mcp_server._send_osc_message(
+                osc_address, animation_name, int(loop), float(speed)
+            ):
                 return {
-                    'status': 'success',
-                    'avatar_id': avatar_id,
-                    'animation_name': animation_name,
-                    'loop': loop,
-                    'speed': speed,
-                    'osc_message': f'{osc_address} {animation_name} {int(loop)} {float(speed)}'
+                    "status": "success",
+                    "avatar_id": avatar_id,
+                    "animation_name": animation_name,
+                    "loop": loop,
+                    "speed": speed,
+                    "osc_message": f"{osc_address} {animation_name} {int(loop)} {float(speed)}",
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send animation play command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send animation play command to Unity desktop avatar",
                 }
 
         # Register bone_control tool
         @self.mcp_server.mcp.tool()
-        def bone_control(params: Dict[str, Any]) -> Dict[str, Any]:
+        def bone_control(params: dict[str, Any]) -> dict[str, Any]:
             """Control individual bones of an avatar for precise posing.
 
             Manipulates specific bones of a loaded avatar to achieve precise poses,
@@ -488,9 +488,21 @@ class CoreTools:
 
                 Sequential bone controls:
                     # Control multiple bones for complex pose
-                    await bone_control({'avatar_id': 'dancer', 'bone_name': 'left_arm', 'bone_transform': {'rotation': {'x': 1.5}}})
-                    await bone_control({'avatar_id': 'dancer', 'bone_name': 'right_arm', 'bone_transform': {'rotation': {'x': -1.5}}})
-                    await bone_control({'avatar_id': 'dancer', 'bone_name': 'torso', 'bone_transform': {'rotation': {'z': 0.3}}})
+                    await bone_control({
+                        'avatar_id': 'dancer',
+                        'bone_name': 'left_arm',
+                        'bone_transform': {'rotation': {'x': 1.5}}
+                    })
+                    await bone_control({
+                        'avatar_id': 'dancer',
+                        'bone_name': 'right_arm',
+                        'bone_transform': {'rotation': {'x': -1.5}}
+                    })
+                    await bone_control({
+                        'avatar_id': 'dancer',
+                        'bone_name': 'torso',
+                        'bone_transform': {'rotation': {'z': 0.3}}
+                    })
 
             Raises:
                 ValueError: If avatar_id, bone_name, or transform invalid
@@ -512,21 +524,21 @@ class CoreTools:
                 - avatar_load: Load avatar before bone control
             """
             # Implementation for bone_control
-            avatar_id = params.get('avatar_id')
-            bone_name = params.get('bone_name')
-            rotation = params.get('rotation')
-            translation = params.get('translation')
+            avatar_id = params.get("avatar_id")
+            bone_name = params.get("bone_name")
+            rotation = params.get("rotation")
+            translation = params.get("translation")
 
             if not avatar_id or not bone_name:
                 return {
-                    'status': 'error',
-                    'message': 'avatar_id and bone_name parameters are required'
+                    "status": "error",
+                    "message": "avatar_id and bone_name parameters are required",
                 }
 
             if not rotation and not translation:
                 return {
-                    'status': 'error',
-                    'message': 'Either rotation or translation parameter must be provided'
+                    "status": "error",
+                    "message": "Either rotation or translation parameter must be provided",
                 }
 
             # Send OSC message to Unity desktop avatar for bone control
@@ -538,13 +550,13 @@ class CoreTools:
                 if isinstance(rotation, list) and len(rotation) == 4:
                     osc_address = f"/avatar/bone/{bone_name}/rotation"
                     if self.mcp_server._send_osc_message(osc_address, *rotation):
-                        messages_sent.append(f'{osc_address} {rotation}')
+                        messages_sent.append(f"{osc_address} {rotation}")
                     else:
                         success = False
                 else:
                     return {
-                        'status': 'error',
-                        'message': 'rotation must be a list of 4 quaternion values [x, y, z, w]'
+                        "status": "error",
+                        "message": "rotation must be a list of 4 quaternion values [x, y, z, w]",
                     }
 
             if translation:
@@ -552,33 +564,33 @@ class CoreTools:
                 if isinstance(translation, list) and len(translation) == 3:
                     osc_address = f"/avatar/bone/{bone_name}/translation"
                     if self.mcp_server._send_osc_message(osc_address, *translation):
-                        messages_sent.append(f'{osc_address} {translation}')
+                        messages_sent.append(f"{osc_address} {translation}")
                     else:
                         success = False
                 else:
                     return {
-                        'status': 'error',
-                        'message': 'translation must be a list of 3 vector values [x, y, z]'
+                        "status": "error",
+                        "message": "translation must be a list of 3 vector values [x, y, z]",
                     }
 
             if success:
                 return {
-                    'status': 'success',
-                    'avatar_id': avatar_id,
-                    'bone_name': bone_name,
-                    'applied_rotation': rotation,
-                    'applied_translation': translation,
-                    'osc_messages': messages_sent
+                    "status": "success",
+                    "avatar_id": avatar_id,
+                    "bone_name": bone_name,
+                    "applied_rotation": rotation,
+                    "applied_translation": translation,
+                    "osc_messages": messages_sent,
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send bone control commands to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send bone control commands to Unity desktop avatar",
                 }
 
         # Register morph_control tool
         @self.mcp_server.mcp.tool()
-        def morph_control(params: Dict[str, Any]) -> Dict[str, Any]:
+        def morph_control(params: dict[str, Any]) -> dict[str, Any]:
             """Control morph targets (blend shapes) for facial expressions and body deformation.
 
             Manipulates blend shape morph targets on a loaded avatar to create facial
@@ -664,9 +676,15 @@ class CoreTools:
 
                 Sequential expressions:
                     # Happy to surprised transition
-                    await morph_control({'avatar_id': 'actor', 'morph_targets': {'mouth_smile': 1.0}})
+                    await morph_control({
+                        'avatar_id': 'actor',
+                        'morph_targets': {'mouth_smile': 1.0}
+                    })
                     time.sleep(2)
-                    await morph_control({'avatar_id': 'actor', 'morph_targets': {'mouth_open': 0.8, 'eye_wide': 1.0}})
+                    await morph_control({
+                        'avatar_id': 'actor',
+                        'morph_targets': {'mouth_open': 0.8, 'eye_wide': 1.0}
+                    })
 
             Raises:
                 ValueError: If avatar_id or morph_targets invalid
@@ -688,41 +706,38 @@ class CoreTools:
                 - animation_play: Combine with animation for full control
             """
             # Implementation for morph_control
-            avatar_id = params.get('avatar_id')
-            morph_name = params.get('morph_name')
-            weight = params.get('weight', 1.0)
+            avatar_id = params.get("avatar_id")
+            morph_name = params.get("morph_name")
+            weight = params.get("weight", 1.0)
 
             if not avatar_id or morph_name is None:
                 return {
-                    'status': 'error',
-                    'message': 'avatar_id and morph_name parameters are required'
+                    "status": "error",
+                    "message": "avatar_id and morph_name parameters are required",
                 }
 
             if not isinstance(weight, (int, float)) or not (0.0 <= weight <= 1.0):
-                return {
-                    'status': 'error',
-                    'message': 'weight must be a number between 0.0 and 1.0'
-                }
+                return {"status": "error", "message": "weight must be a number between 0.0 and 1.0"}
 
             # Send OSC message to Unity desktop avatar for morph control
             osc_address = "/avatar/expression/blendshape"
             if self.mcp_server._send_osc_message(osc_address, morph_name, float(weight)):
                 return {
-                    'status': 'success',
-                    'avatar_id': avatar_id,
-                    'morph_name': morph_name,
-                    'applied_weight': weight,
-                    'osc_message': f'{osc_address} {morph_name} {float(weight)}'
+                    "status": "success",
+                    "avatar_id": avatar_id,
+                    "morph_name": morph_name,
+                    "applied_weight": weight,
+                    "osc_message": f"{osc_address} {morph_name} {float(weight)}",
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send morph control command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send morph control command to Unity desktop avatar",
                 }
 
         # Register avatar_export tool
         @self.mcp_server.mcp.tool()
-        def avatar_export(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_export(params: dict[str, Any]) -> dict[str, Any]:
             """Export avatar in various formats with current pose and configuration.
 
             Saves the current state of a loaded avatar including pose, morphs, and
@@ -830,37 +845,31 @@ class CoreTools:
                 - morph_control: Apply morphs before export
             """
             # Implementation for avatar_export
-            avatar_id = params.get('avatar_id')
-            export_format = params.get('export_format', 'gltf')
-            output_path = params.get('output_path')
-            include_pose = params.get('include_pose', True)
+            avatar_id = params.get("avatar_id")
+            export_format = params.get("export_format", "gltf")
+            output_path = params.get("output_path")
+            include_pose = params.get("include_pose", True)
 
             if not avatar_id:
-                return {
-                    'status': 'error',
-                    'message': 'avatar_id parameter is required'
-                }
+                return {"status": "error", "message": "avatar_id parameter is required"}
 
             if not output_path:
-                return {
-                    'status': 'error',
-                    'message': 'output_path parameter is required'
-                }
+                return {"status": "error", "message": "output_path parameter is required"}
 
             # Send OSC message to Unity desktop avatar for export
             osc_address = "/avatar/export"
             export_config = f"{export_format},{output_path},{int(include_pose)}"
             if self.mcp_server._send_osc_message(osc_address, export_config):
                 return {
-                    'status': 'success',
-                    'avatar_id': avatar_id,
-                    'export_format': export_format,
-                    'output_path': output_path,
-                    'include_pose': include_pose,
-                    'osc_message': f'{osc_address} {export_config}'
+                    "status": "success",
+                    "avatar_id": avatar_id,
+                    "export_format": export_format,
+                    "output_path": output_path,
+                    "include_pose": include_pose,
+                    "osc_message": f"{osc_address} {export_config}",
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send export command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send export command to Unity desktop avatar",
                 }

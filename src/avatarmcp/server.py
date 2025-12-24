@@ -8,6 +8,7 @@ FIXES:
 - Updated FastMCP API from deprecated .method() decorators to new @mcp.tool() pattern
 - Fixed initialization issues with FastMCP 2.10.1+
 """
+
 import asyncio
 import fnmatch
 import inspect
@@ -15,7 +16,7 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 try:
     import aiofiles
@@ -24,202 +25,244 @@ except ImportError:
 
 from fastmcp import FastMCP
 
-from .models.vrm_model import VRMModel
-from .models.vrm_manager import VRMManager
-from .tools.chat_tools import ChatTool
 from .handlers.chatbot_handler import ChatbotHandler
 from .metrics import MetricsCollector
+from .models.vrm_manager import VRMManager
+from .models.vrm_model import VRMModel
+from .tools.chat_tools import ChatTool
 
 logger = logging.getLogger(__name__)
 
+
 class OSCConfig:
-    def __init__(self, client_address: str = "127.0.0.1", client_port: int = 9000, server_address: str = "127.0.0.1", server_port: int = 9001):
+    def __init__(
+        self,
+        client_address: str = "127.0.0.1",
+        client_port: int = 9000,
+        server_address: str = "127.0.0.1",
+        server_port: int = 9001,
+    ):
         self.client_address = client_address
         self.client_port = client_port
         self.server_address = server_address
         self.server_port = server_port
 
+
 def oscmethod(address_pattern):
     """Decorator to mark methods as OSC message handlers."""
+
     def decorator(func):
         func._osc_address = address_pattern
         return func
+
     return decorator
 
+
 class OSCManager:
-    def __init__(self, osc_config: Optional[OSCConfig] = None, enabled: bool = True):
+    def __init__(self, osc_config: OSCConfig | None = None, enabled: bool = True):
         self.enabled = enabled
         self.initialized = False
         self.osc_config = osc_config or OSCConfig()
-        
+
         if not self.enabled:
             logger.warning("OSC is disabled. No OSC server will be started.")
             return
-            
+
         try:
             # Import OSC dependencies here to make them optional
             from pythonosc.dispatcher import Dispatcher
             from pythonosc.osc_server import AsyncIOOSCUDPServer
             from pythonosc.udp_client import SimpleUDPClient
-            
+
             self.dispatcher = Dispatcher()
             self.osc_server = AsyncIOOSCUDPServer(
-                (self.osc_config.server_address, self.osc_config.server_port), 
+                (self.osc_config.server_address, self.osc_config.server_port),
                 self.dispatcher,
-                loop=asyncio.get_event_loop()
+                loop=asyncio.get_event_loop(),
             )
             self.osc_client = SimpleUDPClient(
-                self.osc_config.client_address, 
-                self.osc_config.client_port
+                self.osc_config.client_address, self.osc_config.client_port
             )
-            
+
             # Register the handler method
             self.dispatcher.map("/*", self._handle_osc_message)
             self.initialized = True
-            logger.info(f"OSC server initialized on {self.osc_config.server_address}:{self.osc_config.server_port}")
-            
+            logger.info(
+                f"OSC server initialized on {self.osc_config.server_address}:"
+                f"{self.osc_config.server_port}"
+            )
+
         except Exception as e:
             logger.error(f"Failed to initialize OSC server: {e}")
             logger.warning("Continuing without OSC functionality")
             self.enabled = False
-    
+
     async def start(self):
         """Start the OSC server."""
         if not self.enabled or not self.initialized:
             return
-        
+
         try:
             # For testing, we might want to skip actual server startup
             import os
-            if os.getenv('PYTEST_CURRENT_TEST') or 'pytest' in str(os.getenv('_', '')):
+
+            if os.getenv("PYTEST_CURRENT_TEST") or "pytest" in str(os.getenv("_", "")):
                 logger.info("Skipping OSC server start during testing")
                 return
-                
+
             await self.osc_server.start()
             logger.info("OSC server started")
         except Exception as e:
             logger.error(f"Failed to start OSC server: {e}")
             self.enabled = False
-    
+
     async def stop(self):
         """Stop the OSC server."""
         if not self.enabled or not self.initialized:
             return
-        
+
         try:
             self.osc_server.close()
             logger.info("OSC server stopped")
         except Exception as e:
             logger.error(f"Failed to stop OSC server: {e}")
-    
+
     async def _handle_osc_message(self, address, *args):
         """Internal handler for OSC messages."""
         logger.info(f"Received OSC message: {address} {args}")
-        
+
         # Call the appropriate handler method if it exists
-        for name, method in inspect.getmembers(self, inspect.ismethod):
-            if hasattr(method, '_osc_address'):
+        for _name, method in inspect.getmembers(self, inspect.ismethod):
+            if hasattr(method, "_osc_address"):
                 if fnmatch.fnmatch(address, method._osc_address):
                     return await method(address, *args)
-    
+
     @oscmethod("/avatar/osc/*")
     async def handle_osc_message(self, address, *args):
         """Handle OSC messages matching /avatar/osc/* pattern."""
         logger.info(f"Handling OSC message: {address} {args}")
         # Add your OSC message handling logic here
 
+
 class AvatarMCPServer:
     """MCP server implementation for AvatarMCP using FastMCP 2.11.3+ API."""
-    
-    def __init__(self, osc_config: Optional[OSCConfig] = None, models_dir: Optional[str] = None, enable_osc: bool = False):
+
+    def __init__(
+        self,
+        osc_config: OSCConfig | None = None,
+        models_dir: str | None = None,
+        enable_osc: bool = False,
+    ):
         """Initialize the MCP server."""
         self.mcp = FastMCP("avatarmcp")
         self.running = False
         self.osc_manager = OSCManager(osc_config, enabled=enable_osc)
         self._message_id = 0
-        
+
         # Initialize logger
         self.logger = logging.getLogger(__name__)
-        
+
         # Initialize VRM manager
         self.vrm_manager = VRMManager(models_dir)
-        self.loaded_models: Dict[str, VRMModel] = {}
-        self.active_model_id: Optional[str] = None
-        
+        self.loaded_models: dict[str, VRMModel] = {}
+        self.active_model_id: str | None = None
+
+        # Initialize portmanteau tool classes
+        from .tools.portmanteau.animation_controller_tool import AnimationControllerTool
+        from .tools.portmanteau.avatar_manager_tool import AvatarManagerTool
+        from .tools.portmanteau.chat_manager_tool import ChatManagerTool
+        from .tools.portmanteau.osc_communicator_tool import OSCCommunicatorTool
+        from .tools.portmanteau.system_monitor_tool import SystemMonitorTool
+        from .tools.portmanteau.unity_config_manager_tool import UnityConfigManagerTool
+        from .tools.portmanteau.unity_integration_tool import UnityIntegrationTool
+        from .tools.portmanteau.unity_window_manager_tool import UnityWindowManagerTool
+
+        self.avatar_manager_tool = AvatarManagerTool(self)
+        self.animation_controller_tool = AnimationControllerTool(self)
+        self.osc_communicator_tool = OSCCommunicatorTool(self)
+        self.unity_integration_tool = UnityIntegrationTool(self)
+        self.unity_window_manager_tool = UnityWindowManagerTool(self)
+        self.unity_config_manager_tool = UnityConfigManagerTool(self)
+        self.chat_manager_tool = ChatManagerTool(self)
+        self.system_monitor_tool = SystemMonitorTool(self)
+
         # Initialize chat components
         self.chatbot_handler = ChatbotHandler()
         self.chat_tool = ChatTool()
         self.chat_tool.chatbot_handler = self.chatbot_handler
-        
+
         # Initialize metrics collection
         self.metrics = MetricsCollector(port=8000, enabled=True)
         if self.metrics.info is not None:
-            self.metrics.info.info({
-                'version': '1.0.0',
-                'service': 'avatarmcp',
-                'environment': os.getenv('ENV', 'development')
-            })
-        
+            self.metrics.info.info(
+                {
+                    "version": "1.0.0",
+                    "service": "avatarmcp",
+                    "environment": os.getenv("ENV", "development"),
+                }
+            )
+
         # Track server state
         self.start_time = time.time()
         self.initialized = False
-        
+
     async def start(self):
         """Start the MCP server."""
         if self.running:
             return
-            
+
         self.logger.info("Starting AvatarMCPServer...")
-        
+
         try:
             # Skip actual server startup during testing
             import os
-            if os.getenv('PYTEST_CURRENT_TEST') or 'pytest' in str(os.getenv('_', '')):
+
+            if os.getenv("PYTEST_CURRENT_TEST") or "pytest" in str(os.getenv("_", "")):
                 self.logger.info("Skipping AvatarMCPServer startup during testing")
                 self.initialized = True
                 self.running = True
                 self.logger.info("AvatarMCPServer started successfully (test mode)")
                 return
-            
+
             # Start OSC manager
             await self.osc_manager.start()
-            
+
             # Initialize the server
             self.initialized = True
             self.running = True
-            
+
             self.logger.info("AvatarMCPServer started successfully")
-            
+
         except Exception as e:
             self.logger.error(f"Failed to start AvatarMCPServer: {e}", exc_info=True)
             raise
-    
+
     async def stop(self):
         """Stop the MCP server."""
         if not self.running:
             return
-            
+
         self.logger.info("Stopping AvatarMCPServer...")
-        
+
         try:
             # Stop OSC manager
             await self.osc_manager.stop()
-            
+
             self.running = False
             self.initialized = False
-            
+
             self.logger.info("AvatarMCPServer stopped")
-            
+
         except Exception as e:
             self.logger.error(f"Error stopping AvatarMCPServer: {e}", exc_info=True)
 
     def _register_tools(self) -> None:
         """Register all MCP tools using the new FastMCP 2.11.3+ API."""
-        
+
         # Core initialization tool
         @self.mcp.tool()
-        def initialize(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Initialize the AvatarMCP server with configuration settings.
+        def initialize(params: dict[str, Any]) -> dict[str, Any]:
+            """Initialize the AvatarMCP server with configuration settings.
 
             Sets up the AvatarMCP server environment, scans for available VRM models,
             and prepares all subsystems for operation. This must be called before
@@ -277,12 +320,12 @@ class AvatarMCPServer:
                 - Initialization may take several seconds to scan large model directories
                 - Network access may be required for some initialization steps
                 - Server maintains initialization state across tool calls
-            '''
+            """
             return asyncio.run(self.handle_initialize(params))
 
         @self.mcp.tool()
-        def shutdown(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Gracefully shutdown the AvatarMCP server and release all resources.
+        def shutdown(params: dict[str, Any]) -> dict[str, Any]:
+            """Gracefully shutdown the AvatarMCP server and release all resources.
 
             Stops all running operations, unloads any loaded avatar models, closes
             network connections, and performs cleanup. This should be called when
@@ -318,13 +361,13 @@ class AvatarMCPServer:
                 - All loaded avatar models are automatically unloaded
                 - Network connections are properly closed
                 - Server becomes unusable after shutdown until reinitialized
-            '''
+            """
             return asyncio.run(self.handle_shutdown(params))
-        
+
         # Avatar management tools
         @self.mcp.tool()
-        def avatar_load(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Load a VRM avatar model into memory for use with animations and expressions.
+        def avatar_load(params: dict[str, Any]) -> dict[str, Any]:
+            """Load a VRM avatar model into memory for use with animations and expressions.
 
             Imports and prepares a VRM (Virtual Reality Model) file for use by the AvatarMCP
             system. The model becomes available for animation playback, parameter control,
@@ -405,12 +448,12 @@ class AvatarMCPServer:
                 - avatar_unload: Remove an avatar from memory
                 - avatar_set_active: Change which avatar is active
                 - avatar_list: See all loaded avatars
-            '''
+            """
             return asyncio.run(self.handle_avatar_load(params))
 
         @self.mcp.tool()
-        def avatar_unload(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Remove a VRM avatar model from memory and free associated resources.
+        def avatar_unload(params: dict[str, Any]) -> dict[str, Any]:
+            """Remove a VRM avatar model from memory and free associated resources.
 
             Unloads a previously loaded VRM model, releasing all associated memory and
             resources. If the unloaded avatar was active, another avatar may be automatically
@@ -476,12 +519,12 @@ class AvatarMCPServer:
                 - avatar_load: Load an avatar into memory
                 - avatar_set_active: Change active avatar without unloading
                 - avatar_list: See currently loaded avatars
-            '''
+            """
             return asyncio.run(self.handle_avatar_unload(params))
 
         @self.mcp.tool()
-        def avatar_list(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve a comprehensive list of all avatars available in the system.
+        def avatar_list(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve a comprehensive list of all avatars available in the system.
 
             Returns information about both loaded avatars (currently in memory) and
             available avatars (found in the models directory but not yet loaded).
@@ -491,7 +534,8 @@ class AvatarMCPServer:
                 loaded_only: Whether to show only currently loaded avatars (default: False)
                     - If true, shows only avatars in memory
                     - If false, shows all avatars (loaded + available)
-                include_metadata: Whether to include detailed metadata for each avatar (default: False)
+                include_metadata: Whether to include detailed metadata for each avatar
+                    (default: False)
                     - If true, includes full avatar specifications
                     - If false, returns basic info only (faster)
 
@@ -562,12 +606,12 @@ class AvatarMCPServer:
                 - avatar_load: Load an available avatar into memory
                 - avatar_get_active: Get just the currently active avatar
                 - avatar_get_metadata: Get detailed info for specific avatar
-            '''
+            """
             return asyncio.run(self.handle_avatar_list(params))
 
         @self.mcp.tool()
-        def avatar_set_active(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Change which loaded avatar is considered the "active" avatar for operations.
+        def avatar_set_active(params: dict[str, Any]) -> dict[str, Any]:
+            """Change which loaded avatar is considered the "active" avatar for operations.
 
             Sets the specified avatar as the active one, making it the target for all
             animation, expression, and parameter operations. Only loaded avatars can
@@ -630,12 +674,12 @@ class AvatarMCPServer:
                 - avatar_get_active: Check which avatar is currently active
                 - avatar_load: Load an avatar and optionally make it active
                 - avatar_list: See all loaded avatars and their status
-            '''
+            """
             return asyncio.run(self.handle_avatar_set_active(params))
 
         @self.mcp.tool()
-        def avatar_get_active(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve information about which avatar is currently set as active.
+        def avatar_get_active(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve information about which avatar is currently set as active.
 
             Returns the ID and status of the currently active avatar, or indicates
             that no avatar is active. The active avatar is the one that receives
@@ -698,12 +742,12 @@ class AvatarMCPServer:
                 - avatar_set_active: Change which avatar is active
                 - avatar_list: See all avatars and their active status
                 - avatar_load: Load an avatar (optionally making it active)
-            '''
+            """
             return asyncio.run(self.handle_avatar_get_active(params))
 
         @self.mcp.tool()
-        def avatar_get_metadata(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve detailed metadata and specifications for a specific avatar.
+        def avatar_get_metadata(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve detailed metadata and specifications for a specific avatar.
 
             Returns comprehensive information about an avatar's properties, including
             VRM specification details, blend shapes, bones, materials, and any custom
@@ -782,13 +826,13 @@ class AvatarMCPServer:
                 - avatar_list: Get basic info for all avatars
                 - avatar_load: Load avatar with custom metadata
                 - animation_list: See what animations are available
-            '''
+            """
             return asyncio.run(self.handle_avatar_get_metadata(params))
-        
+
         # Animation control tools
         @self.mcp.tool()
-        def animation_play(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Start playback of an animation on the active avatar.
+        def animation_play(params: dict[str, Any]) -> dict[str, Any]:
+            """Start playback of an animation on the active avatar.
 
             Plays a specified animation clip on the currently active avatar. The animation
             can be set to loop continuously or play once. Supports speed adjustment for
@@ -881,12 +925,12 @@ class AvatarMCPServer:
                 - animation_stop: Stop current animation playback
                 - animation_list: See all available animations
                 - avatar_set_active: Change which avatar receives animations
-            '''
+            """
             return asyncio.run(self.handle_animation_play(params))
 
         @self.mcp.tool()
-        def animation_stop(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Stop playback of the currently playing animation on the active avatar.
+        def animation_stop(params: dict[str, Any]) -> dict[str, Any]:
+            """Stop playback of the currently playing animation on the active avatar.
 
             Immediately halts any animation currently playing on the active avatar,
             returning it to its default pose or idle state. Safe to call even if
@@ -948,12 +992,12 @@ class AvatarMCPServer:
                 - animation_play: Start animation playback
                 - animation_list: See available animations
                 - avatar_set_active: Change active avatar
-            '''
+            """
             return asyncio.run(self.handle_animation_stop(params))
 
         @self.mcp.tool()
-        def animation_list(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve a complete list of animations available for the active avatar.
+        def animation_list(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve a complete list of animations available for the active avatar.
 
             Returns all animation clips and states that can be played on the currently
             active avatar. This includes built-in animations, custom animations, and
@@ -1019,13 +1063,13 @@ class AvatarMCPServer:
                 - animation_stop: Stop current animation
                 - avatar_list: See all available avatars
                 - avatar_get_metadata: Get detailed avatar capabilities
-            '''
+            """
             return asyncio.run(self.handle_animation_list(params))
-        
+
         # Parameter control tools
         @self.mcp.tool()
-        def parameter_set(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Set a custom parameter value on the active avatar.
+        def parameter_set(params: dict[str, Any]) -> dict[str, Any]:
+            """Set a custom parameter value on the active avatar.
 
             Updates avatar parameters that control animations, expressions, or other
             avatar behaviors. Parameters can be boolean, integer, or float values
@@ -1111,12 +1155,12 @@ class AvatarMCPServer:
                 - parameter_get: Read current parameter values
                 - animation_play: Play animations (may use parameters)
                 - avatar_get_metadata: See avatar parameter definitions
-            '''
+            """
             return asyncio.run(self.handle_parameter_set(params))
 
         @self.mcp.tool()
-        def parameter_get(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve the current value of a parameter from the active avatar.
+        def parameter_get(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve the current value of a parameter from the active avatar.
 
             Reads the current value of any parameter defined in the active avatar's
             Animator Controller. Useful for checking avatar state, debugging parameter
@@ -1200,13 +1244,13 @@ class AvatarMCPServer:
                 - parameter_set: Change parameter values
                 - animation_list: See animation parameters
                 - avatar_get_metadata: Get avatar parameter definitions
-            '''
+            """
             return asyncio.run(self.handle_parameter_get(params))
 
         # OSC control tools
         @self.mcp.tool()
-        def osc_send(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Send an OSC (Open Sound Control) message to external applications.
+        def osc_send(params: dict[str, Any]) -> dict[str, Any]:
+            """Send an OSC (Open Sound Control) message to external applications.
 
             Transmits OSC messages to configured OSC receivers, enabling communication
             with VRChat, other avatar applications, or custom OSC-enabled software.
@@ -1302,12 +1346,12 @@ class AvatarMCPServer:
                 - osc_receive: Listen for incoming OSC messages
                 - avatar_load: Load avatars that can receive OSC
                 - system_status: Check OSC server status
-            '''
+            """
             return asyncio.run(self.handle_osc_send(params))
 
         @self.mcp.tool()
-        def osc_receive(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve information about received OSC messages.
+        def osc_receive(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve information about received OSC messages.
 
             Returns details about OSC messages that have been received by the server,
             including message history, sender information, and message contents.
@@ -1397,13 +1441,13 @@ class AvatarMCPServer:
                 - osc_send: Send OSC messages
                 - system_status: Check OSC server status
                 - debug_echo: Test message routing
-            '''
+            """
             return asyncio.run(self.handle_osc_receive(params))
-        
+
         # Chat tools
         @self.mcp.tool()
-        def chat_start(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Initialize a new chat session with the AvatarMCP chatbot.
+        def chat_start(params: dict[str, Any]) -> dict[str, Any]:
+            """Initialize a new chat session with the AvatarMCP chatbot.
 
             Creates a fresh conversation context and prepares the chatbot for interaction.
             The chat session maintains conversation history and context across multiple
@@ -1480,12 +1524,12 @@ class AvatarMCPServer:
                 - chat_send_message: Send messages in the active session
                 - chat_get_state: Check current chat status
                 - chat_stop: End the current chat session
-            '''
+            """
             return asyncio.run(self.handle_chat_start(params))
 
         @self.mcp.tool()
-        def chat_send_message(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Send a message to the active chat session and receive a response.
+        def chat_send_message(params: dict[str, Any]) -> dict[str, Any]:
+            """Send a message to the active chat session and receive a response.
 
             Transmits user input to the chatbot and returns the generated response.
             The message becomes part of the conversation history, maintaining context
@@ -1575,12 +1619,12 @@ class AvatarMCPServer:
                 - chat_start: Begin a chat session before sending messages
                 - chat_get_state: Check chat session status
                 - chat_stop: End the current session
-            '''
+            """
             return asyncio.run(self.handle_chat_send_message(params))
 
         @self.mcp.tool()
-        def chat_stop(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Terminate the current chat session and clean up resources.
+        def chat_stop(params: dict[str, Any]) -> dict[str, Any]:
+            """Terminate the current chat session and clean up resources.
 
             Ends the active chat session, clears conversation history, and releases
             any resources associated with the chatbot. The session becomes unusable
@@ -1645,12 +1689,12 @@ class AvatarMCPServer:
                 - chat_start: Begin a new chat session
                 - chat_send_message: Send messages in active session
                 - chat_get_state: Check if session is active before stopping
-            '''
+            """
             return asyncio.run(self.handle_chat_stop(params))
 
         @self.mcp.tool()
-        def chat_get_state(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve the current state and status of the chat system.
+        def chat_get_state(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve the current state and status of the chat system.
 
             Returns comprehensive information about the active chat session,
             including session details, conversation statistics, and system status.
@@ -1728,13 +1772,13 @@ class AvatarMCPServer:
                 - chat_start: Begin a session to monitor
                 - chat_send_message: Send messages (check state first)
                 - chat_stop: End session being monitored
-            '''
+            """
             return asyncio.run(self.handle_chat_get_state(params))
-        
+
         # System tools
         @self.mcp.tool()
-        def system_status(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve comprehensive system status and health information.
+        def system_status(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve comprehensive system status and health information.
 
             Returns detailed information about the AvatarMCP server's current state,
             including performance metrics, loaded resources, and operational status.
@@ -1823,12 +1867,12 @@ class AvatarMCPServer:
                 - shutdown: Clean shutdown (status will show stopping)
                 - avatar_list: Check loaded avatar status
                 - chat_get_state: Check chat system status
-            '''
+            """
             return asyncio.run(self.handle_system_status(params))
 
         @self.mcp.tool()
-        def debug_echo(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Echo back input parameters for debugging and testing purposes.
+        def debug_echo(params: dict[str, Any]) -> dict[str, Any]:
+            """Echo back input parameters for debugging and testing purposes.
 
             A simple diagnostic tool that returns the exact input parameters unchanged.
             Useful for testing MCP communication, verifying parameter parsing, and
@@ -1918,13 +1962,13 @@ class AvatarMCPServer:
                 - system_status: Check actual system health (not just connectivity)
                 - chat_send_message: Test actual chat functionality
                 - avatar_load: Test actual avatar operations
-            '''
+            """
             return asyncio.run(self.handle_debug_echo(params))
 
         # Unity Desktop Avatar System tools
         @self.mcp.tool()
-        def unity_system_status(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Retrieve the current status of the Unity desktop avatar system.
+        def unity_system_status(params: dict[str, Any]) -> dict[str, Any]:
+            """Retrieve the current status of the Unity desktop avatar system.
 
             Queries the Unity desktop avatar application to get comprehensive status
             information about the running Unity instance, including connection state,
@@ -2008,12 +2052,12 @@ class AvatarMCPServer:
                 - unity_window_visibility: Control window visibility
                 - unity_osc_bridge: Configure OSC communication
                 - system_status: Check overall AvatarMCP server status
-            '''
+            """
             return asyncio.run(self.handle_unity_system_status(params))
 
         @self.mcp.tool()
-        def unity_window_position(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control the position and size of the Unity desktop avatar window.
+        def unity_window_position(params: dict[str, Any]) -> dict[str, Any]:
+            """Control the position and size of the Unity desktop avatar window.
 
             Sets the position, size, and layout properties of the transparent Unity
             desktop avatar window. Allows precise control over where the avatar
@@ -2124,12 +2168,12 @@ class AvatarMCPServer:
                 - unity_window_visibility: Show/hide the window
                 - unity_window_transparency: Control transparency level
                 - unity_system_status: Check current window position
-            '''
+            """
             return asyncio.run(self.handle_unity_window_position(params))
 
         @self.mcp.tool()
-        def unity_window_transparency(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control the transparency level of the Unity desktop avatar window.
+        def unity_window_transparency(params: dict[str, Any]) -> dict[str, Any]:
+            """Control the transparency level of the Unity desktop avatar window.
 
             Adjusts the alpha transparency of the Unity desktop avatar window,
             allowing the avatar to blend seamlessly with the desktop background
@@ -2217,12 +2261,12 @@ class AvatarMCPServer:
                 - unity_window_visibility: Completely hide/show window
                 - unity_window_position: Control window position and size
                 - unity_system_status: Check current transparency level
-            '''
+            """
             return asyncio.run(self.handle_unity_window_transparency(params))
 
         @self.mcp.tool()
-        def unity_window_visibility(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control the visibility of the Unity desktop avatar window.
+        def unity_window_visibility(params: dict[str, Any]) -> dict[str, Any]:
+            """Control the visibility of the Unity desktop avatar window.
 
             Shows or hides the Unity desktop avatar window completely. Unlike
             transparency control, this completely removes the window from view
@@ -2314,12 +2358,12 @@ class AvatarMCPServer:
                 - unity_window_transparency: Control opacity without hiding
                 - unity_window_position: Control window position
                 - unity_system_status: Check current visibility state
-            '''
+            """
             return asyncio.run(self.handle_unity_window_visibility(params))
 
         @self.mcp.tool()
-        def unity_window_mode(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control the interaction mode of the Unity desktop avatar window.
+        def unity_window_mode(params: dict[str, Any]) -> dict[str, Any]:
+            """Control the interaction mode of the Unity desktop avatar window.
 
             Switches the Unity desktop avatar window between interactive and
             click-through modes. Interactive mode allows clicking and interacting
@@ -2408,12 +2452,12 @@ class AvatarMCPServer:
                 - unity_window_visibility: Show/hide window completely
                 - unity_window_transparency: Control opacity level
                 - unity_system_status: Check current window mode
-            '''
+            """
             return asyncio.run(self.handle_unity_window_mode(params))
 
         @self.mcp.tool()
-        def unity_avatar_load(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Load a VRM avatar model into the Unity desktop avatar system.
+        def unity_avatar_load(params: dict[str, Any]) -> dict[str, Any]:
+            """Load a VRM avatar model into the Unity desktop avatar system.
 
             Loads and initializes a VRM (Virtual Reality Model) avatar in the Unity
             desktop application. The avatar becomes available for animation, expression
@@ -2522,12 +2566,12 @@ class AvatarMCPServer:
                 - unity_avatar_animation: Play animations
                 - unity_system_status: Check loaded avatar status
                 - avatar_load: Load avatar in AvatarMCP (separate from Unity)
-            '''
+            """
             return asyncio.run(self.handle_unity_avatar_load(params))
 
         @self.mcp.tool()
-        def unity_avatar_expression(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control facial expressions on the Unity desktop avatar.
+        def unity_avatar_expression(params: dict[str, Any]) -> dict[str, Any]:
+            """Control facial expressions on the Unity desktop avatar.
 
             Sets specific facial expressions on the active Unity avatar using
             blend shape animations. Allows precise control over the avatar's
@@ -2608,7 +2652,10 @@ class AvatarMCPServer:
 
                 Emotional response sequence:
                     # User says something funny
-                    await unity_avatar_expression({'expression': 'Surprised', 'transition_time': 0.3})
+                    await unity_avatar_expression({
+                        'expression': 'Surprised',
+                        'transition_time': 0.3
+                    })
                     await asyncio.sleep(0.5)
                     await unity_avatar_expression({'expression': 'Joy', 'transition_time': 0.8})
 
@@ -2637,12 +2684,12 @@ class AvatarMCPServer:
                 - unity_avatar_load: Load avatar with blend shapes
                 - unity_avatar_animation: Control full-body animations
                 - unity_system_status: Check available expressions
-            '''
+            """
             return asyncio.run(self.handle_unity_avatar_expression(params))
 
         @self.mcp.tool()
-        def unity_avatar_animation(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Control animations on the Unity desktop avatar.
+        def unity_avatar_animation(params: dict[str, Any]) -> dict[str, Any]:
+            """Control animations on the Unity desktop avatar.
 
             Plays, stops, or controls animation states on the active Unity avatar.
             Supports both predefined animations and dynamic animation control for
@@ -2766,12 +2813,12 @@ class AvatarMCPServer:
                 - unity_avatar_load: Load avatar with animations
                 - unity_avatar_expression: Control facial expressions
                 - unity_system_status: Check animation system status
-            '''
+            """
             return asyncio.run(self.handle_unity_avatar_animation(params))
 
         @self.mcp.tool()
-        def unity_osc_bridge(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Configure OSC communication bridge for Unity avatar system.
+        def unity_osc_bridge(params: dict[str, Any]) -> dict[str, Any]:
+            """Configure OSC communication bridge for Unity avatar system.
 
             Sets up and configures the OSC (Open Sound Control) communication
             between AvatarMCP and the Unity desktop avatar application. Essential
@@ -2893,12 +2940,12 @@ class AvatarMCPServer:
                 - unity_system_status: Check OSC connection status
                 - osc_send: Send OSC messages directly
                 - osc_receive: Receive OSC messages directly
-            '''
+            """
             return asyncio.run(self.handle_unity_osc_bridge(params))
 
         @self.mcp.tool()
-        def unity_plugin_load(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Load and manage plugins in the Unity desktop avatar system.
+        def unity_plugin_load(params: dict[str, Any]) -> dict[str, Any]:
+            """Load and manage plugins in the Unity desktop avatar system.
 
             Dynamically loads, unloads, or manages plugins that extend the
             Unity desktop avatar functionality. Plugins can add new features,
@@ -3016,12 +3063,12 @@ class AvatarMCPServer:
                 - unity_system_status: Check plugin loading status
                 - unity_config_update: Update plugin configurations
                 - unity_osc_bridge: Configure plugin communication
-            '''
+            """
             return asyncio.run(self.handle_unity_plugin_load(params))
 
         @self.mcp.tool()
-        def unity_config_update(params: Dict[str, Any]) -> Dict[str, Any]:
-            '''Update configuration settings for the Unity desktop avatar system.
+        def unity_config_update(params: dict[str, Any]) -> dict[str, Any]:
+            """Update configuration settings for the Unity desktop avatar system.
 
             Modifies runtime configuration of the Unity desktop avatar application,
             allowing dynamic adjustment of rendering, performance, and behavioral
@@ -3145,56 +3192,56 @@ class AvatarMCPServer:
                 - unity_system_status: Check current configuration
                 - unity_plugin_load: Load plugins with configurations
                 - unity_osc_bridge: Configure network settings
-            '''
+            """
             return asyncio.run(self.handle_unity_config_update(params))
 
         # End of _register_tools method
         pass
-    
-    async def handle_initialize(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_initialize(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle initialization request."""
         logger.info("Initializing AvatarMCP server")
-        
+
         try:
             # Update models directory if specified
-            if 'models_dir' in params:
-                self.vrm_manager = VRMManager(params['models_dir'])
-            
+            if "models_dir" in params:
+                self.vrm_manager = VRMManager(params["models_dir"])
+
             # Scan for available models
             await self.vrm_manager.scan_models()
-            
+
             self.initialized = True
             return {
                 "status": "success",
                 "message": "AvatarMCP initialized",
                 "version": "1.0.0",
                 "models_dir": str(self.vrm_manager.models_dir),
-                "num_models": len(self.vrm_manager.models)
+                "num_models": len(self.vrm_manager.models),
             }
         except Exception as e:
             error_msg = f"Initialization failed: {str(e)}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
-    
-    async def handle_shutdown(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_shutdown(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle MCP shutdown method."""
         logger.info("Shutdown requested by client")
         self.running = False
         return {"status": "success", "message": "Shutdown initiated"}
-    
-    async def handle_avatar_load(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_load(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar loading request."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             source_path = params.get("path")
             if not source_path:
                 raise ValueError("No avatar path or model ID provided")
-                
+
             make_active = params.get("make_active", True)
             metadata = params.get("metadata", {})
-            
+
             # Check if it's a file path or model ID
             if os.path.isfile(source_path):
                 # Import the VRM file
@@ -3203,171 +3250,168 @@ class AvatarMCPServer:
             else:
                 # Treat as model ID
                 model_id = source_path
-                
+
             # Load the model
             model_info = await self.vrm_manager.load_model(model_id)
-            if not model_info or 'status' not in model_info or model_info['status'] != 'success':
+            if not model_info or "status" not in model_info or model_info["status"] != "success":
                 raise RuntimeError(f"Failed to load model {model_id}")
-            
+
             # Create VRMModel instance
-            vrm_model = VRMModel(model_info['path'])
+            vrm_model = VRMModel(model_info["path"])
             self.loaded_models[model_id] = vrm_model
-            
+
             # Set as active if requested
             if make_active:
                 self.active_model_id = model_id
-            
+
             return {
                 "status": "success",
                 "model_id": model_id,
                 "active": make_active,
-                "metadata": model_info.get('metadata', {})
+                "metadata": model_info.get("metadata", {}),
             }
-            
+
         except Exception as e:
             error_msg = f"Failed to load avatar: {str(e)}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
-    
-    async def handle_avatar_unload(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_unload(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar unload request."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             avatar_id = params.get("id")
             force = params.get("force", False)
-            
+
             if not avatar_id:
                 raise ValueError("No avatar ID provided")
-                
+
             if avatar_id not in self.loaded_models:
                 raise ValueError(f"Avatar not found: {avatar_id}")
-                
+
             # Don't unload active model unless forced
             if avatar_id == self.active_model_id and not force:
                 raise RuntimeError("Cannot unload active model. Set force=True to override.")
-            
+
             # Remove from loaded models
             del self.loaded_models[avatar_id]
-            
+
             # Update active model if needed
             if avatar_id == self.active_model_id:
                 self.active_model_id = next(iter(self.loaded_models), None)
-                
+
             return {
                 "status": "success",
                 "message": f"Unloaded avatar: {avatar_id}",
-                "was_active": avatar_id == self.active_model_id
+                "was_active": avatar_id == self.active_model_id,
             }
-            
+
         except Exception as e:
             error_msg = f"Failed to unload avatar: {str(e)}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
-    
-    async def handle_avatar_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar list request."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             params.get("loaded_only", False)
             include_metadata = params.get("include_metadata", False)
-            
+
             avatars = []
-            
+
             # Get loaded models
             for model_id in self.loaded_models.keys():
                 avatar_info = {
                     "id": model_id,
                     "name": model_id,
                     "status": "loaded",
-                    "is_active": model_id == self.active_model_id
+                    "is_active": model_id == self.active_model_id,
                 }
-                
+
                 if include_metadata and model_id in self.loaded_models:
                     avatar_info["metadata"] = self.loaded_models[model_id].to_dict()
-                    
+
                 avatars.append(avatar_info)
-            
+
             return {
                 "status": "success",
                 "count": len(avatars),
                 "active_model": self.active_model_id,
-                "avatars": avatars
+                "avatars": avatars,
             }
-            
+
         except Exception as e:
             error_msg = f"Failed to list avatars: {str(e)}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
-    
-    async def handle_avatar_set_active(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_set_active(self, params: dict[str, Any]) -> dict[str, Any]:
         """Set the active avatar model."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             avatar_id = params.get("id")
             if not avatar_id:
                 raise ValueError("No avatar ID provided")
-                
+
             # Check if the model is loaded
             if avatar_id not in self.loaded_models:
-                return {
-                    "status": "error",
-                    "message": f"Avatar with ID '{avatar_id}' is not loaded"
-                }
-                
+                return {"status": "error", "message": f"Avatar with ID '{avatar_id}' is not loaded"}
+
             # Set the active model
             self.active_model_id = avatar_id
-            
+
             return {
                 "status": "success",
                 "message": f"Set active avatar to: {avatar_id}",
-                "active_avatar_id": avatar_id
+                "active_avatar_id": avatar_id,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to set active avatar: {str(e)}", exc_info=True)
             return {"status": "error", "message": str(e)}
-    
-    async def handle_avatar_get_active(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_get_active(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get the currently active avatar model."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             if not self.active_model_id:
                 return {
                     "status": "success",
                     "active_avatar_id": None,
-                    "message": "No active avatar"
+                    "message": "No active avatar",
                 }
-                
+
             return {
                 "status": "success",
                 "active_avatar_id": self.active_model_id,
                 "loaded": self.active_model_id in self.loaded_models,
-                "message": f"Active avatar: {self.active_model_id}"
+                "message": f"Active avatar: {self.active_model_id}",
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to get active avatar: {str(e)}", exc_info=True)
             return {"status": "error", "message": str(e)}
-    
-    async def handle_avatar_get_metadata(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_avatar_get_metadata(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get detailed metadata for a specific avatar."""
         try:
             if not self.initialized:
                 raise RuntimeError("Server not initialized. Call 'initialize' first.")
-                
+
             avatar_id = params.get("id", self.active_model_id)
-            
+
             if not avatar_id:
                 raise ValueError("No avatar ID provided and no active model")
-                
+
             # Check if the model is loaded
             if avatar_id in self.loaded_models:
                 return {
@@ -3375,72 +3419,48 @@ class AvatarMCPServer:
                     "id": avatar_id,
                     "loaded": True,
                     "active": avatar_id == self.active_model_id,
-                    "metadata": self.loaded_models[avatar_id].to_dict()
+                    "metadata": self.loaded_models[avatar_id].to_dict(),
                 }
-            
+
             raise ValueError(f"Avatar not found: {avatar_id}")
-            
+
         except Exception as e:
             error_msg = f"Failed to get avatar metadata: {str(e)}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
-    
-    # Placeholder implementations for other handlers
-    async def handle_animation_play(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle animation play request."""
-        animation_name = params.get("name", "default")
-        return {"status": "success", "message": f"Playing animation: {animation_name}"}
-    
-    async def handle_animation_stop(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle animation stop request."""
-        return {"status": "success", "message": "Animation stopped"}
-    
-    async def handle_animation_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle animation list request."""
-        return {
-            "status": "success",
-            "animations": ["idle", "walk", "run", "wave", "dance"]
-        }
-    
-    async def handle_parameter_set(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle parameter set request."""
-        name = params.get("name", "unknown")
-        value = params.get("value", 0)
-        return {"status": "success", "message": f"Set parameter {name} = {value}"}
-    
-    async def handle_parameter_get(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle parameter get request."""
-        name = params.get("name", "unknown")
-        return {"status": "success", "name": name, "value": 0}
-    
-    async def handle_osc_send(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    # Animation handlers are now implemented in CoreAnimationTools class
+
+    # Parameter handlers are now implemented in CoreParameterTools class
+
+    async def handle_osc_send(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle OSC send request."""
         address = params.get("address", "/default")
         value = params.get("value", 0)
         return {"status": "success", "message": f"Sent OSC: {address} = {value}"}
-    
-    async def handle_osc_receive(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_osc_receive(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle OSC receive request."""
         return {"status": "success", "messages": []}
-    
-    async def handle_chat_start(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_chat_start(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat start request."""
         return {"status": "success", "message": "Chat started"}
-    
-    async def handle_chat_send_message(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_chat_send_message(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat send message request."""
         message = params.get("message", "")
         return {"status": "success", "response": f"Echo: {message}"}
-    
-    async def handle_chat_stop(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_chat_stop(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat stop request."""
         return {"status": "success", "message": "Chat stopped"}
-    
-    async def handle_chat_get_state(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_chat_get_state(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat get state request."""
         return {"status": "success", "state": "idle"}
-    
-    async def handle_system_status(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_system_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle system status request."""
         return {
             "status": "success",
@@ -3449,25 +3469,29 @@ class AvatarMCPServer:
                 "version": "1.0.0",
                 "status": "running",
                 "uptime": time.time() - self.start_time,
-                "initialized": self.initialized
-            }
+                "initialized": self.initialized,
+            },
         }
-    
-    async def handle_debug_echo(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def handle_debug_echo(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle debug echo request."""
         return {"status": "success", "echo": params}
 
     # Unity Desktop Avatar System handlers
-    async def handle_unity_system_status(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_system_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity system status request."""
         try:
-            detailed = params.get('detailed', False)
-            include_config = params.get('include_config', False)
+            detailed = params.get("detailed", False)
+            include_config = params.get("include_config", False)
 
             # Check if Unity is connected (this would need actual OSC communication)
             # For now, return mock data
             unity_connected = False  # TODO: Implement actual Unity connection check
-            osc_connected = self.osc_server is not None and self.osc_server.is_running if self.osc_server else False
+            osc_connected = (
+                self.osc_server is not None and self.osc_server.is_running
+                if self.osc_server
+                else False
+            )
 
             result = {
                 "status": "success",
@@ -3477,7 +3501,7 @@ class AvatarMCPServer:
                 "avatar_loaded": False,  # TODO: Implement avatar loading status
                 "avatar_name": None,
                 "osc_connected": osc_connected,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             if detailed:
@@ -3485,7 +3509,7 @@ class AvatarMCPServer:
                     "unity_version": "2021.3+",  # TODO: Get actual Unity version
                     "render_fps": 60,  # TODO: Get actual FPS
                     "memory_usage": 256,  # TODO: Get actual memory usage in MB
-                    "scene_objects": 42  # TODO: Get actual object count
+                    "scene_objects": 42,  # TODO: Get actual object count
                 }
 
             if include_config:
@@ -3493,29 +3517,23 @@ class AvatarMCPServer:
                     "window_transparency": 1.0,  # TODO: Get actual transparency
                     "window_position": {"x": 100, "y": 100},  # TODO: Get actual position
                     "window_size": {"width": 400, "height": 600},  # TODO: Get actual size
-                    "osc_ports": {
-                        "receive": 9000,
-                        "send": 9001
-                    }
+                    "osc_ports": {"receive": 9000, "send": 9001},
                 }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to get Unity system status: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to get Unity system status: {str(e)}"}
 
-    async def handle_unity_window_position(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_window_position(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity window position/size request."""
         try:
             # Validate parameters
-            x = params.get('x')
-            y = params.get('y')
-            width = params.get('width')
-            height = params.get('height')
-            monitor = params.get('monitor', 0)
-            params.get('center_on_monitor', False)
+            x = params.get("x")
+            y = params.get("y")
+            width = params.get("width")
+            height = params.get("height")
+            monitor = params.get("monitor", 0)
+            params.get("center_on_monitor", False)
 
             # TODO: Implement actual Unity window positioning via OSC
             # For now, return success with mock data
@@ -3525,21 +3543,18 @@ class AvatarMCPServer:
                 "position": {"x": x or 100, "y": y or 100},
                 "size": {"width": width or 400, "height": height or 600},
                 "monitor": monitor,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to update window position: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to update window position: {str(e)}"}
 
-    async def handle_unity_window_transparency(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_window_transparency(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity window transparency request."""
         try:
-            alpha = params.get('alpha', 1.0)
-            transition_time = params.get('transition_time', 0.0)
+            alpha = params.get("alpha", 1.0)
+            transition_time = params.get("transition_time", 0.0)
 
             # Validate alpha range
             alpha = max(0.0, min(1.0, alpha))
@@ -3551,27 +3566,21 @@ class AvatarMCPServer:
                 "message": "Window transparency updated",
                 "alpha": alpha,
                 "transition_time": transition_time,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to update window transparency: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to update window transparency: {str(e)}"}
 
-    async def handle_unity_window_visibility(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_window_visibility(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity window visibility request."""
         try:
-            visible = params.get('visible')
-            fade_transition = params.get('fade_transition', True)
+            visible = params.get("visible")
+            fade_transition = params.get("fade_transition", True)
 
             if visible is None:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'visible' is required"
-                }
+                return {"status": "error", "message": "Parameter 'visible' is required"}
 
             # TODO: Implement actual Unity window visibility via OSC
             # For now, return success with mock data
@@ -3580,26 +3589,23 @@ class AvatarMCPServer:
                 "message": f"Window {'shown' if visible else 'hidden'}",
                 "visible": visible,
                 "fade_transition": fade_transition,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to update window visibility: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to update window visibility: {str(e)}"}
 
-    async def handle_unity_window_mode(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_window_mode(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity window interaction mode request."""
         try:
-            mode = params.get('mode')
-            transition_effect = params.get('transition_effect', True)
+            mode = params.get("mode")
+            transition_effect = params.get("transition_effect", True)
 
-            if mode not in ['interactive', 'clickthrough']:
+            if mode not in ["interactive", "clickthrough"]:
                 return {
                     "status": "error",
-                    "message": "Mode must be 'interactive' or 'clickthrough'"
+                    "message": "Mode must be 'interactive' or 'clickthrough'",
                 }
 
             # TODO: Implement actual Unity window mode via OSC
@@ -3609,29 +3615,23 @@ class AvatarMCPServer:
                 "message": f"Window mode set to {mode}",
                 "mode": mode,
                 "transition_effect": transition_effect,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to update window mode: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to update window mode: {str(e)}"}
 
-    async def handle_unity_avatar_load(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_avatar_load(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity avatar loading request."""
         try:
-            path = params.get('path')
+            path = params.get("path")
             if not path:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'path' is required"
-                }
+                return {"status": "error", "message": "Parameter 'path' is required"}
 
-            make_active = params.get('make_active', True)
-            preload_animations = params.get('preload_animations', True)
-            params.get('position_offset', {'x': 0, 'y': 0, 'z': 0})
+            make_active = params.get("make_active", True)
+            preload_animations = params.get("preload_animations", True)
+            params.get("position_offset", {"x": 0, "y": 0, "z": 0})
 
             # TODO: Implement actual VRM loading via OSC
             # For now, return success with mock data
@@ -3644,29 +3644,23 @@ class AvatarMCPServer:
                 "bone_count": 75,  # TODO: Get from VRM
                 "animations_loaded": 10 if preload_animations else 0,
                 "active": make_active,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to load avatar: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to load avatar: {str(e)}"}
 
-    async def handle_unity_avatar_expression(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_avatar_expression(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity avatar expression request."""
         try:
-            expression = params.get('expression')
+            expression = params.get("expression")
             if not expression:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'expression' is required"
-                }
+                return {"status": "error", "message": "Parameter 'expression' is required"}
 
-            strength = params.get('strength', 1.0)
-            transition_time = params.get('transition_time', 0.2)
-            blend_with_current = params.get('blend_with_current', False)
+            strength = params.get("strength", 1.0)
+            transition_time = params.get("transition_time", 0.2)
+            blend_with_current = params.get("blend_with_current", False)
 
             # Validate strength range
             strength = max(0.0, min(1.0, strength))
@@ -3680,37 +3674,31 @@ class AvatarMCPServer:
                 "strength": strength,
                 "transition_time": transition_time,
                 "blend_with_current": blend_with_current,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to set expression: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to set expression: {str(e)}"}
 
-    async def handle_unity_avatar_animation(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_avatar_animation(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity avatar animation request."""
         try:
-            action = params.get('action')
+            action = params.get("action")
             if not action:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'action' is required"
-                }
+                return {"status": "error", "message": "Parameter 'action' is required"}
 
-            valid_actions = ['play', 'stop', 'pause', 'resume', 'loop']
+            valid_actions = ["play", "stop", "pause", "resume", "loop"]
             if action not in valid_actions:
                 return {
                     "status": "error",
-                    "message": f"Action must be one of: {', '.join(valid_actions)}"
+                    "message": f"Action must be one of: {', '.join(valid_actions)}",
                 }
 
-            animation_name = params.get('animation_name') if action == 'play' else None
-            loop = params.get('loop', True) if action in ['play', 'loop'] else False
-            speed = params.get('speed', 1.0)
-            blend_time = params.get('blend_time', 0.3)
+            animation_name = params.get("animation_name") if action == "play" else None
+            loop = params.get("loop", True) if action in ["play", "loop"] else False
+            speed = params.get("speed", 1.0)
+            blend_time = params.get("blend_time", 0.3)
 
             # TODO: Implement actual animation control via OSC
             # For now, return success with mock data
@@ -3722,31 +3710,25 @@ class AvatarMCPServer:
                 "loop": loop,
                 "speed": speed,
                 "blend_time": blend_time,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to control animation: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to control animation: {str(e)}"}
 
-    async def handle_unity_osc_bridge(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_osc_bridge(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity OSC bridge configuration request."""
         try:
-            enable_bridge = params.get('enable_bridge')
+            enable_bridge = params.get("enable_bridge")
             if enable_bridge is None:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'enable_bridge' is required"
-                }
+                return {"status": "error", "message": "Parameter 'enable_bridge' is required"}
 
-            receive_port = params.get('receive_port', 9000)
-            send_port = params.get('send_port', 9001)
-            server_ip = params.get('server_ip', '127.0.0.1')
-            params.get('auto_reconnect', True)
-            params.get('heartbeat_interval', 30)
+            receive_port = params.get("receive_port", 9000)
+            send_port = params.get("send_port", 9001)
+            server_ip = params.get("server_ip", "127.0.0.1")
+            params.get("auto_reconnect", True)
+            params.get("heartbeat_interval", 30)
 
             # TODO: Implement actual OSC bridge configuration
             # For now, return success with mock data
@@ -3760,31 +3742,25 @@ class AvatarMCPServer:
                 "send_port": send_port,
                 "server_ip": server_ip,
                 "connection_status": connection_status,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to configure OSC bridge: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to configure OSC bridge: {str(e)}"}
 
-    async def handle_unity_plugin_load(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_plugin_load(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity plugin loading request."""
         try:
-            action = params.get('action')
+            action = params.get("action")
             if not action:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'action' is required"
-                }
+                return {"status": "error", "message": "Parameter 'action' is required"}
 
-            valid_actions = ['load', 'unload', 'list', 'reload']
+            valid_actions = ["load", "unload", "list", "reload"]
             if action not in valid_actions:
                 return {
                     "status": "error",
-                    "message": f"Action must be one of: {', '.join(valid_actions)}"
+                    "message": f"Action must be one of: {', '.join(valid_actions)}",
                 }
 
             # TODO: Implement actual plugin management via OSC
@@ -3793,62 +3769,59 @@ class AvatarMCPServer:
                 "status": "success",
                 "message": f"Plugin action '{action}' performed",
                 "action": action,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
-            if action == 'load':
-                plugin_path = params.get('plugin_path')
+            if action == "load":
+                plugin_path = params.get("plugin_path")
                 if not plugin_path:
                     return {
                         "status": "error",
-                        "message": "Parameter 'plugin_path' is required for load action"
+                        "message": "Parameter 'plugin_path' is required for load action",
                     }
                 result["plugin_path"] = plugin_path
                 result["plugin_name"] = "MockPlugin"  # TODO: Extract from plugin
-                result["config_applied"] = params.get('config', {})
+                result["config_applied"] = params.get("config", {})
 
-            elif action in ['unload', 'reload']:
-                plugin_name = params.get('plugin_name')
+            elif action in ["unload", "reload"]:
+                plugin_name = params.get("plugin_name")
                 if not plugin_name:
                     return {
                         "status": "error",
-                        "message": f"Parameter 'plugin_name' is required for {action} action"
+                        "message": f"Parameter 'plugin_name' is required for {action} action",
                     }
                 result["plugin_name"] = plugin_name
-                if action == 'reload':
-                    result["config_applied"] = params.get('config', {})
+                if action == "reload":
+                    result["config_applied"] = params.get("config", {})
 
-            elif action == 'list':
+            elif action == "list":
                 result["loaded_plugins"] = ["AvatarController", "OSCBridge"]  # Mock data
-                result["available_plugins"] = ["ExpressionController", "AnimationManager"]  # Mock data
+                result["available_plugins"] = [
+                    "ExpressionController",
+                    "AnimationManager",
+                ]  # Mock data
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to manage plugin: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to manage plugin: {str(e)}"}
 
-    async def handle_unity_config_update(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_unity_config_update(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity configuration update request."""
         try:
-            config_section = params.get('config_section')
+            config_section = params.get("config_section")
             if not config_section:
-                return {
-                    "status": "error",
-                    "message": "Parameter 'config_section' is required"
-                }
+                return {"status": "error", "message": "Parameter 'config_section' is required"}
 
-            valid_sections = ['rendering', 'performance', 'behavior', 'audio', 'network']
+            valid_sections = ["rendering", "performance", "behavior", "audio", "network"]
             if config_section not in valid_sections:
                 return {
                     "status": "error",
-                    "message": f"Config section must be one of: {', '.join(valid_sections)}"
+                    "message": f"Config section must be one of: {', '.join(valid_sections)}",
                 }
 
-            settings = params.get('settings', {})
-            apply_immediately = params.get('apply_immediately', True)
-            persist_changes = params.get('persist_changes', True)
+            settings = params.get("settings", {})
+            apply_immediately = params.get("apply_immediately", True)
+            persist_changes = params.get("persist_changes", True)
 
             # TODO: Implement actual configuration updates via OSC
             # For now, return success with mock data
@@ -3860,15 +3833,12 @@ class AvatarMCPServer:
                 "settings_ignored": [],  # Mock: no settings ignored
                 "apply_immediately": apply_immediately,
                 "persist_changes": persist_changes,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
             return result
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to update configuration: {str(e)}"
-            }
+            return {"status": "error", "message": f"Failed to update configuration: {str(e)}"}
 
 
 async def run_server(
@@ -3876,41 +3846,41 @@ async def run_server(
     port: int = 8000,
     enable_loki: bool = False,
     loki_url: str = None,
-    enable_osc: bool = False
+    enable_osc: bool = False,
 ):
     """Run the AvatarMCP server."""
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stderr)]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)],
     )
-    
+
     logger.info("Starting AvatarMCP server (FastMCP 2.11.3+ compatible)")
-    
+
     try:
         # Create the server
         server = AvatarMCPServer(enable_osc=enable_osc)
-        
+
         # Run as stdio server (MCP standard)
         await server.mcp.run()
-        
+
     except Exception as e:
         logger.error(f"Failed to start server: {e}", exc_info=True)
         return 1
-    
+
     return 0
 
 
 async def main():
     """Main entry point for the MCP server."""
     import argparse
-    parser = argparse.ArgumentParser(description='AvatarMCP Server (FastMCP 2.11.3+ compatible)')
-    parser.add_argument('--enable-osc', action='store_true',
-                      help='Enable OSC server')
-    
+
+    parser = argparse.ArgumentParser(description="AvatarMCP Server (FastMCP 2.11.3+ compatible)")
+    parser.add_argument("--enable-osc", action="store_true", help="Enable OSC server")
+
     args = parser.parse_args()
-    
+
     # Run the server
     return await run_server(enable_osc=args.enable_osc)
 

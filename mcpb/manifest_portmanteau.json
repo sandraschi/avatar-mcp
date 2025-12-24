@@ -1,0 +1,125 @@
+{
+  "name": "avatarmcp",
+  "version": "1.0.0",
+  "description": "AvatarMCP - Advanced VRM Avatar Control and Management",
+  "author": "AvatarMCP Team",
+  "license": "MIT",
+  "homepage": "https://github.com/avatarmcp/avatarmcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avatarmcp/avatarmcp.git"
+  },
+  "keywords": [
+    "avatar",
+    "vrm",
+    "mcp",
+    "unity",
+    "animation",
+    "osc",
+    "chat"
+  ],
+  "mcp_config": {
+    "command": "python",
+    "args": ["-m", "avatarmcp.mcp_main"],
+    "env": {
+      "PYTHONPATH": "${PWD}"
+    }
+  },
+  "tools": [
+    {
+      "name": "initialize",
+      "description": "Initialize the AvatarMCP server with configuration settings"
+    },
+    {
+      "name": "shutdown",
+      "description": "Gracefully shutdown the AvatarMCP server and release all resources"
+    },
+    {
+      "name": "avatar_manager",
+      "description": "Comprehensive avatar lifecycle management tool"
+    },
+    {
+      "name": "animation_controller",
+      "description": "Comprehensive animation control and management tool"
+    },
+    {
+      "name": "parameter_manager",
+      "description": "Avatar parameter control and management tool"
+    },
+    {
+      "name": "osc_communicator",
+      "description": "Comprehensive OSC communication tool"
+    },
+    {
+      "name": "unity_integration",
+      "description": "Comprehensive Unity desktop avatar integration tool"
+    },
+    {
+      "name": "unity_window_manager",
+      "description": "Unity desktop avatar window control tool"
+    },
+    {
+      "name": "unity_config_manager",
+      "description": "Unity configuration and plugin management tool"
+    },
+    {
+      "name": "chat_manager",
+      "description": "Comprehensive chat session management tool"
+    },
+    {
+      "name": "system_monitor",
+      "description": "Comprehensive system monitoring and diagnostics tool"
+    },
+    {
+      "name": "server_controller",
+      "description": "Server lifecycle management tool"
+    },
+    {
+      "name": "debug_tools",
+      "description": "Debug and testing utilities tool"
+    },
+    {
+      "name": "viewer_manager",
+      "description": "3D viewer control and management tool"
+    },
+    {
+      "name": "file_manager",
+      "description": "File and asset management tool"
+    }
+  ],
+  "resources": [
+    {
+      "uri": "avatarmcp://models",
+      "name": "VRM Models",
+      "description": "Available VRM avatar models",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "avatarmcp://config",
+      "name": "Configuration",
+      "description": "AvatarMCP server configuration",
+      "mimeType": "application/json"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "avatar_setup",
+      "description": "Interactive avatar setup and configuration",
+      "arguments": [
+        {
+          "name": "avatar_type",
+          "description": "Type of avatar to set up",
+          "required": true
+        },
+        {
+          "name": "configuration",
+          "description": "Avatar configuration options",
+          "required": false
+        }
+      ]
+    }
+  ]
+}
+
+
+

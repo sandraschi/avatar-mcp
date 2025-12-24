@@ -10,8 +10,11 @@ import asyncio
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 async def demo_resonite_integration():
     """Complete Resonite integration demonstration."""
@@ -37,101 +40,80 @@ async def demo_resonite_integration():
         {
             "tool": "resonite_session_start",
             "description": "Initialize Resonite session with OSC connection",
-            "command": 'resonite_session_start {}',
+            "command": "resonite_session_start {}",
             "expected": {
                 "status": "success",
                 "osc_connected": True,
-                "capabilities": ["avatar_control", "world_management", "real_time_sync"]
-            }
+                "capabilities": ["avatar_control", "world_management", "real_time_sync"],
+            },
         },
         {
             "tool": "resonite_world_load",
             "description": "Load avatar control world in Resonite",
             "command": 'resonite_world_load {"world_path": "resonite://AvatarMCP-Studio"}',
-            "expected": {
-                "status": "success",
-                "world_loaded": True,
-                "avatar_control_ready": True
-            }
+            "expected": {"status": "success", "world_loaded": True, "avatar_control_ready": True},
         },
         {
             "tool": "avatar_load",
             "description": "Load VRM avatar into Resonite",
-            "command": 'avatar_load D:/Dev/repos/avatarmcp/models/Nekomimi-chan.vrm',
+            "command": "avatar_load D:/Dev/repos/avatarmcp/models/Nekomimi-chan.vrm",
             "expected": {
                 "status": "success",
                 "avatar_loaded": True,
-                "colors": "peach skin, brown hair, blue clothes"
-            }
+                "colors": "peach skin, brown hair, blue clothes",
+            },
         },
         {
             "tool": "resonite_avatar_sync",
             "description": "Synchronize avatar state with Resonite",
             "command": 'resonite_avatar_sync {"avatar_id": "nekomimi", "slot": 0}',
-            "expected": {
-                "status": "success",
-                "sync_quality": "perfect",
-                "latency_ms": "< 5"
-            }
+            "expected": {"status": "success", "sync_quality": "perfect", "latency_ms": "< 5"},
         },
         {
             "tool": "bone_control",
             "description": "Control avatar bones in real-time",
-            "command": 'bone_control {"bone_name": "Head", "rotation": {"x": 0.1, "y": 0.0, "z": 0.0, "w": 0.995}}',
+            "command": (
+                'bone_control {"bone_name": "Head", "rotation": '
+                '{"x": 0.1, "y": 0.0, "z": 0.0, "w": 0.995}}'
+            ),
             "expected": {
                 "status": "success",
-                "message": "Set Head rotation to quaternion (0.100, 0.000, 0.000, 0.995)"
-            }
+                "message": "Set Head rotation to quaternion (0.100, 0.000, 0.000, 0.995)",
+            },
         },
         {
             "tool": "animation_play",
             "description": "Play animations in Resonite",
-            "command": 'animation_play idle',
-            "expected": {
-                "status": "success",
-                "animation": "idle",
-                "looping": True
-            }
+            "command": "animation_play idle",
+            "expected": {"status": "success", "animation": "idle", "looping": True},
         },
         {
             "tool": "morph_control",
             "description": "Control facial expressions",
             "command": 'morph_control {"morph_name": "happy", "weight": 1.0}',
-            "expected": {
-                "status": "success",
-                "expression": "happy",
-                "intensity": 1.0
-            }
+            "expected": {"status": "success", "expression": "happy", "intensity": 1.0},
         },
         {
             "tool": "resonite_performance_record",
             "description": "Record avatar performance",
-            "command": 'resonite_performance_record {"recording_name": "demo_performance", "duration_seconds": 30}',
-            "expected": {
-                "status": "success",
-                "recording_started": True,
-                "duration": 30
-            }
+            "command": (
+                'resonite_performance_record {"recording_name": "demo_performance", '
+                '"duration_seconds": 30}'
+            ),
+            "expected": {"status": "success", "recording_started": True, "duration": 30},
         },
         {
             "tool": "resonite_session_status",
             "description": "Check session status",
-            "command": 'resonite_session_status {}',
-            "expected": {
-                "status": "success",
-                "osc_connected": True,
-                "world_loaded": True
-            }
+            "command": "resonite_session_status {}",
+            "expected": {"status": "success", "osc_connected": True, "world_loaded": True},
         },
         {
             "tool": "resonite_session_end",
             "description": "Cleanly end Resonite session",
-            "command": 'resonite_session_end {}',
-            "expected": {
-                "status": "success",
-                "cleanup_status": "complete"
-            }
-        }
+            "command": "resonite_session_end {}",
+            "expected": {"status": "success", "cleanup_status": "complete"},
+        },
     ]
 
     print("🔧 Commands to use in Claude:")
@@ -193,7 +175,6 @@ async def demo_resonite_integration():
     except KeyboardInterrupt:
         print("\n👋 Demo finished! Try the commands in Claude.")
 
+
 if __name__ == "__main__":
     asyncio.run(demo_resonite_integration())
-
-

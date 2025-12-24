@@ -7,85 +7,82 @@ It builds on top of the existing OSC server and integration code.
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
 # Create a FastMCP instance for tool registration
 mcp = FastMCP("VRChatOSCTools")
+from ..network.mcp.integration import AvatarOSCConfig, AvatarOSCIntegrator
 from ..network.osc.server import VRChatOSCServer
-from ..network.mcp.integration import AvatarOSCIntegrator, AvatarOSCConfig
 
 logger = logging.getLogger(__name__)
 
 # Default OSC configuration
-DEFAULT_OSC_CONFIG = {
-    "receive_port": 9000,
-    "send_port": 9001,
-    "server_ip": "127.0.0.1"
-}
+DEFAULT_OSC_CONFIG = {"receive_port": 9000, "send_port": 9001, "server_ip": "127.0.0.1"}
+
 
 class VRChatOSCTools:
     """MCP tools for VRChat OSC control."""
-    
-    def __init__(self, mcp: FastMCP, config: Optional[Dict[str, Any]] = None):
+
+    def __init__(self, mcp: FastMCP, config: dict[str, Any] | None = None):
         """Initialize the VRChat OSC tools.
-        
+
         Args:
             mcp: The FastMCP instance to register tools with
             config: Optional configuration dictionary
         """
         self.mcp = mcp
         self.config = {**DEFAULT_OSC_CONFIG, **(config or {})}
-        self.osc_integrator: Optional[AvatarOSCIntegrator] = None
-        self.osc_server: Optional[VRChatOSCServer] = None
+        self.osc_integrator: AvatarOSCIntegrator | None = None
+        self.osc_server: VRChatOSCServer | None = None
         self._running = False
-        
+
         # Register MCP tools
         self._register_tools()
-    
+
     async def start(self):
         """Start the OSC server and integrator."""
         if self._running:
             return
-            
+
         # Create and start the OSC server
         self.osc_server = VRChatOSCServer(
             ip=self.config["server_ip"],
             receive_port=self.config["receive_port"],
-            send_port=self.config["send_port"]
+            send_port=self.config["send_port"],
         )
-        
+
         # Create and start the OSC integrator
         osc_config = AvatarOSCConfig(
             receive_port=self.config["receive_port"],
             send_port=self.config["send_port"],
-            server_ip=self.config["server_ip"]
+            server_ip=self.config["server_ip"],
         )
-        
+
         self.osc_integrator = AvatarOSCIntegrator(self.mcp, osc_config)
         await self.osc_integrator.start()
-        
+
         self._running = True
         logger.info("VRChat OSC Tools started")
-    
+
     async def stop(self):
         """Stop the OSC server and integrator."""
         if not self._running:
             return
-            
+
         if self.osc_integrator:
             await self.osc_integrator.stop()
-            
+
         self._running = False
         logger.info("VRChat OSC Tools stopped")
-    
+
     def _register_tools(self):
         """Register MCP tools for OSC control."""
-        
+
         @mcp.tool("vrchat_osc.set_gesture")
-        async def set_gesture(hand: str, gesture: str, strength: float = 1.0) -> Dict[str, Any]:
-            '''Control VRChat avatar hand gestures through OSC communication.
+        async def set_gesture(hand: str, gesture: str, strength: float = 1.0) -> dict[str, Any]:
+            """Control VRChat avatar hand gestures through OSC communication.
 
             Sets specific hand gestures for the VRChat avatar, allowing precise control
             over hand animations and expressions. Gestures are transmitted via OSC
@@ -96,7 +93,8 @@ class VRChatOSCTools:
                     - Must be exactly "left" or "right" (case-sensitive)
                     - Controls the corresponding hand's gesture
                 gesture: Gesture animation name to apply
-                    - Common gestures: "Fist", "Open", "Point", "Peace", "RockNRoll", "Gun", "ThumbsUp"
+                    - Common gestures: "Fist", "Open", "Point", "Peace", "RockNRoll", "
+                    "Gun", "ThumbsUp"
                     - Gesture names must match VRChat's supported gestures
                     - Case-sensitive gesture naming
                 strength: Intensity of the gesture animation (default: 1.0)
@@ -167,19 +165,19 @@ class VRChatOSCTools:
                 - set_viseme: Control lip sync animations
                 - set_parameter: Set custom avatar parameters
                 - list_parameters: View available gesture options
-            '''
+            """
             if not self._running or not self.osc_integrator:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 await self.osc_integrator.set_gesture(hand, gesture, strength)
                 return {"status": "success", "message": f"Set {hand} hand to {gesture}"}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         @mcp.tool("vrchat_osc.set_expression")
-        async def set_expression(expression: str, strength: float = 1.0) -> Dict[str, Any]:
-            '''Control VRChat avatar facial expressions through OSC communication.
+        async def set_expression(expression: str, strength: float = 1.0) -> dict[str, Any]:
+            """Control VRChat avatar facial expressions through OSC communication.
 
             Sets specific facial expressions for the VRChat avatar, enabling emotional
             and communicative expressions. Expressions are transmitted via OSC to VRChat
@@ -188,7 +186,8 @@ class VRChatOSCTools:
             Parameters:
                 expression: Facial expression name to apply
                     - Common expressions: "Happy", "Angry", "Sad", "Surprised", "Blink", "Neutral"
-                    - Advanced: "BlinkLeft", "BlinkRight", "EyesWide", "Squint", "LookDown", "LookLeft", "LookRight", "LookUp"
+                    - Advanced: "BlinkLeft", "BlinkRight", "EyesWide", "Squint", "
+                    "LookDown", "LookLeft", "LookRight", "LookUp"
                     - Expression names must match VRChat's supported expressions
                     - Case-sensitive expression naming
                 strength: Intensity of the facial expression (default: 1.0)
@@ -267,19 +266,19 @@ class VRChatOSCTools:
                 - set_viseme: Control lip sync during speech
                 - set_parameter: Set custom avatar parameters
                 - list_parameters: View available expression options
-            '''
+            """
             if not self._running or not self.osc_integrator:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 await self.osc_integrator.set_expression(expression, strength)
                 return {"status": "success", "message": f"Set expression to {expression}"}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         @mcp.tool("vrchat_osc.set_viseme")
-        async def set_viseme(viseme: str, strength: float = 1.0) -> Dict[str, Any]:
-            '''Control VRChat avatar lip sync visemes through OSC communication.
+        async def set_viseme(viseme: str, strength: float = 1.0) -> dict[str, Any]:
+            """Control VRChat avatar lip sync visemes through OSC communication.
 
             Sets specific mouth shapes (visemes) for the VRChat avatar to create
             realistic lip sync animations during speech. Visemes are transmitted
@@ -287,7 +286,8 @@ class VRChatOSCTools:
 
             Parameters:
                 viseme: Mouth shape/viseme name to apply
-                    - Phonetic visemes: "aa", "E", "I", "O", "U", "PP", "SS", "TH", "FF", "KK", "CH", "DD"
+                    - Phonetic visemes: "aa", "E", "I", "O", "U", "PP", "SS", "TH", "
+                    "FF", "KK", "CH", "DD"
                     - "aa" for open mouth sounds (father, car)
                     - "E" for "ee" sounds (see, tree)
                     - "I" for "ai" sounds (eye, sky)
@@ -387,19 +387,19 @@ class VRChatOSCTools:
                 - set_gesture: Control hand gestures
                 - set_parameter: Set custom avatar parameters
                 - list_parameters: View available viseme options
-            '''
+            """
             if not self._running or not self.osc_integrator:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 await self.osc_integrator.set_viseme(viseme, strength)
                 return {"status": "success", "message": f"Set viseme to {viseme}"}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         @mcp.tool("vrchat_osc.set_parameter")
-        async def set_parameter(name: str, value: Any) -> Dict[str, Any]:
-            '''Set custom parameters on the VRChat avatar through OSC communication.
+        async def set_parameter(name: str, value: Any) -> dict[str, Any]:
+            """Set custom parameters on the VRChat avatar through OSC communication.
 
             Sets arbitrary parameter values on the VRChat avatar for advanced control
             over animations, behaviors, and custom avatar features. Parameters are
@@ -498,15 +498,15 @@ class VRChatOSCTools:
                 - list_parameters: View all available parameters
                 - set_gesture: Control standard hand gestures
                 - set_expression: Control standard facial expressions
-            '''
+            """
             if not self._running or not self.osc_integrator or not self.osc_server:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 # Convert value to appropriate type
                 if isinstance(value, str):
-                    if value.lower() in ('true', 'false', 't', 'f'):
-                        value = value.lower() in ('true', 't')
+                    if value.lower() in ("true", "false", "t", "f"):
+                        value = value.lower() in ("true", "t")
                     else:
                         try:
                             value = float(value)
@@ -514,16 +514,16 @@ class VRChatOSCTools:
                                 value = int(value)
                         except ValueError:
                             pass
-                
+
                 # Set the parameter
                 self.osc_server.set_parameter(name, value)
                 return {"status": "success", "message": f"Set {name} to {value}"}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         @mcp.tool("vrchat_osc.get_parameter")
-        async def get_parameter(name: str) -> Dict[str, Any]:
-            '''Retrieve current parameter values from the VRChat avatar.
+        async def get_parameter(name: str) -> dict[str, Any]:
+            """Retrieve current parameter values from the VRChat avatar.
 
             Reads the current value of any parameter from the VRChat avatar's
             parameter system. Useful for monitoring avatar state, debugging
@@ -624,10 +624,10 @@ class VRChatOSCTools:
                 - set_parameter: Change parameter values
                 - list_parameters: View all available parameters
                 - system_status: Check overall avatar system status
-            '''
+            """
             if not self._running or not self.osc_server:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 value = self.osc_server.get_parameter(name)
                 if value is None:
@@ -635,10 +635,10 @@ class VRChatOSCTools:
                 return {"status": "success", "value": value}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         @mcp.tool("vrchat_osc.list_parameters")
-        async def list_parameters() -> Dict[str, Any]:
-            '''Discover all available parameters for the current VRChat avatar.
+        async def list_parameters() -> dict[str, Any]:
+            """Discover all available parameters for the current VRChat avatar.
 
             Returns a comprehensive catalog of all parameters available on the
             current avatar, including standard VRChat parameters and custom
@@ -752,37 +752,56 @@ class VRChatOSCTools:
                 - set_parameter: Set parameter values (use list to see what's available)
                 - get_parameter: Read parameter values
                 - load_vrm: Load different avatars with different parameter sets
-            '''
+            """
             # This would need to be populated based on the actual parameters
             # available in the current avatar
             standard_params = [
-                "GestureLeft", "GestureRight", "GestureLeftWeight", "GestureRightWeight",
-                "Viseme", "VisemeWeight", "Voice", "VoiceVolume", "IsLocal"
+                "GestureLeft",
+                "GestureRight",
+                "GestureLeftWeight",
+                "GestureRightWeight",
+                "Viseme",
+                "VisemeWeight",
+                "Voice",
+                "VoiceVolume",
+                "IsLocal",
             ]
-            
+
             # Add expression parameters
             expressions = [
-                "Neutral", "Happy", "Angry", "Sad", "Surprised", "Blink", "BlinkLeft",
-                "BlinkRight", "EyesWide", "Squint", "LookDown", "LookLeft", "LookRight", "LookUp"
+                "Neutral",
+                "Happy",
+                "Angry",
+                "Sad",
+                "Surprised",
+                "Blink",
+                "BlinkLeft",
+                "BlinkRight",
+                "EyesWide",
+                "Squint",
+                "LookDown",
+                "LookLeft",
+                "LookRight",
+                "LookUp",
             ]
-            
+
             # Add any custom parameters from the config
             custom_params = []
             if self.osc_integrator and self.osc_integrator.config.parameter_mappings:
                 custom_params = list(self.osc_integrator.config.parameter_mappings.keys())
-            
+
             return {
                 "status": "success",
                 "parameters": {
                     "standard": standard_params,
                     "expressions": expressions,
-                    "custom": custom_params
-                }
+                    "custom": custom_params,
+                },
             }
-        
+
         @mcp.tool("vrchat_osc.load_vrm")
-        async def load_vrm(file_path: str) -> Dict[str, Any]:
-            '''Load and analyze VRM avatar models for VRChat compatibility.
+        async def load_vrm(file_path: str) -> dict[str, Any]:
+            """Load and analyze VRM avatar models for VRChat compatibility.
 
             Processes VRM (Virtual Reality Model) files to extract avatar information,
             including blend shapes, bone structures, and available parameters. This
@@ -895,28 +914,28 @@ class VRChatOSCTools:
                 - set_expression: Use blend shapes for facial expressions
                 - set_viseme: Use blend shapes for lip sync
                 - avatar_load: Load avatar into AvatarMCP system
-            '''
+            """
             if not self._running or not self.osc_integrator:
                 return {"status": "error", "message": "OSC tools not initialized"}
-                
+
             try:
                 vrm_loader = self.osc_integrator.load_vrm(file_path)
                 if not vrm_loader:
                     return {"status": "error", "message": "Failed to load VRM file"}
-                
+
                 # Get blend shapes and bones
                 blend_shapes = vrm_loader.get_blend_shape_names()
                 bones = vrm_loader.get_bone_names()
-                
+
                 return {
                     "status": "success",
                     "blend_shapes": blend_shapes,
                     "bones": bones,
-                    "message": f"Loaded VRM: {file_path}"
+                    "message": f"Loaded VRM: {file_path}",
                 }
             except Exception as e:
                 return {"status": "error", "message": str(e)}
-        
+
         # Register the tool functions as instance methods
         self.set_gesture = set_gesture
         self.set_expression = set_expression
@@ -929,26 +948,27 @@ class VRChatOSCTools:
 
 # Example usage
 if __name__ == "__main__":
+
     async def main():
         # Example of how to use the VRChatOSCTools
         mcp = FastMCP()
         osc_tools = VRChatOSCTools(mcp)
-        
+
         try:
             # Start the OSC tools
             await osc_tools.start()
-            
+
             # Example: Set a gesture
             result = await osc_tools.set_gesture("left", "Fist", 1.0)
             logger.info("Set gesture result: %s", result)
-            
+
             # Keep running
             while True:
                 await asyncio.sleep(1)
-                
+
         except KeyboardInterrupt:
             logger.info("Stopping OSC tools...")
         finally:
             await osc_tools.stop()
-    
+
     asyncio.run(main())

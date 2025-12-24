@@ -11,26 +11,27 @@ Features:
 - Expression/blendshape support
 """
 
+import asyncio
+import logging
 import os
 import sys
-import logging
-from typing import Optional
-import asyncio
+
+import matplotlib.pyplot as plt
+import pyvista as pv
+from mpl_toolkits.mplot3d import Axes3D
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import AsyncIOOSCUDPServer
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import pyvista as pv
-
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from avatarmcp.models.vrm_loader import VRMLoader
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Check if OSC is available
@@ -42,17 +43,18 @@ try:
 except ImportError:
     OSC_AVAILABLE = False
 
+
 class DesktopAvatarViewer:
     """Enhanced desktop avatar viewer with full 3D controls and bone manipulation."""
 
     def __init__(self, osc_port: int = 9001):
         self.osc_port = osc_port
-        self.osc_client: Optional[udp_client.SimpleUDPClient] = None
-        self.osc_server: Optional[AsyncIOOSCUDPServer] = None
+        self.osc_client: udp_client.SimpleUDPClient | None = None
+        self.osc_server: AsyncIOOSCUDPServer | None = None
         self.dispatcher = Dispatcher()
 
         # Avatar state
-        self.current_vrm_path: Optional[str] = None
+        self.current_vrm_path: str | None = None
         self.vrm_model = None
         self.original_vertices = {}  # mesh_idx -> original vertices
         self.bone_positions = {}  # bone_name -> [x, y, z]
@@ -66,8 +68,8 @@ class DesktopAvatarViewer:
         self.is_animating = False
 
         # Visualization
-        self.fig: Optional[plt.Figure] = None
-        self.ax: Optional[Axes3D] = None
+        self.fig: plt.Figure | None = None
+        self.ax: Axes3D | None = None
         self.mesh_artists = []
         self.bone_artists = []
         self.skeleton_lines = []
@@ -154,7 +156,7 @@ class DesktopAvatarViewer:
 
     def _handle_bone_rotation(self, address, *args):
         """Handle bone rotation control."""
-        parts = address.split('/')
+        parts = address.split("/")
         if len(parts) < 4 or len(args) < 4:
             logger.error("Invalid bone rotation command")
             return
@@ -167,7 +169,7 @@ class DesktopAvatarViewer:
 
     def _handle_bone_translation(self, address, *args):
         """Handle bone translation control."""
-        parts = address.split('/')
+        parts = address.split("/")
         if len(parts) < 4 or len(args) < 3:
             logger.error("Invalid bone translation command")
             return
@@ -184,7 +186,7 @@ class DesktopAvatarViewer:
             "running": True,
             "current_avatar": self.current_avatar is not None,
             "loaded_avatars": len(self.loaded_avatars),
-            "port": self.receive_port
+            "port": self.receive_port,
         }
         logger.info(f"Status request: {status}")
         return status
@@ -207,73 +209,96 @@ class DesktopAvatarViewer:
             import numpy as np
 
             # Close existing plot if any
-            plt.close('all')
+            plt.close("all")
 
             # Create figure and 3D axes
             fig = plt.figure(figsize=(12, 10))
-            ax = fig.add_subplot(111, projection='3d')
+            ax = fig.add_subplot(111, projection="3d")
 
             # Add coordinate axes
-            ax.plot([0, 2], [0, 0], [0, 0], color='red', linewidth=3, label='X-axis')
-            ax.plot([0, 0], [0, 2], [0, 0], color='green', linewidth=3, label='Y-axis')
-            ax.plot([0, 0], [0, 0], [0, 2], color='blue', linewidth=3, label='Z-axis')
+            ax.plot([0, 2], [0, 0], [0, 0], color="red", linewidth=3, label="X-axis")
+            ax.plot([0, 0], [0, 2], [0, 0], color="green", linewidth=3, label="Y-axis")
+            ax.plot([0, 0], [0, 0], [0, 2], color="blue", linewidth=3, label="Z-axis")
 
             # Display meshes
             mesh_count = 0
             # Use realistic skin/clothes colors
             avatar_colors = {
-                'face': '#FDBCB4',  # Skin tone
-                'body': '#FDBCB4',  # Skin tone
-                'hair': '#2C1810',  # Dark brown
-                'shirt': '#FF6B6B', # Red shirt
-                'pants': '#4ECDC4', # Teal pants
-                'shoes': '#95A5A6', # Gray shoes
+                "face": "#FDBCB4",  # Skin tone
+                "body": "#FDBCB4",  # Skin tone
+                "hair": "#2C1810",  # Dark brown
+                "shirt": "#FF6B6B",  # Red shirt
+                "pants": "#4ECDC4",  # Teal pants
+                "shoes": "#95A5A6",  # Gray shoes
             }
 
             def get_mesh_color(mesh_name):
                 name_lower = mesh_name.lower()
-                if 'face' in name_lower or 'head' in name_lower:
-                    return avatar_colors['face']
-                elif 'hair' in name_lower:
-                    return avatar_colors['hair']
-                elif 'body' in name_lower or 'skin' in name_lower:
-                    return avatar_colors['body']
-                elif any(word in name_lower for word in ['shirt', 'top', 'jacket']):
-                    return avatar_colors['shirt']
-                elif any(word in name_lower for word in ['pants', 'skirt', 'bottom']):
-                    return avatar_colors['pants']
-                elif any(word in name_lower for word in ['shoe', 'boot', 'foot']):
-                    return avatar_colors['shoes']
+                if "face" in name_lower or "head" in name_lower:
+                    return avatar_colors["face"]
+                elif "hair" in name_lower:
+                    return avatar_colors["hair"]
+                elif "body" in name_lower or "skin" in name_lower:
+                    return avatar_colors["body"]
+                elif any(word in name_lower for word in ["shirt", "top", "jacket"]):
+                    return avatar_colors["shirt"]
+                elif any(word in name_lower for word in ["pants", "skirt", "bottom"]):
+                    return avatar_colors["pants"]
+                elif any(word in name_lower for word in ["shoe", "boot", "foot"]):
+                    return avatar_colors["shoes"]
                 else:
                     return list(avatar_colors.values())[mesh_count % len(avatar_colors)]
 
-            colors = [get_mesh_color(mesh.name) if hasattr(mesh, 'name') else avatar_colors['body']
-                     for mesh in vrm_model.meshes[:3]]
+            colors = [
+                get_mesh_color(mesh.name) if hasattr(mesh, "name") else avatar_colors["body"]
+                for mesh in vrm_model.meshes[:3]
+            ]
 
-            for i, mesh in enumerate(vrm_model.meshes[:3]):  # Limit to first 3 meshes for performance
+            for i, mesh in enumerate(
+                vrm_model.meshes[:3]
+            ):  # Limit to first 3 meshes for performance
                 try:
-                    if hasattr(mesh, 'vertices') and len(mesh.vertices) > 0:
+                    if hasattr(mesh, "vertices") and len(mesh.vertices) > 0:
                         vertices = mesh.vertices
-                        faces = mesh.faces if hasattr(mesh, 'faces') and mesh.faces is not None else None
+                        faces = (
+                            mesh.faces
+                            if hasattr(mesh, "faces") and mesh.faces is not None
+                            else None
+                        )
 
                         # Scale the vertices to make them visible (VRM units are small)
                         verts = vertices * 10.0
 
                         # Use scatter plot for all vertices - more reliable than surface plotting
-                        ax.scatter(verts[:, 0], verts[:, 1], verts[:, 2],
-                                 color=colors[i % len(colors)], alpha=0.8, s=8, label=f'{mesh.name}')
+                        ax.scatter(
+                            verts[:, 0],
+                            verts[:, 1],
+                            verts[:, 2],
+                            color=colors[i % len(colors)],
+                            alpha=0.8,
+                            s=8,
+                            label=f"{mesh.name}",
+                        )
 
                         # If we have faces, draw some wireframe triangles to show structure
                         if faces is not None and len(faces) > 0:
                             try:
                                 # Draw wireframe for first 50 triangles to show structure
-                                for face in faces[:min(50, len(faces))]:
+                                for face in faces[: min(50, len(faces))]:
                                     if len(face) == 3:  # Triangular face
                                         triangle_verts = verts[face]
                                         # Close the triangle
-                                        triangle_verts = np.vstack([triangle_verts, triangle_verts[0]])
-                                        ax.plot(triangle_verts[:, 0], triangle_verts[:, 1], triangle_verts[:, 2],
-                                              color=colors[i % len(colors)], alpha=0.7, linewidth=2)
+                                        triangle_verts = np.vstack(
+                                            [triangle_verts, triangle_verts[0]]
+                                        )
+                                        ax.plot(
+                                            triangle_verts[:, 0],
+                                            triangle_verts[:, 1],
+                                            triangle_verts[:, 2],
+                                            color=colors[i % len(colors)],
+                                            alpha=0.7,
+                                            linewidth=2,
+                                        )
                             except Exception as e:
                                 logger.warning(f"Wireframe drawing failed for mesh {i}: {e}")
 
@@ -284,26 +309,30 @@ class DesktopAvatarViewer:
 
             if mesh_count > 0:
                 # Add avatar info
-                avatar_name = getattr(vrm_model, 'name', 'Unknown Avatar')
-                ax.set_title(f'AvatarMCP Desktop Viewer - {avatar_name}\n{mesh_count} meshes loaded')
-                ax.set_xlabel('X')
-                ax.set_ylabel('Y')
-                ax.set_zlabel('Z')
+                avatar_name = getattr(vrm_model, "name", "Unknown Avatar")
+                ax.set_title(
+                    f"AvatarMCP Desktop Viewer - {avatar_name}\n{mesh_count} meshes loaded"
+                )
+                ax.set_xlabel("X")
+                ax.set_ylabel("Y")
+                ax.set_zlabel("Z")
                 ax.grid(True)
-                ax.set_box_aspect([1,1,1])
+                ax.set_box_aspect([1, 1, 1])
 
                 plt.show()
-                logger.info(f"Successfully displayed avatar with {mesh_count} meshes using matplotlib")
+                logger.info(
+                    f"Successfully displayed avatar with {mesh_count} meshes using matplotlib"
+                )
             else:
                 # Fallback display
-                ax.set_title('AvatarMCP Desktop Viewer\nAvatar loaded but no meshes displayed')
+                ax.set_title("AvatarMCP Desktop Viewer\nAvatar loaded but no meshes displayed")
                 # Add a reference sphere
                 u = np.linspace(0, 2 * np.pi, 10)
                 v = np.linspace(0, np.pi, 10)
                 x = np.outer(np.cos(u), np.sin(v))
                 y = np.outer(np.sin(u), np.sin(v))
                 z = np.outer(np.ones(np.size(u)), np.cos(v))
-                ax.plot_surface(x, y, z, color='gray', alpha=0.3)
+                ax.plot_surface(x, y, z, color="gray", alpha=0.3)
                 plt.show()
 
         except ImportError:
@@ -316,9 +345,7 @@ class DesktopAvatarViewer:
         try:
             loop = asyncio.get_event_loop()
             self.osc_server = AsyncIOOSCUDPServer(
-                ("127.0.0.1", self.receive_port),
-                self.dispatcher,
-                loop
+                ("127.0.0.1", self.receive_port), self.dispatcher, loop
             )
 
             logger.info(f"OSC server listening on port {self.receive_port}")
@@ -337,23 +364,28 @@ class DesktopAvatarViewer:
         logger.info(f"Listening for OSC commands on port {self.receive_port}")
 
         # Create a simple initial display with coordinate system and basic mesh
-        pv.set_plot_theme('document')
-        self.plotter = pv.Plotter(title="AvatarMCP Desktop Avatar - Waiting for Avatar", window_size=[800, 600])
+        pv.set_plot_theme("document")
+        self.plotter = pv.Plotter(
+            title="AvatarMCP Desktop Avatar - Waiting for Avatar", window_size=[800, 600]
+        )
 
         # Add coordinate axes
         self.plotter.add_axes(line_width=5, labels_off=False)
 
         # Add a simple cube as placeholder
         cube = pv.Cube(center=(0, 0, 0), x_length=1, y_length=1, z_length=1)
-        self.plotter.add_mesh(cube, color='lightgray', opacity=0.7, show_edges=True)
+        self.plotter.add_mesh(cube, color="lightgray", opacity=0.7, show_edges=True)
 
         # Add simple reference plane
         plane = pv.Plane(center=(0, 0, -1), i_size=10, j_size=10)
-        self.plotter.add_mesh(plane, color='lightblue', opacity=0.2)
+        self.plotter.add_mesh(plane, color="lightblue", opacity=0.2)
 
         # Add instructions
-        self.plotter.add_text("AvatarMCP Desktop Viewer\nWaiting for avatar load command...\nSend /avatar/load <path> to load a VRM\n\nShowing coordinate system and reference cube",
-                             font_size=10, position='upper_left')
+        self.plotter.add_text(
+            "AvatarMCP Desktop Viewer\nWaiting for avatar load command...\nSend /avatar/load <path> to load a VRM\n\nShowing coordinate system and reference cube",
+            font_size=10,
+            position="upper_left",
+        )
 
         self.plotter.view_isometric()
         self.plotter.show(auto_close=False)
@@ -375,7 +407,7 @@ class DesktopAvatarViewer:
 
 def main():
     """Main entry point."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     viewer = DesktopAvatarViewer()
     viewer.run_viewer()
@@ -383,41 +415,46 @@ def main():
 
 def show_coordinate_system():
     """Show just the coordinate system and reference objects for testing."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    pv.set_plot_theme('document')
-    plotter = pv.Plotter(title="AvatarMCP Desktop Viewer - Coordinate System Test", window_size=[800, 600])
+    pv.set_plot_theme("document")
+    plotter = pv.Plotter(
+        title="AvatarMCP Desktop Viewer - Coordinate System Test", window_size=[800, 600]
+    )
 
     # Add coordinate axes
     plotter.add_axes(line_width=5, labels_off=False)
 
     # Add a simple cube as placeholder
     cube = pv.Cube(center=(0, 0, 0), x_length=1, y_length=1, z_length=1)
-    plotter.add_mesh(cube, color='lightgray', opacity=0.7, show_edges=True)
+    plotter.add_mesh(cube, color="lightgray", opacity=0.7, show_edges=True)
 
     # Add simple reference plane
     plane = pv.Plane(center=(0, 0, -1), i_size=10, j_size=10)
-    plotter.add_mesh(plane, color='lightblue', opacity=0.2)
+    plotter.add_mesh(plane, color="lightblue", opacity=0.2)
 
     # Add sphere for reference
     sphere = pv.Sphere(radius=0.5, center=(2, 0, 0))
-    plotter.add_mesh(sphere, color='red', opacity=0.8)
+    plotter.add_mesh(sphere, color="red", opacity=0.8)
 
     # Add cylinder for reference
     cylinder = pv.Cylinder(radius=0.3, height=2, center=(0, 2, 0))
-    plotter.add_mesh(cylinder, color='green', opacity=0.8)
+    plotter.add_mesh(cylinder, color="green", opacity=0.8)
 
     # Add cone for reference
     cone = pv.Cone(radius=0.5, height=1, center=(0, 0, 2))
-    plotter.add_mesh(cone, color='blue', opacity=0.8)
+    plotter.add_mesh(cone, color="blue", opacity=0.8)
 
     # Add instructions
-    plotter.add_text("AvatarMCP Desktop Viewer - Visual Test\n\n"
-                    "Showing coordinate system (X=red, Y=green, Z=blue)\n"
-                    "Reference objects: Cube, Sphere, Cylinder, Cone\n"
-                    "Grid for scale reference\n\n"
-                    "This viewer can display VRM avatars when loaded",
-                    font_size=10, position='upper_left')
+    plotter.add_text(
+        "AvatarMCP Desktop Viewer - Visual Test\n\n"
+        "Showing coordinate system (X=red, Y=green, Z=blue)\n"
+        "Reference objects: Cube, Sphere, Cylinder, Cone\n"
+        "Grid for scale reference\n\n"
+        "This viewer can display VRM avatars when loaded",
+        font_size=10,
+        position="upper_left",
+    )
 
     plotter.view_isometric()
     plotter.show()

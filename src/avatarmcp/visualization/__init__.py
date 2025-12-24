@@ -3,7 +3,8 @@
 
 This module provides tools for visualizing and interacting with 3D VRM models.
 """
-from .viewer import VRMViewer
-from .manager import VisualizationManager
 
-__all__ = ['VRMViewer', 'VisualizationManager']
+from .manager import VisualizationManager
+from .viewer import VRMViewer
+
+__all__ = ["VRMViewer", "VisualizationManager"]

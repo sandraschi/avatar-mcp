@@ -5,7 +5,7 @@ This module contains tools for emotional expression, state machines,
 and personality-driven avatar behavior for lifelike interactions.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class EmotionTools:
@@ -18,9 +18,10 @@ class EmotionTools:
 
     def _register_tools(self):
         """Register all emotion tools with the MCP server."""
+
         # Register emotion_state_machine tool
         @self.mcp_server.mcp.tool()
-        def emotion_state_machine(params: Dict[str, Any]) -> Dict[str, Any]:
+        def emotion_state_machine(params: dict[str, Any]) -> dict[str, Any]:
             """Create emotional state machines for realistic avatar behavior.
 
             Defines complex emotional states and transition rules that govern
@@ -113,20 +114,54 @@ class EmotionTools:
                     result = await emotion_state_machine({
                         'avatar_id': 'drama_queen',
                         'states': [
-                            {'name': 'excited', 'expressions': ['Joy', 'Surprised'], 'intensity': 1.0},
-                            {'name': 'angry', 'expressions': ['Angry', 'Frown'], 'intensity': 0.9},
-                            {'name': 'calm', 'expressions': ['Neutral', 'Relaxed'], 'intensity': 0.3},
-                            {'name': 'mysterious', 'expressions': ['Thinking', 'SubtleSmile'], 'intensity': 0.5}
+                            {
+                                'name': 'excited',
+                                'expressions': ['Joy', 'Surprised'],
+                                'intensity': 1.0
+                            },
+                            {
+                                'name': 'angry',
+                                'expressions': ['Angry', 'Frown'],
+                                'intensity': 0.9
+                            },
+                            {
+                                'name': 'calm',
+                                'expressions': ['Neutral', 'Relaxed'],
+                                'intensity': 0.3
+                            },
+                            {
+                                'name': 'mysterious',
+                                'expressions': ['Thinking', 'SubtleSmile'],
+                                'intensity': 0.5
+                            }
                         ],
                         'transitions': [
                             {'from': '*', 'to': 'excited', 'trigger': 'good_news'},
                             {'from': '*', 'to': 'angry', 'trigger': 'bad_news'},
-                            {'from': 'excited', 'to': 'calm', 'trigger': 'time', 'delay_seconds': 30},
-                            {'from': 'angry', 'to': 'mysterious', 'trigger': 'time', 'delay_seconds': 20}
+                            {
+                                'from': 'excited',
+                                'to': 'calm',
+                                'trigger': 'time',
+                                'delay_seconds': 30
+                            },
+                            {
+                                'from': 'angry',
+                                'to': 'mysterious',
+                                'trigger': 'time',
+                                'delay_seconds': 20
+                            }
                         ],
                         'triggers': [
-                            {'type': 'text_contains', 'words': ['great', 'awesome', 'wonderful'], 'action': 'to_excited'},
-                            {'type': 'text_contains', 'words': ['terrible', 'awful', 'hate'], 'action': 'to_angry'},
+                            {
+                                'type': 'text_contains',
+                                'words': ['great', 'awesome', 'wonderful'],
+                                'action': 'to_excited'
+                            },
+                            {
+                                'type': 'text_contains',
+                                'words': ['terrible', 'awful', 'hate'],
+                                'action': 'to_angry'
+                            },
                             {'type': 'random', 'probability': 0.1, 'action': 'to_mysterious'}
                         ],
                         'auto_transitions': True
@@ -186,19 +221,21 @@ class EmotionTools:
             osc_address = "/avatar/emotion/state/machine"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                    'status': 'success',
-                    'message': 'emotion_state_machine tool executed successfully',
-                    'osc_message': f'{osc_address} {params}',
-                    'params': params
+                    "status": "success",
+                    "message": "emotion_state_machine tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send emotion_state_machine command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send emotion_state_machine command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def emotion_micro_expressions(params: Dict[str, Any]) -> Dict[str, Any]:
+        def emotion_micro_expressions(params: dict[str, Any]) -> dict[str, Any]:
             """Add subtle micro-expressions for enhanced emotional realism.
 
             Generates brief, subtle emotional expressions that add depth and
@@ -347,19 +384,21 @@ class EmotionTools:
             osc_address = "/avatar/emotion/micro/expressions"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                    'status': 'success',
-                    'message': 'emotion_micro_expressions tool executed successfully',
-                    'osc_message': f'{osc_address} {params}',
-                    'params': params
+                    "status": "success",
+                    "message": "emotion_micro_expressions tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-            'status': 'error',
-            'message': 'Failed to send emotion_micro_expressions command to Unity desktop avatar'
-        }
+                    "status": "error",
+                    "message": (
+                        "Failed to send emotion_micro_expressions command to Unity desktop avatar"
+                    ),
+                }
 
         @self.mcp_server.mcp.tool()
-        def avatar_personality_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_personality_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create personality profiles that influence avatar behavior.
 
             Defines personality traits and behavioral patterns that affect how
@@ -528,19 +567,21 @@ class EmotionTools:
             osc_address = "/avatar/avatar/personality/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                    'status': 'success',
-                    'message': 'avatar_personality_create tool executed successfully',
-                    'osc_message': f'{osc_address} {params}',
-                    'params': params
+                    "status": "success",
+                    "message": "avatar_personality_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send avatar_personality_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send avatar_personality_create command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def avatar_personality_apply(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_personality_apply(params: dict[str, Any]) -> dict[str, Any]:
             """Apply personality profile to avatar behavior in real-time.
 
             Applies a previously created personality profile to an avatar,
@@ -685,13 +726,15 @@ class EmotionTools:
             osc_address = "/avatar/avatar/personality/apply"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                    'status': 'success',
-                    'message': 'avatar_personality_apply tool executed successfully',
-                    'osc_message': f'{osc_address} {params}',
-                    'params': params
+                    "status": "success",
+                    "message": "avatar_personality_apply tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                    'status': 'error',
-                    'message': 'Failed to send avatar_personality_apply command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send avatar_personality_apply command to Unity desktop avatar"
+                    ),
                 }

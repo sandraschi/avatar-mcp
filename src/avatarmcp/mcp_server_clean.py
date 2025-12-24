@@ -4,17 +4,18 @@ Clean MCP Server - AvatarMCP
 Minimal MCP server implementation focused on protocol handling and tool delegation.
 All tools are implemented in modular classes within the tools/ directory.
 """
-import sys
-import os
+
 import logging
+import os
 import subprocess
-from typing import Optional
+import sys
 
 logger = logging.getLogger(__name__)
 
 # Import FastMCP
 try:
     from fastmcp import FastMCP
+
     FASTMCP_AVAILABLE = True
 except ImportError:
     FASTMCP_AVAILABLE = False
@@ -22,10 +23,12 @@ except ImportError:
 # Import OSC client for Unity desktop avatar communication
 try:
     from pythonosc.udp_client import SimpleUDPClient
+
     OSC_AVAILABLE = True
 except ImportError:
     OSC_AVAILABLE = False
     logger.warning("python-osc not available - Unity desktop avatar integration disabled")
+
 
 class MCPServer:
     """Clean MCP server that delegates all functionality to modular tool classes."""
@@ -38,8 +41,8 @@ class MCPServer:
         self.mcp = FastMCP("avatarmcp")
 
         # Initialize OSC client for Unity desktop avatar communication
-        self.osc_client: Optional[SimpleUDPClient] = None
-        self.unity_app_process: Optional[subprocess.Popen] = None
+        self.osc_client: SimpleUDPClient | None = None
+        self.unity_app_process: subprocess.Popen | None = None
         self._init_osc_client()
 
         # Register prompts
@@ -86,17 +89,20 @@ class MCPServer:
                         [sys.executable, viewer_path],
                         cwd=os.getcwd(),
                         stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL
+                        stderr=subprocess.DEVNULL,
                     )
                     # Give it time to start
                     import time
+
                     time.sleep(3)
                     return True
                 except Exception as e:
                     logger.error(f"Failed to launch avatar viewer at {viewer_path}: {e}")
                     continue
 
-        logger.warning("Desktop avatar viewer not found. Please ensure desktop_avatar_viewer.py exists")
+        logger.warning(
+            "Desktop avatar viewer not found. Please ensure desktop_avatar_viewer.py exists"
+        )
         return False
 
     def _send_osc_message(self, address: str, *args) -> bool:
@@ -110,7 +116,9 @@ class MCPServer:
             return False
 
         try:
-            self.osc_client.send_message(address, args if len(args) > 1 else args[0] if args else [])
+            self.osc_client.send_message(
+                address, args if len(args) > 1 else args[0] if args else []
+            )
             logger.debug(f"Sent OSC: {address} {args}")
             return True
         except Exception as e:
@@ -142,9 +150,9 @@ See individual tool docs for detailed usage."""
     def _init_tool_modules(self):
         """Initialize modular tool classes with absolute imports for compatibility."""
         # Use absolute imports to work whether run as module or script
-        import avatarmcp.tools.core.core_tools as core_module
-        import avatarmcp.tools.audio.audio_tools as audio_module
         import avatarmcp.tools.animation.animation_tools as animation_module
+        import avatarmcp.tools.audio.audio_tools as audio_module
+        import avatarmcp.tools.core.core_tools as core_module
         import avatarmcp.tools.emotion.emotion_tools as emotion_module
         import avatarmcp.tools.resonite.resonite_tools as resonite_module
 
@@ -154,18 +162,18 @@ See individual tool docs for detailed usage."""
         self.emotion_tools = emotion_module.EmotionTools(self)
         self.resonite_tools = resonite_module.ResoniteTools(self)
 
-
     def run(self):
         """Run the MCP server using standard FastMCP stdio transport."""
         logger.info("Starting AvatarMCP server with FastMCP stdio transport")
 
         # Use the standard FastMCP approach that works with all other MCP servers
         import asyncio
+
         try:
             asyncio.run(self.mcp.run_stdio_async())
         except Exception as e:
             logger.error(f"Error running FastMCP server: {e}")
             import sys
+
             sys.stderr.write(f"Error: {e}\n")
             sys.stderr.flush()
-

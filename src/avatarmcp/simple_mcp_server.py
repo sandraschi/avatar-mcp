@@ -2,14 +2,17 @@
 """
 Minimal MCP server for testing - avoids complex imports that cause Windows issues.
 """
+
 import json
-import sys
 import logging
+import sys
 
 # Set up basic logging to stderr only
-logging.basicConfig(level=logging.INFO, stream=sys.stderr,
-                   format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, stream=sys.stderr, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def main():
     """Run minimal MCP server."""
@@ -17,9 +20,21 @@ def main():
 
     # Pre-defined tools response (hardcoded to avoid import issues)
     tools = [
-        {"name": "avatar_list", "description": "List available avatars", "inputSchema": {"type": "object", "additionalProperties": True}},
-        {"name": "avatar_load", "description": "Load an avatar", "inputSchema": {"type": "object", "additionalProperties": True}},
-        {"name": "animation_play", "description": "Play animation on avatar", "inputSchema": {"type": "object", "additionalProperties": True}},
+        {
+            "name": "avatar_list",
+            "description": "List available avatars",
+            "inputSchema": {"type": "object", "additionalProperties": True},
+        },
+        {
+            "name": "avatar_load",
+            "description": "Load an avatar",
+            "inputSchema": {"type": "object", "additionalProperties": True},
+        },
+        {
+            "name": "animation_play",
+            "description": "Play animation on avatar",
+            "inputSchema": {"type": "object", "additionalProperties": True},
+        },
     ]
 
     try:
@@ -47,8 +62,8 @@ def main():
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {"listChanged": True}},
-                            "serverInfo": {"name": "avatarmcp", "version": "1.0.0"}
-                        }
+                            "serverInfo": {"name": "avatarmcp", "version": "1.0.0"},
+                        },
                     }
                     print(json.dumps(response), flush=True)
 
@@ -62,7 +77,10 @@ def main():
                     response = {
                         "jsonrpc": "2.0",
                         "id": req_id,
-                        "result": {"message": f"Tool {tool_name} called successfully", "status": "ok"}
+                        "result": {
+                            "message": f"Tool {tool_name} called successfully",
+                            "status": "ok",
+                        },
                     }
                     print(json.dumps(response), flush=True)
 
@@ -79,7 +97,7 @@ def main():
                     response = {
                         "jsonrpc": "2.0",
                         "id": req_id,
-                        "error": {"code": -32601, "message": f"Method {method} not found"}
+                        "error": {"code": -32601, "message": f"Method {method} not found"},
                     }
                     print(json.dumps(response), flush=True)
 
@@ -91,7 +109,7 @@ def main():
                 error_response = {
                     "jsonrpc": "2.0",
                     "id": request.get("id"),
-                    "error": {"code": -32603, "message": str(e)}
+                    "error": {"code": -32603, "message": str(e)},
                 }
                 print(json.dumps(error_response), flush=True)
 
@@ -101,6 +119,7 @@ def main():
         logger.error(f"Fatal error in server: {e}")
         sys.stderr.write(f"Fatal error: {e}\n")
         sys.stderr.flush()
+
 
 if __name__ == "__main__":
     main()

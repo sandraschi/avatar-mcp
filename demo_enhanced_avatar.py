@@ -15,8 +15,11 @@ import asyncio
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 async def demo_enhanced_avatar():
     """Demonstrate enhanced avatar functionality."""
@@ -73,7 +76,6 @@ async def demo_enhanced_avatar():
     except KeyboardInterrupt:
         print("\n👋 Demo finished!")
 
+
 if __name__ == "__main__":
     asyncio.run(demo_enhanced_avatar())
-
-

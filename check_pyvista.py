@@ -1,11 +1,13 @@
 import sys
+
 import pyvista as pv
+
 
 def check_pyvista():
     print("PyVista version:", pv.__version__)
     print("Python version:", sys.version)
     print("OpenGL version:", pv.Report().opengl_info)
-    
+
     # Try to create a simple plot
     try:
         plotter = pv.Plotter(off_screen=True)
@@ -17,6 +19,7 @@ def check_pyvista():
     except Exception as e:
         print("✗ Error creating plot:", str(e))
         return False
+
 
 if __name__ == "__main__":
     check_pyvista()

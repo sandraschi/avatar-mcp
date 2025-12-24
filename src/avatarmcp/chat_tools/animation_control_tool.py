@@ -6,50 +6,53 @@ This tool allows the chatbot to control avatar animations.
 
 import asyncio
 import logging
-from typing import List, Optional
 
 from .base_tool import (
     ChatTool,
-    ToolResult,
     ToolParameter,
     ToolParameterType,
+    ToolResult,
 )
 
 logger = logging.getLogger(__name__)
 
+
 class AnimationControlTool(ChatTool):
     """Tool for controlling avatar animations."""
-    
+
     @property
     def name(self) -> str:
         return "control_animation"
-    
+
     @property
     def description(self) -> str:
-        return "Control avatar animations, including playing, stopping, and blending between animations."
-    
+        return (
+            "Control avatar animations, including playing, stopping, "
+            "and blending between animations."
+        )
+
     @property
-    def parameters(self) -> List[ToolParameter]:
+    def parameters(self) -> list[ToolParameter]:
         return [
             ToolParameter(
                 name="action",
                 type=ToolParameterType.STRING,
                 description="The action to perform on the animation",
                 required=True,
-                enum=["play", "stop", "pause", "resume", "blend"]
+                enum=["play", "stop", "pause", "resume", "blend"],
             ),
             ToolParameter(
                 name="animation_name",
                 type=ToolParameterType.STRING,
                 description="Name or ID of the animation to play (required for play/blend actions)",
-                required=False
+                required=False,
             ),
             ToolParameter(
                 name="loop",
                 type=ToolParameterType.BOOLEAN,
                 description="Whether to loop the animation (for play/blend actions)",
                 required=False,
-                default=False
+                default=False,
             ),
             ToolParameter(
                 name="speed",
@@ -58,7 +61,7 @@ class AnimationControlTool(ChatTool):
                 required=False,
                 min_value=0.1,
                 max_value=5.0,
-                default=1.0
+                default=1.0,
             ),
             ToolParameter(
                 name="blend_time",
@@ -66,7 +69,7 @@ class AnimationControlTool(ChatTool):
                 description="Time in seconds to blend between animations (for play/blend actions)",
                 required=False,
                 min_value=0.0,
-                default=0.2
+                default=0.2,
             ),
             ToolParameter(
                 name="weight",
@@ -75,7 +78,7 @@ class AnimationControlTool(ChatTool):
                 required=False,
                 min_value=0.0,
                 max_value=1.0,
-                default=1.0
+                default=1.0,
             ),
             ToolParameter(
                 name="layer",
@@ -83,24 +86,24 @@ class AnimationControlTool(ChatTool):
                 description="Animation layer (for layered animations)",
                 required=False,
                 min_value=0,
-                default=0
-            )
+                default=0,
+            ),
         ]
-    
+
     async def execute(
         self,
         action: str,
-        animation_name: Optional[str] = None,
+        animation_name: str | None = None,
         loop: bool = False,
         speed: float = 1.0,
         blend_time: float = 0.2,
         weight: float = 1.0,
         layer: int = 0,
-        **kwargs
+        **kwargs,
     ) -> ToolResult:
         """
         Control avatar animations.
-        
+
         Args:
             action: The action to perform (play, stop, pause, resume, blend)
             animation_name: Name or ID of the animation (required for play/blend)
@@ -109,21 +112,21 @@ class AnimationControlTool(ChatTool):
             blend_time: Time in seconds to blend between animations
             weight: Blend weight (0.0 to 1.0)
             layer: Animation layer (for layered animations)
-            
+
         Returns:
             ToolResult with the result of the operation
         """
         try:
             logger.info(f"Executing animation control action: {action}")
-            
+
             # Simulate processing time
             await asyncio.sleep(0.2)
-            
+
             # In a real implementation, this would interact with the animation system
             if action == "play":
                 if not animation_name:
                     return ToolResult.error("animation_name is required for play action")
-                
+
                 return ToolResult.success(
                     content={
                         "status": "playing",
@@ -132,39 +135,33 @@ class AnimationControlTool(ChatTool):
                         "speed": speed,
                         "blend_time": blend_time,
                         "layer": layer,
-                        "message": f"Playing animation '{animation_name}'"
+                        "message": f"Playing animation '{animation_name}'",
                     }
                 )
-                
+
             elif action == "stop":
                 return ToolResult.success(
                     content={
                         "status": "stopped",
                         "blend_time": blend_time,
-                        "message": "Stopped all animations"
+                        "message": "Stopped all animations",
                     }
                 )
-                
+
             elif action == "pause":
                 return ToolResult.success(
-                    content={
-                        "status": "paused",
-                        "message": "Paused current animation"
-                    }
+                    content={"status": "paused", "message": "Paused current animation"}
                 )
-                
+
             elif action == "resume":
                 return ToolResult.success(
-                    content={
-                        "status": "resumed",
-                        "message": "Resumed current animation"
-                    }
+                    content={"status": "resumed", "message": "Resumed current animation"}
                 )
-                
+
             elif action == "blend":
                 if not animation_name:
                     return ToolResult.error("animation_name is required for blend action")
-                    
+
                 return ToolResult.success(
                     content={
                         "status": "blending",
@@ -172,16 +169,17 @@ class AnimationControlTool(ChatTool):
                         "weight": weight,
                         "blend_time": blend_time,
                         "layer": layer,
-                        "message": f"Blending to animation '{animation_name}' with weight {weight}"
+                        "message": f"Blending to animation '{animation_name}' with weight {weight}",
                     }
                 )
-                
+
             else:
                 return ToolResult.error(f"Unknown action: {action}")
-                
+
         except Exception as e:
             logger.error(f"Error in animation control: {e}", exc_info=True)
             return ToolResult.error(f"Failed to control animation: {str(e)}")
+
 
 # Example usage:
 # tool = AnimationControlTool()

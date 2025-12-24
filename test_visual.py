@@ -4,6 +4,7 @@ Minimal visual test for AvatarMCP desktop viewer
 Shows coordinate system and a blue ball using matplotlib as fallback
 """
 
+
 def test_visual():
     """Show coordinate system and a blue ball."""
     print("AvatarMCP Visual Test - Coordinate System + Blue Ball")
@@ -19,15 +20,15 @@ def test_visual():
 
         # Create figure and 3D axes
         fig = plt.figure(figsize=(10, 8))
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111, projection="3d")
 
         # Create coordinate axes lines
         # X axis (red)
-        ax.plot([0, 2], [0, 0], [0, 0], color='red', linewidth=3, label='X-axis')
+        ax.plot([0, 2], [0, 0], [0, 0], color="red", linewidth=3, label="X-axis")
         # Y axis (green)
-        ax.plot([0, 0], [0, 2], [0, 0], color='green', linewidth=3, label='Y-axis')
+        ax.plot([0, 0], [0, 2], [0, 0], color="green", linewidth=3, label="Y-axis")
         # Z axis (blue)
-        ax.plot([0, 0], [0, 0], [0, 2], color='blue', linewidth=3, label='Z-axis')
+        ax.plot([0, 0], [0, 0], [0, 2], color="blue", linewidth=3, label="Z-axis")
 
         # Create a blue sphere (ball)
         u = np.linspace(0, 2 * np.pi, 20)
@@ -35,22 +36,24 @@ def test_visual():
         x = 1 + 0.8 * np.outer(np.cos(u), np.sin(v))
         y = 1 + 0.8 * np.outer(np.sin(u), np.sin(v))
         z = 1 + 0.8 * np.outer(np.ones(np.size(u)), np.cos(v))
-        ax.plot_surface(x, y, z, color='blue', alpha=0.8)
+        ax.plot_surface(x, y, z, color="blue", alpha=0.8)
 
         # Add grid
         ax.grid(True)
 
         # Set labels and title
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.set_title('AvatarMCP Desktop Viewer - Visual Test\n\n'
-                    '✓ Coordinate System (X=red, Y=green, Z=blue)\n'
-                    '✓ Blue Ball (sphere)\n\n'
-                    'This viewer can display VRM avatars when loaded')
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+        ax.set_title(
+            "AvatarMCP Desktop Viewer - Visual Test\n\n"
+            "✓ Coordinate System (X=red, Y=green, Z=blue)\n"
+            "✓ Blue Ball (sphere)\n\n"
+            "This viewer can display VRM avatars when loaded"
+        )
 
         # Set equal aspect ratio
-        ax.set_box_aspect([1,1,1])
+        ax.set_box_aspect([1, 1, 1])
 
         print("SUCCESS: 3D visualization created with matplotlib")
         print("Window should be visible now...")
@@ -64,9 +67,9 @@ def test_visual():
         print("Install with: pip install matplotlib")
         print("Falling back to simple text output...")
 
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("FALLBACK VISUAL TEST (No 3D rendering available)")
-        print("="*50)
+        print("=" * 50)
         print("✓ AvatarMCP System Components:")
         print("  - MCP Server: Running")
         print("  - OSC Communication: Active")
@@ -81,7 +84,9 @@ def test_visual():
     except Exception as e:
         print(f"ERROR: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_visual()

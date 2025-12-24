@@ -23,28 +23,29 @@ Examples:
 """
 
 import asyncio
-import sys
 import logging
 
 # Add the parent directory to the path so we can import from src
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.avatarmcp.osc_server import VRChatOSCServer
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class VRChatOSCController:
     """A simple controller for VRChat OSC parameters."""
-    
+
     def __init__(self, ip: str = "127.0.0.1", receive_port: int = 9000, send_port: int = 9001):
         """Initialize the OSC controller.
-        
+
         Args:
             ip: The IP address to bind the OSC server to
             receive_port: The port to receive OSC messages on
@@ -52,42 +53,42 @@ class VRChatOSCController:
         """
         self.osc = VRChatOSCServer(ip=ip, receive_port=receive_port, send_port=send_port)
         self.running = False
-        
+
         # Register parameter change handlers
         self.osc.on_parameter_change("*")(self._on_parameter_change)
-    
+
     async def start(self):
         """Start the OSC server."""
         if self.running:
             return
-            
+
         await self.osc.start()
         self.running = True
         logger.info("VRChat OSC Controller started")
-        
+
         try:
             # Keep the server running
             while self.running:
                 await asyncio.sleep(1)
         except asyncio.CancelledError:
             await self.stop()
-    
+
     async def stop(self):
         """Stop the OSC server."""
         if not self.running:
             return
-            
+
         await self.osc.stop()
         self.running = False
         logger.info("VRChat OSC Controller stopped")
-    
+
     def _on_parameter_change(self, parameter: str, value):
         """Handle parameter changes from VRChat."""
         logger.info(f"Parameter changed: {parameter} = {value}")
-    
+
     async def send_gesture(self, hand: str, gesture: str, strength: float = 1.0):
         """Send a hand gesture to VRChat.
-        
+
         Args:
             hand: 'left' or 'right'
             gesture: Gesture name (e.g., 'Fist', 'Open', 'Point', etc.)
@@ -95,44 +96,44 @@ class VRChatOSCController:
         """
         await self.osc.send_gesture(hand, gesture, strength)
         logger.info(f"Sent gesture: {hand} hand {gesture} (strength: {strength})")
-    
+
     async def send_expression(self, expression: str, strength: float = 1.0):
         """Send a facial expression to VRChat.
-        
+
         Args:
             expression: Expression name (e.g., 'Happy', 'Angry', 'Blink', etc.)
             strength: Expression strength (0.0 to 1.0)
         """
         await self.osc.send_expression(expression, strength)
         logger.info(f"Sent expression: {expression} (strength: {strength})")
-    
+
     async def send_viseme(self, viseme: str, strength: float = 1.0):
         """Send a viseme to VRChat for lip sync.
-        
+
         Args:
             viseme: Viseme name (e.g., 'aa', 'E', 'O', etc.)
             strength: Viseme strength (0.0 to 1.0)
         """
         await self.osc.send_viseme(viseme, strength)
         logger.info(f"Sent viseme: {viseme} (strength: {strength})")
-    
+
     async def set_parameter(self, parameter: str, value):
         """Set a custom parameter in VRChat.
-        
+
         Args:
             parameter: Parameter name
             value: Parameter value (int, float, or bool)
         """
         self.osc.set_parameter(parameter, value)
         logger.info(f"Set parameter: {parameter} = {value}")
-    
+
     def get_parameter(self, parameter: str, default=None):
         """Get the current value of a parameter.
-        
+
         Args:
             parameter: Parameter name
             default: Default value if parameter is not found
-            
+
         Returns:
             The current value of the parameter, or the default value if not found
         """
@@ -144,77 +145,77 @@ async def main():
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print_help()
         return
-    
+
     controller = VRChatOSCController()
-    
+
     # Start the controller in the background
     controller_task = asyncio.create_task(controller.start())
-    
+
     try:
         # Parse command
         command = sys.argv[1].lower()
         args = sys.argv[2:]
-        
+
         if command == "gesture":
             if len(args) < 2:
                 print("Usage: gesture <left|right> <gesture> [strength]")
                 return
-                
+
             hand = args[0]
             gesture = args[1]
             strength = float(args[2]) if len(args) > 2 else 1.0
             await controller.send_gesture(hand, gesture, strength)
-            
+
         elif command == "expression":
             if len(args) < 1:
                 print("Usage: expression <expression> [strength]")
                 return
-                
+
             expression = args[0]
             strength = float(args[1]) if len(args) > 1 else 1.0
             await controller.send_expression(expression, strength)
-            
+
         elif command == "viseme":
             if len(args) < 1:
                 print("Usage: viseme <viseme> [strength]")
                 return
-                
+
             viseme = args[0]
             strength = float(args[1]) if len(args) > 1 else 1.0
             await controller.send_viseme(viseme, strength)
-            
+
         elif command == "set":
             if len(args) < 2:
                 print("Usage: set <parameter> <value>")
                 return
-                
+
             parameter = args[0]
             value = parse_value(args[1])
             await controller.set_parameter(parameter, value)
-            
+
         elif command == "get":
             if len(args) < 1:
                 print("Usage: get <parameter>")
                 return
-                
+
             parameter = args[0]
             value = controller.get_parameter(parameter, "Not set")
             print(f"{parameter} = {value}")
-            
+
         elif command == "list-params":
             print("Available parameters:")
             print("- Gestures: GestureLeft, GestureRight, GestureLeftWeight, GestureRightWeight")
             print("- Expressions: Neutral, Happy, Angry, Sad, Surprised, Blink, etc.")
             print("- Visemes: Viseme, VisemeWeight")
             print("- Custom: Any parameter defined in your VRChat avatar")
-            
+
         else:
             print(f"Unknown command: {command}")
             print_help()
-            
+
     except Exception as e:
         logger.error(f"Error: {e}")
-        
+
     finally:
         # Stop the controller
         controller.running = False

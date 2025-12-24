@@ -1,37 +1,79 @@
 # AvatarMCP
 
-> FastMCP 2.12.0+ compatible VRM avatar management and animation server with VRChat OSC integration
+**By FlowEngineer sandraschi**
+
+> FastMCP 2.12+ compatible VRM avatar management and animation server with VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![FastMCP 2.12.0](https://img.shields.io/badge/FastMCP-2.12.0+-brightgreen)](https://fastmcp.readthedocs.io/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
+[![FastMCP 2.12](https://img.shields.io/badge/FastMCP-2.12+-brightgreen)](https://fastmcp.readthedocs.io/)
 [![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
+[![Portmanteau Tools](https://img.shields.io/badge/Tools-Portmanteau-blueviolet)](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md)
 
 ## 🚀 Features
 
 ### Core Features
 
-- **3D Visualization**: Interactive 3D viewport for real-time avatar preview and manipulation
-  - Multiple camera views (front, side, top, perspective)
-  - Lighting controls and environment settings
-  - Real-time updates for all avatar modifications
+- **Portmanteau Tools Architecture**: Consolidated 15 portmanteau tools following FastMCP 2.12 standards
+  - Reduces tool explosion from 28 individual tools to 15 unified interfaces
+  - Operation-based design with comprehensive multiline docstrings
+  - Clean, maintainable architecture with focused tool classes
 
-- **FastMCP 2.12.0+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
+- **FastMCP 2.12+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
 - **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
 - **Advanced Animation System**: Play, blend, and manage animations with support for loops, varying speeds, and real-time recording
 - **Advanced Bone Control**: Precise control over avatar bones with local/world space transforms and hierarchical manipulation
 - **Morph Target Control**: Fine-grained control over blend shapes and morph targets with batch updates
-- **Export Tools**: Export avatars to FBX, Unity packages, and VRChat SDK formats
-- **Model Management**: Load, unload, and manage multiple VRM models
+- **Unity Desktop Integration**: Full Unity desktop avatar control with window management
+- **Chat System**: Interactive chatbot functionality with session management
 
 ### Secondary Features
 
-- **RESTful API**: Optional HTTP API for testing and development (not for production use)
-- **DXT Packaging**: Easy deployment and integration with MCP-compatible applications
+- **MCPB Packaging**: Easy deployment and integration with MCP-compatible applications
 - **Type Annotated**: Fully type-annotated code for better development experience
 - **Modular Design**: Clean architecture with separate components for VRM loading, animation, and MCP server
+- **System Monitoring**: Comprehensive system health and diagnostics
+- **Debug Tools**: Built-in debugging and testing utilities
+
+## 🏗️ Portmanteau Tools Architecture
+
+AvatarMCP uses a revolutionary portmanteau tools architecture that consolidates related functionality into unified interfaces, following FastMCP 2.12 standards.
+
+### Benefits
+
+- **47% Tool Reduction**: From 28 individual tools to 15 consolidated portmanteau tools
+- **Better Organization**: Related functionality logically grouped together
+- **Easier Maintenance**: Single class per functional area
+- **Improved Discoverability**: Clearer tool purposes and operations
+- **Standards Compliance**: FastMCP 2.12 compliant with multiline docstrings
+- **Cleaner API**: More intuitive tool structure with operation-based design
+
+### Architecture Overview
+
+Each portmanteau tool uses an operation-based design where a single tool handles multiple related operations:
+
+```python
+# Example: avatar_manager tool
+await avatar_manager({
+    "operation": "load",           # Operation type
+    "path": "models/avatar.vrm",   # Operation-specific parameters
+    "make_active": True
+})
+
+await avatar_manager({
+    "operation": "list"            # Different operation, same tool
+})
+```
+
+### Tool Categories
+
+1. **Core Tools** (6 implemented): Essential functionality
+2. **Management Tools** (4 planned): System and resource management  
+3. **Advanced Tools** (5 planned): Specialized functionality
+
+For detailed architecture documentation, see [Portmanteau Tools Plan](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md).
 
 ## 📚 Documentation
 
@@ -111,29 +153,67 @@ For detailed documentation, see [AVATAR_CONTROLS.md](docs/AVATAR_CONTROLS.md).
 
 ### MCP Protocol Support
 
-AvatarMCP implements the following MCP commands:
+AvatarMCP implements the following portmanteau tools following FastMCP 2.12 standards:
 
-#### Avatar Management
+#### Core Portmanteau Tools
 
-- `avatar.load`: Load a VRM model
-- `avatar.unload`: Unload a VRM model
-- `avatar.list`: List all loaded avatars
+- **`avatar_manager`**: Comprehensive avatar lifecycle management
+  - Operations: `load`, `unload`, `list`, `set_active`, `get_active`, `get_metadata`
+- **`animation_controller`**: Animation control and management
+  - Operations: `play`, `stop`, `list`
+- **`osc_communicator`**: OSC communication hub
+  - Operations: `send`, `receive`
+- **`unity_integration`**: Unity desktop avatar control
+  - Operations: `status`, `load_avatar`, `set_expression`, `control_animation`
+- **`chat_manager`**: Chat session management
+  - Operations: `start_session`, `send_message`, `stop_session`, `get_state`
+- **`system_monitor`**: System health and diagnostics
+  - Operations: `get_status`, `get_health`, `get_metrics`
 
-#### Animation Control
+#### Additional Portmanteau Tools
 
-- `animation.play`: Play an animation on an avatar
-- `animation.stop`: Stop a running animation
-- `animation.list`: List available animations
+- **`parameter_manager`**: Avatar parameter control
+- **`unity_window_manager`**: Unity window control
+- **`unity_config_manager`**: Unity configuration management
+- **`server_controller`**: Server lifecycle management
+- **`debug_tools`**: Debug and testing utilities
+- **`viewer_manager`**: 3D viewer control
+- **`file_manager`**: File and asset management
+- **`network_manager`**: Network and connection management
+- **`config_manager`**: Configuration and settings management
 
-#### Parameter Control
+#### Usage Examples
 
-- `parameter.set`: Set an avatar parameter
-- `parameter.get`: Get an avatar parameter value
+```python
+# Avatar management
+await avatar_manager({
+    "operation": "load",
+    "path": "models/my_avatar.vrm",
+    "make_active": True
+})
 
-#### OSC Integration
+# Animation control
+await animation_controller({
+    "operation": "play",
+    "name": "wave",
+    "loop": True,
+    "speed": 1.2
+})
 
-- `osc.send`: Send a raw OSC message
-- `osc.chat`: Send a chat message to VRChat
+# OSC communication
+await osc_communicator({
+    "operation": "send",
+    "address": "/avatar/parameters/Emotion",
+    "value": 0.8
+})
+
+# Unity integration
+await unity_integration({
+    "operation": "set_expression",
+    "expression": "Happy",
+    "strength": 0.9
+})
+```
 
 For complete MCP protocol documentation, see [FastMCP Documentation](https://fastmcp.readthedocs.io/).
 

@@ -200,6 +200,68 @@
       "description": "Update configuration settings for Unity desktop avatar"
     }
   ],
+  "prompts": [
+    {
+      "name": "avatar_management",
+      "description": "Comprehensive avatar management and control",
+      "arguments": ["action", "model_id", "options"],
+      "text": "You are an expert VRM avatar management assistant. Help the user ${arguments.action} their avatar system. ${arguments.model_id ? 'Target model: ' + arguments.model_id : ''} ${arguments.options ? 'Options: ' + arguments.options : ''} Provide clear, step-by-step guidance and explain any technical concepts in simple terms."
+    },
+    {
+      "name": "animation_control",
+      "description": "Advanced animation control and sequencing",
+      "arguments": ["animation_type", "timing", "effects"],
+      "text": "You are a professional animation director for VRM avatars. Help create smooth, natural animations with ${arguments.animation_type} style. Timing: ${arguments.timing}. Effects: ${arguments.effects}. Focus on realistic movement patterns and smooth transitions between poses."
+    },
+    {
+      "name": "unity_integration",
+      "description": "Unity desktop avatar system integration and control",
+      "arguments": ["unity_feature", "configuration", "optimization"],
+      "text": "You are a Unity desktop avatar integration specialist. Help configure ${arguments.unity_feature} with optimal settings. Configuration: ${arguments.configuration}. Optimization: ${arguments.optimization}. Ensure smooth performance and user-friendly controls."
+    },
+    {
+      "name": "osc_communication",
+      "description": "OSC protocol communication and real-time control",
+      "arguments": ["osc_address", "data_format", "timing"],
+      "text": "You are an OSC communication expert for real-time avatar control. Address: ${arguments.osc_address}. Data format: ${arguments.data_format}. Timing: ${arguments.timing}. Help establish reliable, low-latency communication for responsive avatar control."
+    },
+    {
+      "name": "chat_interaction",
+      "description": "Natural language interaction with avatar chatbot",
+      "arguments": ["personality", "context", "response_style"],
+      "text": "You are a ${arguments.personality} AI assistant controlling a VRM avatar. Context: ${arguments.context}. Response style: ${arguments.response_style}. Engage naturally while maintaining the avatar's personality and providing helpful, contextual responses."
+    },
+    {
+      "name": "system_diagnostics",
+      "description": "System health monitoring and troubleshooting",
+      "arguments": ["diagnostic_type", "performance_level", "issues"],
+      "text": "You are a system diagnostics expert for VRM avatar systems. Diagnostic type: ${arguments.diagnostic_type}. Performance level: ${arguments.performance_level}. Issues: ${arguments.issues}. Provide detailed analysis and actionable solutions for optimal system performance."
+    },
+    {
+      "name": "parameter_tuning",
+      "description": "Fine-tuning avatar parameters and morph targets",
+      "arguments": ["parameter_type", "target_value", "smoothing"],
+      "text": "You are a parameter tuning specialist for VRM avatars. Parameter type: ${arguments.parameter_type}. Target value: ${arguments.target_value}. Smoothing: ${arguments.smoothing}. Help achieve precise, natural-looking avatar adjustments with smooth transitions."
+    },
+    {
+      "name": "plugin_management",
+      "description": "Plugin loading and configuration management",
+      "arguments": ["plugin_name", "configuration", "compatibility"],
+      "text": "You are a plugin management expert for Unity desktop avatars. Plugin: ${arguments.plugin_name}. Configuration: ${arguments.configuration}. Compatibility: ${arguments.compatibility}. Ensure proper plugin integration and optimal performance."
+    },
+    {
+      "name": "window_control",
+      "description": "Desktop window positioning and transparency control",
+      "arguments": ["window_operation", "position", "transparency"],
+      "text": "You are a desktop window control specialist. Operation: ${arguments.window_operation}. Position: ${arguments.position}. Transparency: ${arguments.transparency}. Help optimize the avatar window for the best user experience and desktop integration."
+    },
+    {
+      "name": "debug_assistance",
+      "description": "Debugging and testing support for avatar systems",
+      "arguments": ["debug_type", "test_scenario", "expected_result"],
+      "text": "You are a debugging assistant for VRM avatar systems. Debug type: ${arguments.debug_type}. Test scenario: ${arguments.test_scenario}. Expected result: ${arguments.expected_result}. Help identify issues and verify system functionality."
+    }
+  ],
   "compatibility": {
     "platforms": ["win32", "darwin", "linux"],
     "python_version": ">=3.10",

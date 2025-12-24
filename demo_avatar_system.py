@@ -2,12 +2,14 @@
 """
 AvatarMCP System Demo - Shows the fully functional avatar control system
 """
-import sys
-import os
+
 import asyncio
+import os
+import sys
 
 # Add src to path
-sys.path.insert(0, 'src')
+sys.path.insert(0, "src")
+
 
 async def demo_avatar_system():
     """Demonstrate the complete AvatarMCP system."""
@@ -19,6 +21,7 @@ async def demo_avatar_system():
         # Import and test server
         print("1. Initializing MCP Server...")
         import avatarmcp.mcp_server_clean
+
         server = avatarmcp.mcp_server_clean.MCPServer()
         print("   SUCCESS: Server initialized")
 
@@ -37,37 +40,40 @@ async def demo_avatar_system():
             tools = await server.mcp.get_tools()
             tool_count = len(tools)
             tool_names = list(tools)[:10]  # Show first 10
-            print("   SUCCESS: Found {} tools registered: {}".format(tool_count, tool_names))
+            print(f"   SUCCESS: Found {tool_count} tools registered: {tool_names}")
         except Exception as e:
-            print("   ERROR: Tool registration check failed: {}".format(str(e)))
+            print(f"   ERROR: Tool registration check failed: {str(e)}")
 
-            # Test OSC message sending
-            print("4. Testing OSC Communication...")
+        # Test OSC message sending
+        print("4. Testing OSC Communication...")
+        try:
             test_result = server._send_osc_message("/avatar/test", "test_message")
             if test_result:
                 print("   SUCCESS: OSC message sent successfully")
             else:
                 print("   ERROR: OSC message failed")
+        except Exception as e:
+            print(f"   ERROR: OSC communication failed: {str(e)}")
 
-            # Test avatar directory scanning
-            print("5. Testing Avatar Discovery...")
-            models_dir = os.path.join(os.path.dirname(__file__), 'models')
+        # Test avatar directory scanning
+        print("5. Testing Avatar Discovery...")
+        try:
+            models_dir = os.path.join(os.path.dirname(__file__), "models")
             if os.path.exists(models_dir):
-                vrm_files = [f for f in os.listdir(models_dir) if f.endswith('.vrm')]
-                print("   SUCCESS: Found {} VRM files: {}".format(len(vrm_files), vrm_files))
+                vrm_files = [f for f in os.listdir(models_dir) if f.endswith(".vrm")]
+                print(f"   SUCCESS: Found {len(vrm_files)} VRM files: {vrm_files}")
             else:
                 print("   ERROR: Models directory not found")
-
         except Exception as e:
-            print("   ERROR: Testing failed: {}".format(str(e)))
+            print(f"   ERROR: Avatar discovery failed: {str(e)}")
 
         # Test avatar_load tool to demonstrate visual output
         print("5. Testing Avatar Loading with Visual Display...")
         if "avatar_load" in tool_names:
             # Load one of the available avatars directly using the core tools
-            models_dir = os.path.join(os.path.dirname(__file__), 'models')
+            models_dir = os.path.join(os.path.dirname(__file__), "models")
             if os.path.exists(models_dir):
-                vrm_files = [f for f in os.listdir(models_dir) if f.endswith('.vrm')]
+                vrm_files = [f for f in os.listdir(models_dir) if f.endswith(".vrm")]
                 if vrm_files:
                     avatar_to_load = vrm_files[0]  # Load first available
                     avatar_path = os.path.join(models_dir, avatar_to_load)
@@ -77,7 +83,7 @@ async def demo_avatar_system():
                     # Directly call the avatar_load function
                     try:
                         result = server.core_tools.avatar_load({"avatar_name": avatar_to_load})
-                        if result and result.get('status') == 'success':
+                        if result and result.get("status") == "success":
                             print("   SUCCESS: Avatar loading tool executed")
                             print("   SUCCESS: Check the desktop avatar viewer window!")
                             print("   SUCCESS: You should see the 3D avatar displayed")
@@ -132,9 +138,11 @@ async def demo_avatar_system():
             print("\nShutting down...")
 
     except Exception as e:
-        print("\nCRITICAL ERROR: {}".format(e))
+        print(f"\nCRITICAL ERROR: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(demo_avatar_system())

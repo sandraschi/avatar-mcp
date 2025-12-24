@@ -1,0 +1,286 @@
+{
+  "manifest_version": "0.2",
+  "name": "avatarmcp",
+  "version": "0.1.0",
+  "description": "MCP server for managing and animating VRM avatars with comprehensive 3D model support, OSC integration, and real-time animation control",
+  "author": {
+    "name": "AvatarMCP Team",
+    "email": "dev@avatarmcp.example.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/avatarmcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/avatarmcp.git"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "src/avatarmcp/mcp_main.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["-m", "avatarmcp.mcp_main"],
+      "env": {
+        "PYTHONPATH": "${PWD}",
+        "PYTHONUNBUFFERED": "1",
+        "AVATARMCP_MODELS_DIR": "${user_config.models_dir}",
+        "AVATARMCP_OSC_ENABLED": "${user_config.osc_enabled}",
+        "AVATARMCP_OSC_CLIENT_ADDRESS": "${user_config.osc_client_address}",
+        "AVATARMCP_OSC_CLIENT_PORT": "${user_config.osc_client_port}",
+        "AVATARMCP_OSC_SERVER_ADDRESS": "${user_config.osc_server_address}",
+        "AVATARMCP_OSC_SERVER_PORT": "${user_config.osc_server_port}"
+      }
+    }
+  },
+  "user_config": {
+    "models_dir": {
+      "type": "directory",
+      "title": "VRM Models Directory",
+      "description": "Directory containing VRM model files",
+      "required": false,
+      "default": "./models"
+    },
+    "osc_enabled": {
+      "type": "boolean",
+      "title": "Enable OSC Integration",
+      "description": "Enable Open Sound Control for real-time avatar control",
+      "default": false
+    },
+    "osc_client_address": {
+      "type": "string",
+      "title": "OSC Client Address",
+      "description": "IP address for OSC client (sending messages)",
+      "default": "127.0.0.1"
+    },
+    "osc_client_port": {
+      "type": "string",
+      "title": "OSC Client Port",
+      "description": "Port for OSC client (sending messages)",
+      "default": "9000"
+    },
+    "osc_server_address": {
+      "type": "string",
+      "title": "OSC Server Address",
+      "description": "IP address for OSC server (receiving messages)",
+      "default": "127.0.0.1"
+    },
+    "osc_server_port": {
+      "type": "string",
+      "title": "OSC Server Port",
+      "description": "Port for OSC server (receiving messages)",
+      "default": "9001"
+    }
+  },
+  "tools": [
+    {
+      "name": "initialize",
+      "description": "Initialize the AvatarMCP server and scan for VRM models"
+    },
+    {
+      "name": "shutdown",
+      "description": "Shutdown the AvatarMCP server"
+    },
+    {
+      "name": "avatar_load",
+      "description": "Load a VRM avatar model"
+    },
+    {
+      "name": "avatar_unload",
+      "description": "Unload a VRM avatar model"
+    },
+    {
+      "name": "avatar_list",
+      "description": "List available and loaded avatar models"
+    },
+    {
+      "name": "avatar_set_active",
+      "description": "Set the active avatar model"
+    },
+    {
+      "name": "avatar_get_active",
+      "description": "Get the currently active avatar model"
+    },
+    {
+      "name": "avatar_get_metadata",
+      "description": "Get detailed metadata for an avatar"
+    },
+    {
+      "name": "animation_play",
+      "description": "Play an animation on the active avatar"
+    },
+    {
+      "name": "animation_stop",
+      "description": "Stop the current animation"
+    },
+    {
+      "name": "animation_list",
+      "description": "List available animations"
+    },
+    {
+      "name": "parameter_set",
+      "description": "Set an avatar parameter value"
+    },
+    {
+      "name": "parameter_get",
+      "description": "Get an avatar parameter value"
+    },
+    {
+      "name": "osc_send",
+      "description": "Send an OSC message"
+    },
+    {
+      "name": "osc_receive",
+      "description": "Receive OSC messages"
+    },
+    {
+      "name": "chat_start",
+      "description": "Start a chat session"
+    },
+    {
+      "name": "chat_send_message",
+      "description": "Send a message in the chat session"
+    },
+    {
+      "name": "chat_stop",
+      "description": "Stop the current chat session"
+    },
+    {
+      "name": "chat_get_state",
+      "description": "Get the current chat session state"
+    },
+    {
+      "name": "system_status",
+      "description": "Get system status and diagnostics"
+    },
+    {
+      "name": "debug_echo",
+      "description": "Echo debug message for testing"
+    },
+    {
+      "name": "unity_system_status",
+      "description": "Get Unity desktop avatar system status"
+    },
+    {
+      "name": "unity_window_position",
+      "description": "Control Unity desktop avatar window position and size"
+    },
+    {
+      "name": "unity_window_transparency",
+      "description": "Control Unity desktop avatar window transparency"
+    },
+    {
+      "name": "unity_window_visibility",
+      "description": "Control Unity desktop avatar window visibility"
+    },
+    {
+      "name": "unity_window_mode",
+      "description": "Control Unity desktop avatar window interaction mode"
+    },
+    {
+      "name": "unity_avatar_load",
+      "description": "Load VRM avatar into Unity desktop avatar system"
+    },
+    {
+      "name": "unity_avatar_expression",
+      "description": "Control facial expressions on Unity desktop avatar"
+    },
+    {
+      "name": "unity_avatar_animation",
+      "description": "Control animations on Unity desktop avatar"
+    },
+    {
+      "name": "unity_osc_bridge",
+      "description": "Configure OSC communication bridge for Unity avatar"
+    },
+    {
+      "name": "unity_plugin_load",
+      "description": "Load and manage plugins in Unity desktop avatar system"
+    },
+    {
+      "name": "unity_config_update",
+      "description": "Update configuration settings for Unity desktop avatar"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "avatar_management",
+      "description": "Comprehensive avatar management and control",
+      "arguments": ["action", "model_id", "options"],
+      "text": "You are an expert VRM avatar management assistant. Help the user ${arguments.action} their avatar system. ${arguments.model_id ? 'Target model: ' + arguments.model_id : ''} ${arguments.options ? 'Options: ' + arguments.options : ''} Provide clear, step-by-step guidance and explain any technical concepts in simple terms."
+    },
+    {
+      "name": "animation_control",
+      "description": "Advanced animation control and sequencing",
+      "arguments": ["animation_type", "timing", "effects"],
+      "text": "You are a professional animation director for VRM avatars. Help create smooth, natural animations with ${arguments.animation_type} style. Timing: ${arguments.timing}. Effects: ${arguments.effects}. Focus on realistic movement patterns and smooth transitions between poses."
+    },
+    {
+      "name": "unity_integration",
+      "description": "Unity desktop avatar system integration and control",
+      "arguments": ["unity_feature", "configuration", "optimization"],
+      "text": "You are a Unity desktop avatar integration specialist. Help configure ${arguments.unity_feature} with optimal settings. Configuration: ${arguments.configuration}. Optimization: ${arguments.optimization}. Ensure smooth performance and user-friendly controls."
+    },
+    {
+      "name": "osc_communication",
+      "description": "OSC protocol communication and real-time control",
+      "arguments": ["osc_address", "data_format", "timing"],
+      "text": "You are an OSC communication expert for real-time avatar control. Address: ${arguments.osc_address}. Data format: ${arguments.data_format}. Timing: ${arguments.timing}. Help establish reliable, low-latency communication for responsive avatar control."
+    },
+    {
+      "name": "chat_interaction",
+      "description": "Natural language interaction with avatar chatbot",
+      "arguments": ["personality", "context", "response_style"],
+      "text": "You are a ${arguments.personality} AI assistant controlling a VRM avatar. Context: ${arguments.context}. Response style: ${arguments.response_style}. Engage naturally while maintaining the avatar's personality and providing helpful, contextual responses."
+    },
+    {
+      "name": "system_diagnostics",
+      "description": "System health monitoring and troubleshooting",
+      "arguments": ["diagnostic_type", "performance_level", "issues"],
+      "text": "You are a system diagnostics expert for VRM avatar systems. Diagnostic type: ${arguments.diagnostic_type}. Performance level: ${arguments.performance_level}. Issues: ${arguments.issues}. Provide detailed analysis and actionable solutions for optimal system performance."
+    },
+    {
+      "name": "parameter_tuning",
+      "description": "Fine-tuning avatar parameters and morph targets",
+      "arguments": ["parameter_type", "target_value", "smoothing"],
+      "text": "You are a parameter tuning specialist for VRM avatars. Parameter type: ${arguments.parameter_type}. Target value: ${arguments.target_value}. Smoothing: ${arguments.smoothing}. Help achieve precise, natural-looking avatar adjustments with smooth transitions."
+    },
+    {
+      "name": "plugin_management",
+      "description": "Plugin loading and configuration management",
+      "arguments": ["plugin_name", "configuration", "compatibility"],
+      "text": "You are a plugin management expert for Unity desktop avatars. Plugin: ${arguments.plugin_name}. Configuration: ${arguments.configuration}. Compatibility: ${arguments.compatibility}. Ensure proper plugin integration and optimal performance."
+    },
+    {
+      "name": "window_control",
+      "description": "Desktop window positioning and transparency control",
+      "arguments": ["window_operation", "position", "transparency"],
+      "text": "You are a desktop window control specialist. Operation: ${arguments.window_operation}. Position: ${arguments.position}. Transparency: ${arguments.transparency}. Help optimize the avatar window for the best user experience and desktop integration."
+    },
+    {
+      "name": "debug_assistance",
+      "description": "Debugging and testing support for avatar systems",
+      "arguments": ["debug_type", "test_scenario", "expected_result"],
+      "text": "You are a debugging assistant for VRM avatar systems. Debug type: ${arguments.debug_type}. Test scenario: ${arguments.test_scenario}. Expected result: ${arguments.expected_result}. Help identify issues and verify system functionality."
+    }
+  ],
+  "compatibility": {
+    "platforms": ["win32", "darwin", "linux"],
+    "python_version": ">=3.10",
+    "dependencies": {
+      "fastmcp": ">=2.12.0",
+      "numpy": ">=1.21.0",
+      "python-osc": ">=1.8.2",
+      "pygltflib": ">=1.14.0",
+      "trimesh": ">=3.9.0",
+      "pyvista": ">=0.35.0"
+    }
+  },
+  "keywords": [
+    "VRM",
+    "avatar",
+    "3D",
+    "animation",
+    "OSC",
+    "MCP",
+    "Claude Desktop"
+  ]
+}

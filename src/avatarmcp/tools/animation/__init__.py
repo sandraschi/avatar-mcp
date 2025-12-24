@@ -6,4 +6,4 @@ Tools for advanced animation control, choreography, and complex animation sequen
 
 from .animation_tools import AnimationTools
 
-__all__ = ['AnimationTools']
+__all__ = ["AnimationTools"]

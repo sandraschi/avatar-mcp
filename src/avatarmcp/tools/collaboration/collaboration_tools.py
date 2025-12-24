@@ -6,7 +6,7 @@ coordinating collaborative interactions, synchronizing scene states, and
 enabling avatar-to-avatar communication for complex social experiences.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class CollaborationTools:
@@ -19,9 +19,10 @@ class CollaborationTools:
 
     def _register_tools(self):
         """Register all collaboration tools with the MCP server."""
+
         # Register avatar_scene_join tool
         @self.mcp_server.mcp.tool()
-        def avatar_scene_join(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_scene_join(params: dict[str, Any]) -> dict[str, Any]:
             """Add an avatar to a shared scene with synchronization and role assignment.
 
             Enables avatars to join collaborative scenes, synchronizing their state
@@ -143,19 +144,19 @@ class CollaborationTools:
             osc_address = "/avatar/avatar/scene/join"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'avatar_scene_join tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "avatar_scene_join tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send avatar_scene_join command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send avatar_scene_join command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def avatar_group_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_group_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create coordinated groups of avatars for collaborative activities.
 
             Forms organized groups of avatars with shared objectives, synchronized
@@ -288,19 +289,19 @@ class CollaborationTools:
             osc_address = "/avatar/avatar/group/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'avatar_group_create tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "avatar_group_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send avatar_group_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send avatar_group_create command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def avatar_interaction_request(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_interaction_request(params: dict[str, Any]) -> dict[str, Any]:
             """Request collaborative interactions between avatars.
 
             Initiates interaction requests between avatars, enabling coordinated
@@ -443,19 +444,21 @@ class CollaborationTools:
             osc_address = "/avatar/avatar/interaction/request"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'avatar_interaction_request tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "avatar_interaction_request tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send avatar_interaction_request command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send avatar_interaction_request command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def scene_state_save(params: Dict[str, Any]) -> Dict[str, Any]:
+        def scene_state_save(params: dict[str, Any]) -> dict[str, Any]:
             """Save the current state of a scene for later restoration or sharing.
 
             Captures complete scene state including avatar positions, object states,
@@ -591,19 +594,19 @@ class CollaborationTools:
             osc_address = "/avatar/scene/state/save"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'scene_state_save tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "scene_state_save tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send scene_state_save command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send scene_state_save command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def avatar_message_send(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_message_send(params: dict[str, Any]) -> dict[str, Any]:
             """Send messages between avatars in collaborative environments.
 
             Enables direct communication between avatars through text, voice,
@@ -683,7 +686,9 @@ class CollaborationTools:
                         'sender_avatar': 'party_host',
                         'recipient_avatar': 'all',
                         'message_type': 'text',
-                        'message_content': '今夜8時に仮想パーティーへようこそ！ 楽しい時間を過ごしましょう！',
+                        'message_content': (
+                            '今夜8時に仮想パーティーへようこそ！ 楽しい時間を過ごしましょう！'
+                        ),
                         'delivery_method': 'scheduled',
                         'priority_level': 'normal',
                         'message_metadata': {
@@ -762,13 +767,13 @@ class CollaborationTools:
             osc_address = "/avatar/avatar/message/send"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'avatar_message_send tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "avatar_message_send tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send avatar_message_send command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send avatar_message_send command to Unity desktop avatar",
                 }

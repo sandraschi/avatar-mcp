@@ -6,7 +6,7 @@ appearance modification, animation creation, voice synthesis, scene building,
 and interactive content authoring for comprehensive avatar development.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class ContentTools:
@@ -19,9 +19,10 @@ class ContentTools:
 
     def _register_tools(self):
         """Register all content creation tools with the MCP server."""
+
         # Register avatar_appearance_modify tool
         @self.mcp_server.mcp.tool()
-        def avatar_appearance_modify(params: Dict[str, Any]) -> Dict[str, Any]:
+        def avatar_appearance_modify(params: dict[str, Any]) -> dict[str, Any]:
             """Modify avatar appearance including body shape, colors, textures, and styling.
 
             Provides comprehensive avatar customization capabilities for creating unique
@@ -169,19 +170,21 @@ class ContentTools:
             osc_address = "/avatar/avatar/appearance/modify"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'avatar_appearance_modify tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "avatar_appearance_modify tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send avatar_appearance_modify command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send avatar_appearance_modify command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def animation_custom_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def animation_custom_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create custom animations from scratch or by combining existing animations.
 
             Enables the creation of new animation content through procedural generation,
@@ -199,7 +202,8 @@ class ContentTools:
                     - "keyframe" = create from manual keyframe data
                     - "capture" = record from live avatar movement
                     - "modify" = modify existing animation with adjustments
-                base_animations: Source animations for blending/modification (required for blend/modify)
+                base_animations: Source animations for blending/modification
+                    (required for blend/modify)
                     - Array of existing animation names
                     - Used as foundation for new animation
                     - Must exist in animation library
@@ -355,19 +359,21 @@ class ContentTools:
             osc_address = "/avatar/animation/custom/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'animation_custom_create tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "animation_custom_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send animation_custom_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send animation_custom_create command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def voice_custom_synthesis(params: Dict[str, Any]) -> Dict[str, Any]:
+        def voice_custom_synthesis(params: dict[str, Any]) -> dict[str, Any]:
             """Create custom voice synthesis profiles with unique characteristics.
 
             Develops personalized voice synthesis models with specific vocal traits,
@@ -552,19 +558,21 @@ class ContentTools:
             osc_address = "/avatar/voice/custom/synthesis"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'voice_custom_synthesis tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "voice_custom_synthesis tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send voice_custom_synthesis command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send voice_custom_synthesis command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def scene_template_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def scene_template_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create reusable scene templates with environments, objects, and layouts.
 
             Designs and saves complete scene configurations including environmental
@@ -641,15 +649,27 @@ class ContentTools:
                             {'object': 'window_with_view', 'position': {'x': 0, 'y': 2, 'z': -3}}
                         ],
                         'camera_presets': [
-                            {'name': 'conversation', 'position': {'x': 2, 'y': 1.5, 'z': 2}, 'look_at': {'x': 0, 'y': 1, 'z': 0}},
-                            {'name': 'over_shoulder', 'position': {'x': 1.5, 'y': 1.2, 'z': 1}, 'look_at': {'x': 0, 'y': 1.2, 'z': -1}}
+                            {
+                                'name': 'conversation',
+                                'position': {'x': 2, 'y': 1.5, 'z': 2},
+                                'look_at': {'x': 0, 'y': 1, 'z': 0}
+                            },
+                            {
+                                'name': 'over_shoulder',
+                                'position': {'x': 1.5, 'y': 1.2, 'z': 1},
+                                'look_at': {'x': 0, 'y': 1.2, 'z': -1}
+                            }
                         ],
                         'interactive_elements': [
                             {'type': 'menu_board', 'position': {'x': -1, 'y': 1.5, 'z': -2}},
                             {'type': 'coffee_machine', 'position': {'x': -2, 'y': 1, 'z': 1}}
                         ],
                         'lighting_setup': {
-                            'main_light': {'type': 'ceiling', 'intensity': 0.7, 'temperature': 2700},
+                            'main_light': {
+                                'type': 'ceiling',
+                                'intensity': 0.7,
+                                'temperature': 2700
+                            },
                             'accent_lights': {'warm_glow': 0.4, 'window_light': 0.3}
                         },
                         'audio_environment': {
@@ -676,8 +696,16 @@ class ContentTools:
                             {'object': 'spotlight_rig', 'position': {'x': 0, 'y': 4, 'z': 0}}
                         ],
                         'camera_presets': [
-                            {'name': 'stage_wide', 'position': {'x': 0, 'y': 2, 'z': 5}, 'fov': 60},
-                            {'name': 'close_up', 'position': {'x': 0, 'y': 1.5, 'z': 1.5}, 'fov': 35},
+                            {
+                                'name': 'stage_wide',
+                                'position': {'x': 0, 'y': 2, 'z': 5},
+                                'fov': 60
+                            },
+                            {
+                                'name': 'close_up',
+                                'position': {'x': 0, 'y': 1.5, 'z': 1.5},
+                                'fov': 35
+                            },
                             {'name': 'audience_view', 'position': {'x': 3, 'y': 1, 'z': 8}}
                         ],
                         'interactive_elements': [
@@ -685,9 +713,19 @@ class ContentTools:
                             {'type': 'lighting_console', 'position': {'x': -3, 'y': 1, 'z': -3}}
                         ],
                         'lighting_setup': {
-                            'spotlight_main': {'color': {'r': 1.0, 'g': 0.9, 'b': 0.7}, 'intensity': 1.0, 'angle': 30},
-                            'stage_wash': {'color': {'r': 0.8, 'g': 0.6, 'b': 0.9}, 'intensity': 0.4},
-                            'audience_lights': {'color': {'r': 1.0, 'g': 0.8, 'b': 0.6}, 'intensity': 0.2}
+                            'spotlight_main': {
+                                'color': {'r': 1.0, 'g': 0.9, 'b': 0.7},
+                                'intensity': 1.0,
+                                'angle': 30
+                            },
+                            'stage_wash': {
+                                'color': {'r': 0.8, 'g': 0.6, 'b': 0.9},
+                                'intensity': 0.4
+                            },
+                            'audience_lights': {
+                                'color': {'r': 1.0, 'g': 0.8, 'b': 0.6},
+                                'intensity': 0.2
+                            }
                         },
                         'audio_environment': {
                             'reverb': 'concert_hall',
@@ -714,11 +752,23 @@ class ContentTools:
                         ],
                         'camera_presets': [
                             {'name': 'entrance', 'position': {'x': 0, 'y': 2, 'z': 5}},
-                            {'name': 'suspense_close', 'position': {'x': 1, 'y': 1.5, 'z': 2}, 'shake': 0.1}
+                            {
+                                'name': 'suspense_close',
+                                'position': {'x': 1, 'y': 1.5, 'z': 2},
+                                'shake': 0.1
+                            }
                         ],
                         'interactive_elements': [
-                            {'type': 'hidden_door', 'position': {'x': -1, 'y': 1, 'z': -2}, 'trigger': 'secret_knock'},
-                            {'type': 'moving_portrait', 'position': {'x': 2, 'y': 2, 'z': -1}, 'animation': 'eye_follow'},
+                            {
+                                'type': 'hidden_door',
+                                'position': {'x': -1, 'y': 1, 'z': -2},
+                                'trigger': 'secret_knock'
+                            },
+                            {
+                                'type': 'moving_portrait',
+                                'position': {'x': 2, 'y': 2, 'z': -1},
+                                'animation': 'eye_follow'
+                            },
                             {'type': 'wind_creaking', 'trigger': 'player_near', 'volume': 0.6}
                         ],
                         'lighting_setup': {
@@ -770,19 +820,21 @@ class ContentTools:
             osc_address = "/avatar/scene/template/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'scene_template_create tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "scene_template_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send scene_template_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send scene_template_create command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def interaction_script_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def interaction_script_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create interactive scripts that define avatar behaviors and responses.
 
             Develops sophisticated interaction scripts that govern how avatars respond
@@ -808,7 +860,8 @@ class ContentTools:
                     - Array of action sequences
                     - Defines what avatar does when triggered
                     - Supports animation, dialogue, expression changes
-                conversation_flow: Dialogue and conversation structure (optional for conversation type)
+                conversation_flow: Dialogue and conversation structure
+                    (optional for conversation type)
                     - Dictionary defining conversation branches
                     - Includes user input handling and responses
                     - Supports branching dialogue trees
@@ -858,14 +911,22 @@ class ContentTools:
                                 'sequence': [
                                     {'action': 'expression', 'type': 'smile', 'duration': 2.0},
                                     {'action': 'animation', 'name': 'wave_hello', 'wait': True},
-                                    {'action': 'dialogue', 'text': 'Hello! So wonderful to see you!', 'emotion': 'joyful'}
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'Hello! So wonderful to see you!',
+                                        'emotion': 'joyful'
+                                    }
                                 ]
                             },
                             {
                                 'trigger': 'user_question',
                                 'sequence': [
                                     {'action': 'expression', 'type': 'thinking', 'duration': 1.0},
-                                    {'action': 'dialogue', 'text': 'I\'m doing wonderfully, thank you for asking!', 'emotion': 'happy'}
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'I\'m doing wonderfully, thank you for asking!',
+                                        'emotion': 'happy'
+                                    }
                                 ]
                             }
                         ],
@@ -893,7 +954,11 @@ class ContentTools:
                             {'type': 'user_positive', 'sentiment': 'positive', 'threshold': 0.7},
                             {'type': 'user_negative', 'sentiment': 'negative', 'threshold': 0.6},
                             {'type': 'user_confused', 'sentiment': 'confused', 'threshold': 0.5},
-                            {'type': 'performance_success', 'metric': 'engagement', 'threshold': 0.8}
+                            {
+                                'type': 'performance_success',
+                                'metric': 'engagement',
+                                'threshold': 0.8
+                            }
                         ],
                         'response_actions': [
                             {
@@ -901,21 +966,40 @@ class ContentTools:
                                 'sequence': [
                                     {'action': 'expression', 'type': 'joy', 'intensity': 0.9},
                                     {'action': 'animation', 'name': 'celebrate', 'loop': False},
-                                    {'action': 'dialogue', 'text': 'That makes me so happy!', 'emotion': 'ecstatic'}
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'That makes me so happy!',
+                                        'emotion': 'ecstatic'
+                                    }
                                 ]
                             },
                             {
                                 'trigger': 'user_negative',
                                 'sequence': [
-                                    {'action': 'expression', 'type': 'concern', 'intensity': 0.7},
-                                    {'action': 'animation', 'name': 'comforting_gesture'},
-                                    {'action': 'dialogue', 'text': 'I\'m here for you', 'emotion': 'caring'}
+                                    {
+                                        'action': 'expression',
+                                        'type': 'concern',
+                                        'intensity': 0.7
+                                    },
+                                    {
+                                        'action': 'animation',
+                                        'name': 'comforting_gesture'
+                                    },
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'I\'m here for you',
+                                        'emotion': 'caring'
+                                    }
                                 ]
                             }
                         ],
                         'fallback_behaviors': [
                             {'action': 'expression', 'type': 'neutral'},
-                            {'action': 'dialogue', 'text': 'I\'m listening...', 'emotion': 'attentive'}
+                            {
+                                'action': 'dialogue',
+                                'text': 'I\'m listening...',
+                                'emotion': 'attentive'
+                            }
                         ]
                     })
                     # Create emotionally responsive avatar
@@ -925,9 +1009,16 @@ class ContentTools:
                         'script_name': 'avatar_tutorial',
                         'script_type': 'tutorial',
                         'trigger_conditions': [
-                            {'type': 'user_stuck', 'pattern': 'help', 'frequency': 3},
+                            {
+                                'type': 'user_stuck',
+                                'pattern': 'help',
+                                'frequency': 3
+                            },
                             {'type': 'task_completion', 'success': True},
-                            {'type': 'progress_slow', 'time_threshold': 120}
+                            {
+                                'type': 'progress_slow',
+                                'time_threshold': 120
+                            }
                         ],
                         'response_actions': [
                             {
@@ -935,7 +1026,11 @@ class ContentTools:
                                 'sequence': [
                                     {'action': 'expression', 'type': 'helpful', 'duration': 2.0},
                                     {'action': 'animation', 'name': 'pointing_gesture'},
-                                    {'action': 'dialogue', 'text': 'Let me show you how to do that!', 'emotion': 'encouraging'},
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'Let me show you how to do that!',
+                                        'emotion': 'encouraging'
+                                    },
                                     {'action': 'tutorial_overlay', 'step': 'current'}
                                 ]
                             },
@@ -944,7 +1039,11 @@ class ContentTools:
                                 'sequence': [
                                     {'action': 'expression', 'type': 'proud', 'duration': 3.0},
                                     {'action': 'animation', 'name': 'applause_gesture'},
-                                    {'action': 'dialogue', 'text': 'Excellent work! You\'ve mastered that perfectly!', 'emotion': 'proud'}
+                                    {
+                                        'action': 'dialogue',
+                                        'text': 'Excellent work! You\'ve mastered that perfectly!',
+                                        'emotion': 'proud'
+                                    }
                                 ]
                             }
                         ],
@@ -997,13 +1096,15 @@ class ContentTools:
             osc_address = "/avatar/interaction/script/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'interaction_script_create tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "interaction_script_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send interaction_script_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send interaction_script_create command to Unity desktop avatar"
+                    ),
                 }

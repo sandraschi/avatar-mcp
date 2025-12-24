@@ -3,22 +3,24 @@ MCP Tools for 3D Visualization (FastMCP 2.11.3+).
 
 This module provides FastMCP 2.11.3+ compatible tools for 3D visualization.
 """
+
 import asyncio
 import logging
 import random
-from typing import Dict, Any, Optional, List
+from typing import Any
 
 from ..core.mcp_tools import MCPTools as BaseTools
 from .manager import VisualizationManager
 
 logger = logging.getLogger(__name__)
 
+
 class VisualizationTools(BaseTools):
     """MCP Tools for 3D visualization, animation, and interaction."""
-    
+
     def __init__(self, mcp_server, vrc_osc, visualization_manager: VisualizationManager):
         """Initialize visualization tools.
-        
+
         Args:
             mcp_server: The MCP server instance
             vrc_osc: The VRChat OSC connector
@@ -31,23 +33,23 @@ class VisualizationTools(BaseTools):
         self.chatbot_enabled = False
         self.voice_controller = None
         self.chatbot = None
-        
+
         # Initialize voice-related attributes
         self.voice_controller = None
         self.voice_enabled = False
-        
+
         self._register_commands()
-        
+
         # Dance animation state
         self.dance_tasks = {}  # model_id -> dance_task
-    
+
     def show_viewer(self, *args, **kwargs):
         """Show the visualization viewer.
-        
+
         Args:
             *args: Positional arguments (unused)
             **kwargs: Keyword arguments (unused)
-            
+
         Returns:
             dict: Status of the operation
         """
@@ -57,14 +59,14 @@ class VisualizationTools(BaseTools):
         except Exception as e:
             logger.error(f"Failed to show visualization viewer: {str(e)}")
             return {"status": "error", "message": f"Failed to show viewer: {str(e)}"}
-            
+
     def hide_viewer(self, *args, **kwargs):
         """Hide the visualization viewer.
-        
+
         Args:
             *args: Positional arguments (unused)
             **kwargs: Keyword arguments (unused)
-            
+
         Returns:
             dict: Status of the operation
         """
@@ -74,143 +76,149 @@ class VisualizationTools(BaseTools):
         except Exception as e:
             logger.error(f"Failed to hide visualization viewer: {str(e)}")
             return {"status": "error", "message": f"Failed to hide viewer: {str(e)}"}
-            
-    def animate(self, model_id: str, animation_name: str, loop: bool = False, speed: float = 1.0, **kwargs):
+
+    def animate(
+        self, model_id: str, animation_name: str, loop: bool = False, speed: float = 1.0, **kwargs
+    ):
         """Animate a 3D model.
-        
+
         Args:
             model_id: ID of the model to animate
             animation_name: Name of the animation to play
             loop: Whether to loop the animation
             speed: Playback speed multiplier
             **kwargs: Additional animation parameters
-            
+
         Returns:
             dict: Status of the animation
         """
         try:
             if model_id not in self.visualization.models:
                 return {"status": "error", "message": f"Model {model_id} not found"}
-                
+
             # Stop any existing animation for this model
             if model_id in self.active_animations:
                 self.stop_animation(model_id)
-                
+
             # Start the new animation
-            self.visualization.animate_model(model_id, animation_name, loop=loop, speed=speed, **kwargs)
+            self.visualization.animate_model(
+                model_id, animation_name, loop=loop, speed=speed, **kwargs
+            )
             self.active_animations[model_id] = animation_name
-            
+
             return {
                 "status": "success",
                 "message": f"Started animation '{animation_name}' on model '{model_id}'",
                 "model_id": model_id,
                 "animation": animation_name,
                 "loop": loop,
-                "speed": speed
+                "speed": speed,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to animate model {model_id}: {str(e)}")
             return {
                 "status": "error",
                 "message": f"Failed to animate model {model_id}: {str(e)}",
                 "model_id": model_id,
-                "animation": animation_name
+                "animation": animation_name,
             }
-            
+
     def stop_animation(self, model_id: str) -> dict:
         """Stop animation for a model.
-        
+
         Args:
             model_id: ID of the model to stop animating
-            
+
         Returns:
             dict: Status of the operation
         """
         try:
             if model_id not in self.visualization.models:
                 return {"status": "error", "message": f"Model {model_id} not found"}
-                
+
             # Stop the animation in the visualization
             self.visualization.stop_animation(model_id)
-            
+
             # Remove from active animations if present
             if model_id in self.active_animations:
                 del self.active_animations[model_id]
-                
+
             return {
                 "status": "success",
                 "message": f"Stopped animation on model '{model_id}'",
-                "model_id": model_id
+                "model_id": model_id,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to stop animation on model {model_id}: {str(e)}")
             return {
                 "status": "error",
                 "message": f"Failed to stop animation on model {model_id}: {str(e)}",
-                "model_id": model_id
+                "model_id": model_id,
             }
-            
-    def set_transform(self, model_id: str, position: list = None, rotation: list = None, scale: list = None) -> dict:
+
+    def set_transform(
+        self, model_id: str, position: list = None, rotation: list = None, scale: list = None
+    ) -> dict:
         """Set the transform (position, rotation, scale) of a model.
-        
+
         Args:
             model_id: ID of the model to transform
             position: [x, y, z] position (optional)
             rotation: [x, y, z] rotation in degrees (optional)
             scale: [x, y, z] scale (optional)
-            
+
         Returns:
             dict: Status of the operation
         """
         try:
             if model_id not in self.visualization.models:
                 return {"status": "error", "message": f"Model {model_id} not found"}
-                
+
             # Update position if provided
             if position is not None:
                 self.visualization.set_model_position(model_id, position)
-                
+
             # Update rotation if provided (convert from degrees to radians if needed)
             if rotation is not None:
                 self.visualization.set_model_rotation(model_id, rotation)
-                
+
             # Update scale if provided
             if scale is not None:
                 self.visualization.set_model_scale(model_id, scale)
-                
+
             return {
                 "status": "success",
                 "message": f"Updated transform for model '{model_id}'",
                 "model_id": model_id,
                 "position": position,
                 "rotation": rotation,
-                "scale": scale
+                "scale": scale,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to set transform for model {model_id}: {str(e)}")
             return {
                 "status": "error",
                 "message": f"Failed to set transform for model {model_id}: {str(e)}",
-                "model_id": model_id
+                "model_id": model_id,
             }
-            
+
     async def make_avatar_dance(self, model_id: str, dance_style: str = "default") -> dict:
         """Make an avatar perform a dance animation.
-        
+
         Args:
             model_id: ID of the avatar model
             dance_style: Style of dance to perform (default, hiphop, salsa, etc.)
-            
+
         Returns:
             dict: Status of the dance operation
         """
         try:
             if model_id not in self.visualization.models:
                 return {"status": "error", "message": f"Model {model_id} not found"}
-                
+
             # Cancel any existing dance task for this model
             if model_id in self.dance_tasks:
                 self.dance_tasks[model_id].cancel()
@@ -218,30 +226,30 @@ class VisualizationTools(BaseTools):
                     await self.dance_tasks[model_id]
                 except asyncio.CancelledError:
                     pass
-                
+
             # Start a new dance task
             self.dance_tasks[model_id] = asyncio.create_task(
                 self._dance_routine(model_id, dance_style)
             )
-            
+
             return {
                 "status": "success",
                 "message": f"Started {dance_style} dance for model '{model_id}'",
                 "model_id": model_id,
-                "dance_style": dance_style
+                "dance_style": dance_style,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to start dance for model {model_id}: {str(e)}")
             return {
                 "status": "error",
                 "message": f"Failed to start dance for model {model_id}: {str(e)}",
-                "model_id": model_id
+                "model_id": model_id,
             }
-            
+
     async def _dance_routine(self, model_id: str, dance_style: str):
         """Background task to handle dance animations.
-        
+
         Args:
             model_id: ID of the model to animate
             dance_style: Style of dance to perform
@@ -249,37 +257,37 @@ class VisualizationTools(BaseTools):
         try:
             # Define dance moves based on style
             dance_moves = self._get_dance_moves(dance_style)
-            
+
             # Loop through dance moves
             while True:
                 for move in dance_moves:
                     if model_id not in self.visualization.models:
                         return  # Stop if model was removed
-                        
+
                     # Apply the dance move
                     if "animation" in move:
                         self.visualization.animate_model(
-                            model_id, 
-                            move["animation"], 
+                            model_id,
+                            move["animation"],
                             loop=move.get("loop", False),
-                            speed=move.get("speed", 1.0)
+                            speed=move.get("speed", 1.0),
                         )
-                    
+
                     # Wait for the move duration
                     await asyncio.sleep(move.get("duration", 2.0))
-                    
+
         except asyncio.CancelledError:
             # Clean up when cancelled
             if model_id in self.dance_tasks:
                 del self.dance_tasks[model_id]
             raise
-            
+
     def _get_dance_moves(self, dance_style: str) -> list:
         """Get a sequence of dance moves for a given style.
-        
+
         Args:
             dance_style: Style of dance
-            
+
         Returns:
             list: Sequence of dance moves with parameters
         """
@@ -288,25 +296,25 @@ class VisualizationTools(BaseTools):
             return [
                 {"animation": "dance_hiphop_1", "duration": 3.0, "loop": False},
                 {"animation": "dance_hiphop_2", "duration": 3.0, "loop": False},
-                {"animation": "dance_hiphop_3", "duration": 2.0, "loop": True, "speed": 1.2}
+                {"animation": "dance_hiphop_3", "duration": 2.0, "loop": True, "speed": 1.2},
             ]
         elif dance_style == "salsa":
             return [
                 {"animation": "dance_salsa_1", "duration": 4.0, "loop": False},
                 {"animation": "dance_salsa_2", "duration": 4.0, "loop": False},
-                {"animation": "dance_salsa_3", "duration": 3.0, "loop": True}
+                {"animation": "dance_salsa_3", "duration": 3.0, "loop": True},
             ]
         else:  # default
             return [
                 {"animation": "dance_default_1", "duration": 2.0, "loop": True},
-                {"animation": "dance_default_2", "duration": 2.0, "loop": True}
+                {"animation": "dance_default_2", "duration": 2.0, "loop": True},
             ]
 
     # ===== Voice Methods =====
-    
+
     async def enable_voice(self, enable: bool = True, **kwargs) -> dict:
         """Enable or disable voice capabilities.
-        
+
         Args:
             enable: Whether to enable voice
             **kwargs: Additional voice settings
@@ -314,7 +322,7 @@ class VisualizationTools(BaseTools):
                 - rate: Speech rate (words per minute)
                 - volume: Volume level (0.0 to 1.0)
                 - language: Language code (e.g., 'en-US')
-                
+
         Returns:
             dict: Status of the operation
         """
@@ -322,14 +330,15 @@ class VisualizationTools(BaseTools):
             if enable:
                 if self.voice_controller is None:
                     from ..ai.voice_controller import VoiceController
+
                     self.voice_controller = VoiceController()
                     await self.voice_controller.initialize()
                     logger.info("Voice controller initialized")
-                
+
                 # Update voice settings if provided
                 if kwargs:
                     await self.voice_controller.update_config(**kwargs)
-                
+
                 self.voice_enabled = True
                 return {"status": "success", "message": "Voice enabled"}
             else:
@@ -338,44 +347,41 @@ class VisualizationTools(BaseTools):
                     self.voice_controller = None
                 self.voice_enabled = False
                 return {"status": "success", "message": "Voice disabled"}
-                
+
         except Exception as e:
             logger.error(f"Failed to {'enable' if enable else 'disable'} voice: {str(e)}")
             return {
                 "status": "error",
-                "message": f"Failed to {'enable' if enable else 'disable'} voice: {str(e)}"
+                "message": f"Failed to {'enable' if enable else 'disable'} voice: {str(e)}",
             }
-    
+
     async def set_voice_settings(self, **kwargs) -> dict:
         """Update voice settings.
-        
+
         Args:
             **kwargs: Voice settings to update
                 - voice_id: Voice ID to use
                 - rate: Speech rate (words per minute)
                 - volume: Volume level (0.0 to 1.0)
                 - language: Language code
-                
+
         Returns:
             dict: Status of the operation
         """
         try:
             if not self.voice_enabled or self.voice_controller is None:
                 return {"status": "error", "message": "Voice is not enabled"}
-                
+
             await self.voice_controller.update_config(**kwargs)
             return {"status": "success", "message": "Voice settings updated"}
-            
+
         except Exception as e:
             logger.error(f"Failed to update voice settings: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Failed to update voice settings: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Failed to update voice settings: {str(e)}"}
+
     async def speak(self, text: str, wait: bool = False, **kwargs) -> dict:
         """Convert text to speech.
-        
+
         Args:
             text: Text to speak
             wait: Whether to wait for speech to complete
@@ -383,83 +389,74 @@ class VisualizationTools(BaseTools):
                 - voice_id: Override default voice
                 - rate: Override speech rate
                 - volume: Override volume
-                
+
         Returns:
             dict: Status of the operation
         """
         try:
             if not self.voice_enabled or self.voice_controller is None:
                 return {"status": "error", "message": "Voice is not enabled"}
-                
+
             if wait:
                 await self.voice_controller.speak(text, **kwargs)
             else:
                 asyncio.create_task(self.voice_controller.speak(text, **kwargs))
-                
+
             return {"status": "success", "message": "Speech started"}
-            
+
         except Exception as e:
             logger.error(f"Failed to speak text: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Failed to speak text: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Failed to speak text: {str(e)}"}
+
     async def start_listening(self, **kwargs) -> dict:
         """Start listening for voice commands.
-        
+
         Args:
             **kwargs: Additional parameters for voice recognition
                 - language: Language code (e.g., 'en-US')
                 - continuous: Whether to listen continuously
                 - interim_results: Whether to return interim results
-                
+
         Returns:
             dict: Status of the operation
         """
         try:
             if not self.voice_enabled or self.voice_controller is None:
                 return {"status": "error", "message": "Voice is not enabled"}
-                
+
             await self.voice_controller.start_listening(**kwargs)
             return {"status": "success", "message": "Started listening"}
-            
+
         except Exception as e:
             logger.error(f"Failed to start listening: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Failed to start listening: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Failed to start listening: {str(e)}"}
+
     async def stop_listening(self) -> dict:
         """Stop listening for voice commands.
-        
+
         Returns:
             dict: Status of the operation
         """
         try:
             if not self.voice_enabled or self.voice_controller is None:
                 return {"status": "error", "message": "Voice is not enabled"}
-                
+
             await self.voice_controller.stop_listening()
             return {"status": "success", "message": "Stopped listening"}
-            
+
         except Exception as e:
             logger.error(f"Failed to stop listening: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Failed to stop listening: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Failed to stop listening: {str(e)}"}
+
     async def listen(self, duration: float = None, **kwargs) -> dict:
         """Listen for speech and transcribe it.
-        
+
         Args:
             duration: Maximum duration to listen in seconds (None for no limit)
             **kwargs: Additional parameters for voice recognition
                 - language: Language code (e.g., 'en-US')
                 - interim_results: Whether to include interim results
-                
+
         Returns:
             dict: Transcription result with status and text
         """
@@ -467,38 +464,35 @@ class VisualizationTools(BaseTools):
             if not self.voice_enabled or self.voice_controller is None:
                 return {
                     "status": "error",
-                    "message": "Voice is not enabled. Call voice.enable first."
+                    "message": "Voice is not enabled. Call voice.enable first.",
                 }
-                
+
             # Start listening
             await self.voice_controller.start_listening(**kwargs)
-            
+
             # Wait for the specified duration if provided
             if duration is not None and duration > 0:
                 await asyncio.sleep(duration)
                 await self.voice_controller.stop_listening()
-            
+
             # Get the transcription result
             result = await self.voice_controller.get_transcription()
             return {
                 "status": "success",
                 "text": result.get("text", ""),
                 "language": result.get("language", kwargs.get("language", "en-US")),
-                "is_final": result.get("is_final", True)
+                "is_final": result.get("is_final", True),
             }
-            
+
         except Exception as e:
             logger.error(f"Error during voice listening: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Error during voice listening: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Error during voice listening: {str(e)}"}
+
     # ===== Chatbot Methods =====
-    
+
     async def enable_chatbot(self, enable: bool = True, **kwargs) -> dict:
         """Enable or disable the chatbot.
-        
+
         Args:
             enable: Whether to enable or disable the chatbot
             **kwargs: Additional chatbot configuration
@@ -506,7 +500,7 @@ class VisualizationTools(BaseTools):
                 - system_prompt: System prompt for the chatbot
                 - temperature: Temperature for text generation
                 - max_tokens: Maximum number of tokens to generate
-                
+
         Returns:
             dict: Status of the operation
         """
@@ -514,11 +508,12 @@ class VisualizationTools(BaseTools):
             if enable:
                 if self.chatbot is None:
                     from ..ai.chatbot import Chatbot
+
                     self.chatbot = Chatbot(
-                        model=kwargs.get('model', 'gpt-4'),
-                        system_prompt=kwargs.get('system_prompt', 'You are a helpful assistant.'),
-                        temperature=kwargs.get('temperature', 0.7),
-                        max_tokens=kwargs.get('max_tokens', 1000)
+                        model=kwargs.get("model", "gpt-4"),
+                        system_prompt=kwargs.get("system_prompt", "You are a helpful assistant."),
+                        temperature=kwargs.get("temperature", 0.7),
+                        max_tokens=kwargs.get("max_tokens", 1000),
                     )
                     await self.chatbot.initialize()
                     logger.info("Chatbot initialized and enabled")
@@ -529,24 +524,24 @@ class VisualizationTools(BaseTools):
                     self.chatbot = None
                     logger.info("Chatbot disabled")
                 return {"status": "success", "message": "Chatbot disabled"}
-                
+
         except Exception as e:
             logger.error(f"Failed to {'enable' if enable else 'disable'} chatbot: {str(e)}")
             return {
                 "status": "error",
-                "message": f"Failed to {'enable' if enable else 'disable'} chatbot: {str(e)}"
+                "message": f"Failed to {'enable' if enable else 'disable'} chatbot: {str(e)}",
             }
-    
+
     async def chat(self, message: str, **kwargs) -> dict:
         """Send a message to the chatbot and get a response.
-        
+
         Args:
             message: The message to send to the chatbot
             **kwargs: Additional parameters for the chat
                 - model: Override default model
                 - temperature: Override default temperature
                 - max_tokens: Override default max tokens
-                
+
         Returns:
             dict: Chat response with status and message
         """
@@ -554,29 +549,26 @@ class VisualizationTools(BaseTools):
             if self.chatbot is None:
                 return {
                     "status": "error",
-                    "message": "Chatbot is not enabled. Call chatbot.enable first."
+                    "message": "Chatbot is not enabled. Call chatbot.enable first.",
                 }
-                
+
             response = await self.chatbot.chat(message, **kwargs)
             return {
                 "status": "success",
                 "message": response.get("message", ""),
-                "tokens_used": response.get("tokens_used", 0)
+                "tokens_used": response.get("tokens_used", 0),
             }
-            
+
         except Exception as e:
             logger.error(f"Error in chat: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Error in chat: {str(e)}"
-            }
-            
+            return {"status": "error", "message": f"Error in chat: {str(e)}"}
+
     async def process_chat(self, message: str, context: dict = None, **kwargs) -> dict:
         """Process a chat message with additional context.
-        
+
         This is a more advanced version of the chat method that supports additional
         context and processing options.
-        
+
         Args:
             message: The message to process
             context: Additional context for the chat (e.g., user info, session data)
@@ -587,7 +579,7 @@ class VisualizationTools(BaseTools):
                 - stream: Whether to stream the response
                 - functions: List of functions available to the model
                 - function_call: Controls how the model responds to function calls
-                
+
         Returns:
             dict: Response with status, message, and any additional data
         """
@@ -595,45 +587,38 @@ class VisualizationTools(BaseTools):
             if self.chatbot is None:
                 return {
                     "status": "error",
-                    "message": "Chatbot is not enabled. Call chatbot.enable first."
+                    "message": "Chatbot is not enabled. Call chatbot.enable first.",
                 }
-                
+
             # Prepare the chat context
-            chat_context = {
-                "message": message,
-                "context": context or {},
-                **kwargs
-            }
-            
+            chat_context = {"message": message, "context": context or {}, **kwargs}
+
             # Process the chat using the chatbot
             response = await self.chatbot.process(chat_context)
-            
+
             # Format the response
             result = {
                 "status": "success",
                 "message": response.get("message", ""),
                 "tokens_used": response.get("tokens_used", 0),
-                "metadata": response.get("metadata", {})
+                "metadata": response.get("metadata", {}),
             }
-            
+
             # Add any function calls if present
             if "function_call" in response:
                 result["function_call"] = response["function_call"]
-                
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error processing chat: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Error processing chat: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Error processing chat: {str(e)}"}
+
     # ===== Animation Box Methods =====
-    
+
     async def set_animation_box(self, visible: bool = True, **kwargs) -> dict:
         """Show or hide the animation box.
-        
+
         Args:
             visible: Whether to show or hide the animation box
             **kwargs: Additional parameters for the animation box
@@ -641,76 +626,69 @@ class VisualizationTools(BaseTools):
                 - rotation: [x, y, z] rotation in degrees
                 - scale: [x, y, z] scale
                 - color: [r, g, b, a] color (0-1 range)
-                
+
         Returns:
             dict: Status of the operation
         """
         try:
-            if not hasattr(self.visualization, 'set_animation_box'):
-                return {"status": "error", "message": "Animation box not supported by visualization"}
-                
+            if not hasattr(self.visualization, "set_animation_box"):
+                return {
+                    "status": "error",
+                    "message": "Animation box not supported by visualization",
+                }
+
             await self.visualization.set_animation_box(visible=visible, **kwargs)
-            return {"status": "success", "message": f"Animation box {'shown' if visible else 'hidden'}"}
-            
+            return {
+                "status": "success",
+                "message": f"Animation box {'shown' if visible else 'hidden'}",
+            }
+
         except Exception as e:
             logger.error(f"Failed to set animation box: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Failed to set animation box: {str(e)}"
-            }
-    
+            return {"status": "error", "message": f"Failed to set animation box: {str(e)}"}
+
     async def show_animation_box(self, **kwargs) -> dict:
         """Show the animation box.
-        
+
         Args:
             **kwargs: Additional parameters for the animation box
-                
+
         Returns:
             dict: Status of the operation
         """
         return await self.set_animation_box(True, **kwargs)
-    
+
     async def hide_animation_box(self) -> dict:
         """Hide the animation box.
-        
+
         Returns:
             dict: Status of the operation
         """
         return await self.set_animation_box(False)
-    
+
     async def get_animation_box_properties(self) -> dict:
         """Get the current properties of the animation box.
-        
+
         Returns:
             dict: Animation box properties with status
         """
         try:
-            if not hasattr(self.visualization, 'get_animation_box_properties'):
+            if not hasattr(self.visualization, "get_animation_box_properties"):
                 return {
                     "status": "error",
-                    "message": "Animation box properties not supported by visualization"
+                    "message": "Animation box properties not supported by visualization",
                 }
-                
+
             properties = await self.visualization.get_animation_box_properties()
-            return {
-                "status": "success",
-                "properties": properties
-            }
-            
+            return {"status": "success", "properties": properties}
+
         except Exception as e:
             logger.error(f"Failed to get animation box properties: {str(e)}")
             return {
                 "status": "error",
-                "message": f"Failed to get animation box properties: {str(e)}"
+                "message": f"Failed to get animation box properties: {str(e)}",
             }
-            
-            
-            
-            
-            
-            
-            
-            
+
     def _register_commands(self):
         """Register MCP commands."""
         self.commands = {
@@ -721,7 +699,6 @@ class VisualizationTools(BaseTools):
             "visualization.stop_animation": self.stop_animation,
             "visualization.set_transform": self.set_transform,
             "visualization.dance": self.make_avatar_dance,
-            
             # Voice commands
             "voice.enable": self.enable_voice,
             "voice.disable": lambda *args, **kwargs: self.enable_voice(False, *args, **kwargs),
@@ -730,77 +707,71 @@ class VisualizationTools(BaseTools):
             "voice.start_listening": self.start_listening,
             "voice.stop_listening": self.stop_listening,
             "voice.listen": self.listen,
-            
             # Animation box commands
             "animation_box.set": self.set_animation_box,
             "animation_box.show": self.show_animation_box,
             "animation_box.hide": self.hide_animation_box,
             "animation_box.get_properties": self.get_animation_box_properties,
-            
             # Chatbot commands
             "chatbot.enable": self.enable_chatbot,
             "chatbot.disable": lambda *args, **kwargs: self.enable_chatbot(False, *args, **kwargs),
             "chatbot.chat": self.chat,
-            "chatbot.process": self.process_chat
+            "chatbot.process": self.process_chat,
         }
-    
-    async def show_visualization(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def show_visualization(self, params: dict[str, Any]) -> dict[str, Any]:
         """Show the 3D visualization window.
-        
+
         Args:
             params: Request parameters
                 - model_id: ID of the model to show
                 - window_size: Optional [width, height] for the window
-                
+
         Returns:
             Response with status and window information
         """
         try:
-            model_id = params.get('model_id')
-            window_size = params.get('window_size', [1024, 768])
-            
+            model_id = params.get("model_id")
+            window_size = params.get("window_size", [1024, 768])
+
             if not model_id:
                 return self._error_response("model_id is required")
-                
+
             success = await self.visualization.show_model(model_id, window_size)
             if not success:
                 return self._error_response(f"Failed to show model {model_id}")
-                
-            return {
-                'status': 'success',
-                'model_id': model_id,
-                'window_size': window_size
-            }
+
+            return {"status": "success", "model_id": model_id, "window_size": window_size}
         except Exception as e:
             logger.exception("Error showing visualization")
             return self._error_response(str(e))
-    
-    async def hide_visualization(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def hide_visualization(self, params: dict[str, Any]) -> dict[str, Any]:
         """Hide the 3D visualization window.
-        
+
         Args:
             params: Request parameters
                 - model_id: Optional ID of the model to hide (hides all if not specified)
-                
+
         Returns:
             Response with status
         """
         try:
-            model_id = params.get('model_id')
-            
+            model_id = params.get("model_id")
+
             if model_id:
                 await self.visualization.hide_model(model_id)
             else:
                 await self.visualization.hide_all()
-                
-            return {'status': 'success'}
+
+            return {"status": "success"}
         except Exception as e:
             logger.exception("Error hiding visualization")
             return self._error_response(str(e))
-    
-    async def animate_model(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def animate_model(self, params: dict[str, Any]) -> dict[str, Any]:
         """Animate a 3D model.
-        
+
         Args:
             params: Request parameters
                 - model_id: ID of the model to animate
@@ -808,144 +779,138 @@ class VisualizationTools(BaseTools):
                 - loop: Whether to loop the animation (default: true)
                 - speed: Playback speed multiplier (default: 1.0)
                 - fade_in: Fade in duration in seconds (default: 0.0)
-                
+
         Returns:
             Response with status and animation details
         """
         try:
-            model_id = params['model_id']
-            animation_name = params['animation_name']
-            loop = params.get('loop', True)
-            speed = float(params.get('speed', 1.0))
-            fade_in = float(params.get('fade_in', 0.0))
-            
+            model_id = params["model_id"]
+            animation_name = params["animation_name"]
+            loop = params.get("loop", True)
+            speed = float(params.get("speed", 1.0))
+            fade_in = float(params.get("fade_in", 0.0))
+
             success = await self.visualization.play_animation(
                 model_id=model_id,
                 animation_name=animation_name,
                 loop=loop,
                 speed=speed,
-                fade_in=fade_in
+                fade_in=fade_in,
             )
-            
+
             if not success:
                 return self._error_response(f"Failed to play animation '{animation_name}'")
-                
+
             return {
-                'status': 'success',
-                'model_id': model_id,
-                'animation': animation_name,
-                'loop': loop,
-                'speed': speed
+                "status": "success",
+                "model_id": model_id,
+                "animation": animation_name,
+                "loop": loop,
+                "speed": speed,
             }
         except KeyError as e:
             return self._error_response(f"Missing required parameter: {e}")
         except Exception as e:
             logger.exception("Error animating model")
             return self._error_response(str(e))
-    
-    
-    async def set_model_transform(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def set_model_transform(self, params: dict[str, Any]) -> dict[str, Any]:
         """Set model transform in the 3D view.
-        
+
         Args:
             params: Request parameters
                 - model_id: ID of the model
                 - position: Optional [x, y, z] position
                 - rotation: Optional [x, y, z, w] quaternion rotation
                 - scale: Optional [x, y, z] scale
-                
+
         Returns:
             Response with status and transform information
         """
         try:
-            model_id = params['model_id']
-            position = params.get('position')
-            rotation = params.get('rotation')
-            scale = params.get('scale')
-            
+            model_id = params["model_id"]
+            position = params.get("position")
+            rotation = params.get("rotation")
+            scale = params.get("scale")
+
             if not any([position, rotation, scale]):
-                return self._error_response("At least one of position, rotation, or scale must be provided")
-            
+                return self._error_response(
+                    "At least one of position, rotation, or scale must be provided"
+                )
+
             success = await self.visualization.set_model_transform(
-                model_id=model_id,
-                position=position,
-                rotation=rotation,
-                scale=scale
+                model_id=model_id, position=position, rotation=rotation, scale=scale
             )
-            
+
             if not success:
                 return self._error_response("Failed to set model transform")
-                
+
             return {
-                'status': 'success',
-                'model_id': model_id,
-                'transform': {
-                    'position': position,
-                    'rotation': rotation,
-                    'scale': scale
-                }
+                "status": "success",
+                "model_id": model_id,
+                "transform": {"position": position, "rotation": rotation, "scale": scale},
             }
         except KeyError as e:
             return self._error_response(f"Missing required parameter: {e}")
         except Exception as e:
             logger.exception("Error setting model transform")
             return self._error_response(str(e))
-    
-    
-    
-    
-    
-    
-    async def _dance_sequence(self, model_id: str, animations: List[str], 
-                            intensity: float, duration: float):
+
+    async def _dance_sequence(
+        self, model_id: str, animations: list[str], intensity: float, duration: float
+    ):
         """Run the dance sequence."""
         start_time = asyncio.get_event_loop().time()
-        
+
         try:
             while True:
                 # Check if we should stop
                 if model_id not in self.dance_tasks:
                     break
-                    
+
                 # Check duration
                 if duration > 0 and (asyncio.get_event_loop().time() - start_time) > duration:
                     break
-                
+
                 # Pick a random dance animation
                 anim = random.choice(animations)
                 speed = 0.8 + (random.random() * 0.4) * intensity  # 0.8-1.2 * intensity
-                
+
                 # Play the animation
-                await self.mcp.handle_message({
-                    "jsonrpc": "2.0",
-                    "method": "visualization.animate",
-                    "params": {
-                        "model_id": model_id,
-                        "animation_name": anim,
-                        "loop": False,
-                        "speed": speed,
-                        "fade_in": 0.3
-                    },
-                    "id": f"dance_{int(asyncio.get_event_loop().time())}"
-                })
-                
+                await self.mcp.handle_message(
+                    {
+                        "jsonrpc": "2.0",
+                        "method": "visualization.animate",
+                        "params": {
+                            "model_id": model_id,
+                            "animation_name": anim,
+                            "loop": False,
+                            "speed": speed,
+                            "fade_in": 0.3,
+                        },
+                        "id": f"dance_{int(asyncio.get_event_loop().time())}",
+                    }
+                )
+
                 # Random dance move duration (2-5 seconds)
                 move_duration = 2.0 + (random.random() * 3.0) / intensity
                 await asyncio.sleep(move_duration)
-                
+
         except asyncio.CancelledError:
             # Clean up
-            await self.mcp.handle_message({
-                "jsonrpc": "2.0",
-                "method": "visualization.stop_animation",
-                "params": {"model_id": model_id},
-                "id": "dance_cleanup"
-            })
+            await self.mcp.handle_message(
+                {
+                    "jsonrpc": "2.0",
+                    "method": "visualization.stop_animation",
+                    "params": {"model_id": model_id},
+                    "id": "dance_cleanup",
+                }
+            )
         except Exception as e:
             logger.error(f"Error in dance sequence: {e}")
         finally:
             self.dance_tasks.pop(model_id, None)
-    
+
     async def _stop_dancing(self, model_id: str):
         """Stop any active dance sequence for a model."""
         if model_id in self.dance_tasks:
@@ -955,13 +920,10 @@ class VisualizationTools(BaseTools):
                 await task
             except asyncio.CancelledError:
                 pass
-            
-    def _error_response(self, message: str, details: Optional[Dict] = None) -> Dict[str, Any]:
+
+    def _error_response(self, message: str, details: dict | None = None) -> dict[str, Any]:
         """Create an error response."""
-        response = {
-            'status': 'error',
-            'error': message
-        }
+        response = {"status": "error", "error": message}
         if details:
-            response['details'] = details
+            response["details"] = details
         return response

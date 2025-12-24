@@ -11,15 +11,18 @@ Tests:
 6. Animation and expressions
 """
 
+import logging
 import os
+import subprocess
 import sys
 import time
-import subprocess
-import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def test_viewer_startup():
     """Test that the enhanced viewer starts correctly."""
@@ -27,9 +30,11 @@ def test_viewer_startup():
 
     try:
         # Start the enhanced viewer
-        viewer_process = subprocess.Popen([
-            sys.executable, "desktop_avatar_viewer_enhanced.py"
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        viewer_process = subprocess.Popen(
+            [sys.executable, "desktop_avatar_viewer_enhanced.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # Wait a moment for startup
         time.sleep(3)
@@ -49,6 +54,7 @@ def test_viewer_startup():
         print(f"Failed to start viewer: {e}")
         return None
 
+
 def test_vrm_loading():
     """Test loading a VRM file."""
     print("\nTesting VRM Loading...")
@@ -59,7 +65,7 @@ def test_vrm_loading():
         print(f"Models directory not found: {models_dir}")
         return False
 
-    vrm_files = [f for f in os.listdir(models_dir) if f.endswith('.vrm')]
+    vrm_files = [f for f in os.listdir(models_dir) if f.endswith(".vrm")]
     if not vrm_files:
         print(f"No VRM files found in {models_dir}")
         return False
@@ -69,20 +75,23 @@ def test_vrm_loading():
 
     # Test VRM loader
     try:
-        sys.path.insert(0, 'src')
+        sys.path.insert(0, "src")
         from avatarmcp.models.vrm_loader import VRMLoader
 
         vrm_model = VRMLoader.from_file(vrm_path)
         print("VRM loaded successfully")
         print(f"   Meshes: {len(vrm_model.meshes)}")
         print(f"   Bones: {len(vrm_model.bones) if hasattr(vrm_model, 'bones') else 'N/A'}")
-        print(f"   Expressions: {len(vrm_model.expressions) if hasattr(vrm_model, 'expressions') else 'N/A'}")
+        print(
+            f"   Expressions: {len(vrm_model.expressions) if hasattr(vrm_model, 'expressions') else 'N/A'}"
+        )
 
         return True
 
     except Exception as e:
         print(f"VRM loading failed: {e}")
         return False
+
 
 def test_matplotlib_3d():
     """Test that matplotlib 3D rendering works."""
@@ -94,16 +103,16 @@ def test_matplotlib_3d():
 
         # Create test figure
         fig = plt.figure(figsize=(8, 6))
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111, projection="3d")
 
         # Add test geometry
         vertices = np.random.rand(100, 3) * 2 - 1  # Random points
-        ax.scatter(vertices[:, 0], vertices[:, 1], vertices[:, 2], c='blue', s=10)
+        ax.scatter(vertices[:, 0], vertices[:, 1], vertices[:, 2], c="blue", s=10)
 
         # Add coordinate axes
-        ax.plot([0, 0.5], [0, 0], [0, 0], color='red', linewidth=2)
-        ax.plot([0, 0], [0, 0.5], [0, 0], color='green', linewidth=2)
-        ax.plot([0, 0], [0, 0], [0, 0.5], color='blue', linewidth=2)
+        ax.plot([0, 0.5], [0, 0], [0, 0], color="red", linewidth=2)
+        ax.plot([0, 0], [0, 0.5], [0, 0], color="green", linewidth=2)
+        ax.plot([0, 0], [0, 0], [0, 0.5], color="blue", linewidth=2)
 
         plt.close(fig)  # Close without showing
         print("Matplotlib 3D rendering works")
@@ -112,6 +121,7 @@ def test_matplotlib_3d():
     except Exception as e:
         print(f"Matplotlib 3D test failed: {e}")
         return False
+
 
 def test_osc_communication():
     """Test OSC communication setup."""
@@ -134,6 +144,7 @@ def test_osc_communication():
     except Exception as e:
         print(f"OSC setup failed: {e}")
         return False
+
 
 def run_full_test():
     """Run complete test suite."""
@@ -167,7 +178,7 @@ def run_full_test():
         if success:
             passed += 1
 
-    print(f"{passed}/{total} ({passed/total*100:.1f}%) tests passed")
+    print(f"{passed}/{total} ({passed / total * 100:.1f}%) tests passed")
     # Cleanup
     if viewer_process:
         print("\nCleaning up...")
@@ -188,6 +199,7 @@ def run_full_test():
     else:
         print(f"\n{total - passed} test(s) failed. Check output above.")
         return False
+
 
 if __name__ == "__main__":
     success = run_full_test()

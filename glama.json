@@ -1,0 +1,44 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["sandraschi"],
+  "name": "avatar-mcp",
+  "description": "FastMCP 2.12+ compatible VRM avatar management and animation server with VRChat OSC integration. 15 portmanteau tools for avatar control, animation, and bone manipulation. Beta status.",
+  "type": "mcp_server",
+  "status": "beta",
+  "framework": "FastMCP 2.12+",
+  "tools": 15,
+  "transport": ["stdio"],
+  "keywords": [
+    "avatar",
+    "vrm",
+    "vrchat",
+    "osc",
+    "animation",
+    "3d",
+    "mcp-server",
+    "fastmcp",
+    "avatar-control",
+    "bone-control"
+  ],
+  "features": {
+    "vrm_support": {
+      "enabled": true,
+      "version": "VRM 2.0"
+    },
+    "vrchat_osc": {
+      "enabled": true
+    },
+    "animation_system": {
+      "enabled": true,
+      "features": ["play", "blend", "loops", "speed_control"]
+    },
+    "bone_control": {
+      "enabled": true,
+      "spaces": ["local", "world"]
+    },
+    "morph_targets": {
+      "enabled": true
+    }
+  }
+}
+

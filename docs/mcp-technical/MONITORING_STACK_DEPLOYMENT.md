@@ -1,217 +1,429 @@
-# 📊 AI-Powered Monitoring Stack Deployment
+# 📊 Monitoring Stack Deployment Guide
 
-**From Specialist Territory to 5-Minute Setup**  
-**Grafana + Prometheus + Loki + Promtail with AI + Docker**  
-**Timeline**: September 2025
+**Production monitoring and observability for MCP servers**
 
 ---
 
-## 🎯 The Monitoring Revolution
+## 🎯 **Monitoring Strategy Overview**
 
-### **Traditional Reality (Before AI + Docker)**
-- ❌ **Specialist required**: Dedicated DevOps/SRE person on team
-- ❌ **Weeks of setup**: Complex configuration, networking, storage
-- ❌ **Documentation hell**: Scattered configs, version conflicts
-- ❌ **Maintenance burden**: Updates, backups, scaling issues
-- ❌ **Enterprise-only**: Too complex for home/small projects
+### **What to Monitor**
 
-### **AI + Docker Reality (Now)**
-- ✅ **5-minute deployment**: AI generates complete docker-compose stack
-- ✅ **Anyone can do it**: No specialist knowledge required
-- ✅ **Production-ready**: Proper configs, networking, persistence
-- ✅ **Impressive results**: Professional dashboards immediately
-- ✅ **Home surveillance ready**: Perfect for unconventional monitoring
+- ✅ **Application Health** - Server status, tool execution
+- ✅ **Performance Metrics** - Response times, throughput
+- ✅ **Error Tracking** - Exceptions, failures, crashes
+- ✅ **Resource Usage** - CPU, memory, disk
+- ✅ **Business Metrics** - Tool usage, user activity
 
----
+### **Monitoring Stack Components**
 
-## 🏠 Perfect Use Cases
-
-### **1. Home Surveillance & Control Systems**
-
-**What you can monitor**:
-- 🏠 **Smart home devices**: Nest Protect, thermostats, cameras
-- 📡 **Network infrastructure**: Router logs, bandwidth, connectivity
-- 🔋 **IoT sensors**: Temperature, humidity, motion, door/window states
-- 🚗 **Vehicle tracking**: GPS, fuel, maintenance alerts
-- 💡 **Energy consumption**: Solar panels, battery banks, usage patterns
-
-**Why it's game-changing**:
-- ✅ **Centralized view**: All your home systems in one dashboard
-- ✅ **Historical analysis**: Trends, patterns, anomaly detection
-- ✅ **Real-time alerts**: Slack/email notifications for issues
-- ✅ **Mobile access**: Check your home from anywhere
-
-### **2. Development Project Monitoring**
-
-**For projects like our nest-protect MCP**:
-- 📈 **API call patterns**: Nest API usage, rate limiting, errors
-- 🔧 **Tool performance**: Response times, success rates
-- 🚨 **Error tracking**: Import failures, authentication issues
-- 📊 **Usage analytics**: Which tools are used most, user patterns
-
-**For full-stack projects like veogen**:
-- 🌐 **Frontend metrics**: Page load times, user interactions
-- ⚡ **Backend performance**: API response times, database queries
-- 💾 **Infrastructure health**: Memory usage, CPU, disk space
-- 🔄 **Deployment tracking**: Build times, deployment success rates
-
-### **3. The "Impress the Neighbors" Factor**
-
-**Professional-looking dashboards for**:
-- 🏡 **Home energy efficiency**: Solar production vs. consumption graphs
-- 🌡️ **Climate monitoring**: Multi-room temperature/humidity trends
-- 🚗 **Vehicle fleet tracking**: Family car locations and stats
-- 📺 **Media server analytics**: Streaming usage, storage trends
-- 🌐 **Network performance**: Internet speed tests, uptime monitoring
+- ✅ **Logging** - Structured logs with context
+- ✅ **Metrics** - Performance and business metrics
+- ✅ **Alerting** - Proactive issue detection
+- ✅ **Dashboards** - Visual monitoring and analysis
+- ✅ **Tracing** - Request flow analysis
 
 ---
 
-## 🚀 The 5-Minute AI Setup
+## 🔧 **Logging Infrastructure**
 
-### **Prompt Template for AI**
+### **Structured Logging Setup**
 
+```python
+import logging
+import json
+import sys
+from datetime import datetime
+from typing import Dict, Any
+
+class StructuredFormatter(logging.Formatter):
+    """Custom formatter for structured JSON logs."""
+    
+    def format(self, record: logging.LogRecord) -> str:
+        log_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+        
+        # Add exception info if present
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+        
+        # Add extra fields
+        if hasattr(record, 'extra_fields'):
+            log_entry.update(record.extra_fields)
+        
+        return json.dumps(log_entry)
+
+# Setup logging
+def setup_logging(level: str = "INFO") -> logging.Logger:
+    """Setup structured logging for the application."""
+    
+    logger = logging.getLogger("mcp_server")
+    logger.setLevel(getattr(logging, level.upper()))
+    
+    # Remove existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Add stderr handler for Claude Desktop compatibility
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(StructuredFormatter())
+    logger.addHandler(stderr_handler)
+    
+    # Add file handler for persistent logs
+    file_handler = logging.FileHandler("mcp_server.log")
+    file_handler.setFormatter(StructuredFormatter())
+    logger.addHandler(file_handler)
+    
+    return logger
+
+# Usage in your MCP server
+logger = setup_logging("DEBUG")
+
+@app.tool()
+async def my_tool(param: str) -> Dict[str, Any]:
+    """Tool with comprehensive logging."""
+    logger.info("Tool execution started", extra={
+        "extra_fields": {
+            "tool_name": "my_tool",
+            "param": param,
+            "user_id": "anonymous"
+        }
+    })
+    
+    try:
+        result = await some_operation(param)
+        
+        logger.info("Tool execution completed", extra={
+            "extra_fields": {
+                "tool_name": "my_tool",
+                "result_status": "success",
+                "execution_time_ms": 150
+            }
+        })
+        
+        return {"status": "success", "result": result}
+        
+    except Exception as e:
+        logger.error("Tool execution failed", extra={
+            "extra_fields": {
+                "tool_name": "my_tool",
+                "error_type": type(e).__name__,
+                "error_message": str(e)
+            }
+        }, exc_info=True)
+        
+        return {"status": "error", "message": str(e)}
 ```
-Create a complete monitoring stack with Grafana, Prometheus, Loki, and Promtail using Docker Compose.
 
-REQUIREMENTS:
-- Grafana dashboards for home surveillance and IoT monitoring
-- Prometheus for metrics collection 
-- Loki for log aggregation
-- Promtail for log shipping
-- Persistent storage for all data
-- Proper networking between services
-- Pre-configured dashboards for common home monitoring scenarios
-- Include example configurations for:
-  * Smart home devices (Nest, sensors)
-  * Network infrastructure monitoring  
-  * Application performance monitoring
-  * System resource monitoring
-
-Make it production-ready but easy to customize for home use.
-```
-
-### **What AI Generates (Example)**
+### **Log Aggregation with ELK Stack**
 
 ```yaml
-# docker-compose.yml - Complete monitoring stack
+# docker-compose.monitoring.yml
 version: '3.8'
-
 services:
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
+  elasticsearch:
+    image: elasticsearch:8.8.0
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-    networks:
-      - monitoring
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
+      - discovery.type=single-node
+      - xpack.security.enabled=false
     ports:
-      - "9090:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - "9200:9200"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    networks:
-      - monitoring
+      - elasticsearch_data:/usr/share/elasticsearch/data
 
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
+  logstash:
+    image: logstash:8.8.0
     ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+      - "5044:5044"
     volumes:
-      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
-      - loki-data:/loki
-    networks:
-      - monitoring
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
 
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    volumes:
-      - /var/log:/var/log:ro
-      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - monitoring
-
-  # Node Exporter for system metrics
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
+  kibana:
+    image: kibana:8.8.0
     ports:
-      - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - monitoring
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
 
 volumes:
-  grafana-data:
-  prometheus-data:
-  loki-data:
-
-networks:
-  monitoring:
-    driver: bridge
+  elasticsearch_data:
 ```
 
-### **Pre-configured Dashboards AI Creates**
+### **Logstash Configuration**
 
-**1. Home IoT Dashboard**:
+```ruby
+# logstash.conf
+input {
+  file {
+    path => "/var/log/mcp_server.log"
+    start_position => "beginning"
+    codec => "json"
+  }
+}
+
+filter {
+  if [message] {
+    mutate {
+      add_field => { "service" => "mcp_server" }
+    }
+  }
+  
+  if [extra_fields] {
+    ruby {
+      code => "
+        extra_fields = event.get('extra_fields')
+        if extra_fields.is_a?(Hash)
+          extra_fields.each do |key, value|
+            event.set(key, value)
+          end
+        end
+      "
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["elasticsearch:9200"]
+    index => "mcp-server-logs-%{+YYYY.MM.dd}"
+  }
+}
+```
+
+---
+
+## 📈 **Metrics Collection**
+
+### **Application Metrics**
+
+```python
+import time
+from typing import Dict, Any
+from dataclasses import dataclass
+from collections import defaultdict, Counter
+
+@dataclass
+class Metrics:
+    """Application metrics collector."""
+    
+    # Performance metrics
+    request_count: int = 0
+    request_duration_ms: float = 0.0
+    error_count: int = 0
+    
+    # Tool-specific metrics
+    tool_executions: Dict[str, int] = None
+    tool_durations: Dict[str, float] = None
+    tool_errors: Dict[str, int] = None
+    
+    def __post_init__(self):
+        if self.tool_executions is None:
+            self.tool_executions = defaultdict(int)
+        if self.tool_durations is None:
+            self.tool_durations = defaultdict(float)
+        if self.tool_errors is None:
+            self.tool_errors = defaultdict(int)
+
+# Global metrics instance
+metrics = Metrics()
+
+def track_tool_execution(tool_name: str):
+    """Decorator to track tool execution metrics."""
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            start_time = time.time()
+            metrics.request_count += 1
+            metrics.tool_executions[tool_name] += 1
+            
+            try:
+                result = await func(*args, **kwargs)
+                
+                # Track success
+                duration_ms = (time.time() - start_time) * 1000
+                metrics.request_duration_ms += duration_ms
+                metrics.tool_durations[tool_name] += duration_ms
+                
+                return result
+                
+            except Exception as e:
+                # Track error
+                metrics.error_count += 1
+                metrics.tool_errors[tool_name] += 1
+                raise
+                
+        return wrapper
+    return decorator
+
+# Usage in your MCP server
+@app.tool()
+@track_tool_execution("my_tool")
+async def my_tool(param: str) -> Dict[str, Any]:
+    """Tool with automatic metrics tracking."""
+    # Your tool logic here
+    return {"result": "success"}
+```
+
+### **Prometheus Metrics Export**
+
+```python
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
+import time
+
+# Define metrics
+REQUEST_COUNT = Counter('mcp_requests_total', 'Total requests', ['tool_name'])
+REQUEST_DURATION = Histogram('mcp_request_duration_seconds', 'Request duration', ['tool_name'])
+ERROR_COUNT = Counter('mcp_errors_total', 'Total errors', ['tool_name', 'error_type'])
+ACTIVE_CONNECTIONS = Gauge('mcp_active_connections', 'Active connections')
+
+def setup_prometheus_metrics(port: int = 8000):
+    """Setup Prometheus metrics server."""
+    start_http_server(port)
+    logger.info(f"Prometheus metrics server started on port {port}")
+
+# Enhanced metrics tracking
+def track_prometheus_metrics(tool_name: str):
+    """Decorator for Prometheus metrics."""
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            start_time = time.time()
+            
+            try:
+                result = await func(*args, **kwargs)
+                
+                # Track success metrics
+                REQUEST_COUNT.labels(tool_name=tool_name).inc()
+                REQUEST_DURATION.labels(tool_name=tool_name).observe(time.time() - start_time)
+                
+                return result
+                
+            except Exception as e:
+                # Track error metrics
+                ERROR_COUNT.labels(tool_name=tool_name, error_type=type(e).__name__).inc()
+                raise
+                
+        return wrapper
+    return decorator
+```
+
+---
+
+## 🚨 **Alerting System**
+
+### **Alert Rules Configuration**
+
+```yaml
+# alerting-rules.yml
+groups:
+  - name: mcp_server_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(mcp_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(mcp_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response times detected"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      - alert: ServerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MCP server is down"
+          description: "Server has been down for more than 1 minute"
+```
+
+### **Alertmanager Configuration**
+
+```yaml
+# alertmanager.yml
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@yourcompany.com'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook'
+        send_resolved: true
+
+  - name: 'email'
+    email_configs:
+      - to: 'admin@yourcompany.com'
+        subject: 'MCP Server Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+```
+
+---
+
+## 📊 **Dashboard Configuration**
+
+### **Grafana Dashboard**
+
 ```json
 {
   "dashboard": {
-    "title": "Smart Home Overview",
+    "title": "MCP Server Monitoring",
     "panels": [
       {
-        "title": "Nest Protect Status",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "nest_protect_battery_level"
-          }
-        ]
-      },
-      {
-        "title": "Temperature Trends",
+        "title": "Request Rate",
         "type": "graph",
         "targets": [
           {
-            "expr": "temperature_sensor{room=~\".*\"}"
+            "expr": "rate(mcp_requests_total[5m])",
+            "legendFormat": "{{tool_name}}"
           }
         ]
       },
       {
-        "title": "Security System Status",
-        "type": "singlestat",
+        "title": "Response Time",
+        "type": "graph",
         "targets": [
           {
-            "expr": "security_system_armed"
+            "expr": "histogram_quantile(0.95, rate(mcp_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(mcp_errors_total[5m])",
+            "legendFormat": "{{tool_name}} - {{error_type}}"
           }
         ]
       }
@@ -220,313 +432,231 @@ networks:
 }
 ```
 
-**2. Network Monitoring Dashboard**:
-- Internet speed tests over time
-- Router CPU/memory usage  
-- Connected device counts
-- Bandwidth usage by device
-- DNS response times
+### **Kibana Dashboard**
 
-**3. Application Performance Dashboard**:
-- API response times
-- Error rates
-- Database query performance
-- Memory/CPU usage
-- Active user counts
+```json
+{
+  "title": "MCP Server Logs",
+  "panels": [
+    {
+      "title": "Log Volume Over Time",
+      "type": "histogram",
+      "query": "*",
+      "timeField": "timestamp"
+    },
+    {
+      "title": "Error Distribution",
+      "type": "pie",
+      "query": "level:ERROR",
+      "groupBy": "error_type"
+    },
+    {
+      "title": "Tool Usage",
+      "type": "bar",
+      "query": "*",
+      "groupBy": "tool_name"
+    }
+  ]
+}
+```
 
 ---
 
-## 🔧 Integration Examples
+## 🔍 **Distributed Tracing**
 
-### **Monitoring Our nest-protect MCP Server**
+### **OpenTelemetry Integration**
 
-**Metrics to track**:
 ```python
-# Add to fastmcp_server.py
-from prometheus_client import Counter, Histogram, Gauge, start_http_server
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
-# Metrics
-tool_calls_total = Counter('mcp_tool_calls_total', 'Total tool calls', ['tool_name'])
-tool_duration = Histogram('mcp_tool_duration_seconds', 'Tool execution time', ['tool_name'])
-active_connections = Gauge('mcp_active_connections', 'Active MCP connections')
-nest_api_calls = Counter('nest_api_calls_total', 'Nest API calls', ['endpoint', 'status'])
+def setup_tracing():
+    """Setup distributed tracing."""
+    
+    # Create tracer provider
+    trace.set_tracer_provider(TracerProvider())
+    tracer = trace.get_tracer(__name__)
+    
+    # Create Jaeger exporter
+    jaeger_exporter = JaegerExporter(
+        agent_host_name="localhost",
+        agent_port=6831,
+    )
+    
+    # Create span processor
+    span_processor = BatchSpanProcessor(jaeger_exporter)
+    trace.get_tracer_provider().add_span_processor(span_processor)
+    
+    return tracer
+
+# Usage in your MCP server
+tracer = setup_tracing()
 
 @app.tool()
-async def list_devices() -> Dict[str, Any]:
-    tool_calls_total.labels(tool_name='list_devices').inc()
-    with tool_duration.labels(tool_name='list_devices').time():
+async def my_tool(param: str) -> Dict[str, Any]:
+    """Tool with distributed tracing."""
+    with tracer.start_as_current_span("my_tool_execution") as span:
+        span.set_attribute("tool_name", "my_tool")
+        span.set_attribute("param", param)
+        
         try:
-            result = await device_list_func()
-            nest_api_calls.labels(endpoint='devices', status='success').inc()
-            return result
+            result = await some_operation(param)
+            span.set_attribute("result_status", "success")
+            return {"result": result}
+            
         except Exception as e:
-            nest_api_calls.labels(endpoint='devices', status='error').inc()
+            span.set_attribute("result_status", "error")
+            span.set_attribute("error_message", str(e))
+            span.record_exception(e)
             raise
-
-# Start metrics server
-start_http_server(8000)
 ```
 
-**Promtail config for MCP logs**:
+---
+
+## 🚀 **Deployment Strategies**
+
+### **Development Environment**
+
 ```yaml
-server:
-  http_listen_port: 9080
+# docker-compose.dev.yml
+version: '3.8'
+services:
+  mcp-server:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+      - METRICS_ENABLED=true
+    depends_on:
+      - prometheus
+      - grafana
 
-positions:
-  filename: /tmp/positions.yaml
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
-clients:
-  - url: http://loki:3100/loki/api/v1/push
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
 
-scrape_configs:
-  - job_name: mcp-server
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: mcp-server
-          __path__: /var/log/nest-protect-mcp/*.log
+volumes:
+  grafana_data:
 ```
 
-### **Home Surveillance Integration**
+### **Production Environment**
 
-**Monitoring multiple systems**:
-```python
-# Home monitoring agent
-import psutil
-import requests
-from prometheus_client import Gauge
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
+services:
+  mcp-server:
+    image: your-mcp-server:latest
+    environment:
+      - LOG_LEVEL=INFO
+      - METRICS_ENABLED=true
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - alertmanager
 
-# System metrics
-cpu_usage = Gauge('home_cpu_usage_percent', 'CPU usage')
-memory_usage = Gauge('home_memory_usage_percent', 'Memory usage')
-disk_usage = Gauge('home_disk_usage_percent', 'Disk usage')
-internet_speed = Gauge('home_internet_speed_mbps', 'Internet speed')
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerting-rules.yml:/etc/prometheus/alerting-rules.yml
+    restart: unless-stopped
 
-# IoT device metrics
-nest_protect_battery = Gauge('nest_protect_battery_percent', 'Battery level', ['device_id'])
-thermostat_temp = Gauge('thermostat_temperature_celsius', 'Temperature', ['location'])
-security_status = Gauge('security_system_armed', 'Security system status')
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    restart: unless-stopped
 
-async def collect_metrics():
-    # System metrics
-    cpu_usage.set(psutil.cpu_percent())
-    memory_usage.set(psutil.virtual_memory().percent)
-    disk_usage.set(psutil.disk_usage('/').percent)
-    
-    # Internet speed test
-    speed = await test_internet_speed()
-    internet_speed.set(speed)
-    
-    # Nest device data
-    devices = await get_nest_devices()
-    for device in devices:
-        nest_protect_battery.labels(device_id=device['id']).set(device['battery'])
-    
-    # Security system
-    security_status.set(1 if await is_security_armed() else 0)
-```
-
----
-
-## 🎨 Dashboard Examples
-
-### **1. Home Overview Dashboard**
-
-**Panels include**:
-- 🏠 **House temperature**: Multi-room trends
-- 🔋 **Device battery levels**: All IoT devices
-- 🌐 **Internet performance**: Speed tests, uptime
-- 🚨 **Security status**: Armed/disarmed, sensor states
-- ⚡ **Energy usage**: Solar production vs. consumption
-- 📱 **Device connectivity**: Online/offline status
-
-### **2. Technical Performance Dashboard**
-
-**For the tech-savvy neighbor**:
-- 📊 **API performance**: Response times, error rates
-- 💾 **System resources**: CPU, memory, disk usage
-- 🔄 **Background jobs**: Success rates, queue depths
-- 📈 **Growth metrics**: Data volume, user activity
-- 🚀 **Deployment stats**: Build times, success rates
-
-### **3. Fun & Impressive Dashboard**
-
-**Show-off features**:
-- 🌡️ **Weather correlation**: Indoor vs. outdoor temps
-- 🚗 **Vehicle tracking**: Family car locations
-- 📺 **Media server stats**: What's being watched
-- 🏃 **Fitness tracking**: Step counts, activity levels
-- 🌞 **Solar efficiency**: Production forecasts vs. actual
-
----
-
-## 🚀 Advanced Use Cases
-
-### **Unconventional Home Monitoring**
-
-**Garden automation**:
-- Soil moisture sensors
-- Automatic watering system logs
-- Weather correlation analysis
-- Plant growth tracking
-
-**Pet monitoring**:
-- Pet door activity logs
-- Food/water level sensors
-- Temperature in pet areas
-- Activity pattern analysis
-
-**Energy optimization**:
-- Smart plug power monitoring
-- HVAC efficiency tracking
-- Solar panel performance
-- Battery bank status
-
-### **Neighborhood Network**
-
-**Community monitoring**:
-- Shared internet performance data
-- Local weather station network
-- Community garden sensors
-- Neighborhood watch integration
-
----
-
-## 💡 AI Prompts for Specific Setups
-
-### **For Home Surveillance**
-
-```
-Create Grafana dashboards for home surveillance monitoring with:
-- Multi-camera status and storage usage
-- Motion detection event timeline
-- Door/window sensor activity
-- Internet connectivity for remote access
-- Storage capacity and retention policies
-- Mobile-friendly responsive design
-
-Include alerting rules for:
-- Camera offline events
-- Storage capacity warnings
-- Unusual activity patterns
-- Internet connectivity issues
-```
-
-### **For Smart Home Integration**
-
-```
-Build monitoring for smart home ecosystem:
-- Nest thermostat temperature control efficiency
-- Smart lighting usage patterns and energy consumption  
-- Voice assistant query logs and response times
-- Smart plug power monitoring and automation
-- HVAC system performance and energy usage
-- Security system arm/disarm patterns
-
-Create predictive dashboards for:
-- Energy usage forecasting
-- HVAC optimization recommendations
-- Security pattern analysis
-- Device maintenance scheduling
-```
-
-### **For Development Projects**
-
-```
-Create developer-focused monitoring for MCP servers:
-- Tool execution performance and error rates
-- API call patterns and rate limiting
-- Authentication success/failure tracking
-- Resource usage and scaling recommendations
-- User activity patterns and popular tools
-- Integration health with external services
-
-Include debugging dashboards for:
-- Real-time error investigation
-- Performance bottleneck identification
-- API response time analysis
-- Memory and CPU profiling
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
 ```
 
 ---
 
-## 🎯 Getting Started Checklist
+## 📋 **Monitoring Checklist**
 
-### **Phase 1: Basic Setup (5 minutes)**
-- [ ] Ask AI to generate docker-compose monitoring stack
-- [ ] Customize service ports and passwords
-- [ ] Start with `docker-compose up -d`
-- [ ] Access Grafana at http://localhost:3000
+### **Setup Checklist**
 
-### **Phase 2: Data Sources (10 minutes)**
-- [ ] Configure Prometheus data source in Grafana
-- [ ] Configure Loki data source for logs
-- [ ] Import pre-built dashboards
-- [ ] Verify metrics are flowing
+- [ ] **Structured logging** implemented
+- [ ] **Metrics collection** configured
+- [ ] **Alert rules** defined
+- [ ] **Dashboards** created
+- [ ] **Log aggregation** setup
+- [ ] **Error tracking** enabled
+- [ ] **Performance monitoring** active
+- [ ] **Health checks** implemented
 
-### **Phase 3: Custom Monitoring (30 minutes)**
-- [ ] Add application metrics to your projects
-- [ ] Configure log shipping with Promtail
-- [ ] Create custom dashboards for your use case
-- [ ] Set up alerting rules
+### **Operational Checklist**
 
-### **Phase 4: Advanced Features (ongoing)**
-- [ ] Set up mobile notifications
-- [ ] Create predictive analytics
-- [ ] Add external integrations (Slack, email)
-- [ ] Build custom exporters for IoT devices
+- [ ] **Log retention** policy defined
+- [ ] **Alert channels** configured
+- [ ] **Escalation procedures** documented
+- [ ] **Dashboard access** granted
+- [ ] **Metrics storage** capacity planned
+- [ ] **Backup procedures** for monitoring data
+- [ ] **Security** for monitoring endpoints
+- [ ] **Documentation** for monitoring setup
 
 ---
 
-## 🏆 Success Stories
+## 🎯 **Best Practices**
 
-### **Home Automation Dashboard**
-"Went from scattered IoT device apps to unified monitoring in one afternoon. Now I can see everything from solar production to pet door activity in one place. The neighbors are definitely impressed!"
+### **1. Start Simple**
 
-### **Development Project Monitoring**  
-"Added comprehensive monitoring to our MCP server project. Now we can see API performance, error patterns, and usage analytics. What used to require a dedicated DevOps person took me 30 minutes with AI assistance."
+- Begin with basic logging
+- Add metrics gradually
+- Implement alerts for critical issues first
+- Expand monitoring as needed
 
-### **Small Business Infrastructure**
-"Set up professional-grade monitoring for our office without hiring specialists. Track everything from internet performance to coffee machine usage. Looks like enterprise-grade infrastructure!"
+### **2. Focus on Business Value**
 
----
+- Monitor what matters to users
+- Track business metrics, not just technical metrics
+- Set up alerts for user-facing issues
+- Measure success, not just failures
 
-## 💡 Pro Tips
+### **3. Keep It Maintainable**
 
-### **Security Considerations**
-- Change default passwords immediately
-- Use environment variables for sensitive configs
-- Set up proper firewall rules if exposing externally
-- Enable SSL/TLS for production deployments
+- Use standard tools and formats
+- Document monitoring setup
+- Automate monitoring deployment
+- Regular review and cleanup
 
-### **Performance Optimization**
-- Set appropriate retention policies for logs and metrics
-- Use recording rules for frequently queried metrics
-- Implement downsampling for long-term storage
-- Monitor the monitoring stack resource usage
+### **4. Security Considerations**
 
-### **Maintenance**
-- Regular backup of Grafana dashboards and configs
-- Update container images periodically
-- Monitor disk usage for time-series data
-- Set up monitoring for the monitoring stack itself
+- Secure monitoring endpoints
+- Encrypt sensitive data in logs
+- Control access to dashboards
+- Audit monitoring access
 
----
-
-## 🎯 The Bottom Line
-
-**Traditional approach**: Hire specialist → Weeks of setup → Ongoing maintenance burden
-
-**AI + Docker approach**: 5-minute prompt → Professional monitoring → Impressive results
-
-**Perfect for**:
-- ✅ Home surveillance and automation
-- ✅ Development project monitoring  
-- ✅ Small business infrastructure
-- ✅ Learning DevOps concepts
-- ✅ Impressing technically-minded friends!
-
-**The game-changer**: What used to be specialist territory is now accessible to anyone willing to learn a few Docker commands and write good AI prompts. The results look professional, work reliably, and provide genuine value for both technical projects and home automation systems.
-
-**Remember**: The hard part isn't the technology anymore - it's deciding what interesting things to monitor! 📊🏠🚀
+**Remember**: Good monitoring helps you understand your system and respond to issues quickly. Start simple and grow your monitoring capabilities over time. 📊✨

@@ -6,7 +6,7 @@ that learn from interactions, adapt to contexts, and provide natural, personalit
 responses for immersive avatar experiences.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class AIBehaviorTools:
@@ -19,9 +19,10 @@ class AIBehaviorTools:
 
     def _register_tools(self):
         """Register all AI behavior tools with the MCP server."""
+
         # Register ai_conversation_respond tool
         @self.mcp_server.mcp.tool()
-        def ai_conversation_respond(params: Dict[str, Any]) -> Dict[str, Any]:
+        def ai_conversation_respond(params: dict[str, Any]) -> dict[str, Any]:
             """Generate AI-powered intelligent responses for avatar conversations.
 
             Uses advanced natural language processing and personality modeling to create
@@ -160,19 +161,21 @@ class AIBehaviorTools:
             osc_address = "/avatar/ai/conversation/respond"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'ai_conversation_respond tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "ai_conversation_respond tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send ai_conversation_respond command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send ai_conversation_respond command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def ai_behavior_adapt(params: Dict[str, Any]) -> Dict[str, Any]:
+        def ai_behavior_adapt(params: dict[str, Any]) -> dict[str, Any]:
             """Enable avatars to learn and adapt their behavior based on interactions.
 
             Implements machine learning algorithms that allow avatars to learn from
@@ -316,19 +319,19 @@ class AIBehaviorTools:
             osc_address = "/avatar/ai/behavior/adapt"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'ai_behavior_adapt tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "ai_behavior_adapt tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send ai_behavior_adapt command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send ai_behavior_adapt command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def ai_personality_predict(params: Dict[str, Any]) -> Dict[str, Any]:
+        def ai_personality_predict(params: dict[str, Any]) -> dict[str, Any]:
             """Predict user preferences and behaviors for personalized avatar interactions.
 
             Uses machine learning to analyze user interaction patterns, predict preferences,
@@ -359,7 +362,8 @@ class AIBehaviorTools:
                     - "short_term" = next hour/day
                     - "long_term" = next week/month
                     - Affects prediction accuracy and usefulness
-                adaptation_enabled: Whether to automatically adapt based on predictions (default: False)
+                adaptation_enabled: Whether to automatically adapt based on predictions
+                    (default: False)
                     - True = apply predictions to avatar behavior
                     - False = provide predictions for manual use
                     - Automatic adaptation increases responsiveness
@@ -428,7 +432,9 @@ class AIBehaviorTools:
                         'avatar_id': 'content_curator',
                         'prediction_type': 'content',
                         'prediction_context': {
-                            'previous_content': ['enka_music', 'japanese_culture', 'emotional_stories'],
+                            'previous_content': [
+                                'enka_music', 'japanese_culture', 'emotional_stories'
+                            ],
                             'engagement_metrics': ['high_time_spent', 'frequent_returns'],
                             'cultural_background': 'mixed_heritage'
                         },
@@ -471,19 +477,21 @@ class AIBehaviorTools:
             osc_address = "/avatar/ai/personality/predict"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'ai_personality_predict tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "ai_personality_predict tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send ai_personality_predict command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send ai_personality_predict command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def ai_context_analyze(params: Dict[str, Any]) -> Dict[str, Any]:
+        def ai_context_analyze(params: dict[str, Any]) -> dict[str, Any]:
             """Analyze interaction context for intelligent avatar decision-making.
 
             Performs deep analysis of environmental, social, and situational context
@@ -642,19 +650,19 @@ class AIBehaviorTools:
             osc_address = "/avatar/ai/context/analyze"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'ai_context_analyze tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "ai_context_analyze tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send ai_context_analyze command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send ai_context_analyze command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def ai_interaction_learn(params: Dict[str, Any]) -> Dict[str, Any]:
+        def ai_interaction_learn(params: dict[str, Any]) -> dict[str, Any]:
             """Enable avatars to learn from interaction patterns and improve over time.
 
             Implements advanced learning algorithms that analyze interaction success,
@@ -685,7 +693,8 @@ class AIBehaviorTools:
                     - 0.0 = minimal learning changes
                     - 1.0 = maximum learning application (may be unstable)
                     - Balance between improvement and consistency
-                validation_method: How to validate learned improvements (default: "cross_validation")
+                validation_method: How to validate learned improvements
+                    (default: "cross_validation")
                     - "cross_validation" = test on held-out interaction data
                     - "user_feedback" = validate with explicit user feedback
                     - "performance_metrics" = measure engagement improvements
@@ -737,12 +746,28 @@ class AIBehaviorTools:
                         'learning_objective': 'timing_optimization',
                         'interaction_data': {
                             'timing_success': [
-                                {'delay': 1.5, 'context': 'thoughtful_response', 'outcome': 'appreciated'},
-                                {'delay': 0.8, 'context': 'quick_acknowledgment', 'outcome': 'responsive'}
+                                {
+                                    'delay': 1.5,
+                                    'context': 'thoughtful_response',
+                                    'outcome': 'appreciated'
+                                },
+                                {
+                                    'delay': 0.8,
+                                    'context': 'quick_acknowledgment',
+                                    'outcome': 'responsive'
+                                }
                             ],
                             'timing_failures': [
-                                {'delay': 8.0, 'context': 'long_pause', 'outcome': 'awkward_silence'},
-                                {'delay': 0.1, 'context': 'instant_response', 'outcome': 'rushed_feeling'}
+                                {
+                                    'delay': 8.0,
+                                    'context': 'long_pause',
+                                    'outcome': 'awkward_silence'
+                                },
+                                {
+                                    'delay': 0.1,
+                                    'context': 'instant_response',
+                                    'outcome': 'rushed_feeling'
+                                }
                             ]
                         },
                         'validation_method': 'performance_metrics'
@@ -774,8 +799,16 @@ class AIBehaviorTools:
                         'learning_objective': 'error_prevention',
                         'interaction_data': {
                             'problematic_patterns': [
-                                {'pattern': 'topic_domination', 'frequency': 'high', 'impact': 'negative'},
-                                {'pattern': 'insensitive_comments', 'frequency': 'occasional', 'impact': 'severe'}
+                                {
+                                    'pattern': 'topic_domination',
+                                    'frequency': 'high',
+                                    'impact': 'negative'
+                                },
+                                {
+                                    'pattern': 'insensitive_comments',
+                                    'frequency': 'occasional',
+                                    'impact': 'severe'
+                                }
                             ],
                             'successful_avoidance': [
                                 {'pattern': 'balanced_conversation', 'outcome': 'positive'},
@@ -832,13 +865,15 @@ class AIBehaviorTools:
             osc_address = "/avatar/ai/interaction/learn"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'ai_interaction_learn tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "ai_interaction_learn tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send ai_interaction_learn command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send ai_interaction_learn command to Unity desktop avatar"
+                    ),
                 }

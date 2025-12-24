@@ -11,14 +11,17 @@ This demo shows the complete AvatarMCP system:
 """
 
 import asyncio
+import logging
+import os
 import subprocess
 import sys
-import os
-import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class CompleteAvatarDemo:
     """Complete avatar system demonstration."""
@@ -35,9 +38,11 @@ class CompleteAvatarDemo:
         # 1. Start the enhanced viewer
         print("1. Starting Enhanced 3D Viewer...")
         try:
-            self.viewer_process = subprocess.Popen([
-                sys.executable, "desktop_avatar_viewer_enhanced.py"
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.viewer_process = subprocess.Popen(
+                [sys.executable, "desktop_avatar_viewer_enhanced.py"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             print("✅ Viewer started")
             await asyncio.sleep(2)  # Let viewer initialize
         except Exception as e:
@@ -47,10 +52,12 @@ class CompleteAvatarDemo:
         # 2. Start MCP server
         print("\n2. Starting MCP Server...")
         try:
-            self.server_process = subprocess.Popen([
-                sys.executable, "-m", "avatarmcp.mcp_main"
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            cwd="src")
+            self.server_process = subprocess.Popen(
+                [sys.executable, "-m", "avatarmcp.mcp_main"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd="src",
+            )
             print("✅ MCP Server started")
             await asyncio.sleep(2)  # Let server initialize
         except Exception as e:
@@ -73,7 +80,7 @@ class CompleteAvatarDemo:
         vrm_files = []
 
         if os.path.exists(models_dir):
-            vrm_files = [f for f in os.listdir(models_dir) if f.endswith('.vrm')]
+            vrm_files = [f for f in os.listdir(models_dir) if f.endswith(".vrm")]
 
         if vrm_files:
             os.path.join(models_dir, vrm_files[0])
@@ -133,16 +140,13 @@ class CompleteAvatarDemo:
 
         # 8. Expression demo
         print("\n8. Facial Expressions...")
-        expressions = [
-            ("happy", 1.0),
-            ("sad", 0.8),
-            ("surprised", 1.0),
-            ("neutral", 0.0)
-        ]
+        expressions = [("happy", 1.0), ("sad", 0.8), ("surprised", 1.0), ("neutral", 0.0)]
 
         for expr, weight in expressions:
             print(f"   😊 Expression: {expr} ({weight})")
-            # In real usage: await morph_control({'avatar_id': 'avatar', 'morph_name': expr, 'weight': weight})
+            # In real usage: await morph_control({
+            #     'avatar_id': 'avatar', 'morph_name': expr, 'weight': weight
+            # })
             await asyncio.sleep(1.5)
 
         # 9. Export demo
@@ -178,10 +182,7 @@ class CompleteAvatarDemo:
         """Clean up running processes."""
         print("\n🧹 Cleaning up processes...")
 
-        processes = [
-            ("Viewer", self.viewer_process),
-            ("MCP Server", self.server_process)
-        ]
+        processes = [("Viewer", self.viewer_process), ("MCP Server", self.server_process)]
 
         for name, process in processes:
             if process:
@@ -197,6 +198,7 @@ class CompleteAvatarDemo:
                         print(f"⚠️ Could not terminate {name}")
                 except Exception:
                     print(f"⚠️ Error terminating {name}")
+
 
 async def main():
     """Main demo function."""
@@ -216,6 +218,7 @@ async def main():
     finally:
         demo.cleanup()
 
+
 if __name__ == "__main__":
     print("🎭 AvatarMCP Complete System Demo")
     print("This will start the full avatar system with MCP server and 3D viewer")
@@ -226,5 +229,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n👋 Demo interrupted by user")
-
-

@@ -11,39 +11,41 @@ Features:
 - Expression/blendshape support
 """
 
+import asyncio
+import logging
 import os
 import sys
-import logging
-from typing import Optional
-import asyncio
+
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 from pythonosc import udp_client
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import AsyncIOOSCUDPServer
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
-
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from avatarmcp.models.vrm_loader import VRMLoader
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class DesktopAvatarViewer:
     """Enhanced desktop avatar viewer with full 3D controls and bone manipulation."""
 
     def __init__(self, osc_port: int = 9001):
         self.osc_port = osc_port
-        self.osc_client: Optional[udp_client.SimpleUDPClient] = None
-        self.osc_server: Optional[AsyncIOOSCUDPServer] = None
+        self.osc_client: udp_client.SimpleUDPClient | None = None
+        self.osc_server: AsyncIOOSCUDPServer | None = None
         self.dispatcher = Dispatcher()
 
         # Avatar state
-        self.current_vrm_path: Optional[str] = None
+        self.current_vrm_path: str | None = None
         self.vrm_model = None
         self.original_vertices = {}  # mesh_idx -> original vertices
         self.bone_positions = {}  # bone_name -> [x, y, z]
@@ -57,8 +59,8 @@ class DesktopAvatarViewer:
         self.is_animating = False
 
         # Visualization
-        self.fig: Optional[plt.Figure] = None
-        self.ax: Optional[Axes3D] = None
+        self.fig: plt.Figure | None = None
+        self.ax: Axes3D | None = None
         self.mesh_artists = []
         self.bone_artists = []
         self.skeleton_lines = []
@@ -96,7 +98,9 @@ class DesktopAvatarViewer:
                 return
 
             logger.info(f"Loading avatar: {vrm_path}")
-            await asyncio.get_event_loop().run_in_executor(None, self._load_and_display_avatar, vrm_path)
+            await asyncio.get_event_loop().run_in_executor(
+                None, self._load_and_display_avatar, vrm_path
+            )
         except Exception as e:
             logger.error(f"Failed to load avatar: {e}")
 
@@ -122,7 +126,7 @@ class DesktopAvatarViewer:
         """Handle bone rotation OSC message."""
         try:
             # Parse bone name from address: /avatar/bone/BoneName/rotation
-            parts = address.split('/')
+            parts = address.split("/")
             if len(parts) >= 4:
                 bone_name = parts[3]
                 if len(args) >= 4:
@@ -138,7 +142,7 @@ class DesktopAvatarViewer:
         """Handle bone translation OSC message."""
         try:
             # Parse bone name from address: /avatar/bone/BoneName/translation
-            parts = address.split('/')
+            parts = address.split("/")
             if len(parts) >= 4:
                 bone_name = parts[3]
                 if len(args) >= 3:
@@ -164,7 +168,9 @@ class DesktopAvatarViewer:
         """Handle avatar export OSC message."""
         try:
             export_path = args[0] if args else "exported_avatar.png"
-            await asyncio.get_event_loop().run_in_executor(None, self._export_current_view, export_path)
+            await asyncio.get_event_loop().run_in_executor(
+                None, self._export_current_view, export_path
+            )
             logger.info(f"Exported avatar to: {export_path}")
         except Exception as e:
             logger.error(f"Failed to export avatar: {e}")
@@ -202,16 +208,16 @@ class DesktopAvatarViewer:
 
     def _extract_bone_positions(self):
         """Extract bone positions from VRM model."""
-        if not self.vrm_model or not hasattr(self.vrm_model, 'bones'):
+        if not self.vrm_model or not hasattr(self.vrm_model, "bones"):
             return
 
         self.bone_positions = {}
         self.bone_rotations = {}
 
         for bone_name, bone in self.vrm_model.bones.items():
-            if hasattr(bone, 'position'):
+            if hasattr(bone, "position"):
                 pos = bone.position
-                if hasattr(pos, '__len__') and len(pos) >= 3:
+                if hasattr(pos, "__len__") and len(pos) >= 3:
                     self.bone_positions[bone_name] = [pos[0], pos[1], pos[2]]
 
             # Initialize rotations to identity
@@ -221,23 +227,23 @@ class DesktopAvatarViewer:
 
     def _extract_blendshapes(self):
         """Extract blendshape/expression data."""
-        if not self.vrm_model or not hasattr(self.vrm_model, 'expressions'):
+        if not self.vrm_model or not hasattr(self.vrm_model, "expressions"):
             return
 
         self.expression_weights = {}
-        for expr_name, expression in self.vrm_model.expressions.items():
+        for expr_name, _expression in self.vrm_model.expressions.items():
             self.expression_weights[expr_name] = 0.0
 
         logger.info(f"Extracted {len(self.expression_weights)} expressions")
 
     def _store_original_vertices(self):
         """Store original vertex positions for deformation."""
-        if not self.vrm_model or not hasattr(self.vrm_model, 'meshes'):
+        if not self.vrm_model or not hasattr(self.vrm_model, "meshes"):
             return
 
         self.original_vertices = {}
         for mesh_idx, mesh in enumerate(self.vrm_model.meshes):
-            if hasattr(mesh, 'vertices'):
+            if hasattr(mesh, "vertices"):
                 self.original_vertices[mesh_idx] = np.array(mesh.vertices).copy()
 
     def _rotate_bone(self, bone_name: str, x: float, y: float, z: float, w: float):
@@ -307,7 +313,7 @@ class DesktopAvatarViewer:
 
         # Clear existing artists
         for artist in self.mesh_artists + self.bone_artists + self.skeleton_lines:
-            if hasattr(artist, 'remove'):
+            if hasattr(artist, "remove"):
                 artist.remove()
 
         self.mesh_artists = []
@@ -336,14 +342,14 @@ class DesktopAvatarViewer:
 
         # Create new figure with enhanced controls
         self.fig = plt.figure(figsize=(16, 12))
-        self.ax = self.fig.add_subplot(111, projection='3d')
+        self.ax = self.fig.add_subplot(111, projection="3d")
 
         # Connect mouse and keyboard events
-        self.fig.canvas.mpl_connect('button_press_event', self._on_mouse_press)
-        self.fig.canvas.mpl_connect('button_release_event', self._on_mouse_release)
-        self.fig.canvas.mpl_connect('motion_notify_event', self._on_mouse_move)
-        self.fig.canvas.mpl_connect('scroll_event', self._on_scroll)
-        self.fig.canvas.mpl_connect('key_press_event', self._on_key_press)
+        self.fig.canvas.mpl_connect("button_press_event", self._on_mouse_press)
+        self.fig.canvas.mpl_connect("button_release_event", self._on_mouse_release)
+        self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+        self.fig.canvas.mpl_connect("scroll_event", self._on_scroll)
+        self.fig.canvas.mpl_connect("key_press_event", self._on_key_press)
 
         # Display meshes
         self._display_meshes()
@@ -360,7 +366,7 @@ class DesktopAvatarViewer:
 
     def _display_meshes(self):
         """Display avatar meshes with enhanced quality."""
-        if not self.vrm_model or not hasattr(self.vrm_model, 'meshes'):
+        if not self.vrm_model or not hasattr(self.vrm_model, "meshes"):
             return
 
         logger.info(f"Displaying {len(self.vrm_model.meshes)} meshes")
@@ -368,9 +374,9 @@ class DesktopAvatarViewer:
         for mesh_idx, mesh in enumerate(self.vrm_model.meshes):
             try:
                 # Get mesh data
-                vertices = getattr(mesh, 'vertices', [])
-                faces = getattr(mesh, 'faces', [])
-                name = getattr(mesh, 'name', f'mesh_{mesh_idx}')
+                vertices = getattr(mesh, "vertices", [])
+                faces = getattr(mesh, "faces", [])
+                name = getattr(mesh, "name", f"mesh_{mesh_idx}")
 
                 if not vertices or not faces:
                     continue
@@ -394,19 +400,28 @@ class DesktopAvatarViewer:
 
                         # Plot solid surface
                         poly = self.ax.plot_trisurf(
-                            vertices[:, 0], vertices[:, 1], vertices[:, 2],
+                            vertices[:, 0],
+                            vertices[:, 1],
+                            vertices[:, 2],
                             triangles=triangles,
-                            color=color, alpha=0.8, linewidth=0.1,
-                            edgecolors='none', shade=True
+                            color=color,
+                            alpha=0.8,
+                            linewidth=0.1,
+                            edgecolors="none",
+                            shade=True,
                         )
                         self.mesh_artists.append(poly)
 
                         # Add wireframe overlay for definition
                         wire = self.ax.plot_trisurf(
-                            vertices[:, 0], vertices[:, 1], vertices[:, 2],
+                            vertices[:, 0],
+                            vertices[:, 1],
+                            vertices[:, 2],
                             triangles=triangles,
-                            color='none', alpha=0.3, linewidth=0.5,
-                            edgecolors='black'
+                            color="none",
+                            alpha=0.3,
+                            linewidth=0.5,
+                            edgecolors="black",
                         )
                         self.mesh_artists.append(wire)
                 else:
@@ -415,16 +430,24 @@ class DesktopAvatarViewer:
                         if len(face) >= 3:
                             face_verts = vertices[face[:3]]
                             line = self.ax.plot(
-                                face_verts[:, 0], face_verts[:, 1], face_verts[:, 2],
-                                color=color, linewidth=0.5, alpha=0.6
+                                face_verts[:, 0],
+                                face_verts[:, 1],
+                                face_verts[:, 2],
+                                color=color,
+                                linewidth=0.5,
+                                alpha=0.6,
                             )
                             self.mesh_artists.extend(line)
 
                 # Add vertex scatter for detail
                 if len(vertices) <= 5000:  # Performance limit
                     scatter = self.ax.scatter(
-                        vertices[:, 0], vertices[:, 1], vertices[:, 2],
-                        color=color, s=0.5, alpha=0.4
+                        vertices[:, 0],
+                        vertices[:, 1],
+                        vertices[:, 2],
+                        color=color,
+                        s=0.5,
+                        alpha=0.4,
                     )
                     self.mesh_artists.append(scatter)
 
@@ -438,7 +461,7 @@ class DesktopAvatarViewer:
 
         logger.info(f"Displaying {len(self.bone_positions)} bones")
 
-        bone_colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'cyan']
+        bone_colors = ["red", "orange", "yellow", "green", "blue", "purple", "pink", "cyan"]
 
         for i, (bone_name, pos) in enumerate(self.bone_positions.items()):
             try:
@@ -448,15 +471,26 @@ class DesktopAvatarViewer:
                 # Plot bone as a colored sphere
                 color = bone_colors[i % len(bone_colors)]
                 scatter = self.ax.scatter(
-                    [scaled_pos[0]], [scaled_pos[1]], [scaled_pos[2]],
-                    color=color, s=30, alpha=0.9, marker='o',
-                    label=f'{bone_name}'
+                    [scaled_pos[0]],
+                    [scaled_pos[1]],
+                    [scaled_pos[2]],
+                    color=color,
+                    s=30,
+                    alpha=0.9,
+                    marker="o",
+                    label=f"{bone_name}",
                 )
                 self.bone_artists.append(scatter)
 
                 # Add bone label
-                self.ax.text(scaled_pos[0], scaled_pos[1], scaled_pos[2],
-                           f' {bone_name[:8]}', fontsize=8, color=color)
+                self.ax.text(
+                    scaled_pos[0],
+                    scaled_pos[1],
+                    scaled_pos[2],
+                    f" {bone_name[:8]}",
+                    fontsize=8,
+                    color=color,
+                )
 
             except Exception as e:
                 logger.error(f"Failed to display bone {bone_name}: {e}")
@@ -468,22 +502,22 @@ class DesktopAvatarViewer:
 
         # Define common bone connections (simplified humanoid skeleton)
         connections = [
-            ('Hips', 'Spine'),
-            ('Spine', 'Chest'),
-            ('Chest', 'Neck'),
-            ('Neck', 'Head'),
-            ('Chest', 'LeftUpperArm'),
-            ('LeftUpperArm', 'LeftLowerArm'),
-            ('LeftLowerArm', 'LeftHand'),
-            ('Chest', 'RightUpperArm'),
-            ('RightUpperArm', 'RightLowerArm'),
-            ('RightLowerArm', 'RightHand'),
-            ('Hips', 'LeftUpperLeg'),
-            ('LeftUpperLeg', 'LeftLowerLeg'),
-            ('LeftLowerLeg', 'LeftFoot'),
-            ('Hips', 'RightUpperLeg'),
-            ('RightUpperLeg', 'RightLowerLeg'),
-            ('RightLowerLeg', 'RightFoot'),
+            ("Hips", "Spine"),
+            ("Spine", "Chest"),
+            ("Chest", "Neck"),
+            ("Neck", "Head"),
+            ("Chest", "LeftUpperArm"),
+            ("LeftUpperArm", "LeftLowerArm"),
+            ("LeftLowerArm", "LeftHand"),
+            ("Chest", "RightUpperArm"),
+            ("RightUpperArm", "RightLowerArm"),
+            ("RightLowerArm", "RightHand"),
+            ("Hips", "LeftUpperLeg"),
+            ("LeftUpperLeg", "LeftLowerLeg"),
+            ("LeftLowerLeg", "LeftFoot"),
+            ("Hips", "RightUpperLeg"),
+            ("RightUpperLeg", "RightLowerLeg"),
+            ("RightLowerLeg", "RightFoot"),
         ]
 
         for parent, child in connections:
@@ -496,7 +530,9 @@ class DesktopAvatarViewer:
                         [parent_pos[0], child_pos[0]],
                         [parent_pos[1], child_pos[1]],
                         [parent_pos[2], child_pos[2]],
-                        color='white', linewidth=2, alpha=0.7
+                        color="white",
+                        linewidth=2,
+                        alpha=0.7,
                     )
                     self.skeleton_lines.extend(line)
 
@@ -508,29 +544,38 @@ class DesktopAvatarViewer:
         name_lower = mesh_name.lower()
 
         # Enhanced color mapping based on common mesh names
-        if 'face' in name_lower or 'head' in name_lower or 'skin' in name_lower:
-            return '#FFB6C1'  # Light pink (skin tone)
-        elif 'hair' in name_lower:
-            return '#8B4513'  # Saddle brown
-        elif 'shirt' in name_lower or 'top' in name_lower or 'jacket' in name_lower:
-            return '#4169E1'  # Royal blue
-        elif 'pants' in name_lower or 'bottom' in name_lower or 'skirt' in name_lower:
-            return '#2F4F4F'  # Dark slate gray
-        elif 'shoes' in name_lower or 'shoe' in name_lower or 'boots' in name_lower:
-            return '#000000'  # Black
-        elif 'eye' in name_lower:
-            return '#0000FF'  # Blue
-        elif 'mouth' in name_lower or 'lips' in name_lower:
-            return '#FF1493'  # Deep pink
-        elif 'eyebrow' in name_lower:
-            return '#654321'  # Dark brown
-        elif 'accessory' in name_lower or 'hat' in name_lower:
-            return '#FFD700'  # Gold
-        elif 'gloves' in name_lower or 'hands' in name_lower:
-            return '#F5DEB3'  # Wheat
+        if "face" in name_lower or "head" in name_lower or "skin" in name_lower:
+            return "#FFB6C1"  # Light pink (skin tone)
+        elif "hair" in name_lower:
+            return "#8B4513"  # Saddle brown
+        elif "shirt" in name_lower or "top" in name_lower or "jacket" in name_lower:
+            return "#4169E1"  # Royal blue
+        elif "pants" in name_lower or "bottom" in name_lower or "skirt" in name_lower:
+            return "#2F4F4F"  # Dark slate gray
+        elif "shoes" in name_lower or "shoe" in name_lower or "boots" in name_lower:
+            return "#000000"  # Black
+        elif "eye" in name_lower:
+            return "#0000FF"  # Blue
+        elif "mouth" in name_lower or "lips" in name_lower:
+            return "#FF1493"  # Deep pink
+        elif "eyebrow" in name_lower:
+            return "#654321"  # Dark brown
+        elif "accessory" in name_lower or "hat" in name_lower:
+            return "#FFD700"  # Gold
+        elif "gloves" in name_lower or "hands" in name_lower:
+            return "#F5DEB3"  # Wheat
         else:
             # Default colors for other meshes
-            colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
+            colors = [
+                "#FF6B6B",
+                "#4ECDC4",
+                "#45B7D1",
+                "#96CEB4",
+                "#FFEAA7",
+                "#DDA0DD",
+                "#98D8C8",
+                "#F7DC6F",
+            ]
             return colors[hash(mesh_name) % len(colors)]
 
     def _setup_plot(self):
@@ -539,27 +584,31 @@ class DesktopAvatarViewer:
             return
 
         # Set labels and title
-        self.ax.set_xlabel('X (Right)')
-        self.ax.set_ylabel('Y (Up)')
-        self.ax.set_zlabel('Z (Forward)')
-        self.ax.set_title(f'AvatarMCP Desktop Viewer - {os.path.basename(self.current_vrm_path or "No Avatar")}')
+        self.ax.set_xlabel("X (Right)")
+        self.ax.set_ylabel("Y (Up)")
+        self.ax.set_zlabel("Z (Forward)")
+        self.ax.set_title(
+            f"AvatarMCP Desktop Viewer - {os.path.basename(self.current_vrm_path or 'No Avatar')}"
+        )
 
         # Set equal aspect ratio and proper limits
-        if self.vrm_model and hasattr(self.vrm_model, 'meshes'):
+        if self.vrm_model and hasattr(self.vrm_model, "meshes"):
             # Calculate bounds from all vertices
             all_vertices = []
             for mesh in self.vrm_model.meshes:
-                if hasattr(mesh, 'vertices'):
+                if hasattr(mesh, "vertices"):
                     vertices = np.array(mesh.vertices) * 10.0
                     all_vertices.extend(vertices)
 
             if all_vertices:
                 all_vertices = np.array(all_vertices)
-                bounds = np.array([
-                    [all_vertices[:, 0].min(), all_vertices[:, 0].max()],
-                    [all_vertices[:, 1].min(), all_vertices[:, 1].max()],
-                    [all_vertices[:, 2].min(), all_vertices[:, 2].max()]
-                ])
+                bounds = np.array(
+                    [
+                        [all_vertices[:, 0].min(), all_vertices[:, 0].max()],
+                        [all_vertices[:, 1].min(), all_vertices[:, 1].max()],
+                        [all_vertices[:, 2].min(), all_vertices[:, 2].max()],
+                    ]
+                )
 
                 center = bounds.mean(axis=1)
                 size = (bounds[:, 1] - bounds[:, 0]).max() * 0.6
@@ -581,9 +630,9 @@ class DesktopAvatarViewer:
 
         # Add coordinate axes
         axis_length = 0.2
-        self.ax.plot([0, axis_length], [0, 0], [0, 0], color='red', linewidth=3, label='X-axis')
-        self.ax.plot([0, 0], [0, axis_length], [0, 0], color='green', linewidth=3, label='Y-axis')
-        self.ax.plot([0, 0], [0, 0], [axis_length], color='blue', linewidth=3, label='Z-axis')
+        self.ax.plot([0, axis_length], [0, 0], [0, 0], color="red", linewidth=3, label="X-axis")
+        self.ax.plot([0, 0], [0, axis_length], [0, 0], color="green", linewidth=3, label="Y-axis")
+        self.ax.plot([0, 0], [0, 0], [axis_length], color="blue", linewidth=3, label="Z-axis")
 
         # Add control instructions
         info_text = (
@@ -606,10 +655,16 @@ class DesktopAvatarViewer:
             f"• Animation: {'PLAYING' if self.is_animating else 'STOPPED'}"
         )
 
-        self.ax.text2D(0.02, 0.98, info_text,
-                      transform=self.ax.transAxes, fontsize=8, verticalalignment='top',
-                      bbox=dict(boxstyle='round', facecolor='white', alpha=0.8),
-                      family='monospace')
+        self.ax.text2D(
+            0.02,
+            0.98,
+            info_text,
+            transform=self.ax.transAxes,
+            fontsize=8,
+            verticalalignment="top",
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+            family="monospace",
+        )
 
         # Force redraw
         self.fig.canvas.draw()
@@ -665,58 +720,56 @@ class DesktopAvatarViewer:
         width_y = (ylim[1] - ylim[0]) * zoom_factor
         width_z = (zlim[1] - zlim[0]) * zoom_factor
 
-        self.ax.set_xlim(center_x - width_x/2, center_x + width_x/2)
-        self.ax.set_ylim(center_y - width_y/2, center_y + width_y/2)
-        self.ax.set_zlim(center_z - width_z/2, center_z + width_z/2)
+        self.ax.set_xlim(center_x - width_x / 2, center_x + width_x / 2)
+        self.ax.set_ylim(center_y - width_y / 2, center_y + width_y / 2)
+        self.ax.set_zlim(center_z - width_z / 2, center_z + width_z / 2)
 
         self.fig.canvas.draw()
 
     def _on_key_press(self, event):
         """Handle keyboard events."""
-        if event.key == 'b':
+        if event.key == "b":
             self.show_bones = not self.show_bones
             logger.info(f"Bone display {'enabled' if self.show_bones else 'disabled'}")
             self._update_display()
 
-        elif event.key == 's':
+        elif event.key == "s":
             self.show_skeleton = not self.show_skeleton
             logger.info(f"Skeleton display {'enabled' if self.show_skeleton else 'disabled'}")
             self._update_display()
 
-        elif event.key == 'w':
+        elif event.key == "w":
             self.wireframe_mode = not self.wireframe_mode
             logger.info(f"Wireframe mode {'enabled' if self.wireframe_mode else 'disabled'}")
             self._update_display()
 
-        elif event.key == 'r':
+        elif event.key == "r":
             self.view_elev = 20
             self.view_azim = 45
             self.ax.view_init(elev=self.view_elev, azim=self.view_azim)
             self.fig.canvas.draw()
             logger.info("View reset")
 
-        elif event.key == ' ':
+        elif event.key == " ":
             self._reset_pose()
             self._update_display()
             logger.info("Pose reset")
 
-        elif event.key == 'escape':
+        elif event.key == "escape":
             plt.close(self.fig)
             logger.info("Viewer closed")
 
     def _export_current_view(self, export_path: str):
         """Export current view to image file."""
         if self.fig:
-            self.fig.savefig(export_path, dpi=300, bbox_inches='tight')
+            self.fig.savefig(export_path, dpi=300, bbox_inches="tight")
             logger.info(f"Exported view to {export_path}")
 
     async def start_server(self):
         """Start the OSC server."""
         try:
             self.osc_server = AsyncIOOSCUDPServer(
-                ("127.0.0.1", self.osc_port),
-                self.dispatcher,
-                asyncio.get_event_loop()
+                ("127.0.0.1", self.osc_port), self.dispatcher, asyncio.get_event_loop()
             )
             transport, protocol = await self.osc_server.create_serve_endpoint()
             logger.info(f"OSC server started on port {self.osc_port}")
@@ -732,14 +785,14 @@ class DesktopAvatarViewer:
 
             # Show initial empty viewer
             self.fig = plt.figure(figsize=(16, 12))
-            self.ax = self.fig.add_subplot(111, projection='3d')
+            self.ax = self.fig.add_subplot(111, projection="3d")
 
             # Connect mouse and keyboard events
-            self.fig.canvas.mpl_connect('button_press_event', self._on_mouse_press)
-            self.fig.canvas.mpl_connect('button_release_event', self._on_mouse_release)
-            self.fig.canvas.mpl_connect('motion_notify_event', self._on_mouse_move)
-            self.fig.canvas.mpl_connect('scroll_event', self._on_scroll)
-            self.fig.canvas.mpl_connect('key_press_event', self._on_key_press)
+            self.fig.canvas.mpl_connect("button_press_event", self._on_mouse_press)
+            self.fig.canvas.mpl_connect("button_release_event", self._on_mouse_release)
+            self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+            self.fig.canvas.mpl_connect("scroll_event", self._on_scroll)
+            self.fig.canvas.mpl_connect("key_press_event", self._on_key_press)
 
             # Set up initial plot
             self._setup_plot()
@@ -748,6 +801,7 @@ class DesktopAvatarViewer:
 
         except Exception as e:
             logger.error(f"Failed to run viewer: {e}")
+
 
 async def main():
     """Main function."""
@@ -762,6 +816,7 @@ async def main():
     try:
         # Run the viewer in a separate thread since plt.show() is blocking
         import threading
+
         viewer_thread = threading.Thread(target=viewer.run_viewer)
         viewer_thread.daemon = True
         viewer_thread.start()
@@ -776,8 +831,7 @@ async def main():
         if transport:
             transport.close()
 
+
 if __name__ == "__main__":
     # Run with asyncio
     asyncio.run(main())
-
-

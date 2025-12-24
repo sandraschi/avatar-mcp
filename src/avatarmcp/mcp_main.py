@@ -3,13 +3,15 @@
 Dedicated MCP server entry point that avoids importing heavy dependencies.
 This is specifically for Claude Desktop integration.
 """
-import sys
-import os
+
 import logging
+import os
+import sys
 
 # Handle Windows asyncio issues
 try:
     import asyncio
+
     ASYNCIO_AVAILABLE = True
 except OSError as e:
     if "WinError 10106" in str(e):
@@ -19,18 +21,21 @@ except OSError as e:
     else:
         raise
 
+
 def main():
     """Main entry point for MCP server using FastMCP."""
     # Configure logging to file only to avoid interfering with MCP protocol
-    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log")
+    log_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log"
+    )
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Configure logging to stderr only (MCP best practice)
     # MCP protocol requires stdout for JSON-RPC only
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        stream=sys.stderr  # Send to stderr for Claude Desktop logs
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        stream=sys.stderr,  # Send to stderr for Claude Desktop logs
     )
 
     logger = logging.getLogger(__name__)
@@ -44,6 +49,7 @@ def main():
             sys.path.insert(0, current_dir)
 
         import importlib.util
+
         mcp_server_path = os.path.join(current_dir, "mcp_server_clean.py")
         spec = importlib.util.spec_from_file_location("mcp_server_clean", mcp_server_path)
         mcp_module = importlib.util.module_from_spec(spec)
@@ -73,9 +79,11 @@ def main():
         sys.stderr.flush()
         logger.error(f"Error in FastMCP server: {str(e)}", exc_info=True)
         import traceback
+
         sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
         sys.stderr.flush()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

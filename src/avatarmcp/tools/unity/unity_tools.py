@@ -24,7 +24,6 @@ TODO: Migrate the following tools from mcp_server_clean.py to this module:
 """
 
 
-
 class UnityTools:
     """Container for all Unity-related MCP tools."""
 

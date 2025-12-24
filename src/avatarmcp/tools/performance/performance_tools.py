@@ -5,7 +5,7 @@ This module contains tools for professional avatar performances, including
 lip sync, lighting, audience interaction, show management, and recording systems.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class PerformanceTools:
@@ -18,9 +18,10 @@ class PerformanceTools:
 
     def _register_tools(self):
         """Register all performance tools with the MCP server."""
+
         # Register audio_lip_sync_analyze tool
         @self.mcp_server.mcp.tool()
-        def audio_lip_sync_analyze(params: Dict[str, Any]) -> Dict[str, Any]:
+        def audio_lip_sync_analyze(params: dict[str, Any]) -> dict[str, Any]:
             """Analyze audio for lip sync animation and phoneme detection.
 
             Processes audio input to generate precise lip sync animations and phoneme
@@ -147,19 +148,21 @@ class PerformanceTools:
             osc_address = "/avatar/audio/lip/sync/analyze"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'audio_lip_sync_analyze tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "audio_lip_sync_analyze tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send audio_lip_sync_analyze command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send audio_lip_sync_analyze command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def performance_lighting_control(params: Dict[str, Any]) -> Dict[str, Any]:
+        def performance_lighting_control(params: dict[str, Any]) -> dict[str, Any]:
             """Control stage lighting and visual effects for avatar performances.
 
             Manages professional lighting setups, color schemes, and dynamic lighting
@@ -316,19 +319,22 @@ class PerformanceTools:
             osc_address = "/avatar/performance/lighting/control"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'performance_lighting_control tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "performance_lighting_control tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send performance_lighting_control command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send performance_lighting_control command to Unity "
+                        "desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def performance_particle_effects(params: Dict[str, Any]) -> Dict[str, Any]:
+        def performance_particle_effects(params: dict[str, Any]) -> dict[str, Any]:
             """Create and control particle effects for avatar performances.
 
             Generates and manages visual particle effects including confetti, sparks,
@@ -513,19 +519,22 @@ class PerformanceTools:
             osc_address = "/avatar/performance/particle/effects"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'performance_particle_effects tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "performance_particle_effects tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send performance_particle_effects command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send performance_particle_effects command to Unity "
+                        "desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def audience_response_analyze(params: Dict[str, Any]) -> Dict[str, Any]:
+        def audience_response_analyze(params: dict[str, Any]) -> dict[str, Any]:
             """Analyze audience reactions and engagement during performances.
 
             Monitors audience responses through various input methods including
@@ -654,19 +663,21 @@ class PerformanceTools:
             osc_address = "/avatar/audience/response/analyze"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'audience_response_analyze tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "audience_response_analyze tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send audience_response_analyze command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send audience_response_analyze command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def show_script_create(params: Dict[str, Any]) -> Dict[str, Any]:
+        def show_script_create(params: dict[str, Any]) -> dict[str, Any]:
             """Create and manage scripted performances for avatar shows.
 
             Develops comprehensive show scripts with timing, cues, dialogue,
@@ -796,8 +807,16 @@ class PerformanceTools:
                             }
                         ],
                         'audience_interactions': [
-                            {'time': 30, 'type': 'suggestion_request', 'prompt': 'Give us a profession!'},
-                            {'time': 90, 'type': 'suggestion_request', 'prompt': 'Now a location!'},
+                            {
+                                'time': 30,
+                                'type': 'suggestion_request',
+                                'prompt': 'Give us a profession!'
+                            },
+                            {
+                                'time': 90,
+                                'type': 'suggestion_request',
+                                'prompt': 'Now a location!'
+                            },
                             {'time': 150, 'type': 'scene_improv', 'duration': 180}
                         ],
                         'effect_cues': [
@@ -843,19 +862,19 @@ class PerformanceTools:
             osc_address = "/avatar/show/script/create"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'show_script_create tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "show_script_create tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send show_script_create command to Unity desktop avatar'
+                    "status": "error",
+                    "message": "Failed to send show_script_create command to Unity desktop avatar",
                 }
 
         @self.mcp_server.mcp.tool()
-        def performance_recording_system(params: Dict[str, Any]) -> Dict[str, Any]:
+        def performance_recording_system(params: dict[str, Any]) -> dict[str, Any]:
             """Record and manage avatar performances for playback and analysis.
 
             Captures complete avatar performances including animations, audio, expressions,
@@ -1028,13 +1047,16 @@ class PerformanceTools:
             osc_address = "/avatar/performance/recording/system"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'performance_recording_system tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "performance_recording_system tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send performance_recording_system command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send performance_recording_system command to Unity "
+                        "desktop avatar"
+                    ),
                 }

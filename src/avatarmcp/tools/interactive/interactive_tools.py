@@ -6,7 +6,7 @@ including pose manipulation, gesture recognition, feedback systems, and
 multi-avatar scene management for dynamic avatar interactions.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
 class InteractiveTools:
@@ -19,9 +19,10 @@ class InteractiveTools:
 
     def _register_tools(self):
         """Register all interactive tools with the MCP server."""
+
         # Register interactive_pose_control tool
         @self.mcp_server.mcp.tool()
-        def interactive_pose_control(params: Dict[str, Any]) -> Dict[str, Any]:
+        def interactive_pose_control(params: dict[str, Any]) -> dict[str, Any]:
             """Manipulate avatar pose in real-time with precise bone control.
 
             Provides fine-grained control over avatar pose and movement through
@@ -181,19 +182,21 @@ class InteractiveTools:
             osc_address = "/avatar/interactive/pose/control"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                    'status': 'success',
-                    'message': 'interactive_pose_control tool executed successfully',
-                    'osc_message': f'{osc_address} {params}',
-                    'params': params
+                    "status": "success",
+                    "message": "interactive_pose_control tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send interactive_pose_control command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send interactive_pose_control command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def interactive_gesture_recognize(params: Dict[str, Any]) -> Dict[str, Any]:
+        def interactive_gesture_recognize(params: dict[str, Any]) -> dict[str, Any]:
             """Recognize and respond to avatar gestures in real-time.
 
             Analyzes avatar pose and movement patterns to recognize gestures,
@@ -337,19 +340,22 @@ class InteractiveTools:
             osc_address = "/avatar/interactive/gesture/recognize"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'interactive_gesture_recognize tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "interactive_gesture_recognize tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send interactive_gesture_recognize command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send interactive_gesture_recognize command to Unity "
+                        "desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def interactive_feedback_system(params: Dict[str, Any]) -> Dict[str, Any]:
+        def interactive_feedback_system(params: dict[str, Any]) -> dict[str, Any]:
             """Create real-time feedback systems for avatar interaction.
 
             Establishes adaptive feedback loops where avatar behavior responds
@@ -414,7 +420,10 @@ class InteractiveTools:
                         'feedback_responses': {
                             'wave_hello': {'animation': 'WaveHello', 'expression': 'Joy'},
                             'look_around': {'animation': 'IdleLook', 'expression': 'Neutral'},
-                            'react_surprised': {'animation': 'SurprisedJump', 'expression': 'Surprised'}
+                            'react_surprised': {
+                                'animation': 'SurprisedJump',
+                                'expression': 'Surprised'
+                            }
                         },
                         'adaptation_mode': 'reactive'
                     })
@@ -424,9 +433,18 @@ class InteractiveTools:
                     result = await interactive_feedback_system({
                         'avatar_id': 'student',
                         'feedback_triggers': {
-                            'positive_feedback': {'user_input': 'good_job', 'response': 'happy_learn'},
-                            'negative_feedback': {'user_input': 'try_again', 'response': 'focused_retry'},
-                            'confusion_detected': {'pattern': 'repeated_failure', 'response': 'seek_help'}
+                            'positive_feedback': {
+                                'user_input': 'good_job',
+                                'response': 'happy_learn'
+                            },
+                            'negative_feedback': {
+                                'user_input': 'try_again',
+                                'response': 'focused_retry'
+                            },
+                            'confusion_detected': {
+                                'pattern': 'repeated_failure',
+                                'response': 'seek_help'
+                            }
                         },
                         'feedback_responses': {
                             'happy_learn': {'animation': 'Celebrate', 'intensity': 0.8},
@@ -444,12 +462,25 @@ class InteractiveTools:
                         'feedback_triggers': {
                             'health_low': {'health_percent': 25, 'response': 'injured_react'},
                             'enemy_near': {'distance': 3.0, 'response': 'combat_ready'},
-                            'victory_achieved': {'event': 'level_complete', 'response': 'victory_celebrate'}
+                            'victory_achieved': {
+                                'event': 'level_complete',
+                                'response': 'victory_celebrate'
+                            }
                         },
                         'feedback_responses': {
-                            'injured_react': {'animation': 'Wounded', 'expression': 'Pain', 'pose': 'guarding'},
-                            'combat_ready': {'animation': 'BattleStance', 'expression': 'Determined'},
-                            'victory_celebrate': {'animation': 'VictoryDance', 'expression': 'Joy'}
+                            'injured_react': {
+                                'animation': 'Wounded',
+                                'expression': 'Pain',
+                                'pose': 'guarding'
+                            },
+                            'combat_ready': {
+                                'animation': 'BattleStance',
+                                'expression': 'Determined'
+                            },
+                            'victory_celebrate': {
+                                'animation': 'VictoryDance',
+                                'expression': 'Joy'
+                            }
                         },
                         'adaptation_mode': 'contextual',
                         'cooldown_period': 1.0
@@ -460,14 +491,32 @@ class InteractiveTools:
                     result = await interactive_feedback_system({
                         'avatar_id': 'assistant',
                         'feedback_triggers': {
-                            'task_starting': {'pattern': 'user_preparing_task', 'response': 'prepare_help'},
-                            'frustration_detected': {'pattern': 'repeated_errors', 'response': 'offer_assistance'},
-                            'success_pattern': {'pattern': 'task_completion', 'response': 'praise_effort'}
+                            'task_starting': {
+                                'pattern': 'user_preparing_task',
+                                'response': 'prepare_help'
+                            },
+                            'frustration_detected': {
+                                'pattern': 'repeated_errors',
+                                'response': 'offer_assistance'
+                            },
+                            'success_pattern': {
+                                'pattern': 'task_completion',
+                                'response': 'praise_effort'
+                            }
                         },
                         'feedback_responses': {
-                            'prepare_help': {'animation': 'ReadyToHelp', 'expression': 'Eager'},
-                            'offer_assistance': {'animation': 'ConcernedHelp', 'expression': 'Caring'},
-                            'praise_effort': {'animation': 'Applause', 'expression': 'Proud'}
+                            'prepare_help': {
+                                'animation': 'ReadyToHelp',
+                                'expression': 'Eager'
+                            },
+                            'offer_assistance': {
+                                'animation': 'ConcernedHelp',
+                                'expression': 'Caring'
+                            },
+                            'praise_effort': {
+                                'animation': 'Applause',
+                                'expression': 'Proud'
+                            }
                         },
                         'adaptation_mode': 'predictive',
                         'intensity_multiplier': 0.8
@@ -511,19 +560,21 @@ class InteractiveTools:
             osc_address = "/avatar/interactive/feedback/system"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'interactive_feedback_system tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "interactive_feedback_system tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send interactive_feedback_system command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send interactive_feedback_system command to Unity desktop avatar"
+                    ),
                 }
 
         @self.mcp_server.mcp.tool()
-        def interactive_scene_control(params: Dict[str, Any]) -> Dict[str, Any]:
+        def interactive_scene_control(params: dict[str, Any]) -> dict[str, Any]:
             """Manage multi-avatar scenes with coordinated interactions.
 
             Controls multiple avatars simultaneously, coordinating their behaviors,
@@ -696,13 +747,15 @@ class InteractiveTools:
             osc_address = "/avatar/interactive/scene/control"
             if self.mcp_server._send_osc_message(osc_address, str(params)):
                 return {
-                'status': 'success',
-                'message': 'interactive_scene_control tool executed successfully',
-                'osc_message': f'{osc_address} {params}',
-                'params': params
+                    "status": "success",
+                    "message": "interactive_scene_control tool executed successfully",
+                    "osc_message": f"{osc_address} {params}",
+                    "params": params,
                 }
             else:
                 return {
-                'status': 'error',
-                'message': 'Failed to send interactive_scene_control command to Unity desktop avatar'
+                    "status": "error",
+                    "message": (
+                        "Failed to send interactive_scene_control command to Unity desktop avatar"
+                    ),
                 }

@@ -12,16 +12,13 @@ from typing import TYPE_CHECKING
 # Configure logging before any other imports
 logging.basicConfig(
     level=logging.DEBUG,  # More verbose logging for debugging
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('avatarmcp.log', mode='w')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("avatarmcp.log", mode="w")],
 )
 
 # Set higher log level for asyncio to reduce noise
-logging.getLogger('asyncio').setLevel(logging.WARNING)
+logging.getLogger("asyncio").setLevel(logging.WARNING)
 
 # Only import type hints when type checking to avoid circular imports
 if TYPE_CHECKING:
@@ -29,36 +26,47 @@ if TYPE_CHECKING:
 
 # Public API
 __all__ = [
-    'AvatarMCPServer',
-    'run_server',
+    "AvatarMCPServer",
+    "run_server",
 ]
 
 # Conditional imports to avoid loading heavy dependencies during package import
 # Only import when not in MCP mode or when explicitly needed
 
 _heavy_imports_loaded = False
-_mcp_mode = '--mcp' in sys.argv or 'mcp_main.py' in sys.argv[0] if sys.argv else False
+_mcp_mode = "--mcp" in sys.argv or "mcp_main.py" in sys.argv[0] if sys.argv else False
+
 
 def _ensure_heavy_imports():
     """Load heavy imports only when needed."""
     global _heavy_imports_loaded, AvatarMCP, AvatarMCPServer, run_server, VRChatOSC
-    
+
     if not _heavy_imports_loaded and not _mcp_mode:
         try:
             from .core.app import AvatarMCP  # noqa: E402
-            from .server import AvatarMCPServer, run_server  # noqa: E402  
             from .network.osc.vrc_connector import VRChatOSC  # noqa: E402
+            from .server import AvatarMCPServer, run_server  # noqa: E402
+
             _heavy_imports_loaded = True
         except ImportError as e:
             # If heavy imports fail, define stub classes
             error_msg = f"Heavy dependencies not available: {e}"
+
             class AvatarMCP:
-                def __init__(self): raise ImportError(error_msg)
+                def __init__(self):
+                    raise ImportError(error_msg)
+
             class AvatarMCPServer:
-                def __init__(self): raise ImportError(error_msg)
-            def run_server(): raise ImportError(error_msg)
+                def __init__(self):
+                    raise ImportError(error_msg)
+
+            def run_server():
+                raise ImportError(error_msg)
+
             class VRChatOSC:
-                def __init__(self): raise ImportError(error_msg)
+                def __init__(self):
+                    raise ImportError(error_msg)
+
 
 # Always available lightweight components
 try:
@@ -75,12 +83,7 @@ if not _mcp_mode:
 __version__ = "0.2.0"
 
 # Re-export for easier access
-__all__ = [
-    'AvatarMCP',
-    'AvatarMCPServer',
-    'VRChatOSC',
-    'run_server'
-]
+__all__ = ["AvatarMCP", "AvatarMCPServer", "VRChatOSC", "run_server"]
 
 # Global server instance for singleton pattern
 _server_instance = None
@@ -91,16 +94,17 @@ __license__ = "MIT"
 # Public API
 __all__ = [
     # Core components
-    'VRMModel',
-    
+    "VRMModel",
     # Server and execution
-    'server_main'
+    "server_main",
 ]
+
 
 def server_main():
     """Main entry point for the server."""
     _ensure_heavy_imports()
     run_server()
+
 
 if __name__ == "__main__":
     server_main()
