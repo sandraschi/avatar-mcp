@@ -126,23 +126,26 @@ class AvatarSamplingTool:
                 if not workflow_prompt:
                     return {
                         "success": False,
-                        "error": "workflow_prompt is required",
-                        "suggestion": "Provide a natural language description of the desired avatar workflow"
+                        "message": "I'd love to help you create an avatar workflow, but I need you to tell me what you'd like the avatar to do! 😊",
+                        "suggestion": "Try describing something like 'Express happiness with a smile and wave' or 'Perform a joyful dance routine'",
+                        "example": "workflow_prompt: 'Create a warm welcome with a friendly smile and gentle wave'"
                     }
 
                 if not avatar_id:
                     return {
                         "success": False,
-                        "error": "avatar_id is required",
-                        "suggestion": "Specify which avatar should perform the workflow"
+                        "message": "Which avatar would you like me to work with? I need to know which one should perform this workflow! 🎭",
+                        "suggestion": "Use avatar_manager to see your loaded avatars, then specify one like 'companion_bot' or 'dancer'",
+                        "example": "avatar_id: 'companion_bot'"
                     }
 
                 # Validate avatar exists
                 if not await self._validate_avatar(avatar_id):
                     return {
                         "success": False,
-                        "error": f"Avatar '{avatar_id}' not found or not loaded",
-                        "suggestion": "Use avatar_manager tool to load the avatar first"
+                        "message": f"I couldn't find avatar '{avatar_id}' - it looks like it might not be loaded yet! 🤔",
+                        "suggestion": "Let's get your avatar ready first. Try using the avatar_manager tool to load it, then we can create some amazing workflows together!",
+                        "example": "First load with: avatar_manager({\"operation\": \"load\", \"path\": \"your-avatar.vrm\"})"
                     }
 
                 # Execute sampling workflow
@@ -161,8 +164,10 @@ class AvatarSamplingTool:
                 logger.error(f"Sampling workflow failed: {e}")
                 return {
                     "success": False,
-                    "error": str(e),
-                    "suggestion": "Check avatar status and try a simpler workflow"
+                    "message": f"Oh no, something unexpected happened while trying to create that workflow! 😅 Don't worry, we can try again with a simpler approach.",
+                    "technical_details": str(e),
+                    "suggestion": "Let's try a simpler workflow first, like just 'smile and wave hello'. If that works, we can build up to more complex behaviors!",
+                    "troubleshooting": "Make sure your avatar is loaded and try breaking the workflow into smaller steps"
                 }
 
     async def _execute_sampling_workflow(
@@ -218,7 +223,9 @@ class AvatarSamplingTool:
                     results.append({
                         "operation": operation["name"],
                         "success": False,
-                        "error": str(op_error)
+                        "message": f"The '{operation['name']}' action didn't quite work as planned, but we're keeping the workflow going! 🔄",
+                        "technical_details": str(op_error),
+                        "continuing": "The workflow will continue with the remaining actions"
                     })
 
             end_time = asyncio.get_event_loop().time()
@@ -240,10 +247,12 @@ class AvatarSamplingTool:
             logger.error(f"Sampling workflow execution failed: {e}")
             return {
                 "success": False,
-                "error": str(e),
+                "message": "The workflow encountered some technical difficulties, but we got through some of it! Here's what we accomplished before the hiccup. 🔧",
+                "technical_details": str(e),
                 "operations_executed": operations_executed,
                 "results": results,
-                "total_iterations": iteration_count
+                "total_iterations": iteration_count,
+                "suggestion": "Try simplifying the workflow or breaking it into smaller parts. Sometimes less is more when creating avatar behaviors!"
             }
 
     async def _generate_operation_sequence(
@@ -310,7 +319,8 @@ class AvatarSamplingTool:
         params = operation.get("params", {})
 
         if operation_name not in self._available_operations:
-            raise ValueError(f"Unknown operation: {operation_name}")
+            available_ops = list(self._available_operations.keys())
+            raise ValueError(f"I'm not familiar with the '{operation_name}' operation! 🤔 Try one of these instead: {', '.join(available_ops)}. Or let me know if you'd like help choosing the right operation for your workflow!")
 
         # Add avatar_id to params
         params["avatar_id"] = avatar_id
