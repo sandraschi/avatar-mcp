@@ -2,12 +2,12 @@
 
 **By FlowEngineer sandraschi**
 
-> FastMCP 2.12+ compatible VRM avatar management and animation server with VRChat OSC integration
+> FastMCP 2.14.3 compatible VRM avatar management and animation server with VRChat OSC integration and agentic sampling workflows
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
-[![FastMCP 2.12](https://img.shields.io/badge/FastMCP-2.12+-brightgreen)](https://fastmcp.readthedocs.io/)
+[![FastMCP 2.14.3](https://img.shields.io/badge/FastMCP-2.14.3+-brightgreen)](https://fastmcp.readthedocs.io/)
 [![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
 [![Portmanteau Tools](https://img.shields.io/badge/Tools-Portmanteau-blueviolet)](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md)
 
@@ -15,12 +15,13 @@
 
 ### Core Features
 
-- **Portmanteau Tools Architecture**: Consolidated 15 portmanteau tools following FastMCP 2.12 standards
+- **Portmanteau Tools Architecture**: Consolidated 16 portmanteau tools with FastMCP 2.14.3 sampling capabilities
   - Reduces tool explosion from 28 individual tools to 15 unified interfaces
   - Operation-based design with comprehensive multiline docstrings
   - Clean, maintainable architecture with focused tool classes
 
-- **FastMCP 2.12+ Compatible**: Fully implements the MCP protocol over stdio transport with enhanced features
+- **FastMCP 2.14.3 Compatible**: Fully implements the MCP protocol with sampling capabilities (SEP-1577) for agentic workflows
+- **Agentic Sampling Workflows**: LLM-driven orchestration of complex avatar behaviors without manual sequencing
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
 - **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
 - **Advanced Animation System**: Play, blend, and manage animations with support for loops, varying speeds, and real-time recording
@@ -39,11 +40,11 @@
 
 ## 🏗️ Portmanteau Tools Architecture
 
-AvatarMCP uses a revolutionary portmanteau tools architecture that consolidates related functionality into unified interfaces, following FastMCP 2.12 standards.
+AvatarMCP uses a revolutionary portmanteau tools architecture that consolidates related functionality into unified interfaces, leveraging FastMCP 2.14.3 sampling capabilities for agentic workflows.
 
 ### Benefits
 
-- **47% Tool Reduction**: From 28 individual tools to 15 consolidated portmanteau tools
+- **50% Tool Reduction**: From 28 individual tools to 16 consolidated portmanteau tools with agentic sampling
 - **Better Organization**: Related functionality logically grouped together
 - **Easier Maintenance**: Single class per functional area
 - **Improved Discoverability**: Clearer tool purposes and operations
@@ -84,6 +85,15 @@ For detailed architecture documentation, see [Portmanteau Tools Plan](docs/archi
 - `VRMModel`: VRM 2.0 model loading and management
 - `AnimationController`: Manage and play animations on avatars
 - `MCPTools`: MCP command handlers for avatar control
+- `AvatarSamplingTool`: Agentic workflow orchestration using FastMCP 2.14.3 sampling
+
+### Feature Guides
+
+- **[Sampling Workflows Guide](SAMPLING_WORKFLOWS_GUIDE.md)**: Complete guide to agentic sampling workflows
+  - Workflow examples and best practices
+  - Creative applications and use cases
+  - Technical implementation details
+  - Troubleshooting and optimization tips
 
 ## 💬 Available Prompts
 
@@ -129,7 +139,7 @@ AvatarMCP supports natural language interaction through the following commands:
 
 ### 3D Visualization & Controls
 
-AvatarMCP features a powerful 3D viewport system for intuitive avatar manipulation:
+AvatarMCP features a 3D viewport system for avatar manipulation:
 
 - **Interactive 3D Viewport**: Real-time rendering of your avatar with multiple camera angles
 - **View Controls**:
@@ -153,7 +163,7 @@ For detailed documentation, see [AVATAR_CONTROLS.md](docs/AVATAR_CONTROLS.md).
 
 ### MCP Protocol Support
 
-AvatarMCP implements the following portmanteau tools following FastMCP 2.12 standards:
+AvatarMCP implements the following portmanteau tools leveraging FastMCP 2.14.3 sampling capabilities:
 
 #### Core Portmanteau Tools
 
@@ -170,8 +180,11 @@ AvatarMCP implements the following portmanteau tools following FastMCP 2.12 stan
 - **`system_monitor`**: System health and diagnostics
   - Operations: `get_status`, `get_health`, `get_metrics`
 
-#### Additional Portmanteau Tools
+#### Advanced Portmanteau Tools
 
+- **`avatar_sampling`**: Agentic workflow orchestration using FastMCP 2.14.3 sampling
+  - Operations: `execute_workflow`, `generate_sequence`, `orchestrate_multi_step`
+  - Features: LLM-driven choreography, complex behaviors, emotional intelligence
 - **`parameter_manager`**: Avatar parameter control
 - **`unity_window_manager`**: Unity window control
 - **`unity_config_manager`**: Unity configuration management
@@ -181,6 +194,68 @@ AvatarMCP implements the following portmanteau tools following FastMCP 2.12 stan
 - **`file_manager`**: File and asset management
 - **`network_manager`**: Network and connection management
 - **`config_manager`**: Configuration and settings management
+
+## 🎭 Agentic Sampling Workflows (FastMCP 2.14.3)
+
+AvatarMCP introduces **agentic sampling workflows** - a revolutionary feature leveraging FastMCP 2.14.3's SEP-1577 "sampling with tools" specification. This enables LLMs to autonomously orchestrate complex avatar behaviors without manual step-by-step programming.
+
+### Key Benefits
+
+- **🎪 Intelligent Choreography**: AI creates seamless multi-step performances
+- **⚡ Efficiency Gains**: Reduces 10+ tool calls to single workflow requests
+- **🧠 Emotional Intelligence**: LLM understands timing, flow, and emotional context
+- **🎨 Complex Behaviors**: Sophisticated avatar interactions and storytelling
+
+### Sampling Workflow Examples
+
+```python
+# Emotional performance
+await avatar_agentic_workflow({
+    "workflow_prompt": "Express happiness with a smile and celebratory gesture",
+    "avatar_id": "companion_bot",
+    "available_operations": ["set_morph", "play_animation", "control_bone"],
+    "max_iterations": 3
+})
+
+# Complex dance choreography
+await avatar_agentic_workflow({
+    "workflow_prompt": "Perform a 30-second joyful dance with emotional transitions",
+    "avatar_id": "dancer",
+    "available_operations": ["play_animation", "set_emotion", "blend_animations", "wait"],
+    "max_iterations": 10,
+    "context": {"duration": 30, "style": "joyful"}
+})
+
+# Interactive conversation response
+await avatar_agentic_workflow({
+    "workflow_prompt": "React to surprising good news with excitement and gestures",
+    "avatar_id": "listener",
+    "available_operations": ["set_emotion", "control_bone", "send_osc"],
+    "max_iterations": 4
+})
+```
+
+### Available Operations for Sampling
+
+The sampling tool can orchestrate these avatar operations:
+- `load_avatar` - Load VRM models
+- `play_animation` - Trigger animations
+- `set_morph` - Control facial expressions
+- `control_bone` - Manipulate bone positions
+- `send_osc` - Send OSC messages to VRChat
+- `set_emotion` - Set emotional states
+- `create_sequence` - Build animation sequences
+- `blend_animations` - Layer multiple animations
+- `get_status` - Check avatar state
+- `wait` - Add timing delays
+
+### Technical Implementation
+
+- **SEP-1577 Compliance**: Full implementation of sampling with tools specification
+- **Async Orchestration**: Proper timing and sequencing of operations
+- **Context Awareness**: Workflow parameters and environmental context
+- **Safety Limits**: Configurable iteration limits (1-20) prevent infinite loops
+- **Error Recovery**: Graceful handling of operation failures
 
 #### Usage Examples
 
@@ -214,6 +289,51 @@ await unity_integration({
     "strength": 0.9
 })
 ```
+
+#### Sampling Workflow Examples
+
+```python
+# Agentic emotional performance
+await avatar_agentic_workflow({
+    "workflow_prompt": "Express genuine happiness with a warm smile and friendly gesture",
+    "avatar_id": "companion_bot",
+    "available_operations": ["set_morph", "play_animation", "control_bone"],
+    "max_iterations": 3
+})
+
+# Complex choreography with timing
+await avatar_agentic_workflow({
+    "workflow_prompt": "Perform a 20-second celebratory dance with emotional peaks",
+    "avatar_id": "performer",
+    "available_operations": ["play_animation", "set_emotion", "blend_animations", "wait"],
+    "max_iterations": 8,
+    "context": {
+        "duration": 20,
+        "style": "celebratory",
+        "emotional_arc": ["joy", "excitement", "climax"]
+    }
+})
+
+# Interactive storytelling
+await avatar_agentic_workflow({
+    "workflow_prompt": "React dramatically to an unexpected plot twist",
+    "avatar_id": "character",
+    "available_operations": ["set_emotion", "control_bone", "play_animation", "send_osc"],
+    "max_iterations": 6,
+    "context": {
+        "reaction_type": "shock",
+        "intensity": "high"
+    }
+})
+```
+
+### Getting Started with Sampling Workflows
+
+1. **Load your avatar** using `avatar_manager` first
+2. **Choose appropriate operations** for your workflow goal
+3. **Write descriptive prompts** that include timing and emotional context
+4. **Start with simple workflows** (3-5 iterations) and scale up
+5. **Monitor results** to refine prompts and operation selection
 
 For complete MCP protocol documentation, see [FastMCP Documentation](https://fastmcp.readthedocs.io/).
 
@@ -588,10 +708,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - VRM Consortium for the [VRM specification](https://vrm.dev/)
 
-- VRChat for the amazing social VR platform
+- VRChat for the social VR platform
 
 
-- The MCP community for building awesome tools
+- The MCP community for building MCP tools
 
 ---
 

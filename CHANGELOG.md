@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-15
+
+### Added
+- **Agentic Sampling Workflows**: Revolutionary FastMCP 2.14.3 sampling capabilities (SEP-1577)
+  - `avatar_sampling`: New portmanteau tool for agentic avatar orchestration
+  - LLM-driven autonomous workflow execution without manual sequencing
+  - Intelligent choreography with emotional intelligence and timing control
+  - Available operations: load_avatar, play_animation, set_morph, control_bone, send_osc, set_emotion, create_sequence, blend_animations, get_status, wait
+- **16th Portmanteau Tool**: Expanded from 15 to 16 tools with sampling capabilities
+- **Sampling Workflow Examples**: Comprehensive examples for emotional performances, dance choreography, and interactive storytelling
+- **Advanced Usage Tips**: Best practices for prompt engineering, operation selection, and creative applications
+
+### Changed
+- **FastMCP Upgrade**: Upgraded from 2.12.0+ to 2.14.3 with sampling support
+- **Tool Architecture**: Now 16 consolidated portmanteau tools (50% reduction from original 28)
+- **Documentation**: Enhanced with sampling workflow guides and extended usage examples
+
+### Technical
+- **SEP-1577 Compliance**: Full implementation of "sampling with tools" specification
+- **Async Orchestration**: Proper timing and sequencing for complex avatar behaviors
+- **Context Awareness**: Workflow parameters with environmental and timing context
+- **Safety Controls**: Configurable iteration limits (1-20) to prevent infinite loops
+
 ## [1.0.0] - 2025-10-22
 
 ### Added

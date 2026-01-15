@@ -15,7 +15,8 @@ AvatarMCP now supports **MCPB packaging** - Anthropic's official format for dist
 - ⚙️ **User configuration** - Interactive setup prompts
 - 📦 **Bundled dependencies** - Everything included
 - 🚀 **Automated distribution** - GitHub Actions CI/CD
-- 🔧 **21 MCP tools** - Full AvatarMCP functionality
+- 🎭 **Agentic Sampling Workflows** - FastMCP 2.14.3 sampling capabilities
+- 🔧 **19 portmanteau tools + 4 sampling prompts** - Advanced AvatarMCP functionality
 
 ---
 
@@ -24,9 +25,9 @@ AvatarMCP now supports **MCPB packaging** - Anthropic's official format for dist
 | Property | Value |
 |----------|-------|
 | **Name** | avatarmcp.mcpb |
-| **Version** | 0.1.0 |
-| **Size** | ~2-3 MB (estimated) |
-| **Tools** | 21 MCP tools |
+| **Version** | 1.1.0 |
+| **Size** | ~2.5-3.5 MB (estimated) |
+| **Tools** | 19 portmanteau tools + 4 sampling prompts |
 | **Platform** | Cross-platform (Win/Mac/Linux) |
 | **Python** | >=3.9 |
 
@@ -49,6 +50,62 @@ avatarmcp.mcpb
 ├── examples/                 # Usage examples
 └── docs/                     # Documentation
 ```
+
+---
+
+## 🎭 **Agentic Sampling Workflows (v1.1.0)**
+
+AvatarMCP v1.1.0 introduces **revolutionary agentic sampling workflows** powered by FastMCP 2.14.3's SEP-1577 "sampling with tools" specification. This enables LLMs to autonomously orchestrate complex avatar behaviors without manual step-by-step programming.
+
+### **Key Breakthroughs:**
+
+- **🧠 Intelligent Orchestration**: AI creates seamless multi-step performances
+- **⚡ Efficiency Gains**: Reduces 10+ tool calls to single workflow requests
+- **🎨 Emotional Intelligence**: Context-aware timing and emotional expression
+- **🎪 Complex Behaviors**: Sophisticated avatar interactions and storytelling
+
+### **Sampling Workflow Examples:**
+
+```javascript
+// Emotional response with autonomous sequencing
+await avatar_sampling({
+  "workflow_prompt": "Express genuine happiness with warm smile and friendly gesture",
+  "avatar_id": "companion",
+  "available_operations": ["set_morph", "play_animation", "control_bone"],
+  "max_iterations": 3
+})
+
+// Complex dance performance with AI choreography
+await avatar_sampling({
+  "workflow_prompt": "Perform 20-second celebratory dance with emotional peaks",
+  "avatar_id": "performer",
+  "available_operations": ["play_animation", "set_emotion", "blend_animations", "wait"],
+  "max_iterations": 8,
+  "context": {"duration": 20, "style": "joyful"}
+})
+
+// Interactive storytelling with dramatic reactions
+await avatar_sampling({
+  "workflow_prompt": "React dramatically to shocking news with wide eyes and expressive gestures",
+  "avatar_id": "character",
+  "available_operations": ["set_emotion", "control_bone", "play_animation"],
+  "max_iterations": 5,
+  "context": {"reaction_type": "shock", "intensity": "high"}
+})
+```
+
+### **New Sampling Prompts:**
+
+- **`sampling_workflow`**: Create agentic sampling workflows for any avatar behavior
+- **`emotional_performance`**: Generate emotional avatar performances
+- **`dance_choreography`**: Create dance sequences with emotional transitions
+
+### **Enhanced Tool Architecture:**
+
+- **19 Consolidated Portmanteau Tools**: 33% reduction from 28 individual tools
+- **Avatar Sampling Tool**: New agentic workflow orchestration
+- **Config Manager**: Centralized configuration management
+- **Network Manager**: Advanced network and connection handling
 
 ---
 

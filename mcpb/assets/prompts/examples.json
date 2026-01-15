@@ -1,0 +1,99 @@
+{
+  "examples": [
+    {
+      "description": "Load and display a VRM avatar using portmanteau tools",
+      "commands": [
+        "await avatar_manager({\"operation\": \"load\", \"path\": \"/path/to/avatar.vrm\", \"make_active\": true})",
+        "await avatar_manager({\"operation\": \"get_metadata\", \"avatar_id\": \"loaded_avatar\"})"
+      ],
+      "expected_result": "Avatar loaded successfully with metadata displayed using consolidated tools"
+    },
+    {
+      "description": "Play an animation sequence with portmanteau control",
+      "commands": [
+        "await animation_controller({\"operation\": \"list\"})",
+        "await animation_controller({\"operation\": \"play\", \"name\": \"walk_cycle\", \"speed\": 1.5})"
+      ],
+      "expected_result": "Animation plays at increased speed using consolidated animation tool"
+    },
+    {
+      "description": "Agentic emotional performance using sampling workflows",
+      "commands": [
+        "await avatar_sampling({\"workflow_prompt\": \"Express genuine happiness with a warm smile and celebratory gesture\", \"avatar_id\": \"companion\", \"available_operations\": [\"set_morph\", \"play_animation\", \"control_bone\"], \"max_iterations\": 3})"
+      ],
+      "expected_result": "Avatar autonomously performs emotional sequence without manual step-by-step control"
+    },
+    {
+      "description": "Complex dance choreography with sampling orchestration",
+      "commands": [
+        "await avatar_sampling({\"workflow_prompt\": \"Perform a 20-second joyful dance with smooth emotional transitions\", \"avatar_id\": \"dancer\", \"available_operations\": [\"play_animation\", \"set_emotion\", \"blend_animations\", \"wait\"], \"max_iterations\": 8, \"context\": {\"duration\": 20, \"style\": \"joyful\"}})"
+      ],
+      "expected_result": "Avatar executes complex multi-step dance routine with AI-driven orchestration"
+    },
+    {
+      "description": "Interactive storytelling performance",
+      "commands": [
+        "await avatar_sampling({\"workflow_prompt\": \"React dramatically to shocking news with wide eyes and expressive gestures\", \"avatar_id\": \"character\", \"available_operations\": [\"set_emotion\", \"control_bone\", \"play_animation\"], \"max_iterations\": 5, \"context\": {\"reaction_type\": \"shock\", \"intensity\": \"high\"}})"
+      ],
+      "expected_result": "Avatar performs nuanced dramatic reaction autonomously"
+    },
+    {
+      "description": "Configure OSC for real-time control using portmanteau tools",
+      "commands": [
+        "await osc_communicator({\"operation\": \"send\", \"address\": \"/avatar/eyeBlink\", \"value\": 1.0})",
+        "await osc_communicator({\"operation\": \"receive\"})"
+      ],
+      "expected_result": "OSC communication handled through consolidated tool interface"
+    },
+    {
+      "description": "Unity desktop avatar integration with portmanteau control",
+      "commands": [
+        "await unity_integration({\"operation\": \"load_avatar\", \"path\": \"/models/avatar.vrm\"})",
+        "await unity_window_manager({\"operation\": \"set_position\", \"x\": 100, \"y\": 100, \"width\": 400, \"height\": 600})",
+        "await unity_window_manager({\"operation\": \"set_transparency\", \"level\": 0.8})"
+      ],
+      "expected_result": "Unity avatar displayed with custom positioning using consolidated tools"
+    }
+  ],
+  "workflows": {
+    "basic_setup": [
+      "Initialize AvatarMCP server with FastMCP 2.14.3",
+      "Load VRM model file using avatar_manager tool",
+      "Configure OSC settings with osc_communicator tool",
+      "Test basic animation playback with animation_controller tool"
+    ],
+    "agentic_performances": [
+      "Set up avatar with emotional baseline",
+      "Create sampling workflow for emotional response",
+      "Execute autonomous performance sequence",
+      "Monitor and adjust based on audience reaction"
+    ],
+    "dance_choreography": [
+      "Load dance-capable avatar model",
+      "Design sampling workflow with emotional arc",
+      "Execute multi-step dance sequence autonomously",
+      "Add live performance adjustments and transitions"
+    ],
+    "interactive_storytelling": [
+      "Configure avatar with expressive capabilities",
+      "Create sampling workflows for different emotional states",
+      "Execute narrative sequences with character reactions",
+      "Adapt performance based on user input and timing"
+    ],
+    "advanced_integration": [
+      "Set up Unity desktop avatar with unity_integration",
+      "Configure OSC bridge using osc_communicator",
+      "Implement facial tracking with morph control",
+      "Create custom animation sequences with sampling orchestration"
+    ],
+    "performance_optimization": [
+      "Monitor system resources with system_monitor",
+      "Optimize animation frame rates using sampling efficiency",
+      "Configure memory management with config_manager",
+      "Set up background processing for autonomous workflows"
+    ]
+  }
+}
+
+
+

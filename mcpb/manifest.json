@@ -261,19 +261,7 @@
       "arguments": ["debug_type", "test_scenario", "expected_result"],
       "text": "You are a debugging assistant for VRM avatar systems. Debug type: ${arguments.debug_type}. Test scenario: ${arguments.test_scenario}. Expected result: ${arguments.expected_result}. Help identify issues and verify system functionality."
     }
-  ],
-  "compatibility": {
-    "platforms": ["win32", "darwin", "linux"],
-    "python_version": ">=3.10",
-    "dependencies": {
-      "fastmcp": ">=2.12.0",
-      "numpy": ">=1.21.0",
-      "python-osc": ">=1.8.2",
-      "pygltflib": ">=1.14.0",
-      "trimesh": ">=3.9.0",
-      "pyvista": ">=0.35.0"
-    }
-  },
+  ], 
   "keywords": [
     "VRM",
     "avatar",

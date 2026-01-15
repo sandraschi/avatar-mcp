@@ -1,8 +1,8 @@
 """
-AvatarMCP - FastMCP 2.12.0+ Server Implementation
+AvatarMCP - FastMCP 2.14.3+ Server Implementation
 
 This module implements the MCP (Model Context Protocol) server for AvatarMCP,
-following the FastMCP 2.12.0+ API standards.
+following the FastMCP 2.14.3+ API standards.
 
 FIXES:
 - Updated FastMCP API from deprecated .method() decorators to new @mcp.tool() pattern
@@ -170,6 +170,7 @@ class AvatarMCPServer:
         # Initialize portmanteau tool classes
         from .tools.portmanteau.animation_controller_tool import AnimationControllerTool
         from .tools.portmanteau.avatar_manager_tool import AvatarManagerTool
+        from .tools.portmanteau.avatar_sampling_tool import AvatarSamplingTool
         from .tools.portmanteau.chat_manager_tool import ChatManagerTool
         from .tools.portmanteau.osc_communicator_tool import OSCCommunicatorTool
         from .tools.portmanteau.system_monitor_tool import SystemMonitorTool
@@ -178,6 +179,7 @@ class AvatarMCPServer:
         from .tools.portmanteau.unity_window_manager_tool import UnityWindowManagerTool
 
         self.avatar_manager_tool = AvatarManagerTool(self)
+        self.avatar_sampling_tool = AvatarSamplingTool(self)
         self.animation_controller_tool = AnimationControllerTool(self)
         self.osc_communicator_tool = OSCCommunicatorTool(self)
         self.unity_integration_tool = UnityIntegrationTool(self)

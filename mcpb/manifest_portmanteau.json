@@ -1,7 +1,7 @@
 {
   "name": "avatarmcp",
-  "version": "1.0.0",
-  "description": "AvatarMCP - Advanced VRM Avatar Control and Management",
+  "version": "1.1.0",
+  "description": "AvatarMCP - Advanced VRM Avatar Control with FastMCP 2.14.3 Sampling Workflows",
   "author": "AvatarMCP Team",
   "license": "MIT",
   "homepage": "https://github.com/avatarmcp/avatarmcp",
@@ -13,10 +13,14 @@
     "avatar",
     "vrm",
     "mcp",
+    "fastmcp",
+    "sampling",
+    "agentic-workflows",
     "unity",
     "animation",
     "osc",
-    "chat"
+    "chat",
+    "ai-orchestration"
   ],
   "mcp_config": {
     "command": "python",
@@ -85,6 +89,18 @@
     {
       "name": "file_manager",
       "description": "File and asset management tool"
+    },
+    {
+      "name": "avatar_sampling",
+      "description": "Agentic sampling workflows using FastMCP 2.14.3 capabilities"
+    },
+    {
+      "name": "network_manager",
+      "description": "Network and connection management tool"
+    },
+    {
+      "name": "config_manager",
+      "description": "Configuration and settings management tool"
     }
   ],
   "resources": [
@@ -114,6 +130,69 @@
         {
           "name": "configuration",
           "description": "Avatar configuration options",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "sampling_workflow",
+      "description": "Create agentic sampling workflows for complex avatar behaviors",
+      "arguments": [
+        {
+          "name": "workflow_type",
+          "description": "Type of workflow: emotional, dance, storytelling, interactive",
+          "required": true
+        },
+        {
+          "name": "complexity",
+          "description": "Workflow complexity: simple, moderate, advanced",
+          "required": false
+        },
+        {
+          "name": "duration",
+          "description": "Workflow duration in seconds",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "emotional_performance",
+      "description": "Generate emotional avatar performances using sampling",
+      "arguments": [
+        {
+          "name": "emotion",
+          "description": "Primary emotion: joy, sadness, anger, surprise, fear",
+          "required": true
+        },
+        {
+          "name": "intensity",
+          "description": "Emotional intensity: subtle, moderate, intense",
+          "required": false
+        },
+        {
+          "name": "duration",
+          "description": "Performance duration in seconds",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "dance_choreography",
+      "description": "Create dance sequences with emotional transitions",
+      "arguments": [
+        {
+          "name": "dance_style",
+          "description": "Dance style: energetic, graceful, dramatic, playful",
+          "required": true
+        },
+        {
+          "name": "duration",
+          "description": "Dance duration in seconds",
+          "required": false
+        },
+        {
+          "name": "emotional_arc",
+          "description": "Emotional progression during dance",
           "required": false
         }
       ]

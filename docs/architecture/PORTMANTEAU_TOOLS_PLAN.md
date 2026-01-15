@@ -1,7 +1,7 @@
 # AvatarMCP Portmanteau Tools Architecture Plan
 
 ## Overview
-Consolidate 28 individual tools into 15 portmanteau tools following FastMCP 2.12 standards with multiline docstrings (no triple quotes inside).
+Consolidate 28 individual tools into 16 portmanteau tools leveraging FastMCP 2.14.3 sampling capabilities for agentic workflows, with multiline docstrings (no triple quotes inside).
 
 ## Portmanteau Tool Design
 
@@ -64,6 +64,11 @@ Consolidate 28 individual tools into 15 portmanteau tools following FastMCP 2.12
 ### 15. **config_manager** - Configuration & Settings Management
 **Consolidates:** Configuration loading, settings updates, environment management
 **Operations:** load_config, update_setting, get_config, validate_config
+
+### 16. **avatar_sampling** - Agentic Workflow Orchestration (FastMCP 2.14.3)
+**Consolidates:** Sampling capabilities for autonomous avatar workflows
+**Operations:** execute_workflow, generate_sequence, validate_operations, orchestrate_multi_step
+**Features:** LLM-driven orchestration, complex choreography, emotional intelligence, interactive behaviors
 
 ## Implementation Strategy
 
