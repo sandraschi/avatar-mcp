@@ -36,6 +36,7 @@ The 3D visualization system enables users to:
 | FR2 | Provide keyboard shortcuts for common actions | Should | Implemented |
 | FR3 | Support view reset to default position | Could | Implemented |
 | FR4 | Multiple viewport layouts (single, quad, etc.) | Could | Planned |
+| FR4.1 | **16 Consolidated Portmanteau Tools**: Essential tool count for FastMCP compliance | Must | Implemented |
 
 ### 3.2 Visualization Modes
 | ID | Requirement | Priority | Status |
@@ -77,6 +78,7 @@ The 3D visualization system enables users to:
 - **Lighting**: Manages light sources and shadows
 - **Material System**: Handles shaders and textures
 - **Input Handler**: Processes user input
+- **Portmanteau Engine**: Dispatches operations to specialized managers (Animation, Emotion, etc.)
 
 ### 5.2 Data Flow
 1. User loads VRM model

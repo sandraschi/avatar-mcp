@@ -1,0 +1,20 @@
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'localhost'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        # RTX 4090 / Ryzen 9 5900X Optimization
+        unicorn['worker_processes'] = 4
+        sidekiq['max_concurrency'] = 10
+    ports:
+      - '8929:8929'
+      - '2222:22'
+    volumes:
+      - 'D:/Dev/infrastructure/gitlab/config:/etc/gitlab'
+      - 'D:/Dev/infrastructure/gitlab/logs:/var/log/gitlab'
+      - 'D:/Dev/infrastructure/gitlab/data:/var/opt/gitlab'
+    shm_size: '256m'

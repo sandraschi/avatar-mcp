@@ -7,7 +7,7 @@ name = "avatarmcp"
 version = "0.1.0"
 description = "MCP server for managing and animating VRM avatars"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
     {name = "AvatarMCP Team", email = "dev@avatarmcp.example.com"}
@@ -22,14 +22,20 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 dependencies = [
-    "fastmcp>=2.14.3,<2.15.0",
+    "fastmcp>=2.14.5",
     "numpy>=1.21.0",
     "python-osc>=1.8.2",
     "pygltflib>=1.14.0",
     "trimesh>=3.9.0",
     "pyvista>=0.35.0",
     "packaging>=21.0",
-    "typing-extensions>=4.0.0; python_version < '3.10'"
+    "typing-extensions>=4.0.0; python_version < '3.10'",
+    "ruff>=0.14.1",
+    "fastapi>=0.132.0",
+    "uvicorn[standard]>=0.38.0",
+    "sounddevice>=0.4.4",
+    "prometheus-client>=0.17.1",
+    "aiofiles>=23.1.0",
 ]
 
 [project.optional-dependencies]

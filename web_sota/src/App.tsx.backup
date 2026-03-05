@@ -1,0 +1,34 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/app-layout';
+import { Dashboard } from '@/pages/dashboard';
+import { Control } from '@/pages/control';
+import { Tools } from '@/pages/tools';
+import { Registry } from '@/pages/registry';
+import { Unity } from '@/pages/unity';
+import { VRChat } from '@/pages/vrchat';
+import { Visualizer } from '@/pages/visualizer'; // Assuming it exists
+import { Chat } from '@/pages/chat'; // Assuming it exists
+import { Settings } from '@/pages/settings';
+
+function App() {
+  return (
+    <Router>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/control" element={<Control />} />
+          <Route path="/registry" element={<Registry />} />
+          <Route path="/unity" element={<Unity />} />
+          <Route path="/vrchat" element={<VRChat />} />
+          <Route path="/visualizer" element={<Visualizer />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AppLayout>
+    </Router>
+  );
+}
+
+export default App;

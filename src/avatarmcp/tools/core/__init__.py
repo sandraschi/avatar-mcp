@@ -1,9 +1,11 @@
 """
 Core Tools for AvatarMCP
 
-Basic avatar operations, loading, and fundamental functionality.
+This package contains the core tool implementations migrated from the monolithic server.
 """
 
-from .core_tools import CoreTools
+from .core_avatar_tools import CoreAvatarTools
+from .core_unity_integration_tools import CoreUnityIntegrationTools
+from .core_system_tools import CoreSystemTools
 
-__all__ = ["CoreTools"]
+__all__ = ["CoreAvatarTools", "CoreUnityIntegrationTools", "CoreSystemTools"]

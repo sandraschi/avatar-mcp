@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # Server configuration
     HOST: str = Field("0.0.0.0", env="HOST")
-    PORT: int = Field(8000, env="PORT")
+    PORT: int = Field(10793, env="PORT")
     DEBUG: bool = Field(False, env="DEBUG")
     LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
 

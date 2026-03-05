@@ -1,0 +1,41 @@
+# avatar-mcp
+> This guide explains how to set up and run the AvatarMCP server using Docker Compose. - Docker Engine 19.03.0+ - Docker Compose 1.29.0+ - Git (for cloning the repository) 1. Clone the repository: ```ba...
+
+This project includes automated llms.txt generation for AI accessibility.
+
+## Docs
+- [Docker Readme](DOCKER-README.md): This guide explains how to set up and run the AvatarMCP server using Docker Compose.
+- [Readme](docs\glama-platform\README.md): **Complete guide to achieving and maintaining Gold Status on Glama.ai for AvatarMCP**
+- [Readme](README.md): **By FlowEngineer sandraschi**
+- [Readme](docs\mcp-technical\README.md): **Technical guides for MCP server development, deployment, and troubleshooting**
+- [Readme Unity Update](README_UNITY_UPDATE.md): **The README.md needs to be updated to prioritize Unity Desktop Avatar over PyVista!**
+- [Readme](docs\github\README.md): > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup.
+- [Readme](docs\repository-protection\README.md): **Complete guide to keeping your avatarmcp repository safe**
+- [Readme](docs\mcpb-packaging\README.md): **Complete guide to packaging and distributing MCP servers with MCPB**
+- [Readme Templates](README_TEMPLATES.md): **State-of-the-Art CI workflow templates for modern Python projects**
+- [Readme](docs\llm-recipes\README.md): This directory contains recipes and best practices for using different LLM models for AvatarMCP deve...
+
+## Api
+- [Api](src\avatarmcp\network\api.py): Api definitions and implementations
+- [Intelligence](src\avatarmcp\api\v1\endpoints\intelligence.py): Api definitions and implementations
+- [  Init  ](src\avatarmcp\api\v1\__init__.py): Api definitions and implementations
+- [Intelligence](src\avatarmcp\api\v1\endpoints\intelligence.py): Endpoints definitions and implementations
+- [Proxy](src\avatarmcp\api\v1\endpoints\proxy.py): Endpoints definitions and implementations
+- [Tools](src\avatarmcp\api\v1\endpoints\tools.py): Endpoints definitions and implementations
+- [Animation Controller](src\avatarmcp\models\animation_controller.py): Models definitions and implementations
+- [  Init  ](src\avatarmcp\models\__init__.py): Models definitions and implementations
+- [Vrm Manager](src\avatarmcp\models\vrm_manager.py): Models definitions and implementations
+
+## Examples
+- [Examples](examples/): Example code and implementations
+- [Demo Complete Avatar System](demo_complete_avatar_system.py): Demo usage and code samples
+- [Demo Enhanced Avatar](demo_enhanced_avatar.py): Demo usage and code samples
+
+## Configuration
+- [Pyproject](pyproject.toml): Python project configuration and dependencies
+- [Package](web_sota\package.json): Node.js project configuration and dependencies
+- [Config](.git\config): Application configuration files
+
+## Optional
+- [Changelog](CHANGELOG.md): Project changelog information
+- [Avatar Tools Roadmap](docs\AVATAR_TOOLS_ROADMAP.md): Project roadmap information

@@ -7,8 +7,8 @@ services:
     container_name: avatarmcp
     restart: unless-stopped
     ports:
-      - "7100:8000"  # MCP API
-      - "7101:8001"  # Metrics
+      - "10710:8000"  # MCP API
+      - "10711:8001"  # Metrics
     volumes:
       - ./models:/app/models  # Mount VRM models
       - ./logs:/app/logs      # Logs directory
@@ -83,7 +83,7 @@ services:
       - prometheus
       - loki
     ports:
-      - "3000:3000"
+      - "10780:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
