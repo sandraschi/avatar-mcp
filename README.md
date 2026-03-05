@@ -2,7 +2,7 @@
 
 **By FlowEngineer sandraschi**
 
-> FastMCP 2.14.3 compatible VRM avatar management and animation server with VRChat OSC integration and agentic sampling workflows
+> FastMCP 2.14.3+ compatible VRM avatar management and animation server with conversational capabilities, SEP-1577 sampling support, and VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -71,8 +71,8 @@ await avatar_manager({
 ### Tool Categories
 
 1. **Core Tools** (6 implemented): Essential functionality
-2. **Management Tools** (4 planned): System and resource management  
-3. **Advanced Tools** (5 planned): Specialized functionality
+2. **Management Tools** (5 implemented): System and resource management  
+3. **Advanced Tools** (5 implemented): Specialized functionality
 
 For detailed architecture documentation, see [Portmanteau Tools Plan](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md).
 
@@ -168,32 +168,24 @@ AvatarMCP implements the following portmanteau tools leveraging FastMCP 2.14.3 s
 #### Core Portmanteau Tools
 
 - **`avatar_manager`**: Comprehensive avatar lifecycle management
-  - Operations: `load`, `unload`, `list`, `set_active`, `get_active`, `get_metadata`
-- **`animation_controller`**: Animation control and management
-  - Operations: `play`, `stop`, `list`
-- **`osc_communicator`**: OSC communication hub
-  - Operations: `send`, `receive`
-- **`unity_integration`**: Unity desktop avatar control
-  - Operations: `status`, `load_avatar`, `set_expression`, `control_animation`
+- **`animation_manager`**: Animation control, sequences, and layering
+- **`emotion_manager`**: Emotional states and personality profiles
+- **`audio_manager`**: Audio playback and synthesis
+- **`behavior_manager`**: AI behavior and adaptation
 - **`chat_manager`**: Chat session management
-  - Operations: `start_session`, `send_message`, `stop_session`, `get_state`
 - **`system_monitor`**: System health and diagnostics
-  - Operations: `get_status`, `get_health`, `get_metrics`
 
 #### Advanced Portmanteau Tools
 
-- **`avatar_sampling`**: Agentic workflow orchestration using FastMCP 2.14.3 sampling
-  - Operations: `execute_workflow`, `generate_sequence`, `orchestrate_multi_step`
-  - Features: LLM-driven choreography, complex behaviors, emotional intelligence
-- **`parameter_manager`**: Avatar parameter control
+- **`avatar_sampling`**: Agentic workflow orchestration (SEP-1577)
+- **`collaboration_manager`**: Multi-user synchronization
+- **`content_manager`**: Content creation and publishing
+- **`interaction_manager`**: Tactical triggers and gestures
+- **`performance_manager`**: Optimization and profiling
+- **`unity_integration`**: Unity desktop avatar control
 - **`unity_window_manager`**: Unity window control
 - **`unity_config_manager`**: Unity configuration management
 - **`server_controller`**: Server lifecycle management
-- **`debug_tools`**: Debug and testing utilities
-- **`viewer_manager`**: 3D viewer control
-- **`file_manager`**: File and asset management
-- **`network_manager`**: Network and connection management
-- **`config_manager`**: Configuration and settings management
 
 ## 🎭 Agentic Sampling Workflows (FastMCP 2.14.3)
 
@@ -341,27 +333,89 @@ For complete MCP protocol documentation, see [FastMCP Documentation](https://fas
 
 See [VRChat OSC Integration Guide](docs/VRChat_OSC_Integration_Guide.md) for details on how to configure and use the OSC integration.
 
-## 📦 Installation
+## 🚀 Installation
 
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+### 📦 Quick Start
+Run immediately via `uvx`:
+```bash
+uvx avatarmcp
+```
+
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "avatarmcp": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/avatar-mcp", "run", "avatarmcp"]
+  }
+}
+```
 ### Prerequisites
 
 - Python 3.9+
 - pip (Python package manager)
-- [VRChat](https://vrchat.com/) (for VRChat OSC integration)
+- [VRChat](https://vrchat.com/) (for VRChat OSC integration - optional)
 
-### Quick Start
+### 📦 PyPI Package Install (RECOMMENDED)
+
+**Fastest Installation - Production Ready:**
+
+```bash
+pip install avatarmcp
+```
+
+**Claude Desktop Integration:**
+- Open Claude Desktop
+- Settings → MCP Servers
+- Add new MCP server:
+  ```json
+  {
+    "mcpServers": {
+      "avatarmcp": {
+        "command": "avatarmcp"
+      }
+    }
+  }
+  ```
+
+### Web dashboard (web_sota)
+
+Optional React dashboard (Vite, port 10792) with API proxy to the backend (10793). From repo root:
+
+```powershell
+cd web_sota
+npm install
+npm run dev
+```
+
+Requires `framer-motion` and a valid `APPS_CATALOG` export from `src/common/apps-catalog.ts`. See [CHANGELOG](CHANGELOG.md) for recent web UI fixes.
+
+## 📦 Packaging & Distribution
+
+This repository is SOTA 2026 compliant and uses the officially validated `@anthropic-ai/mcpb` workflow for distribution.
+
+### Pack Extension
+To generate a `.mcpb` distribution bundle with complete source code and automated build exclusions:
+```bash
+# SOTA 2026 standard pack command
+mcpb pack . dist/avatar-mcp.mcpb
+```
+
+### 🛠️ Other MCP Clients (Cursor, Windsurf, etc.)
 
 ```bash
 # Install from PyPI (recommended)
 pip install avatarmcp
 
-# Or install from source
-git clone https://github.com/yourusername/avatarmcp.git
+# OR install from source
+git clone https://github.com/sandraschi/avatarmcp.git
 cd avatarmcp
-pip install -e .
-
-# Install required dependencies
-pip install python-osc pyvrm
+uv pip install -e .
 ```
 
 ### Dependencies
@@ -716,3 +770,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Made with â¤ï¸ by [Your Name] | [GitHub](https://github.com/yourusername)
+
+
+## 🌐 Webapp Dashboard
+
+This MCP server includes a free, premium web interface for monitoring and control.
+By default, the web dashboard runs on port **10792**.
+*(Assigned ports: **10792** (Web dashboard frontend), **10793** (Web dashboard backend (API)))*
+
+To start the webapp:
+1. Navigate to the `webapp` (or `web`, `frontend`) directory.
+2. Run `start.bat` (Windows) or `./start.ps1` (PowerShell).
+3. Open `http://localhost:10792` in your browser.

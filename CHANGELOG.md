@@ -5,7 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2025-01-15
+## [Unreleased]
+
+### Fixed
+- **Web UI (web_sota)**: Resolved Vite pre-transform errors on dev startup.
+  - Added missing `APPS_CATALOG` export in `src/common/apps-catalog.ts` (alias for `FLEET_REGISTRY`) for topbar/layout imports.
+  - Added `framer-motion` dependency for `FleetCard.tsx` and other animated components.
+  - Frontend now starts cleanly on port 10792 with backend proxy to 10793.
+
+---
+
+## [1.2.0] - 2026-02-24
+
+### Added
+- **New Portmanteau Managers**: Consolidated all remaining tools into professional manager interfaces:
+  - `emotion_manager`: Unified emotion, micro-expressions, and personality profiles.
+  - `audio_manager`: Unified audio playback and singing synthesis.
+  - `behavior_manager`: Unified AI conversation, adaptation, and learning behaviors.
+  - `animation_manager`: Unified animation play/stop, sequences, and layering.
+  - `collaboration_manager`: Unified multi-user sync and session management.
+  - `content_manager`: Unified asset creation, listing, and publishing.
+  - `interaction_manager`: Unified tactical triggers and interactive gestures.
+  - `performance_manager`: Unified VRM optimization and profiling.
+
+### Changed
+- **Architecture Refactoring**: Complete purge of redundant tools and bridge logic in `server.py`.
+- **Fleet Alignment**: Removed OSC and Resonite-specific tools now handled by dedicated fleet servers.
+- **Portmanteau Consolidation**: Reduced tool footprint by 50% while maintaining full feature parity.
+
+### Fixed
+- **Registration Errors**: Resolved `NameError` in `server.py` and improved modular tool loading.
+
+---
+
 
 ### Added
 - **Agentic Sampling Workflows**: Revolutionary FastMCP 2.14.3 sampling capabilities (SEP-1577)
