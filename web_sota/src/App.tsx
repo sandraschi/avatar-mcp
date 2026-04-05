@@ -18,6 +18,7 @@ import { Loops } from '@/pages/loops';
 import { Status } from '@/pages/status';
 import { Apps } from '@/pages/apps';
 import { Help } from '@/pages/help';
+import { Workflow } from '@/pages/workflow';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="/loops" element={<Loops />} />
           <Route path="/status" element={<Status />} />
           <Route path="/apps" element={<Apps />} />
+          <Route path="/workflow" element={<Workflow />} />
           <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />

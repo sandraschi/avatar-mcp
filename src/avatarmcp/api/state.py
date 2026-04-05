@@ -1,10 +1,9 @@
 """Global state for AvatarMCP API."""
 
-from typing import Optional
 from ...server import AvatarMCPServer
 
 # Global server instance
-mcp_server: Optional[AvatarMCPServer] = None
+mcp_server: AvatarMCPServer | None = None
 
 
 def get_server() -> AvatarMCPServer:

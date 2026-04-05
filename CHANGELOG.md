@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Webapp Settings (web_sota)**: Ollama model selection UI.
+  - Backend: `GET/PUT /api/v1/settings/llm`, `GET /api/v1/settings/ollama/status`, `GET /api/v1/settings/ollama/models` (Ollama discovery via `OLLAMA_BASE_URL`, default 127.0.0.1:11434).
+  - Settings page: dynamic Ollama connection status, dropdown of discovered models, persist selection (in-process; optional `FASTSEARCH_PIPE_NAME`-style env for overrides).
+- **System monitor portmanteau**: Bootstrap operations for portmanteau-only mode.
+  - `system_monitor(operation="initialize", models_dir=...)`: bootstrap server, scan VRM models; call first before other tools.
+  - `system_monitor(operation="shutdown")`: request server shutdown.
+
+### Changed
+- **Portmanteau-only tool surface**: MCP and HTTP tool list now expose only the 16 portmanteau tools.
+  - Removed registration of `CoreAvatarTools`, `CoreSystemTools`, `CoreUnityIntegrationTools` (raw tools no longer registered).
+  - Clients must call `system_monitor(operation="initialize")` before using other portmanteau tools; all other operations remain on portmanteau tools (e.g. `avatar_manager`, `animation_manager`).
+- **Webapp Loops page**: Backend now serves `GET /api/v1/intelligence/loops` from SOTA http_server; frontend uses relative URL and safe fallbacks so the page no longer 404s or goes black.
+
 ### Fixed
+- **Cursor/IDE stdio MCP**: Eliminated "Unexpected non-whitespace character after JSON" and client errors.
+  - FastMCP banner suppressed: `server.mcp.run(show_banner=False)` in `run_server()` and `mcp_main()`.
+  - Stdout patching in `__main__.py`: when `--stdio` or `--mcp` is in argv, stdout is replaced with a devnull before any imports so no log/banner leaks into the JSON-RPC stream; original stdout is restored immediately before `mcp.run()` so FastMCP can send JSON-RPC on it.
 - **Web UI (web_sota)**: Resolved Vite pre-transform errors on dev startup.
   - Added missing `APPS_CATALOG` export in `src/common/apps-catalog.ts` (alias for `FLEET_REGISTRY`) for topbar/layout imports.
   - Added `framer-motion` dependency for `FleetCard.tsx` and other animated components.

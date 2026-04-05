@@ -16,10 +16,10 @@ export function Loops() {
     const [activeLoop, setActiveLoop] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:10793/api/v1/intelligence/loops")
-            .then(r => r.json())
-            .then(d => setLoops(d.loops))
-            .catch(() => { });
+        fetch("/api/v1/intelligence/loops")
+            .then((r) => (r.ok ? r.json() : { loops: [] }))
+            .then((d) => setLoops(d?.loops ?? []))
+            .catch(() => setLoops([]));
     }, []);
 
     const runLoop = (id: string) => {

@@ -25,12 +25,12 @@ class AvatarManagerTool:
         @self.mcp_server.mcp.tool()
         def avatar_manager(params: dict[str, Any]) -> dict[str, Any]:
             """Comprehensive avatar lifecycle management tool.
-            
+
             Provides unified interface for all avatar-related operations including
             loading, unloading, listing, activation control, and metadata retrieval.
             This portmanteau tool consolidates multiple individual avatar tools
             into a single, well-organized interface.
-            
+
             Parameters:
                 operation: The specific operation to perform (required)
                     - "load": Load a VRM avatar model
@@ -39,20 +39,20 @@ class AvatarManagerTool:
                     - "set_active": Set the active avatar
                     - "get_active": Get the currently active avatar
                     - "get_metadata": Get avatar metadata
-                    
+
                 Additional parameters depend on the operation:
                     - For "load": path (required), make_active (optional)
                     - For "unload": avatar_id (required)
                     - For "set_active": avatar_id (required)
                     - For "get_metadata": avatar_id (optional, defaults to active)
-                    
+
             Returns:
                 Dictionary containing:
                     - status: Either "success" or "error"
                     - message: Human-readable operation result
                     - operation: The operation that was performed
                     - Additional fields based on operation type
-                    
+
             Examples:
                 Load a new avatar:
                     result = await avatar_manager({
@@ -60,24 +60,24 @@ class AvatarManagerTool:
                         "path": "models/my_avatar.vrm",
                         "make_active": True
                     })
-                    
+
                 List all loaded avatars:
                     result = await avatar_manager({
                         "operation": "list"
                     })
-                    
+
                 Set active avatar:
                     result = await avatar_manager({
                         "operation": "set_active",
                         "avatar_id": "avatar_123"
                     })
-                    
+
                 Get avatar metadata:
                     result = await avatar_manager({
                         "operation": "get_metadata",
                         "avatar_id": "avatar_123"
                     })
-                    
+
             Notes:
                 - All operations require server to be initialized
                 - Avatar IDs are generated automatically on load
@@ -107,7 +107,7 @@ class AvatarManagerTool:
                 else:
                     return {
                         "status": "error",
-                        "message": f"Unknown operation '{operation}'. Valid operations: load, unload, list, set_active, get_active, get_metadata"
+                        "message": f"Unknown operation '{operation}'. Valid operations: load, unload, list, set_active, get_active, get_metadata",
                     }
 
             except Exception as e:
@@ -119,13 +119,16 @@ class AvatarManagerTool:
         try:
             path = params.get("path")
             if not path:
-                return {"status": "error", "message": "Path parameter is required for load operation"}
+                return {
+                    "status": "error",
+                    "message": "Path parameter is required for load operation",
+                }
 
             make_active = params.get("make_active", True)
 
             # Use existing VRM manager to load avatar
             avatar_id = self.mcp_server.vrm_manager.load_vrm(path)
-            
+
             if make_active:
                 self.mcp_server.vrm_manager.set_active_avatar(avatar_id)
 
@@ -135,7 +138,7 @@ class AvatarManagerTool:
                 "operation": "load",
                 "avatar_id": avatar_id,
                 "path": path,
-                "make_active": make_active
+                "make_active": make_active,
             }
 
         except Exception as e:
@@ -146,17 +149,20 @@ class AvatarManagerTool:
         try:
             avatar_id = params.get("avatar_id")
             if not avatar_id:
-                return {"status": "error", "message": "Avatar ID parameter is required for unload operation"}
+                return {
+                    "status": "error",
+                    "message": "Avatar ID parameter is required for unload operation",
+                }
 
             # Use existing VRM manager to unload avatar
             success = self.mcp_server.vrm_manager.unload_vrm(avatar_id)
-            
+
             if success:
                 return {
                     "status": "success",
                     "message": f"Unloaded avatar {avatar_id}",
                     "operation": "unload",
-                    "avatar_id": avatar_id
+                    "avatar_id": avatar_id,
                 }
             else:
                 return {"status": "error", "message": f"Failed to unload avatar {avatar_id}"}
@@ -177,7 +183,7 @@ class AvatarManagerTool:
                 "operation": "list",
                 "avatars": avatars,
                 "active_avatar_id": active_avatar_id,
-                "count": len(avatars)
+                "count": len(avatars),
             }
 
         except Exception as e:
@@ -188,17 +194,20 @@ class AvatarManagerTool:
         try:
             avatar_id = params.get("avatar_id")
             if not avatar_id:
-                return {"status": "error", "message": "Avatar ID parameter is required for set_active operation"}
+                return {
+                    "status": "error",
+                    "message": "Avatar ID parameter is required for set_active operation",
+                }
 
             # Use existing VRM manager to set active avatar
             success = self.mcp_server.vrm_manager.set_active_avatar(avatar_id)
-            
+
             if success:
                 return {
                     "status": "success",
                     "message": f"Set active avatar to {avatar_id}",
                     "operation": "set_active",
-                    "avatar_id": avatar_id
+                    "avatar_id": avatar_id,
                 }
             else:
                 return {"status": "error", "message": f"Failed to set active avatar to {avatar_id}"}
@@ -211,20 +220,20 @@ class AvatarManagerTool:
         try:
             # Get active avatar from VRM manager
             active_avatar_id = self.mcp_server.vrm_manager.get_active_avatar_id()
-            
+
             if active_avatar_id:
                 return {
                     "status": "success",
                     "message": f"Active avatar is {active_avatar_id}",
                     "operation": "get_active",
-                    "avatar_id": active_avatar_id
+                    "avatar_id": active_avatar_id,
                 }
             else:
                 return {
                     "status": "success",
                     "message": "No active avatar",
                     "operation": "get_active",
-                    "avatar_id": None
+                    "avatar_id": None,
                 }
 
         except Exception as e:
@@ -238,24 +247,24 @@ class AvatarManagerTool:
                 # Default to active avatar
                 avatar_id = self.mcp_server.vrm_manager.get_active_avatar_id()
                 if not avatar_id:
-                    return {"status": "error", "message": "No avatar ID provided and no active avatar"}
+                    return {
+                        "status": "error",
+                        "message": "No avatar ID provided and no active avatar",
+                    }
 
             # Get avatar metadata from VRM manager
             metadata = self.mcp_server.vrm_manager.get_avatar_metadata(avatar_id)
-            
+
             if metadata:
                 return {
                     "status": "success",
                     "message": f"Retrieved metadata for avatar {avatar_id}",
                     "operation": "get_metadata",
                     "avatar_id": avatar_id,
-                    "metadata": metadata
+                    "metadata": metadata,
                 }
             else:
                 return {"status": "error", "message": f"No metadata found for avatar {avatar_id}"}
 
         except Exception as e:
             return {"status": "error", "message": f"Failed to get avatar metadata: {str(e)}"}
-
-
-

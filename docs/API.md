@@ -1,4 +1,4 @@
-﻿# AvatarMCP API Reference
+# AvatarMCP API Reference
 
 ## Table of Contents
 

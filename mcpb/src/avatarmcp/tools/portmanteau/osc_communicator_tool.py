@@ -25,28 +25,28 @@ class OSCCommunicatorTool:
         @self.mcp_server.mcp.tool()
         def osc_communicator(params: dict[str, Any]) -> dict[str, Any]:
             """Comprehensive OSC communication tool.
-            
+
             Provides unified interface for all OSC (Open Sound Control) operations
             including sending messages to external applications and receiving
             incoming OSC messages. This portmanteau tool consolidates OSC
             communication functionality into a single, well-organized interface.
-            
+
             Parameters:
                 operation: The specific operation to perform (required)
                     - "send": Send an OSC message to external applications
                     - "receive": Get information about received OSC messages
-                    
+
                 Additional parameters depend on the operation:
                     - For "send": address (required), value (required), target (optional)
                     - For "receive": None required
-                    
+
             Returns:
                 Dictionary containing:
                     - status: Either "success" or "error"
                     - message: Human-readable operation result
                     - operation: The operation that was performed
                     - Additional fields based on operation type
-                    
+
             Examples:
                 Send simple OSC message:
                     result = await osc_communicator({
@@ -54,14 +54,14 @@ class OSCCommunicatorTool:
                         "address": "/avatar/parameters/Emotion",
                         "value": 0.8
                     })
-                    
+
                 Send OSC message with multiple values:
                     result = await osc_communicator({
                         "operation": "send",
                         "address": "/avatar/transform/position",
                         "value": [1.5, 0.0, 2.3]
                     })
-                    
+
                 Send to specific target:
                     result = await osc_communicator({
                         "operation": "send",
@@ -69,12 +69,12 @@ class OSCCommunicatorTool:
                         "value": 0.7,
                         "target": "192.168.1.100:9000"
                     })
-                    
+
                 Get received messages:
                     result = await osc_communicator({
                         "operation": "receive"
                     })
-                    
+
             Notes:
                 - All operations require server to be initialized
                 - OSC must be enabled in server configuration
@@ -98,12 +98,15 @@ class OSCCommunicatorTool:
                 else:
                     return {
                         "status": "error",
-                        "message": f"Unknown operation '{operation}'. Valid operations: send, receive"
+                        "message": f"Unknown operation '{operation}'. Valid operations: send, receive",
                     }
 
             except Exception as e:
                 logger.error(f"OSC communicator operation failed: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"OSC communicator operation failed: {str(e)}"}
+                return {
+                    "status": "error",
+                    "message": f"OSC communicator operation failed: {str(e)}",
+                }
 
     def _handle_send(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle OSC send operation."""
@@ -121,15 +124,18 @@ class OSCCommunicatorTool:
                 return {"status": "error", "message": "OSC is not enabled or initialized"}
 
             # Send OSC message
-            if hasattr(self.mcp_server.osc_manager, 'osc_client') and self.mcp_server.osc_manager.osc_client:
+            if (
+                hasattr(self.mcp_server.osc_manager, "osc_client")
+                and self.mcp_server.osc_manager.osc_client
+            ):
                 self.mcp_server.osc_manager.osc_client.send_message(address, value)
-                
+
                 return {
                     "status": "success",
                     "message": f"Sent OSC message '{address}' = {value}",
                     "operation": "send",
                     "address": address,
-                    "value": value
+                    "value": value,
                 }
             else:
                 return {"status": "error", "message": "OSC client not available"}
@@ -152,11 +158,8 @@ class OSCCommunicatorTool:
                 "operation": "receive",
                 "messages": [],  # Would contain actual received messages
                 "server_running": self.mcp_server.osc_manager.initialized,
-                "server_address": f"{self.mcp_server.osc_manager.osc_config.server_address}:{self.mcp_server.osc_manager.osc_config.server_port}"
+                "server_address": f"{self.mcp_server.osc_manager.osc_config.server_address}:{self.mcp_server.osc_manager.osc_config.server_port}",
             }
 
         except Exception as e:
             return {"status": "error", "message": f"Failed to get OSC messages: {str(e)}"}
-
-
-

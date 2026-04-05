@@ -594,8 +594,8 @@ async def run_server(
         # Create the server
         server = AvatarMCPServer(enable_osc=enable_osc)
 
-        # Run as stdio server (MCP standard)
-        await server.mcp.run()
+        # FastMCP.run() is synchronous; avoid await on non-coroutine.
+        await asyncio.to_thread(server.mcp.run, show_banner=False)
 
     except Exception as e:
         logger.error(f"Failed to start server: {e}", exc_info=True)

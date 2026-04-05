@@ -9,6 +9,8 @@ import logging
 import time
 from typing import Any
 
+from avatarmcp.models.vrm_manager import VRMManager
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,70 +26,77 @@ class SystemMonitorTool:
         """Register the system monitor portmanteau tool."""
 
         @self.mcp_server.mcp.tool()
-        def system_monitor(params: dict[str, Any]) -> dict[str, Any]:
+        async def system_monitor(params: dict[str, Any]) -> dict[str, Any]:
             """Comprehensive system monitoring and diagnostics tool.
-            
+
             Provides unified interface for all system monitoring operations including
-            server status, health metrics, performance monitoring, and diagnostic
-            information. This portmanteau tool consolidates system monitoring
+            server bootstrap (initialize/shutdown), status, health metrics, and
+            diagnostics. This portmanteau tool consolidates system monitoring
             functionality into a single, well-organized interface.
-            
+
             Parameters:
                 operation: The specific operation to perform (required)
+                    - "initialize": Bootstrap the server and scan for VRM models (call first)
+                    - "shutdown": Request server shutdown
                     - "get_status": Get comprehensive system status and health information
                     - "get_health": Get system health metrics and diagnostics
                     - "get_metrics": Get detailed performance metrics
-                    
+
                 Additional parameters depend on the operation:
+                    - For "initialize": models_dir (optional)
                     - For "get_status": detailed (optional)
                     - For "get_health": include_memory (optional), include_cpu (optional)
                     - For "get_metrics": metric_type (optional)
-                    
+
             Returns:
                 Dictionary containing:
                     - status: Either "success" or "error"
                     - message: Human-readable operation result
                     - operation: The operation that was performed
                     - Additional fields based on operation type
-                    
+
             Examples:
                 Get basic system status:
                     result = await system_monitor({
                         "operation": "get_status"
                     })
-                    
+
                 Get detailed system status:
                     result = await system_monitor({
                         "operation": "get_status",
                         "detailed": True
                     })
-                    
+
                 Get system health metrics:
                     result = await system_monitor({
                         "operation": "get_health",
                         "include_memory": True,
                         "include_cpu": True
                     })
-                    
+
                 Get performance metrics:
                     result = await system_monitor({
                         "operation": "get_metrics",
                         "metric_type": "performance"
                     })
-                    
+
             Notes:
-                - All operations require server to be initialized
+                - Call "initialize" first to bootstrap the server; other operations (except shutdown) require it.
                 - Health metrics may require additional dependencies (psutil)
                 - Performance metrics are collected in real-time
-                - System load information is platform-dependent
             """
             try:
-                if not self.mcp_server.initialized:
-                    raise RuntimeError("Server not initialized. Call 'initialize' first.")
-
                 operation = params.get("operation")
                 if not operation:
                     return {"status": "error", "message": "Operation parameter is required"}
+
+                if operation == "initialize":
+                    return await self._handle_initialize(params)
+                if operation == "shutdown":
+                    return self._handle_shutdown(params)
+
+                if not self.mcp_server.initialized:
+                    raise RuntimeError("Server not initialized. Call system_monitor with operation 'initialize' first.")
 
                 if operation == "get_status":
                     return self._handle_get_status(params)
@@ -98,18 +107,42 @@ class SystemMonitorTool:
                 else:
                     return {
                         "status": "error",
-                        "message": f"Unknown operation '{operation}'. Valid operations: get_status, get_health, get_metrics"
+                        "message": f"Unknown operation '{operation}'. Valid: initialize, shutdown, get_status, get_health, get_metrics",
                     }
 
             except Exception as e:
                 logger.error(f"System monitor operation failed: {str(e)}", exc_info=True)
                 return {"status": "error", "message": f"System monitor operation failed: {str(e)}"}
 
+    async def _handle_initialize(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Bootstrap the server; scan for VRM models."""
+        try:
+            models_dir = params.get("models_dir")
+            if models_dir:
+                self.mcp_server.vrm_manager = VRMManager(models_dir)
+            await self.mcp_server.vrm_manager.scan_models()
+            self.mcp_server.initialized = True
+            return {
+                "status": "success",
+                "message": "AvatarMCP initialized",
+                "operation": "initialize",
+                "models_dir": str(self.mcp_server.vrm_manager.models_dir),
+                "num_models": len(self.mcp_server.vrm_manager.models),
+            }
+        except Exception as e:
+            logger.error(f"Initialize failed: {e}", exc_info=True)
+            return {"status": "error", "message": f"Initialize failed: {str(e)}", "operation": "initialize"}
+
+    def _handle_shutdown(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Request server shutdown."""
+        self.mcp_server.running = False
+        return {"status": "success", "message": "Shutdown initiated", "operation": "shutdown"}
+
     def _handle_get_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle system status get operation."""
         try:
             detailed = params.get("detailed", False)
-            
+
             # Get basic status
             status = {
                 "status": "success",
@@ -117,33 +150,46 @@ class SystemMonitorTool:
                 "operation": "get_status",
                 "server_initialized": self.mcp_server.initialized,
                 "server_running": self.mcp_server.running,
-                "uptime_seconds": time.time() - self.mcp_server.start_time if hasattr(self.mcp_server, 'start_time') else 0,
-                "timestamp": time.time()
+                "uptime_seconds": time.time() - self.mcp_server.start_time
+                if hasattr(self.mcp_server, "start_time")
+                else 0,
+                "timestamp": time.time(),
             }
-            
+
             # Add VRM manager status
-            if hasattr(self.mcp_server, 'vrm_manager'):
-                status.update({
-                    "vrm_manager_active": self.mcp_server.vrm_manager is not None,
-                    "loaded_avatars": len(self.mcp_server.vrm_manager.avatars) if self.mcp_server.vrm_manager else 0,
-                    "active_avatar_id": self.mcp_server.vrm_manager.get_active_avatar_id() if self.mcp_server.vrm_manager else None
-                })
-            
+            if hasattr(self.mcp_server, "vrm_manager") and self.mcp_server.vrm_manager:
+                vm = self.mcp_server.vrm_manager
+                status.update(
+                    {
+                        "vrm_manager_active": True,
+                        "loaded_avatars": len(getattr(vm, "models", vm.__dict__.get("models", {}))),
+                        "active_avatar_id": getattr(self.mcp_server, "active_model_id", None),
+                    }
+                )
+
             # Add OSC status
-            if hasattr(self.mcp_server, 'osc_manager'):
-                status.update({
-                    "osc_enabled": self.mcp_server.osc_manager.enabled if self.mcp_server.osc_manager else False,
-                    "osc_initialized": self.mcp_server.osc_manager.initialized if self.mcp_server.osc_manager else False
-                })
-            
+            if hasattr(self.mcp_server, "osc_manager"):
+                status.update(
+                    {
+                        "osc_enabled": self.mcp_server.osc_manager.enabled
+                        if self.mcp_server.osc_manager
+                        else False,
+                        "osc_initialized": self.mcp_server.osc_manager.initialized
+                        if self.mcp_server.osc_manager
+                        else False,
+                    }
+                )
+
             # Add detailed metrics if requested
             if detailed:
-                status.update({
-                    "memory_usage": self._get_memory_usage(),
-                    "active_tools": self._count_active_tools(),
-                    "system_load": self._get_system_load()
-                })
-            
+                status.update(
+                    {
+                        "memory_usage": self._get_memory_usage(),
+                        "active_tools": self._count_active_tools(),
+                        "system_load": self._get_system_load(),
+                    }
+                )
+
             return status
 
         except Exception as e:
@@ -154,27 +200,37 @@ class SystemMonitorTool:
         try:
             include_memory = params.get("include_memory", True)
             include_cpu = params.get("include_cpu", True)
-            
+
             health = {
                 "status": "success",
                 "message": "System health metrics retrieved",
                 "operation": "get_health",
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
-            
+
             if include_memory:
                 health["memory_health"] = self._get_memory_usage()
-            
+
             if include_cpu:
                 health["cpu_health"] = self._get_system_load()
-            
+
             # Add server health indicators
-            health.update({
-                "server_health": "healthy" if self.mcp_server.initialized and self.mcp_server.running else "unhealthy",
-                "vrm_manager_health": "healthy" if hasattr(self.mcp_server, 'vrm_manager') and self.mcp_server.vrm_manager else "unhealthy",
-                "osc_health": "healthy" if hasattr(self.mcp_server, 'osc_manager') and self.mcp_server.osc_manager and self.mcp_server.osc_manager.enabled else "disabled"
-            })
-            
+            health.update(
+                {
+                    "server_health": "healthy"
+                    if self.mcp_server.initialized and self.mcp_server.running
+                    else "unhealthy",
+                    "vrm_manager_health": "healthy"
+                    if hasattr(self.mcp_server, "vrm_manager") and self.mcp_server.vrm_manager
+                    else "unhealthy",
+                    "osc_health": "healthy"
+                    if hasattr(self.mcp_server, "osc_manager")
+                    and self.mcp_server.osc_manager
+                    and self.mcp_server.osc_manager.enabled
+                    else "disabled",
+                }
+            )
+
             return health
 
         except Exception as e:
@@ -184,36 +240,39 @@ class SystemMonitorTool:
         """Handle system metrics get operation."""
         try:
             metric_type = params.get("metric_type", "all")
-            
+
             metrics = {
                 "status": "success",
                 "message": "System metrics retrieved",
                 "operation": "get_metrics",
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
-            
+
             if metric_type in ["all", "performance"]:
                 metrics["performance"] = {
-                    "uptime": time.time() - self.mcp_server.start_time if hasattr(self.mcp_server, 'start_time') else 0,
+                    "uptime": time.time() - self.mcp_server.start_time
+                    if hasattr(self.mcp_server, "start_time")
+                    else 0,
                     "active_tools": self._count_active_tools(),
                     "memory_usage": self._get_memory_usage(),
-                    "system_load": self._get_system_load()
+                    "system_load": self._get_system_load(),
                 }
-            
+
             if metric_type in ["all", "avatar"]:
-                if hasattr(self.mcp_server, 'vrm_manager') and self.mcp_server.vrm_manager:
+                if hasattr(self.mcp_server, "vrm_manager") and self.mcp_server.vrm_manager:
+                    vm = self.mcp_server.vrm_manager
                     metrics["avatar"] = {
-                        "loaded_count": len(self.mcp_server.vrm_manager.avatars),
-                        "active_avatar": self.mcp_server.vrm_manager.get_active_avatar_id()
+                        "loaded_count": len(getattr(vm, "models", {})),
+                        "active_avatar": getattr(self.mcp_server, "active_model_id", None),
                     }
-            
+
             if metric_type in ["all", "network"]:
-                if hasattr(self.mcp_server, 'osc_manager') and self.mcp_server.osc_manager:
+                if hasattr(self.mcp_server, "osc_manager") and self.mcp_server.osc_manager:
                     metrics["network"] = {
                         "osc_enabled": self.mcp_server.osc_manager.enabled,
-                        "osc_initialized": self.mcp_server.osc_manager.initialized
+                        "osc_initialized": self.mcp_server.osc_manager.initialized,
                     }
-            
+
             return metrics
 
         except Exception as e:
@@ -223,12 +282,13 @@ class SystemMonitorTool:
         """Get memory usage information."""
         try:
             import psutil
+
             process = psutil.Process()
             memory_info = process.memory_info()
             return {
                 "rss_mb": memory_info.rss / 1024 / 1024,  # Resident Set Size
                 "vms_mb": memory_info.vms / 1024 / 1024,  # Virtual Memory Size
-                "percent": process.memory_percent()
+                "percent": process.memory_percent(),
             }
         except ImportError:
             return {"error": "psutil not available"}
@@ -238,7 +298,7 @@ class SystemMonitorTool:
     def _count_active_tools(self) -> int:
         """Count the number of active tools."""
         try:
-            if hasattr(self.mcp_server, 'mcp') and hasattr(self.mcp_server.mcp, '_tools'):
+            if hasattr(self.mcp_server, "mcp") and hasattr(self.mcp_server.mcp, "_tools"):
                 return len(self.mcp_server.mcp._tools)
             return 0
         except Exception:
@@ -248,15 +308,15 @@ class SystemMonitorTool:
         """Get system load information."""
         try:
             import psutil
+
             return {
                 "cpu_percent": psutil.cpu_percent(),
-                "load_average": psutil.getloadavg() if hasattr(psutil, 'getloadavg') else None,
-                "disk_usage": psutil.disk_usage('/').percent if hasattr(psutil, 'disk_usage') else None
+                "load_average": psutil.getloadavg() if hasattr(psutil, "getloadavg") else None,
+                "disk_usage": psutil.disk_usage("/").percent
+                if hasattr(psutil, "disk_usage")
+                else None,
             }
         except ImportError:
             return {"error": "psutil not available"}
         except Exception as e:
             return {"error": str(e)}
-
-
-

@@ -1,8 +1,9 @@
 """Intelligence endpoints for visualizing agentic loops and integrations."""
 
 import logging
-from typing import Any, Dict, List
+
 from fastapi import APIRouter
+
 from avatarmcp.api.state import get_server
 
 logger = logging.getLogger(__name__)

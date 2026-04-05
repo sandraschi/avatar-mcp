@@ -6,7 +6,6 @@ This module contains the core avatar lifecycle tools migrated from the monolithi
 
 import logging
 import os
-import time
 from typing import Any
 
 from ...models.vrm import VRMModel

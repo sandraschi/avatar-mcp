@@ -1,15 +1,33 @@
 """
 Avatar Sampling Tool for AvatarMCP
 
-Implements FastMCP 2.14.3 sampling capabilities (SEP-1577) for agentic avatar workflows.
-Enables LLMs to autonomously orchestrate complex avatar operations without client round-trips.
+Implements FastMCP 3.1 sampling for agentic avatar workflows. Uses Context.sample()
+to request LLM-generated operation sequences from the client; falls back to a minimal
+heuristic only when the client does not support sampling.
 """
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+
+from fastmcp.server.context import Context
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+
+class OperationSpec(BaseModel):
+    """Single operation in an avatar workflow sequence."""
+
+    name: str = Field(..., description="Operation name, e.g. play_animation, set_morph")
+    params: dict[str, Any] = Field(default_factory=dict, description="Operation parameters")
+    delay: float | None = Field(default=None, description="Optional delay in seconds after this operation")
+
+
+class OperationSequenceResult(BaseModel):
+    """Structured result from LLM sampling: list of operations to execute."""
+
+    operations: list[OperationSpec] = Field(default_factory=list, description="Ordered list of operations")
 
 
 class AvatarSamplingTool:
@@ -28,7 +46,7 @@ class AvatarSamplingTool:
             "create_sequence": self._create_sequence,
             "blend_animations": self._blend_animations,
             "get_status": self._get_status,
-            "wait": self._wait
+            "wait": self._wait,
         }
         self._register_tool()
 
@@ -37,9 +55,9 @@ class AvatarSamplingTool:
 
         @self.mcp_server.mcp.tool(
             name="avatar_agentic_workflow",
-            description="Execute complex avatar workflows autonomously using sampling capabilities"
+            description="Execute complex avatar workflows autonomously using sampling capabilities",
         )
-        async def avatar_agentic_workflow(params: dict[str, Any]) -> dict[str, Any]:
+        async def avatar_agentic_workflow(ctx: Context, params: dict[str, Any]) -> dict[str, Any]:
             """Execute agentic avatar workflows using FastMCP sampling capabilities.
 
             This tool enables LLMs to autonomously orchestrate complex avatar operations,
@@ -118,7 +136,9 @@ class AvatarSamplingTool:
             try:
                 workflow_prompt = params.get("workflow_prompt", "")
                 avatar_id = params.get("avatar_id", "")
-                available_ops = params.get("available_operations", list(self._available_operations.keys()))
+                available_ops = params.get(
+                    "available_operations", list(self._available_operations.keys())
+                )
                 max_iterations = min(params.get("max_iterations", 5), 20)  # Cap at 20
                 context = params.get("context", {})
                 strict_mode = params.get("strict_mode", True)
@@ -126,60 +146,62 @@ class AvatarSamplingTool:
                 if not workflow_prompt:
                     return {
                         "success": False,
-                        "message": "I'd love to help you create an avatar workflow, but I need you to tell me what you'd like the avatar to do! 😊",
+                        "message": "I need a description of what you'd like the avatar to do.",
                         "suggestion": "Try describing something like 'Express happiness with a smile and wave' or 'Perform a joyful dance routine'",
-                        "example": "workflow_prompt: 'Create a warm welcome with a friendly smile and gentle wave'"
+                        "example": "workflow_prompt: 'Create a warm welcome with a friendly smile and gentle wave'",
                     }
 
                 if not avatar_id:
                     return {
                         "success": False,
-                        "message": "Which avatar would you like me to work with? I need to know which one should perform this workflow! 🎭",
+                        "message": "Which avatar should perform this workflow? Specify avatar_id.",
                         "suggestion": "Use avatar_manager to see your loaded avatars, then specify one like 'companion_bot' or 'dancer'",
-                        "example": "avatar_id: 'companion_bot'"
+                        "example": "avatar_id: 'companion_bot'",
                     }
 
                 # Validate avatar exists
                 if not await self._validate_avatar(avatar_id):
                     return {
                         "success": False,
-                        "message": f"I couldn't find avatar '{avatar_id}' - it looks like it might not be loaded yet! 🤔",
-                        "suggestion": "Let's get your avatar ready first. Try using the avatar_manager tool to load it, then we can create some amazing workflows together!",
-                        "example": "First load with: avatar_manager({\"operation\": \"load\", \"path\": \"your-avatar.vrm\"})"
+                        "message": f"Avatar '{avatar_id}' not found or not loaded.",
+                        "suggestion": "Use the avatar_manager tool to load the avatar first, then retry.",
+                        "example": 'First load with: avatar_manager({"operation": "load", "path": "your-avatar.vrm"})',
                     }
 
-                # Execute sampling workflow
+                # Execute sampling workflow (ctx used for LLM sampling)
                 result = await self._execute_sampling_workflow(
+                    ctx=ctx,
                     workflow_prompt=workflow_prompt,
                     avatar_id=avatar_id,
                     available_operations=available_ops,
                     max_iterations=max_iterations,
                     context=context,
-                    strict_mode=strict_mode
+                    strict_mode=strict_mode,
                 )
 
                 return result
 
             except Exception as e:
-                logger.error(f"Sampling workflow failed: {e}")
+                logger.error("Sampling workflow failed: %s", e)
                 return {
                     "success": False,
-                    "message": f"Oh no, something unexpected happened while trying to create that workflow! 😅 Don't worry, we can try again with a simpler approach.",
+                    "message": "Workflow execution failed.",
                     "technical_details": str(e),
-                    "suggestion": "Let's try a simpler workflow first, like just 'smile and wave hello'. If that works, we can build up to more complex behaviors!",
-                    "troubleshooting": "Make sure your avatar is loaded and try breaking the workflow into smaller steps"
+                    "suggestion": "Try a simpler workflow (e.g. 'smile and wave') or ensure the avatar is loaded.",
+                    "troubleshooting": "Ensure avatar is loaded and break the workflow into smaller steps if needed.",
                 }
 
     async def _execute_sampling_workflow(
         self,
+        ctx: Context,
         workflow_prompt: str,
         avatar_id: str,
-        available_operations: List[str],
+        available_operations: list[str],
         max_iterations: int,
-        context: Dict[str, Any],
-        strict_mode: bool
-    ) -> Dict[str, Any]:
-        """Execute the sampling workflow using FastMCP's sampling capabilities."""
+        context: dict[str, Any],
+        strict_mode: bool,
+    ) -> dict[str, Any]:
+        """Execute the sampling workflow using FastMCP 3.1 Context.sample()."""
 
         operations_executed = []
         results = []
@@ -187,9 +209,8 @@ class AvatarSamplingTool:
         start_time = asyncio.get_event_loop().time()
 
         try:
-            # Use sampling to generate operation sequence
             operation_sequence = await self._generate_operation_sequence(
-                workflow_prompt, available_operations, max_iterations, context
+                ctx, workflow_prompt, available_operations, max_iterations, context
             )
 
             for operation in operation_sequence:
@@ -207,26 +228,30 @@ class AvatarSamplingTool:
                 try:
                     result = await self._execute_operation(operation, avatar_id, context)
                     operations_executed.append(operation["name"])
-                    results.append({
-                        "operation": operation["name"],
-                        "params": operation.get("params", {}),
-                        "success": result.get("success", True),
-                        "result": result
-                    })
+                    results.append(
+                        {
+                            "operation": operation["name"],
+                            "params": operation.get("params", {}),
+                            "success": result.get("success", True),
+                            "result": result,
+                        }
+                    )
 
                     # Add timing delays if specified
                     if "delay" in operation:
                         await asyncio.sleep(operation["delay"])
 
                 except Exception as op_error:
-                    logger.error(f"Operation {operation['name']} failed: {op_error}")
-                    results.append({
-                        "operation": operation["name"],
-                        "success": False,
-                        "message": f"The '{operation['name']}' action didn't quite work as planned, but we're keeping the workflow going! 🔄",
-                        "technical_details": str(op_error),
-                        "continuing": "The workflow will continue with the remaining actions"
-                    })
+                    logger.error("Operation %s failed: %s", operation["name"], op_error)
+                    results.append(
+                        {
+                            "operation": operation["name"],
+                            "success": False,
+                            "message": f"Operation '{operation['name']}' failed; workflow continues.",
+                            "technical_details": str(op_error),
+                            "continuing": "Remaining actions will still run.",
+                        }
+                    )
 
             end_time = asyncio.get_event_loop().time()
             execution_time = end_time - start_time
@@ -240,79 +265,84 @@ class AvatarSamplingTool:
                 "total_iterations": iteration_count,
                 "max_iterations": max_iterations,
                 "execution_time_seconds": execution_time,
-                "operations_per_second": len(operations_executed) / execution_time if execution_time > 0 else 0
+                "operations_per_second": len(operations_executed) / execution_time
+                if execution_time > 0
+                else 0,
             }
 
         except Exception as e:
-            logger.error(f"Sampling workflow execution failed: {e}")
+            logger.error("Sampling workflow execution failed: %s", e)
             return {
                 "success": False,
-                "message": "The workflow encountered some technical difficulties, but we got through some of it! Here's what we accomplished before the hiccup. 🔧",
+                "message": "Workflow execution failed; partial results below.",
                 "technical_details": str(e),
                 "operations_executed": operations_executed,
                 "results": results,
                 "total_iterations": iteration_count,
-                "suggestion": "Try simplifying the workflow or breaking it into smaller parts. Sometimes less is more when creating avatar behaviors!"
+                "suggestion": "Simplify the workflow or break it into smaller steps.",
             }
 
     async def _generate_operation_sequence(
         self,
+        ctx: Context,
         workflow_prompt: str,
-        available_operations: List[str],
+        available_operations: list[str],
         max_iterations: int,
-        context: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
-        """Generate operation sequence using LLM sampling capabilities."""
+        context: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Generate operation sequence via FastMCP 3.1 Context.sample(); fallback if sampling unavailable."""
 
-        # This would use FastMCP's sampling handler to generate the sequence
-        # For now, we'll implement a basic sequence generator
-        # In a real implementation, this would use the sampling handler
+        system_prompt = """You are an avatar workflow planner. Given a user's natural language description, output a JSON object with a single key "operations" whose value is a list of steps. Each step must have:
+- "name": one of the allowed operation names (exactly as given)
+- "params": object with parameters for that operation (e.g. animation_type, emotion, bone, delay)
+- "delay": optional number of seconds to wait after this step (omit if not needed)
 
-        # Parse workflow prompt to determine operations
+Use only these operation names: """ + ", ".join(repr(op) for op in available_operations) + """. Keep the list short (at most """ + str(max_iterations) + """ steps). Output only the structured response, no commentary."""
+
+        user_message = f"Plan the avatar workflow (at most {max_iterations} steps): {workflow_prompt}"
+
+        try:
+            result = await ctx.sample(
+                user_message,
+                result_type=OperationSequenceResult,
+                system_prompt=system_prompt,
+                max_tokens=1024,
+            )
+            if result.result and result.result.operations:
+                return [
+                    {
+                        "name": op.name,
+                        "params": op.params,
+                        **({"delay": op.delay} if op.delay is not None else {}),
+                    }
+                    for op in result.result.operations[:max_iterations]
+                ]
+        except ValueError as e:
+            if "Sampling not supported" in str(e) or "sampling" in str(e).lower():
+                logger.info("Sampling not available; using fallback heuristic: %s", e)
+            else:
+                logger.warning("Sampling failed, using fallback: %s", e)
+        except Exception as e:
+            logger.warning("Sampling failed, using fallback: %s", e)
+
+        # Fallback: minimal heuristic when client does not support sampling
         prompt_lower = workflow_prompt.lower()
-
-        sequence = []
-
-        # Basic keyword-based operation selection
-        if any(word in prompt_lower for word in ["dance", "move", "animate"]):
-            sequence.append({
-                "name": "play_animation",
-                "params": {"animation_type": "dance" if "dance" in prompt_lower else "movement"}
-            })
-
-        if any(word in prompt_lower for word in ["smile", "happy", "joy", "facial"]):
-            sequence.append({
-                "name": "set_morph",
-                "params": {"emotion": "happy"}
-            })
-
-        if any(word in prompt_lower for word in ["wave", "gesture", "arm"]):
-            sequence.append({
-                "name": "control_bone",
-                "params": {"bone": "arm", "action": "wave"}
-            })
-
-        if any(word in prompt_lower for word in ["surprise", "excited", "emotion"]):
-            sequence.append({
-                "name": "set_emotion",
-                "params": {"emotion_type": "excited" if "excited" in prompt_lower else "surprised"}
-            })
-
-        if any(word in prompt_lower for word in ["sequence", "complex", "choreography"]):
-            sequence.append({
-                "name": "create_sequence",
-                "params": {"complexity": "high"}
-            })
-
-        # Limit to max_iterations
+        sequence: list[dict[str, Any]] = []
+        if any(w in prompt_lower for w in ["dance", "move", "animate"]):
+            sequence.append({"name": "play_animation", "params": {"animation_type": "dance" if "dance" in prompt_lower else "movement"}})
+        if any(w in prompt_lower for w in ["smile", "happy", "joy", "facial"]):
+            sequence.append({"name": "set_morph", "params": {"emotion": "happy"}})
+        if any(w in prompt_lower for w in ["wave", "gesture", "arm"]):
+            sequence.append({"name": "control_bone", "params": {"bone": "arm", "action": "wave"}})
+        if any(w in prompt_lower for w in ["surprise", "excited", "emotion"]):
+            sequence.append({"name": "set_emotion", "params": {"emotion_type": "excited" if "excited" in prompt_lower else "surprised"}})
+        if any(w in prompt_lower for w in ["sequence", "complex", "choreography"]):
+            sequence.append({"name": "create_sequence", "params": {"complexity": "high"}})
         return sequence[:max_iterations]
 
     async def _execute_operation(
-        self,
-        operation: Dict[str, Any],
-        avatar_id: str,
-        context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, operation: dict[str, Any], avatar_id: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute a single operation."""
 
         operation_name = operation["name"]
@@ -320,7 +350,9 @@ class AvatarSamplingTool:
 
         if operation_name not in self._available_operations:
             available_ops = list(self._available_operations.keys())
-            raise ValueError(f"I'm not familiar with the '{operation_name}' operation! 🤔 Try one of these instead: {', '.join(available_ops)}. Or let me know if you'd like help choosing the right operation for your workflow!")
+            raise ValueError(
+                f"Unknown operation '{operation_name}'. Allowed: {', '.join(available_ops)}."
+            )
 
         # Add avatar_id to params
         params["avatar_id"] = avatar_id
@@ -337,43 +369,59 @@ class AvatarSamplingTool:
         return True
 
     # Operation handlers
-    async def _load_avatar(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _load_avatar(self, params: dict[str, Any]) -> dict[str, Any]:
         """Load an avatar."""
         return {"success": True, "operation": "load_avatar", "avatar_id": params.get("avatar_id")}
 
-    async def _play_animation(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _play_animation(self, params: dict[str, Any]) -> dict[str, Any]:
         """Play an animation."""
-        return {"success": True, "operation": "play_animation", "animation": params.get("animation_type", "default")}
+        return {
+            "success": True,
+            "operation": "play_animation",
+            "animation": params.get("animation_type", "default"),
+        }
 
-    async def _set_morph(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _set_morph(self, params: dict[str, Any]) -> dict[str, Any]:
         """Set morph targets."""
-        return {"success": True, "operation": "set_morph", "emotion": params.get("emotion", "neutral")}
+        return {
+            "success": True,
+            "operation": "set_morph",
+            "emotion": params.get("emotion", "neutral"),
+        }
 
-    async def _control_bone(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _control_bone(self, params: dict[str, Any]) -> dict[str, Any]:
         """Control bone positions."""
         return {"success": True, "operation": "control_bone", "bone": params.get("bone", "head")}
 
-    async def _send_osc(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_osc(self, params: dict[str, Any]) -> dict[str, Any]:
         """Send OSC message."""
         return {"success": True, "operation": "send_osc", "message": "sent"}
 
-    async def _set_emotion(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _set_emotion(self, params: dict[str, Any]) -> dict[str, Any]:
         """Set emotional state."""
-        return {"success": True, "operation": "set_emotion", "emotion": params.get("emotion_type", "neutral")}
+        return {
+            "success": True,
+            "operation": "set_emotion",
+            "emotion": params.get("emotion_type", "neutral"),
+        }
 
-    async def _create_sequence(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_sequence(self, params: dict[str, Any]) -> dict[str, Any]:
         """Create animation sequence."""
-        return {"success": True, "operation": "create_sequence", "complexity": params.get("complexity", "medium")}
+        return {
+            "success": True,
+            "operation": "create_sequence",
+            "complexity": params.get("complexity", "medium"),
+        }
 
-    async def _blend_animations(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _blend_animations(self, params: dict[str, Any]) -> dict[str, Any]:
         """Blend multiple animations."""
         return {"success": True, "operation": "blend_animations", "layers": params.get("layers", 2)}
 
-    async def _get_status(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get avatar status."""
         return {"success": True, "operation": "get_status", "status": "active"}
 
-    async def _wait(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def _wait(self, params: dict[str, Any]) -> dict[str, Any]:
         """Wait/delay operation."""
         delay = params.get("delay", 1.0)
         await asyncio.sleep(delay)

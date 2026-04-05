@@ -4,10 +4,10 @@ Exposes FastMCP tools through a standardized REST interface.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from avatarmcp.api.state import get_server
 
@@ -19,35 +19,35 @@ router = APIRouter(tags=["tools"])
 class ToolParameter(BaseModel):
     name: str
     type: str
-    description: Optional[str] = None
+    description: str | None = None
     required: bool = True
 
 
 class ToolInfo(BaseModel):
     name: str
     description: str
-    parameters: List[ToolParameter] = []
+    parameters: list[ToolParameter] = []
 
 
 class ToolCallRequest(BaseModel):
     name: str
-    arguments: Dict[str, Any] = {}
+    arguments: dict[str, Any] = {}
 
 
 class ToolCallResponse(BaseModel):
     status: str
     result: Any = None
-    message: Optional[str] = None
+    message: str | None = None
 
 
-@router.get("/", response_model=List[ToolInfo])
-async def list_tools() -> List[ToolInfo]:
+@router.get("/", response_model=list[ToolInfo])
+async def list_tools() -> list[ToolInfo]:
     """List all registered MCP tools."""
     try:
         server_instance = get_server()
         mcp = server_instance.mcp
 
-        tools: List[ToolInfo] = []
+        tools: list[ToolInfo] = []
 
         # FastMCP 2.14.3 tool manager access
         tool_sources = []

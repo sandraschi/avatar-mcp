@@ -14,6 +14,7 @@ TEST_MODEL_PATH = Path("tests/test_assets/sample.vrm")  # Update this path as ne
 BASE_URL = "http://localhost:8080/api/v1"
 WS_URL = "ws://localhost:8080/ws"
 
+
 # Check if server is running
 async def is_server_running():
     """Check if the test server is running."""
@@ -23,6 +24,7 @@ async def is_server_running():
         return True
     except (httpx.ConnectError, httpx.TimeoutException):
         return False
+
 
 # Test data
 TEST_AVATAR_DATA = {
@@ -123,7 +125,12 @@ class TestAnimationAPI:
     async def test_play_animation(self, test_client, test_avatar_id):
         """Test playing an animation on an avatar."""
         try:
-            animation_data = {"animation_name": "idle", "loop": True, "speed": 1.0, "blend_time": 0.2}
+            animation_data = {
+                "animation_name": "idle",
+                "loop": True,
+                "speed": 1.0,
+                "blend_time": 0.2,
+            }
 
             response = await test_client.post(
                 f"{BASE_URL}/avatars/{test_avatar_id}/animation/play", json=animation_data

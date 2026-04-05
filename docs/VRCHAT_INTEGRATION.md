@@ -1,4 +1,4 @@
-﻿# VRChat Avatar Integration and External Control
+# VRChat Avatar Integration and External Control
 
 ## Table of Contents
 

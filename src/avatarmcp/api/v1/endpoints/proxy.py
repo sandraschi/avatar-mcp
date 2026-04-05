@@ -1,8 +1,10 @@
 """Unified proxy endpoint for executing MCP tools via the webapp."""
 
 import logging
-from typing import Any, Dict
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
+
 from avatarmcp.api.state import get_server
 
 logger = logging.getLogger(__name__)
@@ -10,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/call")
-async def call_tool_proxy(request: Dict[str, Any]):
+async def call_tool_proxy(request: dict[str, Any]):
     """Execute a registered MCP tool by name with arguments."""
     try:
         tool_name = request.get("name")

@@ -36,7 +36,7 @@ The 3D visualization system enables users to:
 | FR2 | Provide keyboard shortcuts for common actions | Should | Implemented |
 | FR3 | Support view reset to default position | Could | Implemented |
 | FR4 | Multiple viewport layouts (single, quad, etc.) | Could | Planned |
-| FR4.1 | **16 Consolidated Portmanteau Tools**: Essential tool count for FastMCP compliance | Must | Implemented |
+| FR4.1 | **16 Consolidated Portmanteau Tools**: Essential tool count for FastMCP compliance; raw core tools are not registered; bootstrap via `system_monitor(operation="initialize")` | Must | Implemented |
 
 ### 3.2 Visualization Modes
 | ID | Requirement | Priority | Status |
@@ -118,3 +118,8 @@ The 3D visualization system enables users to:
 - Performance optimization for complex models
 - Better error handling for unsupported GPUs
 - Documentation for advanced features
+
+## 10. Recent Updates (Tool Surface & Webapp)
+- **Portmanteau-only tool list**: Raw tools (CoreAvatarTools, CoreSystemTools, CoreUnityIntegrationTools) are no longer registered; clients see only the 16 portmanteau tools. Call `system_monitor` with `operation="initialize"` first, then use other portmanteau tools.
+- **Webapp Settings**: Ollama model discovery and selection (GET/PUT `/api/v1/settings/llm`, Ollama status/models endpoints). Loops page uses SOTA backend `/api/v1/intelligence/loops` and relative URLs.
+- **Cursor/IDE stdio**: Banner suppression and stdout patching so stdio MCP does not corrupt the JSON-RPC stream.

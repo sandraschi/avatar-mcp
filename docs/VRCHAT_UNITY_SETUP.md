@@ -1,4 +1,4 @@
-﻿# VRChat and Unity 3D Integration Guide
+# VRChat and Unity 3D Integration Guide
 
 ## Table of Contents
 

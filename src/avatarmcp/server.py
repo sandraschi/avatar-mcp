@@ -1,12 +1,8 @@
 """
-AvatarMCP - FastMCP 2.14.3+ Server Implementation
+AvatarMCP - FastMCP 3.1+ Server Implementation
 
 This module implements the MCP (Model Context Protocol) server for AvatarMCP,
-following the FastMCP 2.14.3+ API standards.
-
-FIXES:
-- Updated FastMCP API from deprecated .method() decorators to new @mcp.tool() pattern
-- Fixed initialization issues with FastMCP 2.10.1+
+following the FastMCP 3.x API standards (name, version, lifespan, instructions).
 """
 
 import asyncio
@@ -26,9 +22,8 @@ from avatarmcp.metrics import MetricsCollector
 from avatarmcp.models.vrm_manager import VRMManager
 from avatarmcp.models.vrm_model import VRMModel
 from avatarmcp.tools.chat_tools import ChatTool
-from avatarmcp.tools.core.core_avatar_tools import CoreAvatarTools
-from avatarmcp.tools.core.core_system_tools import CoreSystemTools
-from avatarmcp.tools.core.core_unity_integration_tools import CoreUnityIntegrationTools
+# Portmanteau-only: core tools (CoreAvatarTools, CoreSystemTools, CoreUnityIntegrationTools)
+# are not registered; use system_monitor(operation="initialize"|"shutdown") and portmanteau tools.
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +153,7 @@ class OSCManager:
 
 
 class AvatarMCPServer:
-    """MCP server implementation for AvatarMCP using FastMCP 2.11.3+ API."""
+    """MCP server implementation for AvatarMCP using FastMCP 3.1+ API."""
 
     @asynccontextmanager
     async def lifespan(self, mcp: Any):
@@ -209,11 +204,6 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
         self.osc_manager = OSCManager(osc_config, enabled=enable_osc)
         self._message_id = 0
 
-        # Initialize core tool components
-        self.core_avatar_tools = CoreAvatarTools(self)
-        self.core_unity_tools = CoreUnityIntegrationTools(self)
-        self.core_system_tools = CoreSystemTools(self)
-
         # Initialize logger
         self.logger = logging.getLogger(__name__)
 
@@ -256,6 +246,11 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
         self.unity_config_manager_tool = UnityConfigManagerTool(self)
         self.chat_manager_tool = ChatManagerTool(self)
         self.system_monitor_tool = SystemMonitorTool(self)
+
+        # FastMCP 3.1 prompts (avatar workflow and animation assistant)
+        from avatarmcp.prompts import register_prompts
+
+        register_prompts(self.mcp)
 
         # Initialize chat components
         self.chatbot_handler = ChatbotHandler()
@@ -331,7 +326,8 @@ def run_server(
 
         # Start the server using mcp.run()
         # The lifespan context manager will handle OSC initialization
-        server.mcp.run()
+        # show_banner=False: banner on stdout breaks stdio MCP (Cursor/Claude)
+        server.mcp.run(show_banner=False)
 
     except Exception as e:
         logger.error(f"Failed to start server: {e}", exc_info=True)
@@ -352,6 +348,10 @@ def main():
     # Run the server
     return run_server(enable_osc=args.enable_osc)
 
+
+# ASGI app for uvicorn (e.g. web_sota backend)
+_web_server = AvatarMCPServer(enable_osc=False)
+app = _web_server.mcp.http_app()
 
 if __name__ == "__main__":
     sys.exit(main())
