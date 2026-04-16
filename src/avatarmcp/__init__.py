@@ -18,9 +18,8 @@ logging.basicConfig(
 logging.getLogger("asyncio").setLevel(logging.WARNING)
 
 # Always-available exports (canonical FastMCP 3.1 server)
-from .server import AvatarMCPServer, run_server
 from .models.vrm import VRMModel
-
+from .server import AvatarMCPServer, run_server
 
 __version__ = "0.2.0"
 __author__ = "AvatarMCP Team"
@@ -28,10 +27,10 @@ __license__ = "MIT"
 
 __all__ = [
     "AvatarMCPServer",
-    "run_server",
     "VRMModel",
-    "server_main",
     "__version__",
+    "run_server",
+    "server_main",
 ]
 
 

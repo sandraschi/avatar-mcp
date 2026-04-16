@@ -26,10 +26,7 @@ class WebSearchTool(ChatTool):
 
     @property
     def description(self) -> str:
-        return (
-            "Search the web for information. Useful for finding current "
-            "information that the AI doesn't know."
-        )
+        return "Search the web for information. Useful for finding current information that the AI doesn't know."
 
     @property
     def parameters(self) -> list[ToolParameter]:
@@ -90,7 +87,7 @@ class WebSearchTool(ChatTool):
 
         except Exception as e:
             logger.error(f"Error performing web search: {e}", exc_info=True)
-            return ToolResult.error(f"Failed to perform web search: {str(e)}")
+            return ToolResult.error(f"Failed to perform web search: {e!s}")
 
 
 # Example usage:

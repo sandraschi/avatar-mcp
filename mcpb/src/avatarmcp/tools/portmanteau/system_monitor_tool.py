@@ -102,8 +102,8 @@ class SystemMonitorTool:
                     }
 
             except Exception as e:
-                logger.error(f"System monitor operation failed: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"System monitor operation failed: {str(e)}"}
+                logger.error(f"System monitor operation failed: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"System monitor operation failed: {e!s}"}
 
     def _handle_get_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle system status get operation."""
@@ -141,9 +141,7 @@ class SystemMonitorTool:
             if hasattr(self.mcp_server, "osc_manager"):
                 status.update(
                     {
-                        "osc_enabled": self.mcp_server.osc_manager.enabled
-                        if self.mcp_server.osc_manager
-                        else False,
+                        "osc_enabled": self.mcp_server.osc_manager.enabled if self.mcp_server.osc_manager else False,
                         "osc_initialized": self.mcp_server.osc_manager.initialized
                         if self.mcp_server.osc_manager
                         else False,
@@ -163,7 +161,7 @@ class SystemMonitorTool:
             return status
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get system status: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get system status: {e!s}"}
 
     def _handle_get_health(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle system health get operation."""
@@ -204,7 +202,7 @@ class SystemMonitorTool:
             return health
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get system health: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get system health: {e!s}"}
 
     def _handle_get_metrics(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle system metrics get operation."""
@@ -220,9 +218,7 @@ class SystemMonitorTool:
 
             if metric_type in ["all", "performance"]:
                 metrics["performance"] = {
-                    "uptime": time.time() - self.mcp_server.start_time
-                    if hasattr(self.mcp_server, "start_time")
-                    else 0,
+                    "uptime": time.time() - self.mcp_server.start_time if hasattr(self.mcp_server, "start_time") else 0,
                     "active_tools": self._count_active_tools(),
                     "memory_usage": self._get_memory_usage(),
                     "system_load": self._get_system_load(),
@@ -245,7 +241,7 @@ class SystemMonitorTool:
             return metrics
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get system metrics: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get system metrics: {e!s}"}
 
     def _get_memory_usage(self) -> dict[str, Any]:
         """Get memory usage information."""
@@ -281,9 +277,7 @@ class SystemMonitorTool:
             return {
                 "cpu_percent": psutil.cpu_percent(),
                 "load_average": psutil.getloadavg() if hasattr(psutil, "getloadavg") else None,
-                "disk_usage": psutil.disk_usage("/").percent
-                if hasattr(psutil, "disk_usage")
-                else None,
+                "disk_usage": psutil.disk_usage("/").percent if hasattr(psutil, "disk_usage") else None,
             }
         except ImportError:
             return {"error": "psutil not available"}

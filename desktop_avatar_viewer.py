@@ -29,9 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from avatarmcp.models.vrm_loader import VRMLoader
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Check if OSC is available
@@ -254,17 +252,11 @@ class DesktopAvatarViewer:
                 for mesh in vrm_model.meshes[:3]
             ]
 
-            for i, mesh in enumerate(
-                vrm_model.meshes[:3]
-            ):  # Limit to first 3 meshes for performance
+            for i, mesh in enumerate(vrm_model.meshes[:3]):  # Limit to first 3 meshes for performance
                 try:
                     if hasattr(mesh, "vertices") and len(mesh.vertices) > 0:
                         vertices = mesh.vertices
-                        faces = (
-                            mesh.faces
-                            if hasattr(mesh, "faces") and mesh.faces is not None
-                            else None
-                        )
+                        faces = mesh.faces if hasattr(mesh, "faces") and mesh.faces is not None else None
 
                         # Scale the vertices to make them visible (VRM units are small)
                         verts = vertices * 10.0
@@ -288,9 +280,7 @@ class DesktopAvatarViewer:
                                     if len(face) == 3:  # Triangular face
                                         triangle_verts = verts[face]
                                         # Close the triangle
-                                        triangle_verts = np.vstack(
-                                            [triangle_verts, triangle_verts[0]]
-                                        )
+                                        triangle_verts = np.vstack([triangle_verts, triangle_verts[0]])
                                         ax.plot(
                                             triangle_verts[:, 0],
                                             triangle_verts[:, 1],
@@ -310,9 +300,7 @@ class DesktopAvatarViewer:
             if mesh_count > 0:
                 # Add avatar info
                 avatar_name = getattr(vrm_model, "name", "Unknown Avatar")
-                ax.set_title(
-                    f"AvatarMCP Desktop Viewer - {avatar_name}\n{mesh_count} meshes loaded"
-                )
+                ax.set_title(f"AvatarMCP Desktop Viewer - {avatar_name}\n{mesh_count} meshes loaded")
                 ax.set_xlabel("X")
                 ax.set_ylabel("Y")
                 ax.set_zlabel("Z")
@@ -320,9 +308,7 @@ class DesktopAvatarViewer:
                 ax.set_box_aspect([1, 1, 1])
 
                 plt.show()
-                logger.info(
-                    f"Successfully displayed avatar with {mesh_count} meshes using matplotlib"
-                )
+                logger.info(f"Successfully displayed avatar with {mesh_count} meshes using matplotlib")
             else:
                 # Fallback display
                 ax.set_title("AvatarMCP Desktop Viewer\nAvatar loaded but no meshes displayed")
@@ -344,9 +330,7 @@ class DesktopAvatarViewer:
         """Run the OSC server."""
         try:
             loop = asyncio.get_event_loop()
-            self.osc_server = AsyncIOOSCUDPServer(
-                ("127.0.0.1", self.receive_port), self.dispatcher, loop
-            )
+            self.osc_server = AsyncIOOSCUDPServer(("127.0.0.1", self.receive_port), self.dispatcher, loop)
 
             logger.info(f"OSC server listening on port {self.receive_port}")
             await self.osc_server.serve_forever()
@@ -365,9 +349,7 @@ class DesktopAvatarViewer:
 
         # Create a simple initial display with coordinate system and basic mesh
         pv.set_plot_theme("document")
-        self.plotter = pv.Plotter(
-            title="AvatarMCP Desktop Avatar - Waiting for Avatar", window_size=[800, 600]
-        )
+        self.plotter = pv.Plotter(title="AvatarMCP Desktop Avatar - Waiting for Avatar", window_size=[800, 600])
 
         # Add coordinate axes
         self.plotter.add_axes(line_width=5, labels_off=False)
@@ -418,9 +400,7 @@ def show_coordinate_system():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     pv.set_plot_theme("document")
-    plotter = pv.Plotter(
-        title="AvatarMCP Desktop Viewer - Coordinate System Test", window_size=[800, 600]
-    )
+    plotter = pv.Plotter(title="AvatarMCP Desktop Viewer - Coordinate System Test", window_size=[800, 600])
 
     # Add coordinate axes
     plotter.add_axes(line_width=5, labels_off=False)

@@ -17,24 +17,16 @@ logger = logging.getLogger(__name__)
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="AvatarMCP - VRM Avatar Management and Animation Server"
-    )
+    parser = argparse.ArgumentParser(description="AvatarMCP - VRM Avatar Management and Animation Server")
 
     # Server configuration
     server_group = parser.add_argument_group("Server Configuration")
     server_group.add_argument(
         "--host", type=str, default="0.0.0.0", help="Host to bind the server to (default: 0.0.0.0)"
     )
-    server_group.add_argument(
-        "-p", "--port", type=int, default=8080, help="Port to run the server on (default: 8080)"
-    )
-    server_group.add_argument(
-        "--reload", action="store_true", help="Enable auto-reload for development"
-    )
-    server_group.add_argument(
-        "--workers", type=int, default=1, help="Number of worker processes (default: 1)"
-    )
+    server_group.add_argument("-p", "--port", type=int, default=8080, help="Port to run the server on (default: 8080)")
+    server_group.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
+    server_group.add_argument("--workers", type=int, default=1, help="Number of worker processes (default: 1)")
 
     # Logging
     logging_group = parser.add_argument_group("Logging")

@@ -53,9 +53,7 @@ class AvatarMCP:
                 # Initialize enhanced MCP tools with visualization support
                 self.tools = EnhancedMCPTools(self.mcp.mcp, self.osc)
                 # Initialize visualization tools with the enhanced tools
-                self.visualization_tools = VisualizationTools(
-                    self.mcp.mcp, self.osc, self.visualization
-                )
+                self.visualization_tools = VisualizationTools(self.mcp.mcp, self.osc, self.visualization)
             except ImportError as e:
                 self.logger.warning(f"Failed to initialize 3D visualization: {e}")
                 self.tools = EnhancedMCPTools(self.mcp.mcp, self.osc)
@@ -183,7 +181,7 @@ class AvatarMCP:
             }
 
         except Exception as e:
-            return {"status": "error", "error": f"Failed to load model: {str(e)}"}
+            return {"status": "error", "error": f"Failed to load model: {e!s}"}
 
     async def unload_model(self, model_id: str) -> dict[str, Any]:
         """Unload a VRM model.

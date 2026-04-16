@@ -75,8 +75,8 @@ class CoreParameterTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to set parameter: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to set parameter: {str(e)}"}
+                logger.error(f"Failed to set parameter: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to set parameter: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def parameter_get(params: dict[str, Any]) -> dict[str, Any]:
@@ -125,5 +125,5 @@ class CoreParameterTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to get parameter: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to get parameter: {str(e)}"}
+                logger.error(f"Failed to get parameter: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to get parameter: {e!s}"}

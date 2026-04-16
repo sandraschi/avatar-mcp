@@ -78,9 +78,7 @@ class MorphControlTool(ChatTool):
             )
 
         except Exception as e:
-            return ToolResult(
-                status=ToolExecutionStatus.ERROR, error=f"Failed to update morph targets: {str(e)}"
-            )
+            return ToolResult(status=ToolExecutionStatus.ERROR, error=f"Failed to update morph targets: {e!s}")
 
 
 # FastMCP 2.12 Tool Registration

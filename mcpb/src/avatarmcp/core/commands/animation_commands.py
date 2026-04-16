@@ -28,8 +28,7 @@ def register_commands(registry):
         description="Play an animation on a model.",
         examples=[
             "play_animation('model_123', 'idle')",
-            "play_animation(model_id='model_123', animation_name='wave', "
-            "loop=True, weight=0.8, speed=1.2)",
+            "play_animation(model_id='model_123', animation_name='wave', loop=True, weight=0.8, speed=1.2)",
         ],
     )
     def play_animation(
@@ -57,9 +56,7 @@ def register_commands(registry):
 
         try:
             controller = app.animation_controllers[model_id]
-            controller.play_animation(
-                animation_name=animation_name, loop=loop, weight=weight, speed=speed
-            )
+            controller.play_animation(animation_name=animation_name, loop=loop, weight=weight, speed=speed)
 
             return {
                 "status": "success",
@@ -86,9 +83,7 @@ def register_commands(registry):
             "stop_animation(model_id='model_123', animation_name='wave', fade_out=0.5)",
         ],
     )
-    def stop_animation(
-        app: AvatarMCP, model_id: str, animation_name: str, fade_out: float = 0.0
-    ) -> dict[str, Any]:
+    def stop_animation(app: AvatarMCP, model_id: str, animation_name: str, fade_out: float = 0.0) -> dict[str, Any]:
         """Stop a playing animation on a model.
 
         Args:

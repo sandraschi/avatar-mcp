@@ -16,12 +16,8 @@ logger = logging.getLogger(__name__)
 class BoneTransform(BaseModel):
     """Bone transform data structure."""
 
-    position: dict[str, float] | None = Field(
-        None, description="Position coordinates {x, y, z} in local space"
-    )
-    rotation: dict[str, float] | None = Field(
-        None, description="Rotation quaternion {x, y, z, w} in local space"
-    )
+    position: dict[str, float] | None = Field(None, description="Position coordinates {x, y, z} in local space")
+    rotation: dict[str, float] | None = Field(None, description="Rotation quaternion {x, y, z, w} in local space")
     scale: dict[str, float] | None = Field(None, description="Scale values {x, y, z}")
     space: str = Field("local", description="Coordinate space for transform ('local' or 'world')")
 
@@ -77,9 +73,7 @@ class BoneControlTool(ChatTool):
             )
 
         except Exception as e:
-            return ToolResult(
-                status=ToolExecutionStatus.ERROR, error=f"Failed to transform bone: {str(e)}"
-            )
+            return ToolResult(status=ToolExecutionStatus.ERROR, error=f"Failed to transform bone: {e!s}")
 
 
 # FastMCP 2.12 Tool Registration

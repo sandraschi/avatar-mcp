@@ -99,10 +99,7 @@ class LokiLogHandler(logging.Handler):
 
             # Check if we should send the batch
             current_time = time.time()
-            if (
-                len(self._batch) >= self.batch_size
-                or (current_time - self._last_send) >= self.batch_timeout
-            ):
+            if len(self._batch) >= self.batch_size or (current_time - self._last_send) >= self.batch_timeout:
                 self._send_batch()
 
         except Exception as e:
@@ -127,9 +124,7 @@ class LokiLogHandler(logging.Handler):
 
             # Check for errors
             if response.status_code != 204:
-                logger.error(
-                    "Failed to send logs to Loki: %d - %s", response.status_code, response.text
-                )
+                logger.error("Failed to send logs to Loki: %d - %s", response.status_code, response.text)
 
             # Clear the batch
             self._batch = []

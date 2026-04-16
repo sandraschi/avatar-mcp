@@ -93,9 +93,7 @@ def test_vrm_display():
             try:
                 if hasattr(mesh, "vertices") and len(mesh.vertices) > 0:
                     vertices = mesh.vertices
-                    faces = (
-                        mesh.faces if hasattr(mesh, "faces") and mesh.faces is not None else None
-                    )
+                    faces = mesh.faces if hasattr(mesh, "faces") and mesh.faces is not None else None
 
                     # Scale and center the vertices
                     print(
@@ -171,9 +169,7 @@ def test_vrm_display():
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
             ax.set_zlabel("Z")
-            ax.set_title(
-                f"VRM Avatar Display Test\n{os.path.basename(vrm_path)}\n{mesh_count} meshes displayed"
-            )
+            ax.set_title(f"VRM Avatar Display Test\n{os.path.basename(vrm_path)}\n{mesh_count} meshes displayed")
 
             # Set limits based on actual data bounds
             all_verts = []

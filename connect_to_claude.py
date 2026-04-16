@@ -36,7 +36,7 @@ def load_avatar(avatar_path):
             return None
 
     except Exception as e:
-        logger.error(f"Error loading avatar: {str(e)}", exc_info=True)
+        logger.error(f"Error loading avatar: {e!s}", exc_info=True)
         return None
 
 

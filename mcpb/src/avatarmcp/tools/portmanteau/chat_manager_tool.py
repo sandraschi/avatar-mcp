@@ -109,8 +109,8 @@ class ChatManagerTool:
                     }
 
             except Exception as e:
-                logger.error(f"Chat manager operation failed: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Chat manager operation failed: {str(e)}"}
+                logger.error(f"Chat manager operation failed: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Chat manager operation failed: {e!s}"}
 
     def _handle_start_session(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat session start operation."""
@@ -137,7 +137,7 @@ class ChatManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to start chat session: {str(e)}"}
+            return {"status": "error", "message": f"Failed to start chat session: {e!s}"}
 
     def _handle_send_message(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat message send operation."""
@@ -157,9 +157,7 @@ class ChatManagerTool:
                         "status": "error",
                         "message": "No active chat sessions. Call start_session first.",
                     }
-                session_id = max(
-                    self.chat_sessions.keys(), key=lambda k: self.chat_sessions[k]["start_time"]
-                )
+                session_id = max(self.chat_sessions.keys(), key=lambda k: self.chat_sessions[k]["start_time"])
 
             if session_id not in self.chat_sessions:
                 return {"status": "error", "message": f"Chat session '{session_id}' not found"}
@@ -187,7 +185,7 @@ class ChatManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to send chat message: {str(e)}"}
+            return {"status": "error", "message": f"Failed to send chat message: {e!s}"}
 
     def _handle_stop_session(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat session stop operation."""
@@ -222,7 +220,7 @@ class ChatManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to stop chat session: {str(e)}"}
+            return {"status": "error", "message": f"Failed to stop chat session: {e!s}"}
 
     def _handle_get_state(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle chat state get operation."""
@@ -248,12 +246,8 @@ class ChatManagerTool:
                 }
             else:
                 # Get all sessions state
-                active_sessions = [
-                    sid for sid, session in self.chat_sessions.items() if session["active"]
-                ]
-                total_messages = sum(
-                    len(session["messages"]) for session in self.chat_sessions.values()
-                )
+                active_sessions = [sid for sid, session in self.chat_sessions.items() if session["active"]]
+                total_messages = sum(len(session["messages"]) for session in self.chat_sessions.values())
 
                 return {
                     "status": "success",
@@ -266,7 +260,7 @@ class ChatManagerTool:
                 }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get chat state: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get chat state: {e!s}"}
 
     def _generate_chat_response(self, message: str, session_id: str) -> str:
         """Generate a chatbot response (simplified implementation)."""

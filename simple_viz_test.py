@@ -44,9 +44,7 @@ def main():
     print("Opening 3D window...")
 
     # Open the plotter in interactive mode
-    plotter.show(
-        title="3D Visualization Test", interactive=True, interactive_update=True, auto_close=False
-    )
+    plotter.show(title="3D Visualization Test", interactive=True, interactive_update=True, auto_close=False)
 
     # Animation loop
     print("Starting animation (press 'q' to quit)...")

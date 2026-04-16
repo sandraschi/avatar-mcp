@@ -47,12 +47,8 @@ setup(
     python_requires=">=3.9",
     install_requires=read_requirements("requirements.txt"),
     extras_require={
-        "dev": read_requirements("requirements-dev.txt")
-        if os.path.exists("requirements-dev.txt")
-        else [],
-        "ai-npc": read_requirements("requirements-ai-npc.txt")
-        if os.path.exists("requirements-ai-npc.txt")
-        else [],
+        "dev": read_requirements("requirements-dev.txt") if os.path.exists("requirements-dev.txt") else [],
+        "ai-npc": read_requirements("requirements-ai-npc.txt") if os.path.exists("requirements-ai-npc.txt") else [],
         "visualization": read_requirements("requirements-visualization.txt")
         if os.path.exists("requirements-visualization.txt")
         else [],

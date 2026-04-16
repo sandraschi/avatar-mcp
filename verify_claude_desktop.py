@@ -54,9 +54,7 @@ def test_mcp_server_protocol():
         # Import the module directly to avoid package import issues
         import importlib.util
 
-        spec = importlib.util.spec_from_file_location(
-            "mcp_server_clean", "src/avatarmcp/mcp_server_clean.py"
-        )
+        spec = importlib.util.spec_from_file_location("mcp_server_clean", "src/avatarmcp/mcp_server_clean.py")
         mcp_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mcp_module)
 
@@ -115,18 +113,12 @@ def check_claude_desktop_config():
                     print_status("MCP servers configuration found", "success")
 
                     # Check for avatarmcp server
-                    avatarmcp_configs = [
-                        k for k in config["mcpServers"].keys() if "avatar" in k.lower()
-                    ]
+                    avatarmcp_configs = [k for k in config["mcpServers"].keys() if "avatar" in k.lower()]
                     if avatarmcp_configs:
-                        print_status(
-                            f"AvatarMCP server configured as: {avatarmcp_configs}", "success"
-                        )
+                        print_status(f"AvatarMCP server configured as: {avatarmcp_configs}", "success")
                     else:
                         print_status("No AvatarMCP server found in configuration", "warning")
-                        print_status(
-                            "You need to add AvatarMCP to your Claude Desktop configuration", "info"
-                        )
+                        print_status("You need to add AvatarMCP to your Claude Desktop configuration", "info")
                 else:
                     print_status("No MCP servers configured", "warning")
 
@@ -146,9 +138,7 @@ def check_claude_desktop_config():
 def show_setup_instructions():
     """Show Claude Desktop setup instructions."""
     print_status("Claude Desktop Setup Instructions", "info")
-    print(
-        "\nTo configure AvatarMCP with Claude Desktop, add this to your claude_desktop_config.json:"
-    )
+    print("\nTo configure AvatarMCP with Claude Desktop, add this to your claude_desktop_config.json:")
     print("\n" + "=" * 60)
 
     config_example = {

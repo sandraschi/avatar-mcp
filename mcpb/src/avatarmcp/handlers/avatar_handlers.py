@@ -69,12 +69,12 @@ class AvatarHandler(BaseHandler):
                     model_info = await self.vrm_manager.import_model(source_path)
                     model_id = model_info["id"]
                 except Exception as e:
-                    return self._create_error_response(f"Failed to import model: {str(e)}")
+                    return self._create_error_response(f"Failed to import model: {e!s}")
 
             try:
                 self.loaded_models[model_id] = self.vrm_manager.load_model(model_id)
             except Exception as e:
-                return self._create_error_response(f"Failed to load model: {str(e)}")
+                return self._create_error_response(f"Failed to load model: {e!s}")
 
             if make_active:
                 self.active_model_id = model_id
@@ -84,7 +84,7 @@ class AvatarHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to load avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to load avatar: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_avatar_unload(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -107,14 +107,10 @@ class AvatarHandler(BaseHandler):
                 return self._create_error_response("Avatar ID is required")
 
             if avatar_id not in self.loaded_models:
-                return self._create_success_response(
-                    message=f"Avatar {avatar_id} is not loaded", was_loaded=False
-                )
+                return self._create_success_response(message=f"Avatar {avatar_id} is not loaded", was_loaded=False)
 
             if avatar_id == self.active_model_id and not force:
-                return self._create_error_response(
-                    "Cannot unload active avatar. Set force=True to override."
-                )
+                return self._create_error_response("Cannot unload active avatar. Set force=True to override.")
 
             del self.loaded_models[avatar_id]
 
@@ -127,7 +123,7 @@ class AvatarHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to unload avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to unload avatar: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_avatar_list(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -161,15 +157,13 @@ class AvatarHandler(BaseHandler):
                     if model_id not in result["loaded"]:
                         result["available"][model_id] = {
                             "path": model_info.get("path", ""),
-                            "metadata": model_info.get("metadata", {})
-                            if include_metadata
-                            else None,
+                            "metadata": model_info.get("metadata", {}) if include_metadata else None,
                         }
 
             return self._create_success_response(avatars=result)
 
         except Exception as e:
-            logger.error(f"Failed to list avatars: {str(e)}", exc_info=True)
+            logger.error(f"Failed to list avatars: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_avatar_get_metadata(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -193,16 +187,12 @@ class AvatarHandler(BaseHandler):
 
             if model_id in self.loaded_models:
                 model = self.loaded_models[model_id]
-                return self._create_success_response(
-                    model_id=model_id, metadata=model.metadata, loaded=True
-                )
+                return self._create_success_response(model_id=model_id, metadata=model.metadata, loaded=True)
 
             if model_id in self.vrm_manager.models:
                 if refresh:
                     metadata = await self.vrm_manager.get_model_metadata(model_id, refresh=True)
-                    return self._create_success_response(
-                        model_id=model_id, metadata=metadata, loaded=False
-                    )
+                    return self._create_success_response(model_id=model_id, metadata=metadata, loaded=False)
                 else:
                     model_info = self.vrm_manager.models[model_id]
                     return self._create_success_response(
@@ -212,7 +202,7 @@ class AvatarHandler(BaseHandler):
             return self._create_error_response(f"Model not found: {model_id}")
 
         except Exception as e:
-            logger.error(f"Failed to get avatar metadata: {str(e)}", exc_info=True)
+            logger.error(f"Failed to get avatar metadata: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_avatar_set_active(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -235,9 +225,7 @@ class AvatarHandler(BaseHandler):
                 return self._create_error_response("Model ID is required")
 
             if model_id not in self.loaded_models and load_if_needed:
-                load_result = await self.handle_avatar_load(
-                    {"model_id": model_id, "make_active": False}
-                )
+                load_result = await self.handle_avatar_load({"model_id": model_id, "make_active": False})
                 if load_result.get("status") != "success":
                     return self._create_error_response(
                         f"Failed to load model: {load_result.get('message', 'Unknown error')}"
@@ -258,7 +246,7 @@ class AvatarHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to set active avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to set active avatar: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_avatar_get_active(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -286,7 +274,7 @@ class AvatarHandler(BaseHandler):
             return self._create_success_response(**response)
 
         except Exception as e:
-            logger.error(f"Failed to get active avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to get active avatar: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def shutdown(self) -> None:
@@ -296,7 +284,7 @@ class AvatarHandler(BaseHandler):
             try:
                 await self.handle_avatar_unload({"id": model_id, "force": True})
             except Exception as e:
-                logger.error(f"Error unloading model {model_id}: {str(e)}")
+                logger.error(f"Error unloading model {model_id}: {e!s}")
 
         self.loaded_models.clear()
         self.active_model_id = None

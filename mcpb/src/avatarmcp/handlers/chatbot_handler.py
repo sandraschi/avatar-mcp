@@ -144,7 +144,7 @@ class ChatbotHandler(BaseHandler):
 
         except Exception as e:
             self.state = ChatState.ERROR
-            logger.error(f"Error starting conversation: {str(e)}", exc_info=True)
+            logger.error(f"Error starting conversation: {e!s}", exc_info=True)
             await self._notify_state_change()
             return False
 
@@ -195,7 +195,7 @@ class ChatbotHandler(BaseHandler):
             logger.debug("Conversation loop was cancelled")
         except Exception as e:
             self.state = ChatState.ERROR
-            logger.error(f"Error in conversation loop: {str(e)}", exc_info=True)
+            logger.error(f"Error in conversation loop: {e!s}", exc_info=True)
         finally:
             if self.state != ChatState.ERROR:
                 self.state = ChatState.IDLE
@@ -225,17 +225,15 @@ class ChatbotHandler(BaseHandler):
 
             # Set up a timeout
             try:
-                await asyncio.wait_for(
-                    self._wake_word_detected.wait(), timeout=self.config.listen_timeout
-                )
+                await asyncio.wait_for(self._wake_word_detected.wait(), timeout=self.config.listen_timeout)
                 logger.info("Wake word detected")
                 return True
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.debug("Wake word detection timed out")
                 return False
 
         except Exception as e:
-            logger.error(f"Error in wake word detection: {str(e)}")
+            logger.error(f"Error in wake word detection: {e!s}")
             return False
 
     async def _listen_for_input(self) -> str | None:
@@ -268,7 +266,7 @@ class ChatbotHandler(BaseHandler):
             return "Hello, how can I help you today?"
 
         except Exception as e:
-            logger.error(f"Error in speech recognition: {str(e)}")
+            logger.error(f"Error in speech recognition: {e!s}")
             return None
 
     async def _process_input(self, user_input: str) -> None:
@@ -285,9 +283,7 @@ class ChatbotHandler(BaseHandler):
         self._add_to_history(user_message)
 
         # Notify listeners of new user message
-        await self._notify_message(
-            {"role": "user", "content": user_input, "timestamp": user_message.timestamp}
-        )
+        await self._notify_message({"role": "user", "content": user_input, "timestamp": user_message.timestamp})
 
         # Generate AI response
         await self._generate_ai_response()
@@ -327,7 +323,7 @@ class ChatbotHandler(BaseHandler):
                 await self._speak_response(response_text)
 
         except Exception as e:
-            error_msg = f"Error generating AI response: {str(e)}"
+            error_msg = f"Error generating AI response: {e!s}"
             logger.error(error_msg, exc_info=True)
 
             # Add error message to history
@@ -339,9 +335,7 @@ class ChatbotHandler(BaseHandler):
             self._add_to_history(error_message)
 
             # Notify listeners of error
-            await self._notify_message(
-                {"role": "error", "content": error_msg, "timestamp": error_message.timestamp}
-            )
+            await self._notify_message({"role": "error", "content": error_msg, "timestamp": error_message.timestamp})
 
             self.state = ChatState.ERROR
             await self._notify_state_change()
@@ -365,7 +359,7 @@ class ChatbotHandler(BaseHandler):
             await self._speech_handler.speak(text=text, voice_id=self.config.default_voice)
 
         except Exception as e:
-            logger.error(f"Error in text-to-speech: {str(e)}", exc_info=True)
+            logger.error(f"Error in text-to-speech: {e!s}", exc_info=True)
 
         finally:
             self.state = ChatState.IDLE if not self.config.auto_listen else ChatState.LISTENING
@@ -404,9 +398,7 @@ class ChatbotHandler(BaseHandler):
 
         return self.config.dict()
 
-    def register_message_callback(
-        self, callback: Callable[[dict[str, Any]], Awaitable[None]]
-    ) -> None:
+    def register_message_callback(self, callback: Callable[[dict[str, Any]], Awaitable[None]]) -> None:
         """Register a callback for new messages.
 
         Args:
@@ -415,9 +407,7 @@ class ChatbotHandler(BaseHandler):
         if callback not in self._on_message_callbacks:
             self._on_message_callbacks.append(callback)
 
-    def register_state_change_callback(
-        self, callback: Callable[[dict[str, Any]], Awaitable[None]]
-    ) -> None:
+    def register_state_change_callback(self, callback: Callable[[dict[str, Any]], Awaitable[None]]) -> None:
         """Register a callback for state changes.
 
         Args:
@@ -432,7 +422,7 @@ class ChatbotHandler(BaseHandler):
             try:
                 await callback(message)
             except Exception as e:
-                logger.error(f"Error in message callback: {str(e)}", exc_info=True)
+                logger.error(f"Error in message callback: {e!s}", exc_info=True)
 
     async def _notify_state_change(self) -> None:
         """Notify all registered state change callbacks."""
@@ -446,7 +436,7 @@ class ChatbotHandler(BaseHandler):
             try:
                 await callback(state_info)
             except Exception as e:
-                logger.error(f"Error in state change callback: {str(e)}", exc_info=True)
+                logger.error(f"Error in state change callback: {e!s}", exc_info=True)
 
     async def shutdown(self) -> None:
         """Clean up resources used by the chatbot handler."""

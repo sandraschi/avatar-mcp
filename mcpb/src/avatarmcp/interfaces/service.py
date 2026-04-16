@@ -15,9 +15,7 @@ from ..models.model_manager import VRMModelManager
 from ..models.vrm_loader import VRMModel as VRMLoaderModel
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -39,12 +37,8 @@ class AvatarInstance:
     """Represents an instance of a loaded VRM model with runtime state."""
 
     model: VRMLoaderModel
-    current_pose: dict[str, tuple[float, float, float, float]] = field(
-        default_factory=dict
-    )  # bone_name -> quat
-    current_blend_shapes: dict[str, float] = field(
-        default_factory=dict
-    )  # blend_shape_name -> weight
+    current_pose: dict[str, tuple[float, float, float, float]] = field(default_factory=dict)  # bone_name -> quat
+    current_blend_shapes: dict[str, float] = field(default_factory=dict)  # blend_shape_name -> weight
     active_animations: dict[str, AnimationState] = field(default_factory=dict)
     position: tuple[float, float, float] = (0.0, 0.0, 0.0)
     rotation: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)  # quaternion
@@ -110,9 +104,7 @@ class AvatarService:
 
         # Load the VRM model using the model manager
         try:
-            vrm_model = self.model_manager.load_model(
-                file_path=path, force_reload=force_reload, validate=validate
-            )
+            vrm_model = self.model_manager.load_model(file_path=path, force_reload=force_reload, validate=validate)
 
             if vrm_model is None:
                 raise ValueError(f"Failed to load VRM model: {path}")
@@ -140,8 +132,8 @@ class AvatarService:
             }
 
         except Exception as e:
-            logger.error(f"Failed to load VRM model {path}: {str(e)}", exc_info=True)
-            raise ValueError(f"Invalid VRM file: {str(e)}") from e
+            logger.error(f"Failed to load VRM model {path}: {e!s}", exc_info=True)
+            raise ValueError(f"Invalid VRM file: {e!s}") from e
 
     def _initialize_default_pose(self, avatar: AvatarInstance) -> None:
         """Initialize the default pose for an avatar."""
@@ -208,9 +200,7 @@ class AvatarService:
             "id": avatar_id,
             "bone_count": len(avatar.current_pose),
             "blend_shape_count": len(avatar.current_blend_shapes),
-            "active_animations": [
-                name for name, state in avatar.active_animations.items() if state.is_playing
-            ],
+            "active_animations": [name for name, state in avatar.active_animations.items() if state.is_playing],
         }
 
     def play_animation(
@@ -255,9 +245,7 @@ class AvatarService:
             state.speed = speed
             state.weight = weight
         else:
-            state = AnimationState(
-                name=animation_name, start_time=time.time(), loop=loop, speed=speed, weight=weight
-            )
+            state = AnimationState(name=animation_name, start_time=time.time(), loop=loop, speed=speed, weight=weight)
             avatar.active_animations[animation_name] = state
 
         return True
@@ -309,10 +297,7 @@ class AvatarService:
 
             # Remove the avatar
             del self.avatars[avatar_id]
-            logger.info(
-                f"Unloaded avatar: {avatar_id}"
-                + (" and removed from cache" if remove_from_cache else "")
-            )
+            logger.info(f"Unloaded avatar: {avatar_id}" + (" and removed from cache" if remove_from_cache else ""))
             return True
 
         return False

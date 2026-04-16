@@ -88,7 +88,7 @@ class ExportTool(ChatTool):
             )
 
         except Exception as e:
-            return ToolResult(status=ToolExecutionStatus.ERROR, error=f"Export failed: {str(e)}")
+            return ToolResult(status=ToolExecutionStatus.ERROR, error=f"Export failed: {e!s}")
 
     def _generate_export_path(self, options: ExportOptions) -> Path:
         """Generate a unique export file path."""

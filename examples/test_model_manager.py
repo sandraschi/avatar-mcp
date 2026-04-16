@@ -175,7 +175,7 @@ def main():
         test_avatar_service()
         print("\n✅ All tests completed successfully!")
     except Exception as e:
-        print(f"\n❌ Test failed: {str(e)}")
+        print(f"\n❌ Test failed: {e!s}")
         import traceback
 
         traceback.print_exc()

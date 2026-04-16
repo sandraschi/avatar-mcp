@@ -29,9 +29,7 @@ def compare_vrm_models():
         if os.path.exists(nekomimi_path):
             print(f"📁 Loading Nekomimi-chan from: {nekomimi_path}")
             nekomimi_model = VRMLoader.from_file(nekomimi_path)
-            print(
-                f"✅ Nekomimi-chan: {len(nekomimi_model.meshes)} meshes, {len(nekomimi_model.bones)} bones"
-            )
+            print(f"✅ Nekomimi-chan: {len(nekomimi_model.meshes)} meshes, {len(nekomimi_model.bones)} bones")
         else:
             print(f"❌ Nekomimi-chan not found at: {nekomimi_path}")
             nekomimi_model = None
@@ -40,9 +38,7 @@ def compare_vrm_models():
         if os.path.exists(animegirl2_path):
             print(f"📁 Loading AnimeGirl2 from: {animegirl2_path}")
             animegirl2_model = VRMLoader.from_file(animegirl2_path)
-            print(
-                f"✅ AnimeGirl2: {len(animegirl2_model.meshes)} meshes, {len(animegirl2_model.bones)} bones"
-            )
+            print(f"✅ AnimeGirl2: {len(animegirl2_model.meshes)} meshes, {len(animegirl2_model.bones)} bones")
         else:
             print(f"❌ AnimeGirl2 not found at: {animegirl2_path}")
             animegirl2_model = None
@@ -104,27 +100,15 @@ def compare_vrm_models():
             anime_mesh = animegirl2_model.meshes[i]
 
             print(f"\n--- MESH {i} COMPARISON ---")
-            print(
-                f"  Nekomimi-chan  : {len(neko_mesh.vertices):5d} vertices, {len(neko_mesh.faces):5d} faces"
-            )
-            print(
-                f"  AnimeGirl2     : {len(anime_mesh.vertices):5d} vertices, {len(anime_mesh.faces):5d} faces"
-            )
+            print(f"  Nekomimi-chan  : {len(neko_mesh.vertices):5d} vertices, {len(neko_mesh.faces):5d} faces")
+            print(f"  AnimeGirl2     : {len(anime_mesh.vertices):5d} vertices, {len(anime_mesh.faces):5d} faces")
 
             # Check for skinning data
-            neko_has_joints = (
-                hasattr(neko_mesh, "attributes") and "joint_indices" in neko_mesh.attributes
-            )
-            neko_has_weights = (
-                hasattr(neko_mesh, "attributes") and "joint_weights" in neko_mesh.attributes
-            )
+            neko_has_joints = hasattr(neko_mesh, "attributes") and "joint_indices" in neko_mesh.attributes
+            neko_has_weights = hasattr(neko_mesh, "attributes") and "joint_weights" in neko_mesh.attributes
 
-            anime_has_joints = (
-                hasattr(anime_mesh, "attributes") and "joint_indices" in anime_mesh.attributes
-            )
-            anime_has_weights = (
-                hasattr(anime_mesh, "attributes") and "joint_weights" in anime_mesh.attributes
-            )
+            anime_has_joints = hasattr(anime_mesh, "attributes") and "joint_indices" in anime_mesh.attributes
+            anime_has_weights = hasattr(anime_mesh, "attributes") and "joint_weights" in anime_mesh.attributes
 
             print(f"  Nekomimi Skinning: joints={neko_has_joints}, weights={neko_has_weights}")
             print(f"  AnimeGirl2 Skinning: joints={anime_has_joints}, weights={anime_has_weights}")
@@ -134,23 +118,15 @@ def compare_vrm_models():
                 neko_bounds = np.array(neko_mesh.vertices)
                 neko_center = neko_bounds.mean(axis=0)
                 neko_size = neko_bounds.max(axis=0) - neko_bounds.min(axis=0)
-                print(
-                    f"  Nekomimi Center : ({neko_center[0]:.3f}, {neko_center[1]:.3f}, {neko_center[2]:.3f})"
-                )
-                print(
-                    f"  Nekomimi Size   : ({neko_size[0]:.3f}, {neko_size[1]:.3f}, {neko_size[2]:.3f})"
-                )
+                print(f"  Nekomimi Center : ({neko_center[0]:.3f}, {neko_center[1]:.3f}, {neko_center[2]:.3f})")
+                print(f"  Nekomimi Size   : ({neko_size[0]:.3f}, {neko_size[1]:.3f}, {neko_size[2]:.3f})")
 
             if len(anime_mesh.vertices) > 0:
                 anime_bounds = np.array(anime_mesh.vertices)
                 anime_center = anime_bounds.mean(axis=0)
                 anime_size = anime_bounds.max(axis=0) - anime_bounds.min(axis=0)
-                print(
-                    f"  AnimeGirl2 Center: ({anime_center[0]:.3f}, {anime_center[1]:.3f}, {anime_center[2]:.3f})"
-                )
-                print(
-                    f"  AnimeGirl2 Size  : ({anime_size[0]:.3f}, {anime_size[1]:.3f}, {anime_size[2]:.3f})"
-                )
+                print(f"  AnimeGirl2 Center: ({anime_center[0]:.3f}, {anime_center[1]:.3f}, {anime_center[2]:.3f})")
+                print(f"  AnimeGirl2 Size  : ({anime_size[0]:.3f}, {anime_size[1]:.3f}, {anime_size[2]:.3f})")
 
         # Bone comparison
         print("\n🦴 BONE COMPARISON:")

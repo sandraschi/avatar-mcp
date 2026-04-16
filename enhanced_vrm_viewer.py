@@ -27,9 +27,7 @@ class EnhancedVRMViewer:
 
             print(f"🎌 Loading VRM with enhanced parsing: {file_path}")
             self.vrm_model = VRMLoader.from_file(file_path)
-            print(
-                f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones"
-            )
+            print(f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones")
 
             # Analyze and classify meshes
             self._classify_meshes()
@@ -122,9 +120,7 @@ class EnhancedVRMViewer:
 
             pv.set_plot_theme("document")
 
-            self.plotter = pv.Plotter(
-                window_size=[1400, 1000], title="🎌 Enhanced AnimeGirl2 Viewer"
-            )
+            self.plotter = pv.Plotter(window_size=[1400, 1000], title="🎌 Enhanced AnimeGirl2 Viewer")
 
             if not self.mesh_components:
                 print("❌ No mesh components classified")
@@ -190,9 +186,7 @@ class EnhancedVRMViewer:
             traceback.print_exc()
             return False
 
-    def _position_mesh_by_type(
-        self, vertices: np.ndarray, mesh_type: str, index: int
-    ) -> np.ndarray:
+    def _position_mesh_by_type(self, vertices: np.ndarray, mesh_type: str, index: int) -> np.ndarray:
         """Position mesh vertices based on their type"""
         positioned = vertices.copy()
 

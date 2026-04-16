@@ -53,7 +53,7 @@ class CoreSystemTools:
                     "num_models": len(self.mcp_server.vrm_manager.models),
                 }
             except Exception as e:
-                error_msg = f"Initialization failed: {str(e)}"
+                error_msg = f"Initialization failed: {e!s}"
                 logger.error(error_msg, exc_info=True)
                 return {"status": "error", "message": error_msg}
 

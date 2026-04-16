@@ -30,9 +30,7 @@ class BoneAnimatedViewer:
 
             print(f"🎌 Loading VRM with bone binding: {file_path}")
             self.vrm_model = VRMLoader.from_file(file_path)
-            print(
-                f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones"
-            )
+            print(f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones")
 
             # Initialize bone transforms to identity
             for bone_name, bone in self.vrm_model.bones.items():
@@ -40,9 +38,7 @@ class BoneAnimatedViewer:
                     "position": list(bone.position),
                     "rotation": list(bone.rotation),
                     "scale": list(bone.scale),
-                    "matrix": self._create_transform_matrix(
-                        bone.position, bone.rotation, bone.scale
-                    ),
+                    "matrix": self._create_transform_matrix(bone.position, bone.rotation, bone.scale),
                 }
 
             return True
@@ -91,9 +87,7 @@ class BoneAnimatedViewer:
 
             pv.set_plot_theme("document")
 
-            self.plotter = pv.Plotter(
-                window_size=[1200, 900], title="🦴 Bone-Animated Nekomimi-chan Viewer"
-            )
+            self.plotter = pv.Plotter(window_size=[1200, 900], title="🦴 Bone-Animated Nekomimi-chan Viewer")
 
             if not self.vrm_model or not self.vrm_model.meshes:
                 print("❌ No VRM model loaded")
@@ -144,9 +138,7 @@ class BoneAnimatedViewer:
                                 }
                             )
 
-                            print(
-                                f"  ✅ Added mesh {i} ({names[i % len(names)]}): {len(vertices)} vertices"
-                            )
+                            print(f"  ✅ Added mesh {i} ({names[i % len(names)]}): {len(vertices)} vertices")
 
             # Add coordinate system
             self.plotter.add_axes(xlabel="X", ylabel="Y", zlabel="Z")
@@ -244,9 +236,7 @@ class BoneAnimatedViewer:
                     # Arm mesh gets wave motion
                     wave = np.sin(self.animation_time * 4) * 0.03
                     # Apply to upper part of mesh (likely arms)
-                    upper_mask = transformed_vertices[:, 1] > np.percentile(
-                        transformed_vertices[:, 1], 70
-                    )
+                    upper_mask = transformed_vertices[:, 1] > np.percentile(transformed_vertices[:, 1], 70)
                     transformed_vertices[upper_mask, 0] += wave
 
                 # Update the mesh

@@ -110,10 +110,10 @@ class AnimationControllerTool:
                     }
 
             except Exception as e:
-                logger.error(f"Animation controller operation failed: {str(e)}", exc_info=True)
+                logger.error(f"Animation controller operation failed: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Animation controller operation failed: {str(e)}",
+                    "message": f"Animation controller operation failed: {e!s}",
                 }
 
     def _handle_play(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -140,9 +140,7 @@ class AnimationControllerTool:
             controller = avatar_data["animation_controller"]
 
             # Play the animation
-            result = controller.play_animation(
-                animation_name=animation_name, loop=loop, weight=weight, speed=speed
-            )
+            result = controller.play_animation(animation_name=animation_name, loop=loop, weight=weight, speed=speed)
 
             return {
                 "status": "success",
@@ -156,7 +154,7 @@ class AnimationControllerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to play animation: {str(e)}"}
+            return {"status": "error", "message": f"Failed to play animation: {e!s}"}
 
     def _handle_stop(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle animation stop operation."""
@@ -198,7 +196,7 @@ class AnimationControllerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to stop animation: {str(e)}"}
+            return {"status": "error", "message": f"Failed to stop animation: {e!s}"}
 
     def _handle_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle animation list operation."""
@@ -237,4 +235,4 @@ class AnimationControllerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to list animations: {str(e)}"}
+            return {"status": "error", "message": f"Failed to list animations: {e!s}"}

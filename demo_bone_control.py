@@ -20,9 +20,7 @@ sys.path.insert(0, "src")
 from avatarmcp.mcp_server_clean import MCPServer
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -34,11 +32,7 @@ async def demo_bone_control():
 
     # Find VRM files
     models_dir = "models"
-    vrm_files = (
-        [f for f in os.listdir(models_dir) if f.endswith(".vrm")]
-        if os.path.exists(models_dir)
-        else []
-    )
+    vrm_files = [f for f in os.listdir(models_dir) if f.endswith(".vrm")] if os.path.exists(models_dir) else []
 
     if not vrm_files:
         print("❌ No VRM files found in models/ directory")

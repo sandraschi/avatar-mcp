@@ -43,10 +43,7 @@ class SystemInfoTool(ChatTool):
 
     @property
     def description(self) -> str:
-        return (
-            "Get information about the system, including CPU, memory, "
-            "disk usage, and network status."
-        )
+        return "Get information about the system, including CPU, memory, disk usage, and network status."
 
     @property
     def parameters(self) -> list[ToolParameter]:
@@ -111,22 +108,16 @@ class SystemInfoTool(ChatTool):
                     "guest_nice": getattr(cpu_times, "guest_nice", 0.0),
                 },
                 "freq": {
-                    "current": psutil.cpu_freq().current
-                    if hasattr(psutil, "cpu_freq") and psutil.cpu_freq()
-                    else None,
-                    "min": psutil.cpu_freq().min
-                    if hasattr(psutil, "cpu_freq") and psutil.cpu_freq()
-                    else None,
-                    "max": psutil.cpu_freq().max
-                    if hasattr(psutil, "cpu_freq") and psutil.cpu_freq()
-                    else None,
+                    "current": psutil.cpu_freq().current if hasattr(psutil, "cpu_freq") and psutil.cpu_freq() else None,
+                    "min": psutil.cpu_freq().min if hasattr(psutil, "cpu_freq") and psutil.cpu_freq() else None,
+                    "max": psutil.cpu_freq().max if hasattr(psutil, "cpu_freq") and psutil.cpu_freq() else None,
                 }
                 if hasattr(psutil, "cpu_freq")
                 else {},
             }
         except Exception as e:
             logger.error(f"Error getting CPU info: {e}", exc_info=True)
-            return {"error": f"Failed to get CPU info: {str(e)}"}
+            return {"error": f"Failed to get CPU info: {e!s}"}
 
     def _get_memory_info(self) -> dict[str, Any]:
         """Get memory information."""
@@ -155,7 +146,7 @@ class SystemInfoTool(ChatTool):
             }
         except Exception as e:
             logger.error(f"Error getting memory info: {e}", exc_info=True)
-            return {"error": f"Failed to get memory info: {str(e)}"}
+            return {"error": f"Failed to get memory info: {e!s}"}
 
     def _get_disk_info(self) -> dict[str, Any]:
         """Get disk information."""
@@ -187,16 +178,14 @@ class SystemInfoTool(ChatTool):
                     "write_bytes": disk_io.write_bytes if disk_io else None,
                     "read_time": disk_io.read_time if disk_io else None,
                     "write_time": disk_io.write_time if disk_io else None,
-                    "busy_time": disk_io.busy_time
-                    if disk_io and hasattr(disk_io, "busy_time")
-                    else None,
+                    "busy_time": disk_io.busy_time if disk_io and hasattr(disk_io, "busy_time") else None,
                 }
                 if disk_io
                 else {},
             }
         except Exception as e:
             logger.error(f"Error getting disk info: {e}", exc_info=True)
-            return {"error": f"Failed to get disk info: {str(e)}"}
+            return {"error": f"Failed to get disk info: {e!s}"}
 
     def _get_network_info(self) -> dict[str, Any]:
         """Get network information."""
@@ -260,15 +249,13 @@ class SystemInfoTool(ChatTool):
             }
         except Exception as e:
             logger.error(f"Error getting network info: {e}", exc_info=True)
-            return {"error": f"Failed to get network info: {str(e)}"}
+            return {"error": f"Failed to get network info: {e!s}"}
 
     def _get_processes_info(self) -> dict[str, Any]:
         """Get information about running processes."""
         try:
             processes = []
-            for proc in psutil.process_iter(
-                ["pid", "name", "username", "status", "cpu_percent", "memory_percent"]
-            ):
+            for proc in psutil.process_iter(["pid", "name", "username", "status", "cpu_percent", "memory_percent"]):
                 try:
                     pinfo = proc.info
                     processes.append(
@@ -293,7 +280,7 @@ class SystemInfoTool(ChatTool):
             }
         except Exception as e:
             logger.error(f"Error getting processes info: {e}", exc_info=True)
-            return {"error": f"Failed to get processes info: {str(e)}"}
+            return {"error": f"Failed to get processes info: {e!s}"}
 
     def _get_system_info(self) -> dict[str, Any]:
         """Get general system information."""
@@ -315,7 +302,7 @@ class SystemInfoTool(ChatTool):
             }
         except Exception as e:
             logger.error(f"Error getting system info: {e}", exc_info=True)
-            return {"error": f"Failed to get system info: {str(e)}"}
+            return {"error": f"Failed to get system info: {e!s}"}
 
     def _get_status_info(self) -> dict[str, Any]:
         """Get system status information."""
@@ -338,18 +325,14 @@ class SystemInfoTool(ChatTool):
                 },
                 "disk": {
                     "root_used_percent": next(
-                        (
-                            p["usage"]["percent"]
-                            for p in disk.get("partitions", [])
-                            if p["mountpoint"] == "/"
-                        ),
+                        (p["usage"]["percent"] for p in disk.get("partitions", []) if p["mountpoint"] == "/"),
                         0,
                     )
                 },
             }
         except Exception as e:
             logger.error(f"Error getting status info: {e}", exc_info=True)
-            return {"error": f"Failed to get status info: {str(e)}"}
+            return {"error": f"Failed to get status info: {e!s}"}
 
     async def execute(
         self, category: str = "all", details: bool = False, refresh: bool = False, **kwargs
@@ -408,7 +391,7 @@ class SystemInfoTool(ChatTool):
 
         except Exception as e:
             logger.error(f"Error getting system information: {e}", exc_info=True)
-            return ToolResult.error(f"Failed to get system information: {str(e)}")
+            return ToolResult.error(f"Failed to get system information: {e!s}")
 
 
 # Example usage:

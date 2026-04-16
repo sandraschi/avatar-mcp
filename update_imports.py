@@ -44,9 +44,7 @@ def update_file_imports(file_path: Path):
                 content, count = re.subn(old_pattern, new_pattern, content)
                 if count > 0:
                     updated = True
-                    print(
-                        f"  Updated {count} import(s) in {file_path.relative_to(BASE_DIR.parent.parent)}"
-                    )
+                    print(f"  Updated {count} import(s) in {file_path.relative_to(BASE_DIR.parent.parent)}")
 
         if updated:
             file_path.write_text(content, encoding="utf-8")

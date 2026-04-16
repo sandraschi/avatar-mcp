@@ -23,9 +23,7 @@ class CoreUnityIntegrationTools:
         """Register all core Unity integration tools with the MCP server."""
 
         @self.mcp_server.mcp.tool()
-        async def unity_system_status(
-            detailed: bool = False, include_config: bool = False
-        ) -> dict[str, Any]:
+        async def unity_system_status(detailed: bool = False, include_config: bool = False) -> dict[str, Any]:
             """Get the current status of the Unity desktop avatar system.
 
             Parameters:
@@ -75,7 +73,7 @@ class CoreUnityIntegrationTools:
             except Exception as e:
                 return {
                     "status": "error",
-                    "message": f"Failed to get Unity system status: {str(e)}",
+                    "message": f"Failed to get Unity system status: {e!s}",
                 }
 
         @self.mcp_server.mcp.tool()
@@ -112,12 +110,10 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to update window position: {str(e)}"}
+                return {"status": "error", "message": f"Failed to update window position: {e!s}"}
 
         @self.mcp_server.mcp.tool()
-        async def unity_window_transparency(
-            alpha: float = 1.0, transition_time: float = 0.0
-        ) -> dict[str, Any]:
+        async def unity_window_transparency(alpha: float = 1.0, transition_time: float = 0.0) -> dict[str, Any]:
             """Update Unity window transparency settings.
 
             Parameters:
@@ -141,13 +137,11 @@ class CoreUnityIntegrationTools:
             except Exception as e:
                 return {
                     "status": "error",
-                    "message": f"Failed to update window transparency: {str(e)}",
+                    "message": f"Failed to update window transparency: {e!s}",
                 }
 
         @self.mcp_server.mcp.tool()
-        async def unity_window_visibility(
-            visible: bool, fade_transition: bool = True
-        ) -> dict[str, Any]:
+        async def unity_window_visibility(visible: bool, fade_transition: bool = True) -> dict[str, Any]:
             """Set Unity window visibility.
 
             Parameters:
@@ -170,7 +164,7 @@ class CoreUnityIntegrationTools:
             except Exception as e:
                 return {
                     "status": "error",
-                    "message": f"Failed to update window visibility: {str(e)}",
+                    "message": f"Failed to update window visibility: {e!s}",
                 }
 
         @self.mcp_server.mcp.tool()
@@ -200,7 +194,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to update window mode: {str(e)}"}
+                return {"status": "error", "message": f"Failed to update window mode: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_avatar_load(
@@ -235,7 +229,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to load avatar: {str(e)}"}
+                return {"status": "error", "message": f"Failed to load avatar: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_avatar_expression(
@@ -269,7 +263,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to set expression: {str(e)}"}
+                return {"status": "error", "message": f"Failed to set expression: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_avatar_animation(
@@ -311,7 +305,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to control animation: {str(e)}"}
+                return {"status": "error", "message": f"Failed to control animation: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_osc_bridge(
@@ -349,7 +343,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to configure OSC bridge: {str(e)}"}
+                return {"status": "error", "message": f"Failed to configure OSC bridge: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_plugin_load(
@@ -385,7 +379,7 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to manage plugin: {str(e)}"}
+                return {"status": "error", "message": f"Failed to manage plugin: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         async def unity_config_update(
@@ -426,4 +420,4 @@ class CoreUnityIntegrationTools:
                 }
                 return result
             except Exception as e:
-                return {"status": "error", "message": f"Failed to update configuration: {str(e)}"}
+                return {"status": "error", "message": f"Failed to update configuration: {e!s}"}

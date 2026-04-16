@@ -137,9 +137,7 @@ class AvatarMCPTest:
 
             # Subscribe to avatar updates
             await websocket.send(
-                json.dumps(
-                    {"type": "subscribe", "resource": "avatar_updates", "id": self.test_avatar_id}
-                )
+                json.dumps({"type": "subscribe", "resource": "avatar_updates", "id": self.test_avatar_id})
             )
 
             # Make a change that should trigger an update
@@ -154,7 +152,7 @@ class AvatarMCPTest:
                 assert update["data"]["id"] == self.test_avatar_id, "Wrong avatar ID in update"
                 print("Received WebSocket update:", message)
                 return True
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 print("Timed out waiting for WebSocket update")
                 return False
 
@@ -189,9 +187,7 @@ class AvatarMCPTest:
             if e.response.status_code != 404:  # Not found is okay for cleanup
                 raise
 
-    async def create_avatar(
-        self, model_id: str, position: list, rotation: list, scale: list
-    ) -> dict:
+    async def create_avatar(self, model_id: str, position: list, rotation: list, scale: list) -> dict:
         """Create a new avatar."""
         data = {"model_id": model_id, "position": position, "rotation": rotation, "scale": scale}
         response = await self.client.post(f"{API_BASE_URL}/avatars", json=data)
@@ -233,9 +229,7 @@ class AvatarMCPTest:
     async def set_blend_shape(self, avatar_id: str, name: str, value: float) -> None:
         """Set a blend shape value on an avatar."""
         data = {"name": name, "value": value}
-        response = await self.client.post(
-            f"{API_BASE_URL}/avatars/{avatar_id}/blend-shape", json=data
-        )
+        response = await self.client.post(f"{API_BASE_URL}/avatars/{avatar_id}/blend-shape", json=data)
         response.raise_for_status()
 
 

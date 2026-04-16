@@ -68,9 +68,7 @@ class VRChatOSCServer:
         for attempt in range(max_attempts):
             current_port = base_port + attempt
             try:
-                self._server = AsyncIOOSCUDPServer(
-                    (self.ip, current_port), self._dispatcher, self._loop
-                )
+                self._server = AsyncIOOSCUDPServer((self.ip, current_port), self._dispatcher, self._loop)
 
                 transport, _ = await self._server.create_serve_endpoint()
                 self.receive_port = current_port  # Update the port to the one that worked
@@ -142,9 +140,7 @@ class VRChatOSCServer:
             raise ValueError(f"Invalid gesture. Must be one of: {valid_gestures}")
         self._client.send_message(f"/avatar/parameters/Gesture{hand.capitalize()}", gesture)
         if gesture in ["Fist", "Open"]:
-            self._client.send_message(
-                f"/avatar/parameters/Gesture{hand.capitalize()}Weight", strength
-            )
+            self._client.send_message(f"/avatar/parameters/Gesture{hand.capitalize()}Weight", strength)
 
     async def send_expression(self, expression: str, strength: float = 1.0):
         """Send a facial expression to VRChat."""

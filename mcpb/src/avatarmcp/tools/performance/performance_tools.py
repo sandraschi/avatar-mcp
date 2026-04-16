@@ -156,9 +156,7 @@ class PerformanceTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send audio_lip_sync_analyze command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send audio_lip_sync_analyze command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -327,10 +325,7 @@ class PerformanceTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send performance_lighting_control command to Unity "
-                        "desktop avatar"
-                    ),
+                    "message": ("Failed to send performance_lighting_control command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -527,10 +522,7 @@ class PerformanceTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send performance_particle_effects command to Unity "
-                        "desktop avatar"
-                    ),
+                    "message": ("Failed to send performance_particle_effects command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -671,9 +663,7 @@ class PerformanceTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send audience_response_analyze command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send audience_response_analyze command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -1055,8 +1045,5 @@ class PerformanceTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send performance_recording_system command to Unity "
-                        "desktop avatar"
-                    ),
+                    "message": ("Failed to send performance_recording_system command to Unity desktop avatar"),
                 }

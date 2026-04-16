@@ -53,7 +53,7 @@ async def main():
         print("\nExample completed successfully!")
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {e!s}")
 
 
 if __name__ == "__main__":

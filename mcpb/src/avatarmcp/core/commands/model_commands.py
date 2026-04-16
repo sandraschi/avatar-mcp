@@ -31,9 +31,7 @@ def register_commands(registry):
             "load_model(path='path/to/model.vrm', model_id='my_model', scale=1.0)",
         ],
     )
-    def load_model(
-        app: AvatarMCP, path: str, model_id: str | None = None, scale: float = 1.0
-    ) -> dict[str, Any]:
+    def load_model(app: AvatarMCP, path: str, model_id: str | None = None, scale: float = 1.0) -> dict[str, Any]:
         """Load a VRM model into the server.
 
         Args:
@@ -118,9 +116,7 @@ def register_commands(registry):
         except Exception as e:
             return {"status": "error", "error": str(e), "model_id": model_id}
 
-    @registry.register(
-        name="list_models", description="List all loaded VRM models.", examples=["list_models()"]
-    )
+    @registry.register(name="list_models", description="List all loaded VRM models.", examples=["list_models()"])
     def list_models(app: AvatarMCP) -> dict[str, Any]:
         """List all loaded VRM models.
 

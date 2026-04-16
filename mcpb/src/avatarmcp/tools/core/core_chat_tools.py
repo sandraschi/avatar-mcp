@@ -62,8 +62,8 @@ class CoreChatTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to start chat session: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to start chat session: {str(e)}"}
+                logger.error(f"Failed to start chat session: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to start chat session: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def chat_send_message(params: dict[str, Any]) -> dict[str, Any]:
@@ -95,9 +95,7 @@ class CoreChatTools:
                             "status": "error",
                             "message": "No active chat sessions. Call chat_start first.",
                         }
-                    session_id = max(
-                        self.chat_sessions.keys(), key=lambda k: self.chat_sessions[k]["start_time"]
-                    )
+                    session_id = max(self.chat_sessions.keys(), key=lambda k: self.chat_sessions[k]["start_time"])
 
                 if session_id not in self.chat_sessions:
                     return {"status": "error", "message": f"Chat session '{session_id}' not found"}
@@ -128,8 +126,8 @@ class CoreChatTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to send chat message: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to send chat message: {str(e)}"}
+                logger.error(f"Failed to send chat message: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to send chat message: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def chat_stop(params: dict[str, Any]) -> dict[str, Any]:
@@ -175,8 +173,8 @@ class CoreChatTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to stop chat session: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to stop chat session: {str(e)}"}
+                logger.error(f"Failed to stop chat session: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to stop chat session: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def chat_get_state(params: dict[str, Any]) -> dict[str, Any]:
@@ -217,12 +215,8 @@ class CoreChatTools:
                     }
                 else:
                     # Get all sessions state
-                    active_sessions = [
-                        sid for sid, session in self.chat_sessions.items() if session["active"]
-                    ]
-                    total_messages = sum(
-                        len(session["messages"]) for session in self.chat_sessions.values()
-                    )
+                    active_sessions = [sid for sid, session in self.chat_sessions.items() if session["active"]]
+                    total_messages = sum(len(session["messages"]) for session in self.chat_sessions.values())
 
                     return {
                         "status": "success",
@@ -233,8 +227,8 @@ class CoreChatTools:
                     }
 
             except Exception as e:
-                logger.error(f"Failed to get chat state: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to get chat state: {str(e)}"}
+                logger.error(f"Failed to get chat state: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to get chat state: {e!s}"}
 
     def _generate_chat_response(self, message: str, session_id: str) -> str:
         """Generate a chatbot response (simplified implementation)."""

@@ -109,9 +109,7 @@ class SpeechProcessor:
         try:
             import whisper
 
-            self.stt_engine = whisper.load_model(
-                self.config.model_path or "base", download_root="./models/whisper"
-            )
+            self.stt_engine = whisper.load_model(self.config.model_path or "base", download_root="./models/whisper")
             logger.info("Initialized Whisper STT")
         except ImportError:
             logger.warning("Whisper not available. Install with: pip install openai-whisper")
@@ -141,9 +139,7 @@ class SpeechProcessor:
             self.stt_engine.dynamic_energy_threshold = self.config.dynamic_energy_threshold
             logger.info("Initialized Google STT")
         except ImportError:
-            logger.warning(
-                "SpeechRecognition not available. Install with: pip install SpeechRecognition"
-            )
+            logger.warning("SpeechRecognition not available. Install with: pip install SpeechRecognition")
             raise
 
     def _init_azure(self):
@@ -161,10 +157,7 @@ class SpeechProcessor:
             self.stt_engine = speechsdk.SpeechRecognizer(speech_config=speech_config)
             logger.info("Initialized Azure STT")
         except ImportError:
-            logger.warning(
-                "Azure Speech SDK not available. Install with: "
-                "pip install azure-cognitiveservices-speech"
-            )
+            logger.warning("Azure Speech SDK not available. Install with: pip install azure-cognitiveservices-speech")
             raise
 
     # === Text-to-Speech Methods ===
@@ -174,9 +167,7 @@ class SpeechProcessor:
         try:
             from TTS.api import TTS
 
-            self.tts_engine = TTS(
-                model_name=self.config.model_path or "tts_models/en/ljspeech/tacotron2-DDC"
-            )
+            self.tts_engine = TTS(model_name=self.config.model_path or "tts_models/en/ljspeech/tacotron2-DDC")
             logger.info("Initialized Coqui TTS")
         except ImportError:
             logger.warning("Coqui TTS not available. Install with: pip install TTS")

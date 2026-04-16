@@ -26,9 +26,7 @@ def debug_vertex_positions():
 
         # Setup simple viewer without skinning
         pv.set_plot_theme("document")
-        plotter = pv.Plotter(
-            window_size=[1200, 800], title="🎌 Debug VRM Vertex Positions - No Skinning"
-        )
+        plotter = pv.Plotter(window_size=[1200, 800], title="🎌 Debug VRM Vertex Positions - No Skinning")
 
         print("\n📊 VERTEX POSITION ANALYSIS:")
 
@@ -100,9 +98,7 @@ def debug_vertex_positions():
                             except Exception as face_error:
                                 print(f"  ⚠️ Face rendering failed: {face_error}")
                         else:
-                            print(
-                                f"  ⚠️ Invalid face indices: max {max_face_index} >= {len(vertices)}"
-                            )
+                            print(f"  ⚠️ Invalid face indices: max {max_face_index} >= {len(vertices)}")
 
                 except Exception as e:
                     print(f"  ❌ Failed to render mesh {i}: {e}")
@@ -122,9 +118,7 @@ def debug_vertex_positions():
             print(
                 f"  Scene bounds: ({scene_min[0]:.3f}, {scene_min[1]:.3f}, {scene_min[2]:.3f}) to ({scene_max[0]:.3f}, {scene_max[1]:.3f}, {scene_max[2]:.3f})"
             )
-            print(
-                f"  Scene center: ({scene_center[0]:.3f}, {scene_center[1]:.3f}, {scene_center[2]:.3f})"
-            )
+            print(f"  Scene center: ({scene_center[0]:.3f}, {scene_center[1]:.3f}, {scene_center[2]:.3f})")
             print(f"  Scene size: ({scene_size[0]:.3f}, {scene_size[1]:.3f}, {scene_size[2]:.3f})")
 
             # Set appropriate camera position based on scene

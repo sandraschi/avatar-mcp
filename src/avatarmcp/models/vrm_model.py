@@ -35,7 +35,7 @@ class VRMModel:
             self.gltf = GLTF2().load(self.file_path)
             self._extract_metadata()
         except Exception as e:
-            raise ValueError(f"Failed to load VRM model: {str(e)}") from e
+            raise ValueError(f"Failed to load VRM model: {e!s}") from e
 
     def _extract_metadata(self):
         """Extract metadata from the VRM model."""
@@ -65,11 +65,7 @@ class VRMModel:
 
     def get_blend_shape_names(self) -> list[str]:
         """Get a list of all blend shape names in the model."""
-        if (
-            not self.gltf
-            or not hasattr(self.gltf, "extensions")
-            or "VRM" not in self.gltf.extensions
-        ):
+        if not self.gltf or not hasattr(self.gltf, "extensions") or "VRM" not in self.gltf.extensions:
             return []
 
         vrm = self.gltf.extensions["VRM"]

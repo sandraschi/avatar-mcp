@@ -53,9 +53,7 @@ def main():
 
             # Test playing an animation
             print("\nTesting animation playback:")
-            response = send_command(
-                "play_animation", model_id=model_id, animation_name="idle", loop=True
-            )
+            response = send_command("play_animation", model_id=model_id, animation_name="idle", loop=True)
             print(json.dumps(response, indent=2))
 
             # Wait a bit to see the animation

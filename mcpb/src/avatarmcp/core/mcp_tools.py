@@ -73,16 +73,12 @@ class MCPTools(MCPToolsBase):
         from packaging import version
 
         if version.parse(fastmcp.__version__) < version.parse("2.12.0"):
-            raise RuntimeError(
-                f"FastMCP version 2.12.0 or higher is required, but found {fastmcp.__version__}"
-            )
+            raise RuntimeError(f"FastMCP version 2.12.0 or higher is required, but found {fastmcp.__version__}")
 
     def _register_tools(self) -> None:
         """Register all MCP tools using the FastMCP server instance."""
 
-        @self.mcp.tool(
-            name="tools.discover", description="List all available MCP tools with their metadata"
-        )
+        @self.mcp.tool(name="tools.discover", description="List all available MCP tools with their metadata")
         async def discover_tools() -> dict[str, Any]:
             return await self.discover_tools()
 
@@ -96,9 +92,7 @@ class MCPTools(MCPToolsBase):
         async def unload_avatar(id: str) -> dict[str, Any]:
             return await self.unload_avatar(id)
 
-        @self.mcp.tool(
-            name="avatar.list", description="List all currently loaded avatars and their details"
-        )
+        @self.mcp.tool(name="avatar.list", description="List all currently loaded avatars and their details")
         async def list_avatars() -> dict[str, Any]:
             return await self.list_avatars()
 
@@ -112,9 +106,7 @@ class MCPTools(MCPToolsBase):
         ) -> dict[str, Any]:
             return await self.play_animation(avatar_id, animation, loop, weight, speed)
 
-        @self.mcp.tool(
-            name="animation.stop", description="Stop a currently playing animation on an avatar"
-        )
+        @self.mcp.tool(name="animation.stop", description="Stop a currently playing animation on an avatar")
         async def stop_animation(avatar_id: str, animation: str) -> dict[str, Any]:
             return await self.stop_animation(avatar_id, animation)
 
@@ -126,9 +118,7 @@ class MCPTools(MCPToolsBase):
         async def set_parameter(avatar_id: str, name: str, value: ParameterValue) -> dict[str, Any]:
             return await self.set_parameter(avatar_id, name, value)
 
-        @self.mcp.tool(
-            name="parameter.get", description="Get the current value of a parameter from an avatar"
-        )
+        @self.mcp.tool(name="parameter.get", description="Get the current value of a parameter from an avatar")
         async def get_parameter(avatar_id: str, name: str) -> dict[str, Any]:
             return await self.get_parameter(avatar_id, name)
 
@@ -142,15 +132,11 @@ class MCPTools(MCPToolsBase):
 
         # Movement tools
         @self.mcp.tool(name="movement.walk", description="Start a walking animation for an avatar")
-        async def walk(
-            avatar_id: str, direction: str = "forward", speed: float = 1.0
-        ) -> dict[str, Any]:
+        async def walk(avatar_id: str, direction: str = "forward", speed: float = 1.0) -> dict[str, Any]:
             return await self.walk(avatar_id, direction, speed)
 
         @self.mcp.tool(name="movement.run", description="Start a running animation for an avatar")
-        async def run(
-            avatar_id: str, direction: str = "forward", speed: float = 2.0
-        ) -> dict[str, Any]:
+        async def run(avatar_id: str, direction: str = "forward", speed: float = 2.0) -> dict[str, Any]:
             return await self.run(avatar_id, direction, speed)
 
         @self.mcp.tool(name="movement.turn", description="Turn an avatar left or right")
@@ -164,9 +150,7 @@ class MCPTools(MCPToolsBase):
             return await self.jump(avatar_id, height)
 
         @self.mcp.tool(name="movement.curtsy", description="Make an avatar perform a curtsy")
-        async def curtsy(
-            avatar_id: str, style: str = "default", intensity: float = 1.0
-        ) -> dict[str, Any]:
+        async def curtsy(avatar_id: str, style: str = "default", intensity: float = 1.0) -> dict[str, Any]:
             return await self.curtsy(avatar_id, style, intensity)
 
         @self.mcp.tool(name="movement.stop", description="Stop all movement for an avatar")
@@ -204,9 +188,7 @@ class MCPTools(MCPToolsBase):
 
                 param_info = {
                     "type": self._get_type_name(param.annotation),
-                    "description": param.default
-                    if param.default is not inspect.Parameter.empty
-                    else "",
+                    "description": param.default if param.default is not inspect.Parameter.empty else "",
                     "required": param.default is inspect.Parameter.empty,
                 }
 
@@ -301,7 +283,7 @@ class MCPTools(MCPToolsBase):
             }
 
         except Exception as e:
-            error_msg = f"Failed to load avatar '{avatar_id}': {str(e)}"
+            error_msg = f"Failed to load avatar '{avatar_id}': {e!s}"
             logger.error(error_msg, exc_info=True)
             raise ValueError(error_msg) from e
 
@@ -345,7 +327,7 @@ class MCPTools(MCPToolsBase):
             }
 
         except Exception as e:
-            error_msg = f"Failed to unload avatar '{id}': {str(e)}"
+            error_msg = f"Failed to unload avatar '{id}': {e!s}"
             logger.error(error_msg, exc_info=True)
             raise ValueError(error_msg) from e
 
@@ -455,9 +437,7 @@ class MCPTools(MCPToolsBase):
 
         return {"avatar_id": avatar_id, "animations": animations}
 
-    async def set_parameter(
-        self, avatar_id: str, name: str, value: ParameterValue
-    ) -> dict[str, Any]:
+    async def set_parameter(self, avatar_id: str, name: str, value: ParameterValue) -> dict[str, Any]:
         """Set a parameter value on the specified avatar.
 
         Updates the value of a named parameter for the given avatar. The parameter
@@ -563,9 +543,7 @@ class MCPTools(MCPToolsBase):
         return {"status": "sent", "message": message, "direct": direct}
 
     # Movement methods remain the same...
-    async def walk(
-        self, avatar_id: str, direction: str = "forward", speed: float = 1.0
-    ) -> dict[str, Any]:
+    async def walk(self, avatar_id: str, direction: str = "forward", speed: float = 1.0) -> dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
         if direction not in ["forward", "backward", "left", "right"]:
@@ -579,9 +557,7 @@ class MCPTools(MCPToolsBase):
             "speed": speed,
         }
 
-    async def run(
-        self, avatar_id: str, direction: str = "forward", speed: float = 2.0
-    ) -> dict[str, Any]:
+    async def run(self, avatar_id: str, direction: str = "forward", speed: float = 2.0) -> dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
         if direction not in ["forward", "backward", "left", "right"]:
@@ -619,9 +595,7 @@ class MCPTools(MCPToolsBase):
         height = max(0.1, min(5.0, float(height)))
         return {"status": "jumping", "avatar_id": avatar_id, "movement": "jump", "height": height}
 
-    async def curtsy(
-        self, avatar_id: str, style: str = "default", intensity: float = 1.0
-    ) -> dict[str, Any]:
+    async def curtsy(self, avatar_id: str, style: str = "default", intensity: float = 1.0) -> dict[str, Any]:
         if avatar_id not in self.animation_controllers:
             raise ValueError(f"No avatar with ID '{avatar_id}' is loaded")
         if style not in ["default", "formal", "playful", "respectful"]:

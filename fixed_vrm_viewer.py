@@ -29,9 +29,7 @@ def validate_and_fix_faces(faces, vertex_count):
     # Validate face indices are within vertex bounds
     max_index = faces.max() if faces.size > 0 else 0
     if max_index >= vertex_count:
-        print(
-            f"⚠️ Invalid face indices detected: max index {max_index} >= vertex count {vertex_count}"
-        )
+        print(f"⚠️ Invalid face indices detected: max index {max_index} >= vertex count {vertex_count}")
         # Remove faces with invalid indices
         valid_mask = np.all(faces < vertex_count, axis=1)
         faces = faces[valid_mask]
@@ -77,9 +75,7 @@ def create_fixed_vrm_viewer():
 
             try:
                 vrm_model = VRMLoader.from_file(vrm_path)
-                print(
-                    f"✅ {model_name}: {len(vrm_model.meshes)} meshes, {len(vrm_model.bones)} bones"
-                )
+                print(f"✅ {model_name}: {len(vrm_model.meshes)} meshes, {len(vrm_model.bones)} bones")
 
                 plotter.subplot(0, col)
                 plotter.add_text(f"{model_name}", position="upper_left", font_size=14)
@@ -127,9 +123,7 @@ def create_fixed_vrm_viewer():
                                 )
                                 print(f"    ⚠️ Rendered mesh {i} as point cloud")
                             except Exception as point_error:
-                                print(
-                                    f"    ❌ Failed to render mesh {i} even as points: {point_error}"
-                                )
+                                print(f"    ❌ Failed to render mesh {i} even as points: {point_error}")
                     else:
                         print(f"    ⚠️ Mesh {i} has no valid geometry to render")
 

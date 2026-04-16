@@ -99,7 +99,7 @@ class OSCManager:
             logger.info(f"OSC client sending to {self.config.client_ip}:{self.config.client_port}")
 
         except OSError as e:
-            logger.error(f"Failed to start OSC server: {str(e)}")
+            logger.error(f"Failed to start OSC server: {e!s}")
             raise
 
     async def stop(self) -> None:
@@ -140,7 +140,7 @@ class OSCManager:
             logger.debug(f"Sent OSC: {address} {args}")
 
         except Exception as e:
-            logger.error(f"Failed to send OSC message: {str(e)}")
+            logger.error(f"Failed to send OSC message: {e!s}")
 
     def add_handler(self, address: str, handler: Callable) -> None:
         """Add a handler for an OSC address pattern.
@@ -245,7 +245,7 @@ class OSCHandler(BaseHandler):
                 await handler(*py_args)
 
             except Exception as e:
-                logger.error(f"Error in OSC handler for {osc_addr}: {str(e)}", exc_info=True)
+                logger.error(f"Error in OSC handler for {osc_addr}: {e!s}", exc_info=True)
 
         return wrapper
 
@@ -313,9 +313,7 @@ class OSCHandler(BaseHandler):
         if response.get("status") == "success":
             self.send_message("/avatar/unloaded", model_id)
         else:
-            self.send_message(
-                "/avatar/unload_failed", response.get("message", "Unknown error"), model_id
-            )
+            self.send_message("/avatar/unload_failed", response.get("message", "Unknown error"), model_id)
 
     async def _handle_avatar_set_active(self, *args) -> None:
         """Handle /avatar/set_active OSC message."""
@@ -339,9 +337,7 @@ class OSCHandler(BaseHandler):
         if response.get("status") == "success":
             self.send_message("/avatar/active", model_id)
         else:
-            self.send_message(
-                "/avatar/set_active_failed", response.get("message", "Unknown error"), model_id
-            )
+            self.send_message("/avatar/set_active_failed", response.get("message", "Unknown error"), model_id)
 
     async def _handle_animation_play(self, *args) -> None:
         """Handle /animation/play OSC message."""
@@ -367,9 +363,7 @@ class OSCHandler(BaseHandler):
         if response.get("status") == "success":
             self.send_message("/animation/playing", name)
         else:
-            self.send_message(
-                "/animation/play_failed", response.get("message", "Unknown error"), name
-            )
+            self.send_message("/animation/play_failed", response.get("message", "Unknown error"), name)
 
     async def _handle_animation_stop(self, *args) -> None:
         """Handle /animation/stop OSC message."""

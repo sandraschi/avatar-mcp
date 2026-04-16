@@ -61,9 +61,7 @@ class EnhancedMCPServer:
         self.base_server.handle_list_tools = self.handle_list_tools
         self.base_server.handle_execute_tool = self.handle_execute_tool
 
-        self.logger.info(
-            f"Enhanced MCP server initialized with capabilities: {self.available_deps}"
-        )
+        self.logger.info(f"Enhanced MCP server initialized with capabilities: {self.available_deps}")
 
     async def handle_list_tools(self, params: dict, request_id: int):
         """Handle listTools request with enhanced capabilities."""
@@ -79,9 +77,7 @@ class EnhancedMCPServer:
                 "description": "Load an avatar (basic mode)",
                 "inputSchema": {
                     "type": "object",
-                    "properties": {
-                        "avatarId": {"type": "string", "description": "ID of the avatar to load"}
-                    },
+                    "properties": {"avatarId": {"type": "string", "description": "ID of the avatar to load"}},
                     "required": ["avatarId"],
                 },
             },
@@ -207,11 +203,11 @@ class EnhancedMCPServer:
             response = {"jsonrpc": "2.0", "id": request_id, "result": result}
 
         except Exception as e:
-            self.logger.error(f"Error executing tool {tool_name}: {str(e)}")
+            self.logger.error(f"Error executing tool {tool_name}: {e!s}")
             response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "error": {"code": -32000, "message": f"Error executing tool: {str(e)}"},
+                "error": {"code": -32000, "message": f"Error executing tool: {e!s}"},
             }
 
         self.base_server._write_json(response)
@@ -282,9 +278,7 @@ class EnhancedMCPServer:
 def main():
     """Main entry point for enhanced MCP server."""
     # Configure logging
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_enhanced.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_enhanced.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     logging.basicConfig(
@@ -301,7 +295,7 @@ def main():
         server = EnhancedMCPServer()
         asyncio.run(server.run())
     except Exception as e:
-        logger.error(f"Error in Enhanced MCP server: {str(e)}", exc_info=True)
+        logger.error(f"Error in Enhanced MCP server: {e!s}", exc_info=True)
         sys.exit(1)
 
 

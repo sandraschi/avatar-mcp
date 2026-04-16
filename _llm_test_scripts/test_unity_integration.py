@@ -62,9 +62,7 @@ class UnityIntegrationTester:
             self.log_test("Unity Integration - System Status", success, result.get("message", ""))
 
             # Test avatar load
-            result = await tool_func(
-                {"operation": "load_avatar", "avatar_path": "models/Nekomimi-chan.vrm"}
-            )
+            result = await tool_func({"operation": "load_avatar", "avatar_path": "models/Nekomimi-chan.vrm"})
 
             success = result.get("status") == "success"
             self.log_test("Unity Integration - Avatar Load", success, result.get("message", ""))
@@ -119,9 +117,7 @@ class UnityIntegrationTester:
 
         try:
             # Test get config
-            result = await self.server.mcp.call_tool(
-                "unity_config_manager", {"operation": "get_config"}
-            )
+            result = await self.server.mcp.call_tool("unity_config_manager", {"operation": "get_config"})
 
             success = result.get("status") == "success"
             self.log_test("Unity Config Manager - Get Config", success, result.get("message", ""))
@@ -141,9 +137,7 @@ class UnityIntegrationTester:
             self.log_test("Unity Config Manager - OSC Bridge", success, result.get("message", ""))
 
             # Test plugin list
-            result = await self.server.mcp.call_tool(
-                "unity_config_manager", {"operation": "plugin_list"}
-            )
+            result = await self.server.mcp.call_tool("unity_config_manager", {"operation": "plugin_list"})
 
             success = result.get("status") == "success"
             self.log_test("Unity Config Manager - Plugin List", success, result.get("message", ""))

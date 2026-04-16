@@ -98,9 +98,7 @@ class CoreTools:
                 # Script is at src/avatarmcp/tools/core/core_tools.py
                 # Project root is two levels up: ../../../../
                 script_dir = os.path.dirname(os.path.abspath(__file__))
-                project_root = os.path.dirname(
-                    os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
-                )
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
                 models_dir = os.path.join(project_root, "models")
 
                 if not os.path.exists(models_dir):
@@ -149,7 +147,7 @@ class CoreTools:
             except Exception as e:
                 return {
                     "status": "error",
-                    "message": f"Failed to scan avatars: {str(e)}",
+                    "message": f"Failed to scan avatars: {e!s}",
                     "avatars": [],
                     "count": 0,
                     "scan_time": time.time() - start_time,
@@ -240,9 +238,7 @@ class CoreTools:
 
             # Find the full path to the VRM file
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            project_root = os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
-            )
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))))
             models_dir = os.path.join(project_root, "models")
             vrm_path = os.path.join(models_dir, f"{avatar_id}.vrm")
 
@@ -378,9 +374,7 @@ class CoreTools:
 
             # Send OSC message to Unity desktop avatar to play animation
             osc_address = "/avatar/animation/play"
-            if self.mcp_server._send_osc_message(
-                osc_address, animation_name, int(loop), float(speed)
-            ):
+            if self.mcp_server._send_osc_message(osc_address, animation_name, int(loop), float(speed)):
                 return {
                     "status": "success",
                     "avatar_id": avatar_id,

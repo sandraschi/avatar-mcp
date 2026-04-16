@@ -169,9 +169,7 @@ class AIBehaviorTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send ai_conversation_respond command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send ai_conversation_respond command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -485,9 +483,7 @@ class AIBehaviorTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send ai_personality_predict command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send ai_personality_predict command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -873,7 +869,5 @@ class AIBehaviorTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send ai_interaction_learn command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send ai_interaction_learn command to Unity desktop avatar"),
                 }

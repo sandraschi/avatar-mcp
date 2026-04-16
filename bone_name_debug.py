@@ -28,9 +28,7 @@ def debug_bone_names():
             bone = vrm_model.bones[bone_name]
             print(f"  {i:3d}: {bone_name}")
             if i < 20:  # Show first 20 with details
-                print(
-                    f"       Position: ({bone.position[0]:.3f}, {bone.position[1]:.3f}, {bone.position[2]:.3f})"
-                )
+                print(f"       Position: ({bone.position[0]:.3f}, {bone.position[1]:.3f}, {bone.position[2]:.3f})")
                 print(
                     f"       Rotation: ({bone.rotation[0]:.3f}, {bone.rotation[1]:.3f}, {bone.rotation[2]:.3f}, {bone.rotation[3]:.3f})"
                 )

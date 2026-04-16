@@ -99,6 +99,7 @@ async def _ollama_get(path: str) -> dict[str, Any] | None:
     """GET from Ollama API; returns None on failure."""
     try:
         import httpx
+
         async with httpx.AsyncClient(timeout=5.0) as client:
             r = await client.get(f"{OLLAMA_BASE_URL.rstrip('/')}{path}")
             if r.status_code == 200:
@@ -166,6 +167,7 @@ def _system_load_pct() -> float | None:
     """Return CPU load 0-100 if psutil available, else None."""
     try:
         import psutil
+
         return round(psutil.cpu_percent(interval=0.1) or 0, 1)
     except ImportError:
         return None
@@ -184,7 +186,10 @@ async def get_status():
         "vrchat_bridge": "active" if mcp_srv.osc_manager.initialized else "idle",
         "osc_pipeline": "streaming" if mcp_srv.osc_manager.enabled else "idle",
         "active_model_id": mcp_srv.active_model_id,
-        "models": [{"id": mid, "name": getattr(model, "metadata", {}).get("name") or getattr(model, "model_id", mid)} for mid, model in mcp_srv.loaded_models.items()],
+        "models": [
+            {"id": mid, "name": getattr(model, "metadata", {}).get("name") or getattr(model, "model_id", mid)}
+            for mid, model in mcp_srv.loaded_models.items()
+        ],
     }
     load = _system_load_pct()
     if load is not None:
@@ -202,7 +207,11 @@ async def list_tools():
         raw = mcp_srv.mcp.list_tools()
         tools_list = await raw if asyncio.iscoroutine(raw) else raw
         return [
-            {"name": getattr(t, "name", ""), "description": getattr(t, "description", ""), "parameters": getattr(t, "parameters", {})}
+            {
+                "name": getattr(t, "name", ""),
+                "description": getattr(t, "description", ""),
+                "parameters": getattr(t, "parameters", {}),
+            }
             for t in (tools_list or [])
         ]
     except (AttributeError, TypeError):
@@ -210,7 +219,13 @@ async def list_tools():
         tm = getattr(mcp_srv.mcp, "_tool_manager", None)
         if tm and hasattr(tm, "_tools"):
             for name, tool in tm._tools.items():
-                tools.append({"name": name, "description": getattr(tool, "description", ""), "parameters": getattr(tool, "parameters", {})})
+                tools.append(
+                    {
+                        "name": name,
+                        "description": getattr(tool, "description", ""),
+                        "parameters": getattr(tool, "parameters", {}),
+                    }
+                )
         return tools
 
 

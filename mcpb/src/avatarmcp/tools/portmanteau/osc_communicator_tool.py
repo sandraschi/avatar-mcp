@@ -102,10 +102,10 @@ class OSCCommunicatorTool:
                     }
 
             except Exception as e:
-                logger.error(f"OSC communicator operation failed: {str(e)}", exc_info=True)
+                logger.error(f"OSC communicator operation failed: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"OSC communicator operation failed: {str(e)}",
+                    "message": f"OSC communicator operation failed: {e!s}",
                 }
 
     def _handle_send(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -124,10 +124,7 @@ class OSCCommunicatorTool:
                 return {"status": "error", "message": "OSC is not enabled or initialized"}
 
             # Send OSC message
-            if (
-                hasattr(self.mcp_server.osc_manager, "osc_client")
-                and self.mcp_server.osc_manager.osc_client
-            ):
+            if hasattr(self.mcp_server.osc_manager, "osc_client") and self.mcp_server.osc_manager.osc_client:
                 self.mcp_server.osc_manager.osc_client.send_message(address, value)
 
                 return {
@@ -141,7 +138,7 @@ class OSCCommunicatorTool:
                 return {"status": "error", "message": "OSC client not available"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to send OSC message: {str(e)}"}
+            return {"status": "error", "message": f"Failed to send OSC message: {e!s}"}
 
     def _handle_receive(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle OSC receive operation."""
@@ -162,4 +159,4 @@ class OSCCommunicatorTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get OSC messages: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get OSC messages: {e!s}"}

@@ -166,10 +166,10 @@ class UnityIntegrationTool:
                     }
 
             except Exception as e:
-                logger.error(f"Unity integration operation failed: {str(e)}", exc_info=True)
+                logger.error(f"Unity integration operation failed: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Unity integration operation failed: {str(e)}",
+                    "message": f"Unity integration operation failed: {e!s}",
                 }
 
     def _handle_status(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -193,9 +193,7 @@ class UnityIntegrationTool:
                 "operation": "status",
                 "unity_running": unity_running,
                 "osc_connected": osc_connected,
-                "osc_enabled": self.mcp_server.osc_manager.enabled
-                if self.mcp_server.osc_manager
-                else False,
+                "osc_enabled": self.mcp_server.osc_manager.enabled if self.mcp_server.osc_manager else False,
                 "timestamp": __import__("time").time(),
             }
 
@@ -220,7 +218,7 @@ class UnityIntegrationTool:
             return status
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get Unity system status: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get Unity system status: {e!s}"}
 
     def _handle_load_avatar(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity avatar load operation."""
@@ -257,7 +255,7 @@ class UnityIntegrationTool:
                 return {"status": "error", "message": "Failed to send Unity load command"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to load Unity avatar: {str(e)}"}
+            return {"status": "error", "message": f"Failed to load Unity avatar: {e!s}"}
 
     def _handle_set_expression(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity avatar expression operation."""
@@ -290,7 +288,7 @@ class UnityIntegrationTool:
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to set Unity avatar expression: {str(e)}",
+                "message": f"Failed to set Unity avatar expression: {e!s}",
             }
 
     def _handle_control_animation(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -343,5 +341,5 @@ class UnityIntegrationTool:
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to control Unity avatar animation: {str(e)}",
+                "message": f"Failed to control Unity avatar animation: {e!s}",
             }

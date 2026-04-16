@@ -178,9 +178,7 @@ class ContentTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send avatar_appearance_modify command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send avatar_appearance_modify command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -367,9 +365,7 @@ class ContentTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send animation_custom_create command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send animation_custom_create command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -566,9 +562,7 @@ class ContentTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send voice_custom_synthesis command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send voice_custom_synthesis command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -828,9 +822,7 @@ class ContentTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send scene_template_create command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send scene_template_create command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -1104,7 +1096,5 @@ class ContentTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send interaction_script_create command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send interaction_script_create command to Unity desktop avatar"),
                 }

@@ -44,11 +44,7 @@ def mock_gltf():
     """Create a mock GLTF object for testing."""
     mock_gltf = MagicMock()
     mock_gltf.model = {
-        "extensions": {
-            "VRMC_vrm": {
-                "meta": {"title": "Test Avatar", "version": "1.0", "author": "Test Author"}
-            }
-        },
+        "extensions": {"VRMC_vrm": {"meta": {"title": "Test Avatar", "version": "1.0", "author": "Test Author"}}},
         "nodes": [{"name": "Hips", "children": [1, 2]}, {"name": "LeftLeg"}, {"name": "RightLeg"}],
         "meshes": [
             {

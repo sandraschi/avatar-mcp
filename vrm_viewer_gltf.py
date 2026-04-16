@@ -34,9 +34,7 @@ class VRMViewer:
                     buffer = gltf.buffers[buffer_view.buffer]
 
                     # Get position data
-                    data = buffer.data[
-                        buffer_view.byteOffset : buffer_view.byteOffset + buffer_view.byteLength
-                    ]
+                    data = buffer.data[buffer_view.byteOffset : buffer_view.byteOffset + buffer_view.byteLength]
                     positions = np.frombuffer(data, dtype=np.float32).reshape(-1, 3)
 
                     # Get indices if they exist
@@ -45,8 +43,7 @@ class VRMViewer:
                         idx_buffer_view = gltf.bufferViews[idx_accessor.bufferView]
                         idx_buffer = gltf.buffers[idx_buffer_view.buffer]
                         idx_data = idx_buffer.data[
-                            idx_buffer_view.byteOffset : idx_buffer_view.byteOffset
-                            + idx_buffer_view.byteLength
+                            idx_buffer_view.byteOffset : idx_buffer_view.byteOffset + idx_buffer_view.byteLength
                         ]
 
                         # Determine the dtype based on the component type
@@ -63,9 +60,7 @@ class VRMViewer:
 
                     # Create and add mesh
                     pv_mesh = pv.PolyData(positions, faces.ravel())
-                    self.plotter.add_mesh(
-                        pv_mesh, color="#FFB6C1", show_edges=False, smooth_shading=True
-                    )
+                    self.plotter.add_mesh(pv_mesh, color="#FFB6C1", show_edges=False, smooth_shading=True)
 
             # Set up camera and lighting
             self.plotter.camera_position = [(2, 2, 2), (0, 0, 0), (0, 0, 1)]
@@ -73,7 +68,7 @@ class VRMViewer:
             return True
 
         except Exception as e:
-            logger.error(f"Error loading VRM: {str(e)}", exc_info=True)
+            logger.error(f"Error loading VRM: {e!s}", exc_info=True)
             return False
 
     def show(self):

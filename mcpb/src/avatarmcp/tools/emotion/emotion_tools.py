@@ -229,9 +229,7 @@ class EmotionTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send emotion_state_machine command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send emotion_state_machine command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -392,9 +390,7 @@ class EmotionTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send emotion_micro_expressions command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send emotion_micro_expressions command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -575,9 +571,7 @@ class EmotionTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send avatar_personality_create command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send avatar_personality_create command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -734,7 +728,5 @@ class EmotionTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send avatar_personality_apply command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send avatar_personality_apply command to Unity desktop avatar"),
                 }

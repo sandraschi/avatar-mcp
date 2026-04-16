@@ -165,9 +165,7 @@ class TestWebSocketAPI:
             async with websockets.connect(f"{WS_URL}/avatars/{test_avatar_id}") as websocket:
                 # Send a position update
                 new_position = {"x": 1, "y": 2, "z": 3}
-                await test_client.patch(
-                    f"{BASE_URL}/avatars/{test_avatar_id}", json={"position": new_position}
-                )
+                await test_client.patch(f"{BASE_URL}/avatars/{test_avatar_id}", json={"position": new_position})
 
                 # Verify the update is received via WebSocket
                 message = await asyncio.wait_for(websocket.recv(), timeout=5.0)

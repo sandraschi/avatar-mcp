@@ -124,10 +124,10 @@ class UnityWindowManagerTool:
                     }
 
             except Exception as e:
-                logger.error(f"Unity window manager operation failed: {str(e)}", exc_info=True)
+                logger.error(f"Unity window manager operation failed: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Unity window manager operation failed: {str(e)}",
+                    "message": f"Unity window manager operation failed: {e!s}",
                 }
 
     def _handle_position(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -152,8 +152,7 @@ class UnityWindowManagerTool:
             if success:
                 return {
                     "status": "success",
-                    "message": f"Set Unity window position to ({x}, {y}) "
-                    f"with size {width}x{height}",
+                    "message": f"Set Unity window position to ({x}, {y}) with size {width}x{height}",
                     "operation": "position",
                     "x": x,
                     "y": y,
@@ -165,7 +164,7 @@ class UnityWindowManagerTool:
                 return {"status": "error", "message": "Failed to send Unity position command"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to set Unity window position: {str(e)}"}
+            return {"status": "error", "message": f"Failed to set Unity window position: {e!s}"}
 
     def _handle_transparency(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity window transparency operation."""
@@ -204,7 +203,7 @@ class UnityWindowManagerTool:
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to set Unity window transparency: {str(e)}",
+                "message": f"Failed to set Unity window transparency: {e!s}",
             }
 
     def _handle_visibility(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -242,7 +241,7 @@ class UnityWindowManagerTool:
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to set Unity window visibility: {str(e)}",
+                "message": f"Failed to set Unity window visibility: {e!s}",
             }
 
     def _handle_mode(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -278,4 +277,4 @@ class UnityWindowManagerTool:
                 return {"status": "error", "message": "Failed to send Unity mode command"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to set Unity window mode: {str(e)}"}
+            return {"status": "error", "message": f"Failed to set Unity window mode: {e!s}"}

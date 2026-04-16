@@ -107,12 +107,10 @@ class ExportTool(AvatarControlBase, ChatTool):
                 "export_time_seconds": 5.2,  # Simulated export time
             }
 
-            return ControlResult.success(
-                f"Successfully exported avatar to {export_path}", data={"export": export_data}
-            )
+            return ControlResult.success(f"Successfully exported avatar to {export_path}", data={"export": export_data})
 
         except Exception as e:
-            logger.error(f"Export failed: {str(e)}", exc_info=True)
+            logger.error(f"Export failed: {e!s}", exc_info=True)
             return ControlResult.error("Failed to export avatar", str(e))
 
     def _generate_export_path(self, options: ExportOptions) -> Path:

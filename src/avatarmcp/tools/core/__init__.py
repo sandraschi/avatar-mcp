@@ -8,4 +8,4 @@ from .core_avatar_tools import CoreAvatarTools
 from .core_system_tools import CoreSystemTools
 from .core_unity_integration_tools import CoreUnityIntegrationTools
 
-__all__ = ["CoreAvatarTools", "CoreUnityIntegrationTools", "CoreSystemTools"]
+__all__ = ["CoreAvatarTools", "CoreSystemTools", "CoreUnityIntegrationTools"]

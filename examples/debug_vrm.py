@@ -50,7 +50,7 @@ def debug_script():
                     print("⚠ No extensions found in GLTF")
 
             except Exception as e:
-                print(f"❌ Failed to load GLTF: {str(e)}")
+                print(f"❌ Failed to load GLTF: {e!s}")
                 print("\n=== Traceback ===")
                 traceback.print_exc()
 
@@ -60,15 +60,15 @@ def debug_script():
                     temp_glb.rename(vrm_path)
                     print("✓ Successfully renamed back to .vrm")
                 except Exception as e:
-                    print(f"⚠ Failed to rename back to .vrm: {str(e)}")
+                    print(f"⚠ Failed to rename back to .vrm: {e!s}")
 
         except Exception as e:
-            print(f"❌ Failed to rename file: {str(e)}")
+            print(f"❌ Failed to rename file: {e!s}")
             print("\n=== Traceback ===")
             traceback.print_exc()
 
     except ImportError as e:
-        print(f"❌ Import error: {str(e)}")
+        print(f"❌ Import error: {e!s}")
         print("\n=== Traceback ===")
         traceback.print_exc()
         print("\n=== Possible Solutions ===")

@@ -452,9 +452,7 @@ class CollaborationTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send avatar_interaction_request command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send avatar_interaction_request command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()

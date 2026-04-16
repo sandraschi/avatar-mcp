@@ -94,8 +94,7 @@ def load_vrm_model(file_path: str) -> VRMModel | None:
             return None
 
         logger.info(
-            f"Successfully loaded VRM model with {len(model.meshes)} meshes "
-            f"and {len(model.materials)} materials"
+            f"Successfully loaded VRM model with {len(model.meshes)} meshes and {len(model.materials)} materials"
         )
 
         # Log mesh statistics
@@ -103,9 +102,7 @@ def load_vrm_model(file_path: str) -> VRMModel | None:
             vert_count = len(mesh.vertices) if mesh.vertices is not None else 0
             face_count = len(mesh.faces) if mesh.faces is not None else 0
             mat_idx = mesh.material_index if hasattr(mesh, "material_index") else "N/A"
-            logger.debug(
-                f"Mesh {i}: {vert_count} vertices, {face_count} faces, material: {mat_idx}"
-            )
+            logger.debug(f"Mesh {i}: {vert_count} vertices, {face_count} faces, material: {mat_idx}")
 
         return model
 
@@ -132,9 +129,7 @@ def create_mesh_from_data(vertices: np.ndarray, faces: np.ndarray) -> pv.PolyDat
         else:
             # Convert to PyVista format: [n, v0, v1, v2, ...] for each face
             if faces.shape[1] < 3:
-                logger.error(
-                    f"Invalid face format: expected at least 3 vertices per face, got {faces.shape}"
-                )
+                logger.error(f"Invalid face format: expected at least 3 vertices per face, got {faces.shape}")
                 return None
 
             # Convert to triangles if needed
@@ -156,9 +151,7 @@ def create_mesh_from_data(vertices: np.ndarray, faces: np.ndarray) -> pv.PolyDat
             # Convert to PyVista format
             faces_pv = np.hstack(
                 [
-                    np.full(
-                        (faces.shape[0], 1), 3
-                    ),  # Number of vertices per face (3 for triangles)
+                    np.full((faces.shape[0], 1), 3),  # Number of vertices per face (3 for triangles)
                     faces.astype(np.int32),
                 ]
             ).flatten()
@@ -366,26 +359,16 @@ def visualize_vrm_model(model: VRMModel, show_bones: bool = True) -> None:
             tex = load_texture(texture.data, texture.mime_type)
             if tex is not None:
                 textures[tex_idx] = tex
-                logger.info(
-                    f"Loaded texture {tex_idx}: {texture.name} ({texture.width}x{texture.height})"
-                )
+                logger.info(f"Loaded texture {tex_idx}: {texture.name} ({texture.width}x{texture.height})")
 
     # Add each mesh to the plotter
     for i, mesh in enumerate(model.meshes):
-        if (
-            mesh.vertices is None
-            or len(mesh.vertices) == 0
-            or mesh.faces is None
-            or len(mesh.faces) == 0
-        ):
+        if mesh.vertices is None or len(mesh.vertices) == 0 or mesh.faces is None or len(mesh.faces) == 0:
             logger.warning(f"Skipping mesh {i}: No vertices or faces")
             continue
 
         try:
-            logger.debug(
-                f"Processing mesh {i} with {len(mesh.vertices)} vertices "
-                f"and {len(mesh.faces)} faces"
-            )
+            logger.debug(f"Processing mesh {i} with {len(mesh.vertices)} vertices and {len(mesh.faces)} faces")
 
             # Default material properties
             color = [0.8, 0.8, 0.8]  # Default gray

@@ -77,7 +77,7 @@ class EnhancedMCPTools(MCPTools):
                 "error": result.error,
             }
         except Exception as e:
-            logger.error(f"Error executing tool {tool_name}: {str(e)}", exc_info=True)
+            logger.error(f"Error executing tool {tool_name}: {e!s}", exc_info=True)
             return {"status": "error", "message": str(e)}
 
     # FastMCP 2.12+ compatibility

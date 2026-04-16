@@ -89,9 +89,7 @@ class WebSocketHandler(BaseHandler):
             self.active_connections[client_id] = client
 
             # Send connection established message
-            await self._send_to_client(
-                client, {"type": "connection_established", "client_id": client_id}
-            )
+            await self._send_to_client(client, {"type": "connection_established", "client_id": client_id})
 
             logger.info(f"New WebSocket connection: {client_id}")
 
@@ -103,11 +101,11 @@ class WebSocketHandler(BaseHandler):
                 except WebSocketDisconnect:
                     break
                 except Exception as e:
-                    logger.error(f"Error handling WebSocket message: {str(e)}", exc_info=True)
+                    logger.error(f"Error handling WebSocket message: {e!s}", exc_info=True)
                     await self._send_error(client, "internal_error", str(e))
 
         except Exception as e:
-            logger.error(f"WebSocket connection error: {str(e)}", exc_info=True)
+            logger.error(f"WebSocket connection error: {e!s}", exc_info=True)
 
         finally:
             await self._handle_disconnect(client_id)
@@ -130,7 +128,7 @@ class WebSocketHandler(BaseHandler):
                 try:
                     await client.websocket.close()
                 except Exception as e:
-                    logger.warning(f"Error closing WebSocket: {str(e)}")
+                    logger.warning(f"Error closing WebSocket: {e!s}")
 
             del self.active_connections[client_id]
             logger.info(f"WebSocket disconnected: {client_id}")
@@ -172,7 +170,7 @@ class WebSocketHandler(BaseHandler):
             if client.websocket.client_state == WebSocketState.CONNECTED:
                 await client.websocket.send_json(data)
         except Exception as e:
-            logger.error(f"Error sending message to client {client.id}: {str(e)}")
+            logger.error(f"Error sending message to client {client.id}: {e!s}")
 
     async def broadcast(self, data: dict[str, Any], topic: str = None) -> None:
         """Broadcast a message to all connected clients.
@@ -193,9 +191,7 @@ class WebSocketHandler(BaseHandler):
             error_type: Type of error
             message: Error message
         """
-        await self._send_to_client(
-            client, {"type": "error", "error": {"type": error_type, "message": message}}
-        )
+        await self._send_to_client(client, {"type": "error", "error": {"type": error_type, "message": message}})
 
     # Message Handlers
 
@@ -242,9 +238,7 @@ class WebSocketHandler(BaseHandler):
             try:
                 result = await handler(client, data.get("params", {}))
                 if result is not None:
-                    await self._send_to_client(
-                        client, {"type": "subscription_update", "topic": topic, "data": result}
-                    )
+                    await self._send_to_client(client, {"type": "subscription_update", "topic": topic, "data": result})
             except Exception as e:
                 await self._send_error(client, "subscription_error", str(e))
                 return
@@ -265,25 +259,18 @@ class WebSocketHandler(BaseHandler):
 
     async def _unsubscribe_client(self, client_id: str, topic: str) -> None:
         """Unsubscribe a client from a topic."""
-        if (
-            client_id in self.active_connections
-            and topic in self.active_connections[client_id].subscriptions
-        ):
+        if client_id in self.active_connections and topic in self.active_connections[client_id].subscriptions:
             self.active_connections[client_id].subscriptions.remove(topic)
 
             # Notify the client
             try:
-                await self._send_to_client(
-                    self.active_connections[client_id], {"type": "unsubscribed", "topic": topic}
-                )
+                await self._send_to_client(self.active_connections[client_id], {"type": "unsubscribed", "topic": topic})
             except Exception as e:
-                logger.warning(f"Error sending unsubscribed message: {str(e)}")
+                logger.warning(f"Error sending unsubscribed message: {e!s}")
 
     # Forwarding to other handlers
 
-    async def _forward_to_avatar_handler(
-        self, client: WebSocketClient, data: dict[str, Any]
-    ) -> None:
+    async def _forward_to_avatar_handler(self, client: WebSocketClient, data: dict[str, Any]) -> None:
         """Forward message to the avatar handler."""
         if not hasattr(self.server, "avatar_handler"):
             await self._send_error(client, "service_unavailable", "Avatar handler not available")
@@ -302,18 +289,12 @@ class WebSocketHandler(BaseHandler):
             response = await handler(data.get("params", {}))
 
             # Send the response back to the client
-            await self._send_to_client(
-                client, {"type": f"avatar/{command}_response", "data": response}
-            )
+            await self._send_to_client(client, {"type": f"avatar/{command}_response", "data": response})
 
         except Exception as e:
-            await self._send_error(
-                client, "handler_error", f"Error processing avatar command: {str(e)}"
-            )
+            await self._send_error(client, "handler_error", f"Error processing avatar command: {e!s}")
 
-    async def _forward_to_animation_handler(
-        self, client: WebSocketClient, data: dict[str, Any]
-    ) -> None:
+    async def _forward_to_animation_handler(self, client: WebSocketClient, data: dict[str, Any]) -> None:
         """Forward message to the animation handler."""
         if not hasattr(self.server, "animation_handler"):
             await self._send_error(client, "service_unavailable", "Animation handler not available")
@@ -324,9 +305,7 @@ class WebSocketHandler(BaseHandler):
         handler_name = f"handle_animation_{command}"
 
         if not hasattr(self.server.animation_handler, handler_name):
-            await self._send_error(
-                client, "invalid_request", f"Unknown animation command: {command}"
-            )
+            await self._send_error(client, "invalid_request", f"Unknown animation command: {command}")
             return
 
         try:
@@ -334,14 +313,10 @@ class WebSocketHandler(BaseHandler):
             response = await handler(data.get("params", {}))
 
             # Send the response back to the client
-            await self._send_to_client(
-                client, {"type": f"animation/{command}_response", "data": response}
-            )
+            await self._send_to_client(client, {"type": f"animation/{command}_response", "data": response})
 
         except Exception as e:
-            await self._send_error(
-                client, "handler_error", f"Error processing animation command: {str(e)}"
-            )
+            await self._send_error(client, "handler_error", f"Error processing animation command: {e!s}")
 
     # Public API
 
@@ -372,9 +347,7 @@ class WebSocketHandler(BaseHandler):
         """
         for client in self.active_connections.values():
             if topic in client.subscriptions:
-                await self._send_to_client(
-                    client, {"type": "subscription_update", "topic": topic, "data": data}
-                )
+                await self._send_to_client(client, {"type": "subscription_update", "topic": topic, "data": data})
 
     # Heartbeat and maintenance
 
@@ -388,17 +361,15 @@ class WebSocketHandler(BaseHandler):
                 current_time = asyncio.get_event_loop().time()
                 for client in list(self.active_connections.values()):
                     try:
-                        await self._send_to_client(
-                            client, {"type": "ping", "timestamp": current_time}
-                        )
+                        await self._send_to_client(client, {"type": "ping", "timestamp": current_time})
                     except Exception as e:
-                        logger.warning(f"Error sending heartbeat to {client.id}: {str(e)}")
+                        logger.warning(f"Error sending heartbeat to {client.id}: {e!s}")
 
         except asyncio.CancelledError:
             # Shutdown requested
             pass
         except Exception as e:
-            logger.error(f"Heartbeat task error: {str(e)}", exc_info=True)
+            logger.error(f"Heartbeat task error: {e!s}", exc_info=True)
 
     async def shutdown(self) -> None:
         """Clean up resources used by the handler."""

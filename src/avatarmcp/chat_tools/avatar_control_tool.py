@@ -162,9 +162,7 @@ class AvatarControlTool(ChatTool):
 
             elif action == "set_visibility":
                 if visible is None:
-                    return ToolResult.error(
-                        "visible parameter is required for set_visibility action"
-                    )
+                    return ToolResult.error("visible parameter is required for set_visibility action")
                 return ToolResult.success(
                     content={
                         "status": "visibility_updated",
@@ -206,7 +204,7 @@ class AvatarControlTool(ChatTool):
 
         except Exception as e:
             logger.error(f"Error in avatar control: {e}", exc_info=True)
-            return ToolResult.error(f"Failed to control avatar: {str(e)}")
+            return ToolResult.error(f"Failed to control avatar: {e!s}")
 
 
 # Example usage:

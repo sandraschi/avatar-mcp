@@ -53,9 +53,7 @@ async def mcp_main():
     """Run the MCP server for Claude desktop integration."""
     # Configure logging to file for debugging - DO NOT log to stderr in MCP mode
     log_level = logging.DEBUG if "--debug" in sys.argv else logging.INFO
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Set up logging to file only to avoid interfering with MCP protocol
@@ -77,7 +75,7 @@ async def mcp_main():
     except Exception as e:
         # Log errors to the file instead of stderr to avoid MCP protocol issues
         logger = logging.getLogger(__name__)
-        logger.error(f"Error in MCP server: {str(e)}", exc_info=True)
+        logger.error(f"Error in MCP server: {e!s}", exc_info=True)
         sys.exit(1)
 
 
@@ -98,20 +96,14 @@ def main():
     parser.add_argument("--vrc-osc-port", type=int, default=9000, help="VRChat OSC client port")
     parser.add_argument("--models-dir", help="Directory containing avatar models")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-    parser.add_argument(
-        "--mcp", action="store_true", help="Run in MCP mode (for Claude desktop integration)"
-    )
-    parser.add_argument(
-        "--stdio", action="store_true", help=argparse.SUPPRESS
-    )  # Hidden flag for MCP mode
+    parser.add_argument("--mcp", action="store_true", help="Run in MCP mode (for Claude desktop integration)")
+    parser.add_argument("--stdio", action="store_true", help=argparse.SUPPRESS)  # Hidden flag for MCP mode
 
     args = parser.parse_args()
 
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "avatarmcp.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "avatarmcp.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Set up logging to both file and stderr
@@ -180,10 +172,10 @@ if __name__ == "__main__":
         # If logging is configured, use it; otherwise fall back to stderr
         try:
             logger = logging.getLogger(__name__)
-            logger.error(f"Fatal error: {str(e)}", exc_info=True)
+            logger.error(f"Fatal error: {e!s}", exc_info=True)
         except Exception:
             import traceback
 
-            sys.stderr.write(f"Fatal error: {str(e)}\n")
+            sys.stderr.write(f"Fatal error: {e!s}\n")
             sys.stderr.write(traceback.format_exc() + "\n")
         sys.exit(1)

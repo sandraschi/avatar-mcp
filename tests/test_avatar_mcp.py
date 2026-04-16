@@ -103,9 +103,7 @@ class TestVRMModel(unittest.TestCase):
         mock_gltf.return_value.model.extensions = {
             "VRM": {
                 "meta": {"title": "Test Model", "version": "1.0", "author": "Tester"},
-                "humanoid": {
-                    "humanBones": [{"bone": "Hips", "node": 0}, {"bone": "Spine", "node": 1}]
-                },
+                "humanoid": {"humanBones": [{"bone": "Hips", "node": 0}, {"bone": "Spine", "node": 1}]},
                 "blendShapeMaster": {
                     "blendShapeGroups": [
                         {

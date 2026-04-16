@@ -211,9 +211,7 @@ class ChatTool(ABC):
                         try:
                             value = json.loads(value)
                         except json.JSONDecodeError:
-                            raise ToolError(
-                                f"Parameter {param.name} must be a valid JSON object"
-                            ) from None
+                            raise ToolError(f"Parameter {param.name} must be a valid JSON object") from None
                     else:
                         value = {}
             except (ValueError, TypeError) as e:
@@ -221,10 +219,7 @@ class ChatTool(ABC):
 
             # Enum validation
             if param.enum and value not in param.enum:
-                raise ToolError(
-                    f"Invalid value for {param.name}. Must be one of: "
-                    f"{', '.join(map(str, param.enum))}"
-                )
+                raise ToolError(f"Invalid value for {param.name}. Must be one of: {', '.join(map(str, param.enum))}")
 
             # Min/max validation for numbers
             if param.min_value is not None and value < param.min_value:
@@ -272,6 +267,4 @@ class ChatTool(ABC):
 
         except Exception as e:
             logger.exception(f"Unexpected error in tool {self.name}")
-            return ToolResult.error(
-                f"An unexpected error occurred: {str(e)}", code="internal_error"
-            )
+            return ToolResult.error(f"An unexpected error occurred: {e!s}", code="internal_error")

@@ -111,8 +111,8 @@ class AvatarManagerTool:
                     }
 
             except Exception as e:
-                logger.error(f"Avatar manager operation failed: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Avatar manager operation failed: {str(e)}"}
+                logger.error(f"Avatar manager operation failed: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Avatar manager operation failed: {e!s}"}
 
     def _handle_load(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar load operation."""
@@ -142,7 +142,7 @@ class AvatarManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to load avatar: {str(e)}"}
+            return {"status": "error", "message": f"Failed to load avatar: {e!s}"}
 
     def _handle_unload(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar unload operation."""
@@ -168,7 +168,7 @@ class AvatarManagerTool:
                 return {"status": "error", "message": f"Failed to unload avatar {avatar_id}"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to unload avatar: {str(e)}"}
+            return {"status": "error", "message": f"Failed to unload avatar: {e!s}"}
 
     def _handle_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle avatar list operation."""
@@ -187,7 +187,7 @@ class AvatarManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to list avatars: {str(e)}"}
+            return {"status": "error", "message": f"Failed to list avatars: {e!s}"}
 
     def _handle_set_active(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle set active avatar operation."""
@@ -213,7 +213,7 @@ class AvatarManagerTool:
                 return {"status": "error", "message": f"Failed to set active avatar to {avatar_id}"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to set active avatar: {str(e)}"}
+            return {"status": "error", "message": f"Failed to set active avatar: {e!s}"}
 
     def _handle_get_active(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle get active avatar operation."""
@@ -237,7 +237,7 @@ class AvatarManagerTool:
                 }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get active avatar: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get active avatar: {e!s}"}
 
     def _handle_get_metadata(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle get avatar metadata operation."""
@@ -267,4 +267,4 @@ class AvatarManagerTool:
                 return {"status": "error", "message": f"No metadata found for avatar {avatar_id}"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get avatar metadata: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get avatar metadata: {e!s}"}

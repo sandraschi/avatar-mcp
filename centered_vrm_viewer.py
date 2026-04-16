@@ -28,9 +28,7 @@ def create_centered_viewer():
         # Process just the face mesh for speed
         face_mesh = vrm_model.meshes[0]
         print(f"Rendering: {face_mesh.name}")
-        print(
-            f"Original bounds: Y {face_mesh.vertices[:, 1].min():.3f} to {face_mesh.vertices[:, 1].max():.3f}"
-        )
+        print(f"Original bounds: Y {face_mesh.vertices[:, 1].min():.3f} to {face_mesh.vertices[:, 1].max():.3f}")
 
         # CENTER the mesh by translating it to origin
         vertices = face_mesh.vertices.copy()
@@ -48,9 +46,7 @@ def create_centered_viewer():
         plotter.add_mesh(sphere, color="red", opacity=0.5, name="origin_ref")
 
         # Add VRM mesh
-        plotter.add_mesh(
-            vrm_mesh, color="lightblue", style="surface", show_edges=False, name="vrm_face"
-        )
+        plotter.add_mesh(vrm_mesh, color="lightblue", style="surface", show_edges=False, name="vrm_face")
 
         print("✅ Both meshes added and centered")
 

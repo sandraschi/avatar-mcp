@@ -164,9 +164,7 @@ class VRMModelManager:
         max_size = 50 * 1024 * 1024  # 50MB
         file_size = path.stat().st_size
         if file_size > max_size:
-            issues.append(
-                f"File too large: {file_size / 1024 / 1024:.2f}MB (max {max_size / 1024 / 1024}MB)"
-            )
+            issues.append(f"File too large: {file_size / 1024 / 1024:.2f}MB (max {max_size / 1024 / 1024}MB)")
 
         # TODO: Add more validation checks
         # - VRM version compatibility
@@ -259,7 +257,7 @@ class VRMModelManager:
 
         except Exception as e:
             logger.error(f"Failed to load VRM model: {e}", exc_info=True)
-            messages.append(f"Failed to load VRM model: {str(e)}")
+            messages.append(f"Failed to load VRM model: {e!s}")
             return None, messages
 
     def unload_model(self, file_path: str | Path) -> bool:
@@ -292,9 +290,7 @@ class VRMModelManager:
         """
         total_size = sum(entry.file_size for entry in self.cache.values())
         avg_load_time = (
-            self.stats["total_load_time"] / self.stats["total_loaded"]
-            if self.stats["total_loaded"] > 0
-            else 0
+            self.stats["total_load_time"] / self.stats["total_loaded"] if self.stats["total_loaded"] > 0 else 0
         )
 
         return {

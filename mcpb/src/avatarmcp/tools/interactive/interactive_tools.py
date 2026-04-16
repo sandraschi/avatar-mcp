@@ -190,9 +190,7 @@ class InteractiveTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send interactive_pose_control command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send interactive_pose_control command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -348,10 +346,7 @@ class InteractiveTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send interactive_gesture_recognize command to Unity "
-                        "desktop avatar"
-                    ),
+                    "message": ("Failed to send interactive_gesture_recognize command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -568,9 +563,7 @@ class InteractiveTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send interactive_feedback_system command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send interactive_feedback_system command to Unity desktop avatar"),
                 }
 
         @self.mcp_server.mcp.tool()
@@ -755,7 +748,5 @@ class InteractiveTools:
             else:
                 return {
                     "status": "error",
-                    "message": (
-                        "Failed to send interactive_scene_control command to Unity desktop avatar"
-                    ),
+                    "message": ("Failed to send interactive_scene_control command to Unity desktop avatar"),
                 }

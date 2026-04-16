@@ -99,9 +99,7 @@ def main():
     for feature_name, feature_info in features.items():
         all_available = all(
             check_dependency(pkg.split(">=")[0], imp)
-            for pkg, imp in zip(
-                feature_info["packages"], feature_info["test_imports"], strict=False
-            )
+            for pkg, imp in zip(feature_info["packages"], feature_info["test_imports"], strict=False)
         )
         available_features[feature_name] = all_available
 
@@ -110,9 +108,7 @@ def main():
         else:
             missing = [
                 pkg.split(">=")[0]
-                for pkg, imp in zip(
-                    feature_info["packages"], feature_info["test_imports"], strict=False
-                )
+                for pkg, imp in zip(feature_info["packages"], feature_info["test_imports"], strict=False)
                 if not check_dependency(pkg.split(">=")[0], imp)
             ]
             print_status(f"{feature_name}: Missing ({', '.join(missing)})", "warning")

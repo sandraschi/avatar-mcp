@@ -39,9 +39,7 @@ logger = logging.getLogger(__name__)
 def mcp_main() -> int:
     """Run the MCP server for Claude/Cursor (stdio). Uses canonical FastMCP 3.1 server."""
     log_level = logging.DEBUG if "--debug" in sys.argv else logging.INFO
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log")
     try:
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
     except OSError:
@@ -86,9 +84,7 @@ def main() -> int:
     args = parser.parse_args()
 
     log_level = logging.DEBUG if args.debug else logging.INFO
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "avatarmcp.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "avatarmcp.log")
     try:
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
     except OSError:
@@ -120,10 +116,10 @@ if __name__ == "__main__":
         # If logging is configured, use it; otherwise fall back to stderr
         try:
             logger = logging.getLogger(__name__)
-            logger.error(f"Fatal error: {str(e)}", exc_info=True)
+            logger.error(f"Fatal error: {e!s}", exc_info=True)
         except Exception:
             import traceback
 
-            sys.stderr.write(f"Fatal error: {str(e)}\n")
+            sys.stderr.write(f"Fatal error: {e!s}\n")
             sys.stderr.write(traceback.format_exc() + "\n")
         sys.exit(1)

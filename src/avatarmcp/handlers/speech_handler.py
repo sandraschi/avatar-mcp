@@ -151,7 +151,7 @@ class SpeechHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Error initializing audio devices: {str(e)}")
+            logger.error(f"Error initializing audio devices: {e!s}")
             self.state = SpeechState.ERROR
 
     async def _load_voices(self) -> None:
@@ -175,7 +175,7 @@ class SpeechHandler(BaseHandler):
             logger.info(f"Loaded {len(self._voices)} TTS voices")
 
         except Exception as e:
-            logger.error(f"Error loading TTS voices: {str(e)}")
+            logger.error(f"Error loading TTS voices: {e!s}")
 
     def _add_system_voices(self) -> None:
         """Add system-provided TTS voices."""
@@ -203,7 +203,7 @@ class SpeechHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.warning(f"Could not load system voices: {str(e)}")
+            logger.warning(f"Could not load system voices: {e!s}")
 
     async def start_listening(self) -> bool:
         """Start listening for speech input.
@@ -237,7 +237,7 @@ class SpeechHandler(BaseHandler):
 
         except Exception as e:
             self.state = SpeechState.ERROR
-            logger.error(f"Error starting speech recognition: {str(e)}")
+            logger.error(f"Error starting speech recognition: {e!s}")
             return False
 
     async def stop_listening(self) -> None:
@@ -302,7 +302,7 @@ class SpeechHandler(BaseHandler):
                             break
 
                     except Exception as e:
-                        logger.error(f"Error during speech recording: {str(e)}")
+                        logger.error(f"Error during speech recording: {e!s}")
                         break
 
                 # Stop listening
@@ -320,7 +320,7 @@ class SpeechHandler(BaseHandler):
         except Exception as e:
             self.state = SpeechState.ERROR
             result.error = str(e)
-            logger.error(f"Speech recognition error: {str(e)}", exc_info=True)
+            logger.error(f"Speech recognition error: {e!s}", exc_info=True)
             return result
 
         finally:
@@ -364,7 +364,7 @@ class SpeechHandler(BaseHandler):
             return result
 
         except Exception as e:
-            result.error = f"Error processing audio: {str(e)}"
+            result.error = f"Error processing audio: {e!s}"
             logger.error(result.error, exc_info=True)
             return result
 
@@ -384,7 +384,7 @@ class SpeechHandler(BaseHandler):
             logger.debug(f"Saved audio to {filepath}")
 
         except Exception as e:
-            logger.error(f"Error saving audio to {filepath}: {str(e)}")
+            logger.error(f"Error saving audio to {filepath}: {e!s}")
 
     async def speak(self, text: str, voice_id: str | None = None, **kwargs) -> dict[str, Any]:
         """Convert text to speech and optionally play it.
@@ -439,7 +439,7 @@ class SpeechHandler(BaseHandler):
 
         except Exception as e:
             self.state = SpeechState.ERROR
-            error_msg = f"Error generating speech: {str(e)}"
+            error_msg = f"Error generating speech: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"success": False, "error": error_msg}
 
@@ -479,14 +479,14 @@ class SpeechHandler(BaseHandler):
                     sd.play(audio_array, samplerate=self._sample_rate)
                     sd.wait()
                 except Exception as e:
-                    logger.error(f"Error playing audio: {str(e)}")
+                    logger.error(f"Error playing audio: {e!s}")
 
             # Run in a thread to avoid blocking
             loop = asyncio.get_running_loop()
             await loop.run_in_executor(None, play)
 
         except Exception as e:
-            logger.error(f"Error in audio playback: {str(e)}", exc_info=True)
+            logger.error(f"Error in audio playback: {e!s}", exc_info=True)
 
     async def _process_audio_queue(self) -> None:
         """Process audio data from the queue (for streaming recognition)."""
@@ -506,7 +506,7 @@ class SpeechHandler(BaseHandler):
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Error in audio processing: {str(e)}", exc_info=True)
+                logger.error(f"Error in audio processing: {e!s}", exc_info=True)
                 await asyncio.sleep(0.1)  # Prevent tight loop on errors
 
     async def get_voices(self) -> list[dict[str, Any]]:
@@ -567,7 +567,7 @@ class SpeechHandler(BaseHandler):
                 self._audio_stream.stop()
                 self._audio_stream.close()
             except Exception as e:
-                logger.error(f"Error closing audio stream: {str(e)}")
+                logger.error(f"Error closing audio stream: {e!s}")
             self._audio_stream = None
 
         logger.info("Speech handler shutdown complete")
@@ -582,9 +582,7 @@ def resample_audio(audio_data: np.ndarray, orig_sr: int, target_sr: int) -> np.n
     # Simple linear resampling (in a real implementation, use a proper resampling library)
     duration = len(audio_data) / orig_sr
     target_length = int(duration * target_sr)
-    return np.interp(
-        np.linspace(0, len(audio_data) - 1, target_length), np.arange(len(audio_data)), audio_data
-    )
+    return np.interp(np.linspace(0, len(audio_data) - 1, target_length), np.arange(len(audio_data)), audio_data)
 
 
 def normalize_audio(audio_data: np.ndarray) -> np.ndarray:

@@ -26,10 +26,7 @@ class AnimationControlTool(ChatTool):
 
     @property
     def description(self) -> str:
-        return (
-            "Control avatar animations, including playing, stopping, "
-            "and blending between animations."
-        )
+        return "Control avatar animations, including playing, stopping, and blending between animations."
 
     @property
     def parameters(self) -> list[ToolParameter]:
@@ -149,14 +146,10 @@ class AnimationControlTool(ChatTool):
                 )
 
             elif action == "pause":
-                return ToolResult.success(
-                    content={"status": "paused", "message": "Paused current animation"}
-                )
+                return ToolResult.success(content={"status": "paused", "message": "Paused current animation"})
 
             elif action == "resume":
-                return ToolResult.success(
-                    content={"status": "resumed", "message": "Resumed current animation"}
-                )
+                return ToolResult.success(content={"status": "resumed", "message": "Resumed current animation"})
 
             elif action == "blend":
                 if not animation_name:
@@ -178,7 +171,7 @@ class AnimationControlTool(ChatTool):
 
         except Exception as e:
             logger.error(f"Error in animation control: {e}", exc_info=True)
-            return ToolResult.error(f"Failed to control animation: {str(e)}")
+            return ToolResult.error(f"Failed to control animation: {e!s}")
 
 
 # Example usage:

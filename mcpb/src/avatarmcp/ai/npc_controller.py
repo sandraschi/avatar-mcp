@@ -68,13 +68,9 @@ class AINPC:
             self.config = {"speech": {}, "vision": {}, "osc": {}}
 
         # Initialize components with provided configs or defaults
-        self.speech = SpeechProcessor(
-            speech_config or SpeechConfig(**self.config.get("speech", {}))
-        )
+        self.speech = SpeechProcessor(speech_config or SpeechConfig(**self.config.get("speech", {})))
 
-        self.vision = VisionProcessor(
-            vision_config or VisionConfig(**self.config.get("vision", {}))
-        )
+        self.vision = VisionProcessor(vision_config or VisionConfig(**self.config.get("vision", {})))
 
         # Initialize OSC controller for VRChat
         osc_config = osc_config or self.config.get("osc", {})
@@ -230,9 +226,7 @@ class AINPC:
             response = self._generate_response(last_message["content"])
 
             # Add response to conversation history
-            self.conversation_history.append(
-                {"role": "assistant", "content": response, "timestamp": time.time()}
-            )
+            self.conversation_history.append({"role": "assistant", "content": response, "timestamp": time.time()})
 
             # Transition to speaking state
             self._set_state(NPCState.SPEAKING)
@@ -247,9 +241,7 @@ class AINPC:
             return
 
         # Get the last assistant message
-        last_message = next(
-            (msg for msg in reversed(self.conversation_history) if msg["role"] == "assistant"), None
-        )
+        last_message = next((msg for msg in reversed(self.conversation_history) if msg["role"] == "assistant"), None)
 
         if last_message:
             # Animate the avatar for speaking
@@ -384,9 +376,7 @@ class AINPC:
         logger.info(f"Detected speech: {text}")
 
         # Add to conversation history
-        self.conversation_history.append(
-            {"role": "user", "content": text, "timestamp": time.time()}
-        )
+        self.conversation_history.append({"role": "user", "content": text, "timestamp": time.time()})
 
         # Keep only the most recent messages
         if len(self.conversation_history) > self.max_history * 2:  # *2 for user/assistant pairs
@@ -431,9 +421,7 @@ if __name__ == "__main__":
     import logging
 
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     async def main():
         # Create and start the AI NPC

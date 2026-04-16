@@ -147,9 +147,7 @@ class PluginManager:
                 continue
 
             for entry in os.scandir(plugin_dir):
-                if not entry.is_dir() and not (
-                    entry.name.endswith(".py") and entry.name != "__init__.py"
-                ):
+                if not entry.is_dir() and not (entry.name.endswith(".py") and entry.name != "__init__.py"):
                     continue
 
                 plugin_path = Path(entry.path)
@@ -180,7 +178,7 @@ class PluginManager:
                     logger.info(f"Discovered plugin: {plugin_name} v{metadata.version}")
 
                 except Exception as e:
-                    logger.error(f"Error discovering plugin {plugin_name}: {str(e)}")
+                    logger.error(f"Error discovering plugin {plugin_name}: {e!s}")
                     continue
 
         return discovered
@@ -205,7 +203,7 @@ class PluginManager:
                         data = json.load(f)
                         return PluginMetadata.from_dict(data)
                 except (json.JSONDecodeError, KeyError) as e:
-                    logger.error(f"Invalid plugin.json in {plugin_path}: {str(e)}")
+                    logger.error(f"Invalid plugin.json in {plugin_path}: {e!s}")
                     return None
             elif init_file.exists():
                 plugin_path = init_file
@@ -231,12 +229,10 @@ class PluginManager:
             author = getattr(module, "__author__", "Unknown")
             description = getattr(module, "__doc__", "").strip() or "No description provided."
 
-            return PluginMetadata(
-                name=name, version=version, author=author, description=description
-            )
+            return PluginMetadata(name=name, version=version, author=author, description=description)
 
         except Exception as e:
-            logger.error(f"Error loading plugin metadata from {plugin_path}: {str(e)}")
+            logger.error(f"Error loading plugin metadata from {plugin_path}: {e!s}")
             return None
 
     def load_plugin(self, plugin_name: str, force_reload: bool = False) -> bool:
@@ -276,9 +272,7 @@ class PluginManager:
 
         # Check for conflicts
         for other_name, other_plugin in self.plugins.items():
-            if other_plugin.is_loaded and plugin_name in (
-                other_plugin.metadata.get("conflicts") or []
-            ):
+            if other_plugin.is_loaded and plugin_name in (other_plugin.metadata.get("conflicts") or []):
                 logger.error(f"Plugin {plugin_name} conflicts with loaded plugin {other_name}")
                 return False
 
@@ -301,17 +295,13 @@ class PluginManager:
             if hasattr(module, "Plugin"):
                 plugin_class = module.Plugin
                 if not inspect.isclass(plugin_class):
-                    logger.error(
-                        f"Plugin {plugin_name} has an invalid Plugin attribute (not a class)"
-                    )
+                    logger.error(f"Plugin {plugin_name} has an invalid Plugin attribute (not a class)")
                     return False
 
                 try:
                     plugin_instance = plugin_class()
                 except Exception as e:
-                    logger.error(
-                        f"Error instantiating plugin {plugin_name}: {str(e)}", exc_info=True
-                    )
+                    logger.error(f"Error instantiating plugin {plugin_name}: {e!s}", exc_info=True)
                     return False
 
             # Update plugin info
@@ -326,7 +316,7 @@ class PluginManager:
             return True
 
         except Exception as e:
-            logger.error(f"Error loading plugin {plugin_name}: {str(e)}", exc_info=True)
+            logger.error(f"Error loading plugin {plugin_name}: {e!s}", exc_info=True)
             return False
 
     def _load_package_plugin(self, plugin_dir: Path, plugin_name: str) -> ModuleType | None:
@@ -346,7 +336,7 @@ class PluginManager:
             importlib.reload(module)  # Ensure we're loading fresh
             return module
         except ImportError as e:
-            logger.error(f"Error importing plugin package {plugin_name}: {str(e)}")
+            logger.error(f"Error importing plugin package {plugin_name}: {e!s}")
             return None
 
     def _load_module_plugin(self, plugin_path: Path, plugin_name: str) -> ModuleType | None:
@@ -365,7 +355,7 @@ class PluginManager:
 
             return module
         except Exception as e:
-            logger.error(f"Error loading plugin module {plugin_name}: {str(e)}", exc_info=True)
+            logger.error(f"Error loading plugin module {plugin_name}: {e!s}", exc_info=True)
             return None
 
     def _register_event_handlers(self, plugin_name: str, plugin_instance: Any) -> None:
@@ -384,9 +374,7 @@ class PluginManager:
                 if event_name not in self._event_handlers:
                     self._event_handlers[event_name] = []
                 self._event_handlers[event_name].append(handler)
-                logger.debug(
-                    f"Registered event handler: {plugin_name}.{attr_name} for event '{event_name}'"
-                )
+                logger.debug(f"Registered event handler: {plugin_name}.{attr_name} for event '{event_name}'")
 
     def unload_plugin(self, plugin_name: str) -> bool:
         """Unload a plugin.
@@ -404,15 +392,12 @@ class PluginManager:
 
         # Check if other plugins depend on this one
         dependent_plugins = [
-            name
-            for name, plugin in self.plugins.items()
-            if plugin_name in plugin.dependencies and plugin.is_loaded
+            name for name, plugin in self.plugins.items() if plugin_name in plugin.dependencies and plugin.is_loaded
         ]
 
         if dependent_plugins:
             logger.error(
-                f"Cannot unload {plugin_name}: the following plugins depend on it: "
-                f"{', '.join(dependent_plugins)}"
+                f"Cannot unload {plugin_name}: the following plugins depend on it: {', '.join(dependent_plugins)}"
             )
             return False
 
@@ -422,9 +407,7 @@ class PluginManager:
                 try:
                     plugin_info.instance.cleanup()
                 except Exception as e:
-                    logger.error(
-                        f"Error during plugin cleanup for {plugin_name}: {str(e)}", exc_info=True
-                    )
+                    logger.error(f"Error during plugin cleanup for {plugin_name}: {e!s}", exc_info=True)
 
             # Remove event handlers
             self._unregister_event_handlers(plugin_name)
@@ -442,16 +425,14 @@ class PluginManager:
             return True
 
         except Exception as e:
-            logger.error(f"Error unloading plugin {plugin_name}: {str(e)}", exc_info=True)
+            logger.error(f"Error unloading plugin {plugin_name}: {e!s}", exc_info=True)
             return False
 
     def _unregister_event_handlers(self, plugin_name: str) -> None:
         """Unregister all event handlers for a plugin."""
         for event_name, handlers in list(self._event_handlers.items()):
             self._event_handlers[event_name] = [
-                h
-                for h in handlers
-                if not (hasattr(h, "__self__") and h.__self__.__class__.__name__ == plugin_name)
+                h for h in handlers if not (hasattr(h, "__self__") and h.__self__.__class__.__name__ == plugin_name)
             ]
 
             if not self._event_handlers[event_name]:
@@ -506,7 +487,7 @@ class PluginManager:
             try:
                 handler(*args, **kwargs)
             except Exception as e:
-                logger.error(f"Error in event handler for '{event_name}': {str(e)}", exc_info=True)
+                logger.error(f"Error in event handler for '{event_name}': {e!s}", exc_info=True)
 
     def get_plugin(self, plugin_name: str) -> PluginInfo | None:
         """Get information about a plugin.
@@ -564,9 +545,7 @@ class PluginManager:
                     plugin = self.plugins[plugin_name]
                     missing_deps = [dep for dep in plugin.dependencies if dep not in loaded]
                     if missing_deps:
-                        logger.error(
-                            f"  {plugin_name}: missing dependencies: {', '.join(missing_deps)}"
-                        )
+                        logger.error(f"  {plugin_name}: missing dependencies: {', '.join(missing_deps)}")
                 break
 
     def unload_all_plugins(self) -> None:
@@ -632,9 +611,7 @@ class PluginHandler(BaseHandler):
             self.plugin_manager.load_all_plugins()
 
             # Log loaded plugins
-            loaded_plugins = [
-                name for name, plugin in self.plugin_manager.plugins.items() if plugin.is_loaded
-            ]
+            loaded_plugins = [name for name, plugin in self.plugin_manager.plugins.items() if plugin.is_loaded]
 
             if loaded_plugins:
                 logger.info(f"Loaded plugins: {', '.join(loaded_plugins)}")
@@ -642,7 +619,7 @@ class PluginHandler(BaseHandler):
                 logger.info("No plugins loaded")
 
         except Exception as e:
-            logger.error(f"Error loading plugins: {str(e)}", exc_info=True)
+            logger.error(f"Error loading plugins: {e!s}", exc_info=True)
 
     async def unload_plugins(self) -> None:
         """Unload all plugins."""

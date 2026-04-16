@@ -50,9 +50,7 @@ async def test_animation():
     # Create and play test animation
     create_test_animation()
     print("Playing test animation...")
-    viewer.play_animation(
-        "test_model" if os.path.exists(test_model_path) else "test_cube", "bounce"
-    )
+    viewer.play_animation("test_model" if os.path.exists(test_model_path) else "test_cube", "bounce")
 
     # Keep the viewer open for 10 seconds
     print("Animation will run for 10 seconds...")

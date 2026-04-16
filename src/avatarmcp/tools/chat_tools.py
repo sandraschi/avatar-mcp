@@ -113,8 +113,8 @@ class ChatTool:
             else:
                 return {"error": f"Unknown tool: {tool_name}"}
         except Exception as e:
-            logger.error(f"Error executing chat tool {tool_name}: {str(e)}", exc_info=True)
-            return {"error": f"Error executing tool: {str(e)}"}
+            logger.error(f"Error executing chat tool {tool_name}: {e!s}", exc_info=True)
+            return {"error": f"Error executing tool: {e!s}"}
 
     async def _start_chat(
         self,

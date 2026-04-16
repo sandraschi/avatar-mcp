@@ -29,9 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from avatarmcp.models.vrm_loader import VRMLoader
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -98,9 +96,7 @@ class DesktopAvatarViewer:
                 return
 
             logger.info(f"Loading avatar: {vrm_path}")
-            await asyncio.get_event_loop().run_in_executor(
-                None, self._load_and_display_avatar, vrm_path
-            )
+            await asyncio.get_event_loop().run_in_executor(None, self._load_and_display_avatar, vrm_path)
         except Exception as e:
             logger.error(f"Failed to load avatar: {e}")
 
@@ -168,9 +164,7 @@ class DesktopAvatarViewer:
         """Handle avatar export OSC message."""
         try:
             export_path = args[0] if args else "exported_avatar.png"
-            await asyncio.get_event_loop().run_in_executor(
-                None, self._export_current_view, export_path
-            )
+            await asyncio.get_event_loop().run_in_executor(None, self._export_current_view, export_path)
             logger.info(f"Exported avatar to: {export_path}")
         except Exception as e:
             logger.error(f"Failed to export avatar: {e}")
@@ -587,9 +581,7 @@ class DesktopAvatarViewer:
         self.ax.set_xlabel("X (Right)")
         self.ax.set_ylabel("Y (Up)")
         self.ax.set_zlabel("Z (Forward)")
-        self.ax.set_title(
-            f"AvatarMCP Desktop Viewer - {os.path.basename(self.current_vrm_path or 'No Avatar')}"
-        )
+        self.ax.set_title(f"AvatarMCP Desktop Viewer - {os.path.basename(self.current_vrm_path or 'No Avatar')}")
 
         # Set equal aspect ratio and proper limits
         if self.vrm_model and hasattr(self.vrm_model, "meshes"):

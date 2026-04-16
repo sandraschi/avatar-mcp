@@ -197,9 +197,7 @@ def register_help_command(mcp_instance):
     """Register the help command with an MCP instance."""
 
     @mcp_instance.tool()
-    @mcp_help.command(
-        name="help", description="Show help for commands", examples=["help()", "help('load_vrm')"]
-    )
+    @mcp_help.command(name="help", description="Show help for commands", examples=["help()", "help('load_vrm')"])
     def help_command(command: str = "") -> dict[str, Any]:
         """Show help for commands.
 
@@ -221,7 +219,7 @@ def register_help_command(mcp_instance):
         except Exception as e:
             return {
                 "status": "error",
-                "error": f"Failed to get help: {str(e)}",
+                "error": f"Failed to get help: {e!s}",
                 "command": command if command else None,
             }
 

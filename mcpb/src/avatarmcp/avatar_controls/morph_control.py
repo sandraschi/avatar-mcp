@@ -117,7 +117,7 @@ class MorphControlTool(AvatarControlBase, ChatTool):
             )
 
         except Exception as e:
-            logger.error(f"Morph target update failed: {str(e)}", exc_info=True)
+            logger.error(f"Morph target update failed: {e!s}", exc_info=True)
             return ControlResult.error("Failed to update morph targets", str(e))
 
     # FastMCP 2.12 compatibility

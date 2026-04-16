@@ -22,6 +22,7 @@ from avatarmcp.metrics import MetricsCollector
 from avatarmcp.models.vrm_manager import VRMManager
 from avatarmcp.models.vrm_model import VRMModel
 from avatarmcp.tools.chat_tools import ChatTool
+
 # Portmanteau-only: core tools (CoreAvatarTools, CoreSystemTools, CoreUnityIntegrationTools)
 # are not registered; use system_monitor(operation="initialize"|"shutdown") and portmanteau tools.
 
@@ -83,16 +84,11 @@ class OSCManager:
                 self.dispatcher,
                 loop=asyncio.get_running_loop(),
             )
-            self.osc_client = SimpleUDPClient(
-                self.osc_config.client_address, self.osc_config.client_port
-            )
+            self.osc_client = SimpleUDPClient(self.osc_config.client_address, self.osc_config.client_port)
 
             self.dispatcher.map("/*", self._handle_osc_message)
             self.initialized = True
-            logger.info(
-                f"OSC server initialized on {self.osc_config.server_address}:"
-                f"{self.osc_config.server_port}"
-            )
+            logger.info(f"OSC server initialized on {self.osc_config.server_address}:{self.osc_config.server_port}")
         except Exception as e:
             logger.error(f"Failed to initialize OSC server: {e}")
             self.enabled = False

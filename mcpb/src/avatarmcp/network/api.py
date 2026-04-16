@@ -61,9 +61,7 @@ class AvatarAPI:
     Main API class for AvatarMCP, providing RESTful and WebSocket interfaces.
     """
 
-    def __init__(
-        self, model_manager: VRMModelManager | None = None, service: AvatarService | None = None
-    ):
+    def __init__(self, model_manager: VRMModelManager | None = None, service: AvatarService | None = None):
         """Initialize the API with optional model manager and service instances."""
         self.model_manager = model_manager or VRMModelManager()
         self.service = service or AvatarService()
@@ -103,9 +101,7 @@ class AvatarAPI:
         return app
 
     @web.middleware
-    async def _error_middleware(
-        self, request: aiohttp.web.Request, handler: RequestHandler
-    ) -> aiohttp.web.Response:
+    async def _error_middleware(self, request: aiohttp.web.Request, handler: RequestHandler) -> aiohttp.web.Response:
         """Middleware for handling exceptions and formatting error responses."""
         try:
             return await handler(request)
@@ -117,9 +113,7 @@ class AvatarAPI:
             return web.json_response(error.to_dict(), status=error.status)
 
     @web.middleware
-    async def _logging_middleware(
-        self, request: aiohttp.web.Request, handler: RequestHandler
-    ) -> aiohttp.web.Response:
+    async def _logging_middleware(self, request: aiohttp.web.Request, handler: RequestHandler) -> aiohttp.web.Response:
         """Middleware for request logging."""
         start_time = time.time()
         logger.info(f"Request: {request.method} {request.path}")
@@ -127,14 +121,11 @@ class AvatarAPI:
         try:
             response = await handler(request)
             process_time = time.time() - start_time
-            logger.info(
-                f"Response: {request.method} {request.path} -> {response.status} "
-                f"({process_time:.3f}s)"
-            )
+            logger.info(f"Response: {request.method} {request.path} -> {response.status} ({process_time:.3f}s)")
             return response
         except Exception as e:
             process_time = time.time() - start_time
-            logger.error(f"Error in {request.path}: {str(e)} ({process_time:.3f}s)")
+            logger.error(f"Error in {request.path}: {e!s} ({process_time:.3f}s)")
             raise
 
     def _setup_routes(self) -> None:
@@ -161,9 +152,7 @@ class AvatarAPI:
         # Animation control
         self.app.router.add_route("POST", "/api/v1/avatars/{avatar_id}/play", self.play_animation)
         self.app.router.add_route("POST", "/api/v1/avatars/{avatar_id}/stop", self.stop_animation)
-        self.app.router.add_route(
-            "POST", "/api/v1/avatars/{avatar_id}/blend-shape", self.set_blend_shape
-        )
+        self.app.router.add_route("POST", "/api/v1/avatars/{avatar_id}/blend-shape", self.set_blend_shape)
 
         # WebSocket for real-time updates
         self.app.router.add_route("GET", "/ws", self.websocket_handler)
@@ -200,9 +189,7 @@ class AvatarAPI:
                 }
             )
 
-        return web.json_response(
-            {"status": "success", "data": {"models": models, "count": len(models)}}
-        )
+        return web.json_response({"status": "success", "data": {"models": models, "count": len(models)}})
 
     async def upload_model(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """Upload and load a new VRM model."""
@@ -243,8 +230,8 @@ class AvatarAPI:
                 }
             )
         except Exception as e:
-            logger.error(f"Failed to load model: {str(e)}")
-            raise APIError(f"Failed to load model: {str(e)}", status=500) from e
+            logger.error(f"Failed to load model: {e!s}")
+            raise APIError(f"Failed to load model: {e!s}", status=500) from e
 
     async def get_model(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """Get details about a specific model."""
@@ -381,12 +368,8 @@ class AvatarAPI:
                     "scale": avatar.scale,
                     "blend_shapes": avatar.blend_shapes,
                     "animation": anim_state,
-                    "created_at": avatar.created_at.isoformat()
-                    if hasattr(avatar, "created_at")
-                    else None,
-                    "updated_at": avatar.updated_at.isoformat()
-                    if hasattr(avatar, "updated_at")
-                    else None,
+                    "created_at": avatar.created_at.isoformat() if hasattr(avatar, "created_at") else None,
+                    "updated_at": avatar.updated_at.isoformat() if hasattr(avatar, "updated_at") else None,
                 },
             }
         )
@@ -487,9 +470,7 @@ class AvatarAPI:
         anim_controller = self.animation_controllers[avatar_id]
         anim_controller.stop_all_animations()
 
-        return web.json_response(
-            {"status": "success", "data": {"avatar_id": avatar_id, "stopped": True}}
-        )
+        return web.json_response({"status": "success", "data": {"avatar_id": avatar_id, "stopped": True}})
 
     async def set_blend_shape(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """Set a blend shape value on an avatar."""
@@ -536,7 +517,7 @@ class AvatarAPI:
                     except json.JSONDecodeError:
                         await ws.send_json({"type": "error", "error": "Invalid JSON"})
                     except Exception as e:
-                        logger.error(f"Error processing WebSocket message: {str(e)}")
+                        logger.error(f"Error processing WebSocket message: {e!s}")
                         await ws.send_json({"type": "error", "error": str(e)})
                 elif msg.type == WSMsgType.ERROR:
                     logger.error(f"WebSocket error: {ws.exception()}")
@@ -565,16 +546,12 @@ class AvatarAPI:
     async def _handle_subscription(self, ws: web.WebSocketResponse, data: dict) -> None:
         """Handle subscription requests."""
         # TODO: Implement subscription logic
-        await ws.send_json(
-            {"type": "subscribed", "data": {"message": "Subscription not yet implemented"}}
-        )
+        await ws.send_json({"type": "subscribed", "data": {"message": "Subscription not yet implemented"}})
 
     async def _handle_unsubscription(self, ws: web.WebSocketResponse, data: dict) -> None:
         """Handle unsubscription requests."""
         # TODO: Implement unsubscription logic
-        await ws.send_json(
-            {"type": "unsubscribed", "data": {"message": "Unsubscription not yet implemented"}}
-        )
+        await ws.send_json({"type": "unsubscribed", "data": {"message": "Unsubscription not yet implemented"}})
 
     async def _handle_command(self, ws: web.WebSocketResponse, data: dict) -> None:
         """Handle command execution requests."""

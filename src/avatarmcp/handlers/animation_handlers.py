@@ -103,7 +103,7 @@ class AnimationHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to play animation: {str(e)}", exc_info=True)
+            logger.error(f"Failed to play animation: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_animation_stop(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -131,14 +131,10 @@ class AnimationHandler(BaseHandler):
             model = avatar_handler.loaded_models.get(model_id)
 
             if not model:
-                return self._create_success_response(
-                    message="Active model not found", was_playing=False
-                )
+                return self._create_success_response(message="Active model not found", was_playing=False)
 
             blend_time = float(params.get("blend_time", 0.2))
-            was_playing = await self.animation_controller.stop_animation(
-                model=model, blend_time=blend_time
-            )
+            was_playing = await self.animation_controller.stop_animation(model=model, blend_time=blend_time)
 
             # Clear active animation
             if was_playing and model_id in self.active_animations:
@@ -151,7 +147,7 @@ class AnimationHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to stop animation: {str(e)}", exc_info=True)
+            logger.error(f"Failed to stop animation: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_animation_list(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -193,7 +189,7 @@ class AnimationHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to list animations: {str(e)}", exc_info=True)
+            logger.error(f"Failed to list animations: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def handle_animation_get_state(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -219,9 +215,7 @@ class AnimationHandler(BaseHandler):
             model_id = avatar_handler.active_model_id
 
             if model_id not in self.active_animations:
-                return self._create_success_response(
-                    active=False, message="No active animation", model_id=model_id
-                )
+                return self._create_success_response(active=False, message="No active animation", model_id=model_id)
 
             animation_info = self.active_animations[model_id]
 
@@ -234,7 +228,7 @@ class AnimationHandler(BaseHandler):
             )
 
         except Exception as e:
-            logger.error(f"Failed to get animation state: {str(e)}", exc_info=True)
+            logger.error(f"Failed to get animation state: {e!s}", exc_info=True)
             return self._create_error_response(str(e))
 
     async def shutdown(self) -> None:
@@ -248,7 +242,7 @@ class AnimationHandler(BaseHandler):
                         model = avatar_handler.loaded_models[model_id]
                         await self.animation_controller.stop_animation(model)
             except Exception as e:
-                logger.error(f"Error stopping animation for model {model_id}: {str(e)}")
+                logger.error(f"Error stopping animation for model {model_id}: {e!s}")
 
         self.active_animations.clear()
         self.initialized = False

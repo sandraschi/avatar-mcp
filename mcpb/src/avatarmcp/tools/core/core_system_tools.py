@@ -93,8 +93,8 @@ class CoreSystemTools:
                 return status
 
             except Exception as e:
-                logger.error(f"Failed to get system status: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to get system status: {str(e)}"}
+                logger.error(f"Failed to get system status: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to get system status: {e!s}"}
 
     def _get_memory_usage(self) -> dict[str, Any]:
         """Get memory usage information."""
@@ -130,9 +130,7 @@ class CoreSystemTools:
             return {
                 "cpu_percent": psutil.cpu_percent(),
                 "load_average": psutil.getloadavg() if hasattr(psutil, "getloadavg") else None,
-                "disk_usage": psutil.disk_usage("/").percent
-                if hasattr(psutil, "disk_usage")
-                else None,
+                "disk_usage": psutil.disk_usage("/").percent if hasattr(psutil, "disk_usage") else None,
             }
         except ImportError:
             return {"error": "psutil not available"}

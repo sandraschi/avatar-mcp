@@ -37,9 +37,7 @@ class UnityConfigManagerTool:
         """Get the path to Unity configuration file."""
         # Look for Unity config in common locations
         config_paths = [
-            os.path.join(
-                os.getcwd(), "unity-desktop-avatar", "Assets", "Resources", "Config", "config.json"
-            ),
+            os.path.join(os.getcwd(), "unity-desktop-avatar", "Assets", "Resources", "Config", "config.json"),
             os.path.join(os.getcwd(), "config", "unity_config.json"),
             os.path.join(os.getcwd(), "unity_config.json"),
         ]
@@ -175,10 +173,10 @@ class UnityConfigManagerTool:
                     }
 
             except Exception as e:
-                logger.error(f"Unity config manager operation failed: {str(e)}", exc_info=True)
+                logger.error(f"Unity config manager operation failed: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Unity config manager operation failed: {str(e)}",
+                    "message": f"Unity config manager operation failed: {e!s}",
                 }
 
     def _handle_get_config(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -207,7 +205,7 @@ class UnityConfigManagerTool:
                 }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to get Unity config: {str(e)}"}
+            return {"status": "error", "message": f"Failed to get Unity config: {e!s}"}
 
     def _handle_update_config(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity configuration update operation."""
@@ -235,7 +233,7 @@ class UnityConfigManagerTool:
                 return {"status": "error", "message": "Failed to save Unity configuration"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to update Unity config: {str(e)}"}
+            return {"status": "error", "message": f"Failed to update Unity config: {e!s}"}
 
     def _handle_osc_bridge(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle OSC bridge configuration operation."""
@@ -278,7 +276,7 @@ class UnityConfigManagerTool:
                 return {"status": "error", "message": "Failed to save OSC bridge configuration"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to configure OSC bridge: {str(e)}"}
+            return {"status": "error", "message": f"Failed to configure OSC bridge: {e!s}"}
 
     def _handle_plugin_load(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity plugin loading operation."""
@@ -311,7 +309,7 @@ class UnityConfigManagerTool:
                 return {"status": "error", "message": "Failed to send Unity plugin load command"}
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to load Unity plugin: {str(e)}"}
+            return {"status": "error", "message": f"Failed to load Unity plugin: {e!s}"}
 
     def _handle_plugin_list(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle Unity plugin listing operation."""
@@ -345,4 +343,4 @@ class UnityConfigManagerTool:
             }
 
         except Exception as e:
-            return {"status": "error", "message": f"Failed to list Unity plugins: {str(e)}"}
+            return {"status": "error", "message": f"Failed to list Unity plugins: {e!s}"}

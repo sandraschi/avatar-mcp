@@ -67,9 +67,7 @@ class VRMViewer:
             # For now, we'll use a simple sphere as a placeholder
             # In a real implementation, you would load the VRM file here
             mesh = pv.Sphere()
-            self.models[model_id] = self.plotter.add_mesh(
-                mesh, color="lightblue", name=model_id, show_edges=True
-            )
+            self.models[model_id] = self.plotter.add_mesh(mesh, color="lightblue", name=model_id, show_edges=True)
             self.plotter.reset_camera()
             return True
 
@@ -184,9 +182,7 @@ class VRMViewer:
                             animation_data.update(self.animation_time)
 
                         # Update blend shapes if any
-                        if hasattr(animation_data, "blend_shapes") and hasattr(
-                            actor, "set_blend_shape_weight"
-                        ):
+                        if hasattr(animation_data, "blend_shapes") and hasattr(actor, "set_blend_shape_weight"):
                             for shape_name, weight_curve in animation_data.blend_shapes.items():
                                 weight = weight_curve.evaluate(self.animation_time)
                                 actor.set_blend_shape_weight(shape_name, weight)

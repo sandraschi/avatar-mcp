@@ -18,9 +18,7 @@ import sys
 import time
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -82,9 +80,7 @@ def test_vrm_loading():
         print("VRM loaded successfully")
         print(f"   Meshes: {len(vrm_model.meshes)}")
         print(f"   Bones: {len(vrm_model.bones) if hasattr(vrm_model, 'bones') else 'N/A'}")
-        print(
-            f"   Expressions: {len(vrm_model.expressions) if hasattr(vrm_model, 'expressions') else 'N/A'}"
-        )
+        print(f"   Expressions: {len(vrm_model.expressions) if hasattr(vrm_model, 'expressions') else 'N/A'}")
 
         return True
 

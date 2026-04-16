@@ -10,9 +10,7 @@ import asyncio
 import logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -72,10 +70,7 @@ async def demo_resonite_integration():
         {
             "tool": "bone_control",
             "description": "Control avatar bones in real-time",
-            "command": (
-                'bone_control {"bone_name": "Head", "rotation": '
-                '{"x": 0.1, "y": 0.0, "z": 0.0, "w": 0.995}}'
-            ),
+            "command": ('bone_control {"bone_name": "Head", "rotation": {"x": 0.1, "y": 0.0, "z": 0.0, "w": 0.995}}'),
             "expected": {
                 "status": "success",
                 "message": "Set Head rotation to quaternion (0.100, 0.000, 0.000, 0.995)",
@@ -96,10 +91,7 @@ async def demo_resonite_integration():
         {
             "tool": "resonite_performance_record",
             "description": "Record avatar performance",
-            "command": (
-                'resonite_performance_record {"recording_name": "demo_performance", '
-                '"duration_seconds": 30}'
-            ),
+            "command": ('resonite_performance_record {"recording_name": "demo_performance", "duration_seconds": 30}'),
             "expected": {"status": "success", "recording_started": True, "duration": 30},
         },
         {

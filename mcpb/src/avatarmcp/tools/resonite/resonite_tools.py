@@ -52,7 +52,7 @@ class ResoniteTools:
 
             except Exception as e:
                 logger.error(f"Failed to start Resonite session: {e}")
-                return {"status": "error", "message": f"Failed to start Resonite session: {str(e)}"}
+                return {"status": "error", "message": f"Failed to start Resonite session: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def resonite_session_status(params: dict[str, Any]) -> dict[str, Any]:
@@ -97,9 +97,7 @@ class ResoniteTools:
             logger.error(f"OSC initialization failed: {e}")
             return False
 
-    def _load_resonite_world(
-        self, world_path: str, mode: str = "normal", avatar_slots: int = 8
-    ) -> dict[str, Any]:
+    def _load_resonite_world(self, world_path: str, mode: str = "normal", avatar_slots: int = 8) -> dict[str, Any]:
         """Load a world in Resonite via OSC."""
         try:
             return {

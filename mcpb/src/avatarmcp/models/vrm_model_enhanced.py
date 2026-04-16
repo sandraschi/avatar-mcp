@@ -80,7 +80,7 @@ class VRMModelEnhanced:
             self._extract_metadata()
 
         except Exception as e:
-            raise ValueError(f"Failed to load VRM model: {str(e)}") from e
+            raise ValueError(f"Failed to load VRM model: {e!s}") from e
 
     def _parse_vrm_extension(self) -> None:
         """Parse VRM extension data from the GLTF model."""
@@ -381,9 +381,7 @@ class VRMModelEnhanced:
         """Get a list of all animation names in the model."""
         if not self.gltf or not self.gltf.animations:
             return []
-        return [
-            getattr(anim, "name", f"animation_{i}") for i, anim in enumerate(self.gltf.animations)
-        ]
+        return [getattr(anim, "name", f"animation_{i}") for i, anim in enumerate(self.gltf.animations)]
 
     def get_mesh_names(self) -> list[str]:
         """Get a list of all mesh names in the model."""
@@ -412,18 +410,10 @@ class VRMModelEnhanced:
             "num_bones": len(self.human_bones),
             "num_blend_shapes": len(self.blend_shapes),
             "num_blend_shape_groups": len(self.blend_shape_groups),
-            "num_animations": len(self.gltf.animations)
-            if self.gltf and hasattr(self.gltf, "animations")
-            else 0,
-            "num_meshes": len(self.gltf.meshes)
-            if self.gltf and hasattr(self.gltf, "meshes")
-            else 0,
-            "num_textures": len(self.gltf.textures)
-            if self.gltf and hasattr(self.gltf, "textures")
-            else 0,
-            "num_materials": len(self.gltf.materials)
-            if self.gltf and hasattr(self.gltf, "materials")
-            else 0,
+            "num_animations": len(self.gltf.animations) if self.gltf and hasattr(self.gltf, "animations") else 0,
+            "num_meshes": len(self.gltf.meshes) if self.gltf and hasattr(self.gltf, "meshes") else 0,
+            "num_textures": len(self.gltf.textures) if self.gltf and hasattr(self.gltf, "textures") else 0,
+            "num_materials": len(self.gltf.materials) if self.gltf and hasattr(self.gltf, "materials") else 0,
         }
 
     def to_dict(self) -> dict[str, Any]:

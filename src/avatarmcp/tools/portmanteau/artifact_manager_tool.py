@@ -220,7 +220,7 @@ class ArtifactManagerTool:
                 "destination": str(destination_file),
             }
         except Exception as e:
-            return {"status": "error", "message": f"Move failed: {str(e)}"}
+            return {"status": "error", "message": f"Move failed: {e!s}"}
 
     def _get_status(self) -> dict[str, Any]:
         """Return pipeline health and status."""

@@ -81,8 +81,7 @@ class VRChatOSC:
         for attempt in range(max_attempts):
             current_port = base_port + attempt
             logger.info(
-                f"Attempting to start OSC server on {self.host}:{current_port} "
-                f"(attempt {attempt + 1}/{max_attempts})"
+                f"Attempting to start OSC server on {self.host}:{current_port} (attempt {attempt + 1}/{max_attempts})"
             )
 
             try:
@@ -108,12 +107,9 @@ class VRChatOSC:
                 if "10048" in str(e):  # Address already in use
                     logger.warning(f"Port {current_port} is in use, trying next port...")
                     if attempt == max_attempts - 1:  # Last attempt
-                        logger.error(
-                            f"Failed to find an available port after {max_attempts} attempts"
-                        )
+                        logger.error(f"Failed to find an available port after {max_attempts} attempts")
                         raise RuntimeError(
-                            f"Could not find an available port in range "
-                            f"{base_port}-{base_port + max_attempts - 1}"
+                            f"Could not find an available port in range {base_port}-{base_port + max_attempts - 1}"
                         ) from e
                     continue
                 else:

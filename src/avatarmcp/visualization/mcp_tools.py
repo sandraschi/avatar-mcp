@@ -57,8 +57,8 @@ class VisualizationTools(BaseTools):
             self.visualization.show()
             return {"status": "success", "message": "Visualization viewer shown"}
         except Exception as e:
-            logger.error(f"Failed to show visualization viewer: {str(e)}")
-            return {"status": "error", "message": f"Failed to show viewer: {str(e)}"}
+            logger.error(f"Failed to show visualization viewer: {e!s}")
+            return {"status": "error", "message": f"Failed to show viewer: {e!s}"}
 
     def hide_viewer(self, *args, **kwargs):
         """Hide the visualization viewer.
@@ -74,12 +74,10 @@ class VisualizationTools(BaseTools):
             self.visualization.hide()
             return {"status": "success", "message": "Visualization viewer hidden"}
         except Exception as e:
-            logger.error(f"Failed to hide visualization viewer: {str(e)}")
-            return {"status": "error", "message": f"Failed to hide viewer: {str(e)}"}
+            logger.error(f"Failed to hide visualization viewer: {e!s}")
+            return {"status": "error", "message": f"Failed to hide viewer: {e!s}"}
 
-    def animate(
-        self, model_id: str, animation_name: str, loop: bool = False, speed: float = 1.0, **kwargs
-    ):
+    def animate(self, model_id: str, animation_name: str, loop: bool = False, speed: float = 1.0, **kwargs):
         """Animate a 3D model.
 
         Args:
@@ -101,9 +99,7 @@ class VisualizationTools(BaseTools):
                 self.stop_animation(model_id)
 
             # Start the new animation
-            self.visualization.animate_model(
-                model_id, animation_name, loop=loop, speed=speed, **kwargs
-            )
+            self.visualization.animate_model(model_id, animation_name, loop=loop, speed=speed, **kwargs)
             self.active_animations[model_id] = animation_name
 
             return {
@@ -116,10 +112,10 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Failed to animate model {model_id}: {str(e)}")
+            logger.error(f"Failed to animate model {model_id}: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to animate model {model_id}: {str(e)}",
+                "message": f"Failed to animate model {model_id}: {e!s}",
                 "model_id": model_id,
                 "animation": animation_name,
             }
@@ -151,16 +147,14 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Failed to stop animation on model {model_id}: {str(e)}")
+            logger.error(f"Failed to stop animation on model {model_id}: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to stop animation on model {model_id}: {str(e)}",
+                "message": f"Failed to stop animation on model {model_id}: {e!s}",
                 "model_id": model_id,
             }
 
-    def set_transform(
-        self, model_id: str, position: list = None, rotation: list = None, scale: list = None
-    ) -> dict:
+    def set_transform(self, model_id: str, position: list = None, rotation: list = None, scale: list = None) -> dict:
         """Set the transform (position, rotation, scale) of a model.
 
         Args:
@@ -198,10 +192,10 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Failed to set transform for model {model_id}: {str(e)}")
+            logger.error(f"Failed to set transform for model {model_id}: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to set transform for model {model_id}: {str(e)}",
+                "message": f"Failed to set transform for model {model_id}: {e!s}",
                 "model_id": model_id,
             }
 
@@ -228,9 +222,7 @@ class VisualizationTools(BaseTools):
                     pass
 
             # Start a new dance task
-            self.dance_tasks[model_id] = asyncio.create_task(
-                self._dance_routine(model_id, dance_style)
-            )
+            self.dance_tasks[model_id] = asyncio.create_task(self._dance_routine(model_id, dance_style))
 
             return {
                 "status": "success",
@@ -240,10 +232,10 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Failed to start dance for model {model_id}: {str(e)}")
+            logger.error(f"Failed to start dance for model {model_id}: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to start dance for model {model_id}: {str(e)}",
+                "message": f"Failed to start dance for model {model_id}: {e!s}",
                 "model_id": model_id,
             }
 
@@ -349,10 +341,10 @@ class VisualizationTools(BaseTools):
                 return {"status": "success", "message": "Voice disabled"}
 
         except Exception as e:
-            logger.error(f"Failed to {'enable' if enable else 'disable'} voice: {str(e)}")
+            logger.error(f"Failed to {'enable' if enable else 'disable'} voice: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to {'enable' if enable else 'disable'} voice: {str(e)}",
+                "message": f"Failed to {'enable' if enable else 'disable'} voice: {e!s}",
             }
 
     async def set_voice_settings(self, **kwargs) -> dict:
@@ -376,8 +368,8 @@ class VisualizationTools(BaseTools):
             return {"status": "success", "message": "Voice settings updated"}
 
         except Exception as e:
-            logger.error(f"Failed to update voice settings: {str(e)}")
-            return {"status": "error", "message": f"Failed to update voice settings: {str(e)}"}
+            logger.error(f"Failed to update voice settings: {e!s}")
+            return {"status": "error", "message": f"Failed to update voice settings: {e!s}"}
 
     async def speak(self, text: str, wait: bool = False, **kwargs) -> dict:
         """Convert text to speech.
@@ -405,8 +397,8 @@ class VisualizationTools(BaseTools):
             return {"status": "success", "message": "Speech started"}
 
         except Exception as e:
-            logger.error(f"Failed to speak text: {str(e)}")
-            return {"status": "error", "message": f"Failed to speak text: {str(e)}"}
+            logger.error(f"Failed to speak text: {e!s}")
+            return {"status": "error", "message": f"Failed to speak text: {e!s}"}
 
     async def start_listening(self, **kwargs) -> dict:
         """Start listening for voice commands.
@@ -428,8 +420,8 @@ class VisualizationTools(BaseTools):
             return {"status": "success", "message": "Started listening"}
 
         except Exception as e:
-            logger.error(f"Failed to start listening: {str(e)}")
-            return {"status": "error", "message": f"Failed to start listening: {str(e)}"}
+            logger.error(f"Failed to start listening: {e!s}")
+            return {"status": "error", "message": f"Failed to start listening: {e!s}"}
 
     async def stop_listening(self) -> dict:
         """Stop listening for voice commands.
@@ -445,8 +437,8 @@ class VisualizationTools(BaseTools):
             return {"status": "success", "message": "Stopped listening"}
 
         except Exception as e:
-            logger.error(f"Failed to stop listening: {str(e)}")
-            return {"status": "error", "message": f"Failed to stop listening: {str(e)}"}
+            logger.error(f"Failed to stop listening: {e!s}")
+            return {"status": "error", "message": f"Failed to stop listening: {e!s}"}
 
     async def listen(self, duration: float = None, **kwargs) -> dict:
         """Listen for speech and transcribe it.
@@ -485,8 +477,8 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Error during voice listening: {str(e)}")
-            return {"status": "error", "message": f"Error during voice listening: {str(e)}"}
+            logger.error(f"Error during voice listening: {e!s}")
+            return {"status": "error", "message": f"Error during voice listening: {e!s}"}
 
     # ===== Chatbot Methods =====
 
@@ -526,10 +518,10 @@ class VisualizationTools(BaseTools):
                 return {"status": "success", "message": "Chatbot disabled"}
 
         except Exception as e:
-            logger.error(f"Failed to {'enable' if enable else 'disable'} chatbot: {str(e)}")
+            logger.error(f"Failed to {'enable' if enable else 'disable'} chatbot: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to {'enable' if enable else 'disable'} chatbot: {str(e)}",
+                "message": f"Failed to {'enable' if enable else 'disable'} chatbot: {e!s}",
             }
 
     async def chat(self, message: str, **kwargs) -> dict:
@@ -560,8 +552,8 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Error in chat: {str(e)}")
-            return {"status": "error", "message": f"Error in chat: {str(e)}"}
+            logger.error(f"Error in chat: {e!s}")
+            return {"status": "error", "message": f"Error in chat: {e!s}"}
 
     async def process_chat(self, message: str, context: dict = None, **kwargs) -> dict:
         """Process a chat message with additional context.
@@ -611,8 +603,8 @@ class VisualizationTools(BaseTools):
             return result
 
         except Exception as e:
-            logger.error(f"Error processing chat: {str(e)}")
-            return {"status": "error", "message": f"Error processing chat: {str(e)}"}
+            logger.error(f"Error processing chat: {e!s}")
+            return {"status": "error", "message": f"Error processing chat: {e!s}"}
 
     # ===== Animation Box Methods =====
 
@@ -644,8 +636,8 @@ class VisualizationTools(BaseTools):
             }
 
         except Exception as e:
-            logger.error(f"Failed to set animation box: {str(e)}")
-            return {"status": "error", "message": f"Failed to set animation box: {str(e)}"}
+            logger.error(f"Failed to set animation box: {e!s}")
+            return {"status": "error", "message": f"Failed to set animation box: {e!s}"}
 
     async def show_animation_box(self, **kwargs) -> dict:
         """Show the animation box.
@@ -683,10 +675,10 @@ class VisualizationTools(BaseTools):
             return {"status": "success", "properties": properties}
 
         except Exception as e:
-            logger.error(f"Failed to get animation box properties: {str(e)}")
+            logger.error(f"Failed to get animation box properties: {e!s}")
             return {
                 "status": "error",
-                "message": f"Failed to get animation box properties: {str(e)}",
+                "message": f"Failed to get animation box properties: {e!s}",
             }
 
     def _register_commands(self):
@@ -834,9 +826,7 @@ class VisualizationTools(BaseTools):
             scale = params.get("scale")
 
             if not any([position, rotation, scale]):
-                return self._error_response(
-                    "At least one of position, rotation, or scale must be provided"
-                )
+                return self._error_response("At least one of position, rotation, or scale must be provided")
 
             success = await self.visualization.set_model_transform(
                 model_id=model_id, position=position, rotation=rotation, scale=scale
@@ -856,9 +846,7 @@ class VisualizationTools(BaseTools):
             logger.exception("Error setting model transform")
             return self._error_response(str(e))
 
-    async def _dance_sequence(
-        self, model_id: str, animations: list[str], intensity: float, duration: float
-    ):
+    async def _dance_sequence(self, model_id: str, animations: list[str], intensity: float, duration: float):
         """Run the dance sequence."""
         start_time = asyncio.get_event_loop().time()
 

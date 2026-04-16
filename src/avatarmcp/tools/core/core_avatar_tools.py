@@ -64,11 +64,7 @@ class CoreAvatarTools:
 
                 # Load the model
                 model_info = await self.mcp_server.vrm_manager.load_model(model_id)
-                if (
-                    not model_info
-                    or "status" not in model_info
-                    or model_info["status"] != "success"
-                ):
+                if not model_info or "status" not in model_info or model_info["status"] != "success":
                     raise RuntimeError(f"Failed to load model {model_id}")
 
                 # Create VRMModel instance
@@ -87,7 +83,7 @@ class CoreAvatarTools:
                 }
 
             except Exception as e:
-                error_msg = f"Failed to load avatar: {str(e)}"
+                error_msg = f"Failed to load avatar: {e!s}"
                 logger.error(error_msg, exc_info=True)
                 return {"status": "error", "message": error_msg}
 
@@ -124,9 +120,7 @@ class CoreAvatarTools:
 
                 # Update active model if needed
                 if avatar_id == self.mcp_server.active_model_id:
-                    self.mcp_server.active_model_id = next(
-                        iter(self.mcp_server.loaded_models), None
-                    )
+                    self.mcp_server.active_model_id = next(iter(self.mcp_server.loaded_models), None)
 
                 return {
                     "status": "success",
@@ -135,14 +129,12 @@ class CoreAvatarTools:
                 }
 
             except Exception as e:
-                error_msg = f"Failed to unload avatar: {str(e)}"
+                error_msg = f"Failed to unload avatar: {e!s}"
                 logger.error(error_msg, exc_info=True)
                 return {"status": "error", "message": error_msg}
 
         @self.mcp_server.mcp.tool()
-        async def avatar_list(
-            loaded_only: bool = False, include_metadata: bool = False
-        ) -> dict[str, Any]:
+        async def avatar_list(loaded_only: bool = False, include_metadata: bool = False) -> dict[str, Any]:
             """List available or loaded avatars.
 
             Returns a list of avatars currently in the system.
@@ -182,7 +174,7 @@ class CoreAvatarTools:
                 }
 
             except Exception as e:
-                error_msg = f"Failed to list avatars: {str(e)}"
+                error_msg = f"Failed to list avatars: {e!s}"
                 logger.error(error_msg, exc_info=True)
                 return {"status": "error", "message": error_msg}
 
@@ -220,7 +212,7 @@ class CoreAvatarTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to set active avatar: {str(e)}", exc_info=True)
+                logger.error(f"Failed to set active avatar: {e!s}", exc_info=True)
                 return {"status": "error", "message": str(e)}
 
         @self.mcp_server.mcp.tool()
@@ -249,7 +241,7 @@ class CoreAvatarTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to get active avatar: {str(e)}", exc_info=True)
+                logger.error(f"Failed to get active avatar: {e!s}", exc_info=True)
                 return {"status": "error", "message": str(e)}
 
         @self.mcp_server.mcp.tool()
@@ -284,6 +276,6 @@ class CoreAvatarTools:
                 raise ValueError(f"Avatar not found: {avatar_id}")
 
             except Exception as e:
-                error_msg = f"Failed to get avatar metadata: {str(e)}"
+                error_msg = f"Failed to get avatar metadata: {e!s}"
                 logger.error(error_msg, exc_info=True)
                 return {"status": "error", "message": error_msg}

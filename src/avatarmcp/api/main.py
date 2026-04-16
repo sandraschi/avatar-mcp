@@ -7,9 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from avatarmcp.api.v1 import api_router
 from avatarmcp.config import settings
 
-app = FastAPI(
-    title="AvatarMCP API", description="REST interface for AvatarMCP tools", version="1.0.0"
-)
+app = FastAPI(title="AvatarMCP API", description="REST interface for AvatarMCP tools", version="1.0.0")
 
 # Enable CORS for the webapp
 app.add_middleware(

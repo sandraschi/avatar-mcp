@@ -19,9 +19,7 @@ from src.avatarmcp.ai.voice_controller import VoiceConfig
 from src.avatarmcp.core.app import AvatarMCPApp
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -57,9 +55,7 @@ async def main():
             return
 
         # Greet the user
-        await mcp_tools.speak(
-            {"text": "Hello! I'm your virtual avatar assistant. How can I help you today?"}
-        )
+        await mcp_tools.speak({"text": "Hello! I'm your virtual avatar assistant. How can I help you today?"})
 
         # Keep the application running
         while True:

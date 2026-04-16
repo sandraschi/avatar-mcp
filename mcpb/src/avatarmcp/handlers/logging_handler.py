@@ -51,9 +51,7 @@ class LogLevel(str):
         """Create a new LogLevel instance."""
         value = value.upper()
         if value not in cls.VALID_LEVELS:
-            raise ValueError(
-                f"Invalid log level: {value}. Must be one of: {', '.join(cls.VALID_LEVELS.keys())}"
-            )
+            raise ValueError(f"Invalid log level: {value}. Must be one of: {', '.join(cls.VALID_LEVELS.keys())}")
         instance = super().__new__(cls, value)
         instance.level = cls.VALID_LEVELS[value]
         return instance
@@ -91,11 +89,7 @@ class LogMessage:
         if hasattr(record, "__dict__"):
             # Filter out standard LogRecord attributes
             standard_attrs = set(vars(logging.LogRecord("", 0, "", 0, "", (), None, None)))
-            extra = {
-                k: v
-                for k, v in record.__dict__.items()
-                if k not in standard_attrs and not k.startswith("_")
-            }
+            extra = {k: v for k, v in record.__dict__.items() if k not in standard_attrs and not k.startswith("_")}
 
         # Get exception info if available
         exc_info = None
@@ -206,9 +200,7 @@ class WebSocketLogHandler(LogHandler):
             return
 
         log_message = LogMessage.from_record(record)
-        self.websocket_handler.broadcast(
-            {"type": "log_message", "data": log_message.to_dict()}, topic="logs"
-        )
+        self.websocket_handler.broadcast({"type": "log_message", "data": log_message.to_dict()}, topic="logs")
 
 
 class QueueLogHandler(LogHandler):
@@ -247,9 +239,7 @@ class LoggingHandler(BaseHandler):
         self._handlers: dict[str, LogHandler] = {}
         self._log_queue: asyncio.Queue[dict[str, Any]] | None = None
         self._log_consumer_task: asyncio.Task | None = None
-        self._default_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        self._default_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         self._log_dir: Path | None = None
         self._configured = False
 
@@ -309,9 +299,9 @@ class LoggingHandler(BaseHandler):
             except Exception as e:
                 # Use logger or fallback to stderr for critical logging errors
                 try:
-                    logger.error(f"Error in log consumer: {str(e)}")
+                    logger.error(f"Error in log consumer: {e!s}")
                 except Exception:
-                    sys.stderr.write(f"Error in log consumer: {str(e)}\n")
+                    sys.stderr.write(f"Error in log consumer: {e!s}\n")
 
     async def _process_log_message(self, log_data: dict[str, Any]) -> None:
         """Process a log message.
@@ -322,9 +312,7 @@ class LoggingHandler(BaseHandler):
         # This method can be overridden to implement custom log processing
         pass
 
-    def add_console_handler(
-        self, level: int | str = logging.INFO, formatter: logging.Formatter | None = None
-    ) -> str:
+    def add_console_handler(self, level: int | str = logging.INFO, formatter: logging.Formatter | None = None) -> str:
         """Add a console log handler.
 
         Args:
@@ -661,9 +649,7 @@ class LogContext:
                     }
                 )
                 self.logger.error(
-                    f"ERROR: {self.message} (failed after {duration:.3f}s): {str(exc_val)}".format(
-                        **self.kwargs
-                    ),
+                    f"ERROR: {self.message} (failed after {duration:.3f}s): {exc_val!s}".format(**self.kwargs),
                     extra=extra,
                     exc_info=(exc_type, exc_val, exc_tb),
                 )

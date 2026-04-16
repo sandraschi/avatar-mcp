@@ -25,9 +25,7 @@ except OSError as e:
 def main():
     """Main entry point for MCP server using FastMCP."""
     # Configure logging to file only to avoid interfering with MCP protocol
-    log_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log"
-    )
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_server.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Configure logging to stderr only (MCP best practice)
@@ -75,9 +73,9 @@ def main():
 
     except Exception as e:
         # Write error to stderr so it appears in Claude Desktop logs
-        sys.stderr.write(f"CRITICAL ERROR in FastMCP server: {str(e)}\n")
+        sys.stderr.write(f"CRITICAL ERROR in FastMCP server: {e!s}\n")
         sys.stderr.flush()
-        logger.error(f"Error in FastMCP server: {str(e)}", exc_info=True)
+        logger.error(f"Error in FastMCP server: {e!s}", exc_info=True)
         import traceback
 
         sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")

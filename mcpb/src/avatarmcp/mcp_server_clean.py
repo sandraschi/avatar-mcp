@@ -100,9 +100,7 @@ class MCPServer:
                     logger.error(f"Failed to launch avatar viewer at {viewer_path}: {e}")
                     continue
 
-        logger.warning(
-            "Desktop avatar viewer not found. Please ensure desktop_avatar_viewer.py exists"
-        )
+        logger.warning("Desktop avatar viewer not found. Please ensure desktop_avatar_viewer.py exists")
         return False
 
     def _send_osc_message(self, address: str, *args) -> bool:
@@ -116,9 +114,7 @@ class MCPServer:
             return False
 
         try:
-            self.osc_client.send_message(
-                address, args if len(args) > 1 else args[0] if args else []
-            )
+            self.osc_client.send_message(address, args if len(args) > 1 else args[0] if args else [])
             logger.debug(f"Sent OSC: {address} {args}")
             return True
         except Exception as e:

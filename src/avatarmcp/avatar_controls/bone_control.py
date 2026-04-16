@@ -23,9 +23,7 @@ class BoneTransform(Transform):
     """Bone-specific transform with additional properties."""
 
     bone_name: str = Field(..., description="Name of the bone to transform")
-    space: ControlSpace = Field(
-        ControlSpace.LOCAL, description="Coordinate space for the transform"
-    )
+    space: ControlSpace = Field(ControlSpace.LOCAL, description="Coordinate space for the transform")
 
 
 class BoneControlTool(AvatarControlBase, ChatTool):
@@ -86,7 +84,7 @@ class BoneControlTool(AvatarControlBase, ChatTool):
             )
 
         except Exception as e:
-            logger.error(f"Bone transform failed: {str(e)}", exc_info=True)
+            logger.error(f"Bone transform failed: {e!s}", exc_info=True)
             return ControlResult.error("Failed to transform bone", str(e))
 
     # FastMCP 2.12 compatibility

@@ -171,12 +171,8 @@ def update_requirements():
 def main():
     parser = argparse.ArgumentParser(description="Set up SOTA CI workflow for Python projects")
     parser.add_argument("--project-name", required=True, help="Name of your project")
-    parser.add_argument(
-        "--package-name", required=True, help="Package directory (e.g., src/mypackage)"
-    )
-    parser.add_argument(
-        "--min-python", default="3.10", help="Minimum Python version (default: 3.10)"
-    )
+    parser.add_argument("--package-name", required=True, help="Package directory (e.g., src/mypackage)")
+    parser.add_argument("--min-python", default="3.10", help="Minimum Python version (default: 3.10)")
 
     args = parser.parse_args()
 

@@ -35,21 +35,18 @@ def test_vrm_loader():
             if vrm_model:
                 logger.info("✅ VRM file loaded successfully!")
                 logger.info(f"Model ID: {vrm_model.model_id}")
-                logger.info(
-                    f"Number of meshes: "
-                    f"{len(vrm_model.meshes) if hasattr(vrm_model, 'meshes') else 0}"
-                )
+                logger.info(f"Number of meshes: {len(vrm_model.meshes) if hasattr(vrm_model, 'meshes') else 0}")
                 return True
             else:
                 logger.error("❌ Failed to load VRM file")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Error loading VRM file: {str(e)}", exc_info=True)
+            logger.error(f"❌ Error loading VRM file: {e!s}", exc_info=True)
             return False
 
     except ImportError as e:
-        logger.error(f"❌ Failed to import VRM loader: {str(e)}")
+        logger.error(f"❌ Failed to import VRM loader: {e!s}")
         return False
 
 

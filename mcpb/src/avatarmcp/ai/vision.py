@@ -97,9 +97,7 @@ class VisionProcessor:
             # Check if we have a custom model
             if self.config.model_path and self.config.model_path.endswith((".pb", ".pbtxt")):
                 # Load a TensorFlow model
-                self.model = cv2.dnn_DetectionModel(
-                    self.config.model_path + ".pb", self.config.model_path + ".pbtxt"
-                )
+                self.model = cv2.dnn_DetectionModel(self.config.model_path + ".pb", self.config.model_path + ".pbtxt")
                 self.model.setInputSize(self.config.frame_width, self.config.frame_height)
                 self.model.setInputScale(1.0 / 127.5)
                 self.model.setInputMean((127.5, 127.5, 127.5))
@@ -107,9 +105,7 @@ class VisionProcessor:
             else:
                 # Use a pre-trained model
                 model_file = self.config.model_path or "frozen_inference_graph.pb"
-                config_file = (
-                    self.config.model_path or "ssd_mobilenet_v3_large_coco_2020_01_14"
-                ) + ".pbtxt"
+                config_file = (self.config.model_path or "ssd_mobilenet_v3_large_coco_2020_01_14") + ".pbtxt"
 
                 if not os.path.exists(model_file) or not os.path.exists(config_file):
                     logger.warning("Model files not found, using default COCO model")
@@ -118,9 +114,7 @@ class VisionProcessor:
 
                     base_url = "https://github.com/opencv/opencv_extra/raw/master/testdata/dnn/"
                     if not os.path.exists(model_file):
-                        urllib.request.urlretrieve(
-                            base_url + "frozen_inference_graph.pb", "frozen_inference_graph.pb"
-                        )
+                        urllib.request.urlretrieve(base_url + "frozen_inference_graph.pb", "frozen_inference_graph.pb")
                     if not os.path.exists(config_file):
                         urllib.request.urlretrieve(
                             base_url + "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt",
@@ -205,10 +199,7 @@ class VisionProcessor:
             logger.info("Initialized TensorFlow vision backend")
 
         except ImportError:
-            logger.error(
-                "TensorFlow Object Detection API not available. "
-                "Install with: pip install tensorflow"
-            )
+            logger.error("TensorFlow Object Detection API not available. Install with: pip install tensorflow")
             raise
 
     def _init_torchvision(self):
@@ -438,15 +429,9 @@ class VisionProcessor:
                     box = boxes[i].tolist()
 
                     # Get class name
-                    label = (
-                        self.config.classes[class_id]
-                        if class_id < len(self.config.classes)
-                        else str(class_id)
-                    )
+                    label = self.config.classes[class_id] if class_id < len(self.config.classes) else str(class_id)
 
-                    detections.append(
-                        Detection(label=label, confidence=confidence, bbox=box, class_id=class_id)
-                    )
+                    detections.append(Detection(label=label, confidence=confidence, bbox=box, class_id=class_id))
 
             return detections
 
@@ -477,9 +462,7 @@ class VisionProcessor:
                 pred = self.model(img)[0]
 
             # Apply NMS
-            pred = non_max_suppression(
-                pred, self.config.confidence_threshold, self.config.nms_threshold
-            )
+            pred = non_max_suppression(pred, self.config.confidence_threshold, self.config.nms_threshold)
 
             # Process detections
             detections = []
@@ -526,9 +509,7 @@ class VisionProcessor:
 
             # Process detections
             num_detections = int(detections.pop("num_detections"))
-            detections = {
-                key: value[0, :num_detections].numpy() for key, value in detections.items()
-            }
+            detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
             detections["num_detections"] = num_detections
 
             # Filter by confidence
@@ -552,11 +533,7 @@ class VisionProcessor:
 
                 # Get class name
                 class_id = int(classes[i])
-                label = (
-                    self.category_index[class_id]["name"]
-                    if class_id in self.category_index
-                    else str(class_id)
-                )
+                label = self.category_index[class_id]["name"] if class_id in self.category_index else str(class_id)
 
                 result.append(
                     Detection(
@@ -659,10 +636,7 @@ class VisionProcessor:
                 for i, hand_landmarks in enumerate(hand_results.multi_hand_landmarks):
                     # Get bounding box
                     landmarks = np.array(
-                        [
-                            (lm.x * frame.shape[1], lm.y * frame.shape[0])
-                            for lm in hand_landmarks.landmark
-                        ]
+                        [(lm.x * frame.shape[1], lm.y * frame.shape[0]) for lm in hand_landmarks.landmark]
                     )
                     x, y = landmarks.min(axis=0).astype(int)
                     w, h = (landmarks.max(axis=0) - landmarks.min(axis=0)).astype(int)
@@ -670,9 +644,7 @@ class VisionProcessor:
                     # Determine handedness
                     handedness = "left"
                     if hand_results.multi_handedness:
-                        handedness = (
-                            hand_results.multi_handedness[i].classification[0].label.lower()
-                        )
+                        handedness = hand_results.multi_handedness[i].classification[0].label.lower()
 
                     detections.append(
                         Detection(
@@ -687,10 +659,7 @@ class VisionProcessor:
             # Add pose detections
             if pose_results.pose_landmarks:
                 landmarks = np.array(
-                    [
-                        (lm.x * frame.shape[1], lm.y * frame.shape[0])
-                        for lm in pose_results.pose_landmarks.landmark
-                    ]
+                    [(lm.x * frame.shape[1], lm.y * frame.shape[0]) for lm in pose_results.pose_landmarks.landmark]
                 )
 
                 # Get bounding box
@@ -714,9 +683,7 @@ class VisionProcessor:
             logger.error(f"MediaPipe detection failed: {e}")
             return []
 
-    async def start_processing(
-        self, callback: Callable[[list[Detection], np.ndarray], None] | None = None
-    ):
+    async def start_processing(self, callback: Callable[[list[Detection], np.ndarray], None] | None = None):
         """Start continuous processing of frames."""
         if self.is_processing:
             logger.warning("Already processing frames")

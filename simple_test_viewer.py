@@ -64,9 +64,7 @@ def simple_test():
 
         # Setup scene
         plotter.show_axes()
-        plotter.add_text(
-            "RED=big sphere, BLUE=small sphere, GREEN=cube, YELLOW=face", position="upper_left"
-        )
+        plotter.add_text("RED=big sphere, BLUE=small sphere, GREEN=cube, YELLOW=face", position="upper_left")
 
         # Reset camera to see everything
         plotter.reset_camera()

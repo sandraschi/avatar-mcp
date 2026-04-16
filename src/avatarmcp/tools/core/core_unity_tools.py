@@ -110,9 +110,7 @@ class CoreUnityTools:
                     "status": "success",
                     "unity_running": unity_running,
                     "osc_connected": osc_connected,
-                    "osc_enabled": self.mcp_server.osc_manager.enabled
-                    if self.mcp_server.osc_manager
-                    else False,
+                    "osc_enabled": self.mcp_server.osc_manager.enabled if self.mcp_server.osc_manager else False,
                     "timestamp": __import__("time").time(),
                 }
 
@@ -137,10 +135,10 @@ class CoreUnityTools:
                 return status
 
             except Exception as e:
-                logger.error(f"Failed to get Unity system status: {str(e)}", exc_info=True)
+                logger.error(f"Failed to get Unity system status: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Failed to get Unity system status: {str(e)}",
+                    "message": f"Failed to get Unity system status: {e!s}",
                 }
 
         @self.mcp_server.mcp.tool()
@@ -189,8 +187,8 @@ class CoreUnityTools:
                     return {"status": "error", "message": "Failed to send Unity load command"}
 
             except Exception as e:
-                logger.error(f"Failed to load Unity avatar: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to load Unity avatar: {str(e)}"}
+                logger.error(f"Failed to load Unity avatar: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to load Unity avatar: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def unity_avatar_expression(params: dict[str, Any]) -> dict[str, Any]:
@@ -232,10 +230,10 @@ class CoreUnityTools:
                     return {"status": "error", "message": "Failed to send Unity expression command"}
 
             except Exception as e:
-                logger.error(f"Failed to set Unity avatar expression: {str(e)}", exc_info=True)
+                logger.error(f"Failed to set Unity avatar expression: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Failed to set Unity avatar expression: {str(e)}",
+                    "message": f"Failed to set Unity avatar expression: {e!s}",
                 }
 
         @self.mcp_server.mcp.tool()
@@ -270,9 +268,7 @@ class CoreUnityTools:
                             "status": "error",
                             "message": "Animation name is required for play action",
                         }
-                    success = self._send_unity_osc(
-                        "/unity/avatar/animation/play", animation_name, loop
-                    )
+                    success = self._send_unity_osc("/unity/avatar/animation/play", animation_name, loop)
                 elif action == "stop":
                     success = self._send_unity_osc("/unity/avatar/animation/stop")
                 elif action == "pause":
@@ -299,8 +295,8 @@ class CoreUnityTools:
                     }
 
             except Exception as e:
-                logger.error(f"Failed to control Unity avatar animation: {str(e)}", exc_info=True)
+                logger.error(f"Failed to control Unity avatar animation: {e!s}", exc_info=True)
                 return {
                     "status": "error",
-                    "message": f"Failed to control Unity avatar animation: {str(e)}",
+                    "message": f"Failed to control Unity avatar animation: {e!s}",
                 }

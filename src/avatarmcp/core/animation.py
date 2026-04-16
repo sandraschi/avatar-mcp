@@ -30,9 +30,7 @@ logger = logging.getLogger(__name__)
 # Type aliases
 Quaternion = tuple[float, float, float, float]  # x, y, z, w
 Vector3 = tuple[float, float, float]
-BonePose = dict[
-    str, tuple[Quaternion, Vector3 | None, Vector3 | None]
-]  # bone_name -> (rotation, position, scale)
+BonePose = dict[str, tuple[Quaternion, Vector3 | None, Vector3 | None]]  # bone_name -> (rotation, position, scale)
 BlendShapes = dict[str, float]  # blend_shape_name -> weight
 
 
@@ -123,9 +121,7 @@ class AnimationClip:
 
         return result
 
-    def get_surrounding_keyframes(
-        self, time: float
-    ) -> tuple[AnimationKeyframe | None, AnimationKeyframe | None]:
+    def get_surrounding_keyframes(self, time: float) -> tuple[AnimationKeyframe | None, AnimationKeyframe | None]:
         """Get the keyframes before and after the specified time."""
         if not self.keyframes:
             return None, None
@@ -151,9 +147,7 @@ class AnimationClip:
 class AnimationState:
     """Tracks the state of a playing animation instance."""
 
-    def __init__(
-        self, clip: AnimationClip, weight: float = 1.0, loop: bool = None, speed: float = None
-    ):
+    def __init__(self, clip: AnimationClip, weight: float = 1.0, loop: bool = None, speed: float = None):
         """Initialize a new animation state."""
         self.clip = clip
         self.weight = weight
@@ -187,12 +181,8 @@ class AnimationState:
 
         # Update weight with delta for smooth transitions
         target_weight = 1.0 if self.is_playing else 0.0
-        weight_delta = delta_time / (
-            self.clip.fade_in_time if target_weight > self.weight else self.clip.fade_out_time
-        )
-        self.weight = np.clip(
-            self.weight + weight_delta * (1 if target_weight > self.weight else -1), 0.0, 1.0
-        )
+        weight_delta = delta_time / (self.clip.fade_in_time if target_weight > self.weight else self.clip.fade_out_time)
+        self.weight = np.clip(self.weight + weight_delta * (1 if target_weight > self.weight else -1), 0.0, 1.0)
 
         # Collect events that were passed this frame
         triggered_events = []
@@ -231,20 +221,10 @@ class AnimationState:
             t = (self.time - prev_kf.time) / (next_kf.time - prev_kf.time)
 
         # Interpolate bone transforms
-        if (
-            prev_kf.has_transform()
-            and next_kf.has_transform()
-            and prev_kf.bone_name == next_kf.bone_name
-        ):
+        if prev_kf.has_transform() and next_kf.has_transform() and prev_kf.bone_name == next_kf.bone_name:
             bone_name = prev_kf.bone_name
-            rotation = (
-                self._slerp_quat(prev_kf.rotation, next_kf.rotation, t)
-                if prev_kf.rotation
-                else None
-            )
-            position = (
-                self._lerp_vec3(prev_kf.position, next_kf.position, t) if prev_kf.position else None
-            )
+            rotation = self._slerp_quat(prev_kf.rotation, next_kf.rotation, t) if prev_kf.rotation else None
+            position = self._lerp_vec3(prev_kf.position, next_kf.position, t) if prev_kf.position else None
             scale = self._lerp_vec3(prev_kf.scale, next_kf.scale, t) if prev_kf.scale else None
 
             bone_poses[bone_name] = (rotation, position, scale)
@@ -255,10 +235,7 @@ class AnimationState:
             and next_kf.has_blend_shape()
             and prev_kf.blend_shape_name == next_kf.blend_shape_name
         ):
-            weight = (
-                prev_kf.blend_shape_weight
-                + (next_kf.blend_shape_weight - prev_kf.blend_shape_weight) * t
-            )
+            weight = prev_kf.blend_shape_weight + (next_kf.blend_shape_weight - prev_kf.blend_shape_weight) * t
             blend_shapes[prev_kf.blend_shape_name] = weight * self.weight
 
         return bone_poses, blend_shapes
@@ -541,7 +518,7 @@ class AnimationController:
             return clip
 
         except Exception as e:
-            logger.error(f"Failed to load animation from {file_path}: {str(e)}")
+            logger.error(f"Failed to load animation from {file_path}: {e!s}")
             return None
 
     def play_animation(self, layer_name: str, clip_name: str, fade_time: float = 0.1) -> bool:

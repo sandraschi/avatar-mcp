@@ -72,17 +72,15 @@ async def list_tools() -> list[ToolInfo]:
                         )
                     )
 
-            tools.append(
-                ToolInfo(name=tool.name, description=tool.description or "", parameters=params)
-            )
+            tools.append(ToolInfo(name=tool.name, description=tool.description or "", parameters=params))
 
         return tools
 
     except Exception as e:
-        logger.error(f"Error listing tools: {str(e)}", exc_info=True)
+        logger.error(f"Error listing tools: {e!s}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error listing tools: {str(e)}",
+            detail=f"Error listing tools: {e!s}",
         )
 
 
@@ -98,12 +96,10 @@ async def call_tool(request: ToolCallRequest) -> ToolCallResponse:
         # Execute tool via FastMCP instance
         result = await mcp.call_tool(request.name, request.arguments)
 
-        return ToolCallResponse(
-            status="success", result=result, message=f"Tool {request.name} executed successfully"
-        )
+        return ToolCallResponse(status="success", result=result, message=f"Tool {request.name} executed successfully")
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        logger.error(f"Error calling tool {request.name}: {str(e)}", exc_info=True)
+        logger.error(f"Error calling tool {request.name}: {e!s}", exc_info=True)
         return ToolCallResponse(status="error", message=str(e))

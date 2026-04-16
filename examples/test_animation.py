@@ -62,9 +62,7 @@ def test_animation(vrm_path: str):
         anim_name = anim_to_play["name"]
         print(f"\n3. Playing animation: {anim_name}")
 
-        play_result = play_animation(
-            model_id=model_id, animation_name=anim_name, loop=True, weight=1.0, speed=1.0
-        )
+        play_result = play_animation(model_id=model_id, animation_name=anim_name, loop=True, weight=1.0, speed=1.0)
 
         if play_result.get("status") == "success":
             print("✅ Playing animation for 3 seconds...")

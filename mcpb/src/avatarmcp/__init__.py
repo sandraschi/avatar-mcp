@@ -43,9 +43,9 @@ def _ensure_heavy_imports():
 
     if not _heavy_imports_loaded and not _mcp_mode:
         try:
-            from .core.app import AvatarMCP  # noqa: E402
-            from .network.osc.vrc_connector import VRChatOSC  # noqa: E402
-            from .server import AvatarMCPServer, run_server  # noqa: E402
+            from .core.app import AvatarMCP
+            from .network.osc.vrc_connector import VRChatOSC
+            from .server import AvatarMCPServer, run_server
 
             _heavy_imports_loaded = True
         except ImportError as e:

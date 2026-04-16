@@ -61,9 +61,7 @@ def analyze_vrm_skinning():
             if has_joint_weights:
                 joint_weights = mesh.attributes["joint_weights"]
                 print(f"  Joint weights shape: {joint_weights.shape}")
-                print(
-                    f"  Joint weights range: {joint_weights.min():.3f} - {joint_weights.max():.3f}"
-                )
+                print(f"  Joint weights range: {joint_weights.min():.3f} - {joint_weights.max():.3f}")
 
                 # Check if weights are normalized
                 if len(joint_weights.shape) == 2 and joint_weights.shape[1] >= 4:
@@ -83,12 +81,8 @@ def analyze_vrm_skinning():
                 size = max_bounds - min_bounds
 
                 print(f"  Vertex center: ({center[0]:.3f}, {center[1]:.3f}, {center[2]:.3f})")
-                print(
-                    f"  Vertex bounds: min({min_bounds[0]:.3f}, {min_bounds[1]:.3f}, {min_bounds[2]:.3f})"
-                )
-                print(
-                    f"                 max({max_bounds[0]:.3f}, {max_bounds[1]:.3f}, {max_bounds[2]:.3f})"
-                )
+                print(f"  Vertex bounds: min({min_bounds[0]:.3f}, {min_bounds[1]:.3f}, {min_bounds[2]:.3f})")
+                print(f"                 max({max_bounds[0]:.3f}, {max_bounds[1]:.3f}, {max_bounds[2]:.3f})")
                 print(f"  Mesh size: ({size[0]:.3f}, {size[1]:.3f}, {size[2]:.3f})")
 
                 # Classify mesh by Y position and size

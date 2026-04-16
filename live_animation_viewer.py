@@ -30,9 +30,7 @@ class LiveAnimationViewer:
 
             print(f"🎌 Loading VRM: {file_path}")
             self.vrm_model = VRMLoader.from_file(file_path)
-            print(
-                f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones"
-            )
+            print(f"✅ Loaded: {len(self.vrm_model.meshes)} meshes, {len(self.vrm_model.bones)} bones")
             return True
         except Exception as e:
             print(f"❌ Error loading VRM: {e}")
@@ -45,9 +43,7 @@ class LiveAnimationViewer:
 
             pv.set_plot_theme("document")
 
-            self.plotter = pv.Plotter(
-                window_size=[1024, 768], title="🎌 Nekomimi-chan Live Animation Viewer"
-            )
+            self.plotter = pv.Plotter(window_size=[1024, 768], title="🎌 Nekomimi-chan Live Animation Viewer")
 
             # Add meshes to viewer
             if self.vrm_model and self.vrm_model.meshes:
@@ -70,9 +66,7 @@ class LiveAnimationViewer:
                             # Add to plotter with different colors
                             colors = ["lightpink", "lightblue", "lightgreen"]
                             color = colors[i % len(colors)]
-                            self.plotter.add_mesh(
-                                pv_mesh, color=color, opacity=0.9, name=f"mesh_{i}"
-                            )
+                            self.plotter.add_mesh(pv_mesh, color=color, opacity=0.9, name=f"mesh_{i}")
                             self.meshes.append(pv_mesh)
                             print(f"  ✅ Added mesh {i}: {len(vertices)} vertices")
 

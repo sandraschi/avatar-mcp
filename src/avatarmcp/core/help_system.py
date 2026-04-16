@@ -68,16 +68,10 @@ class CommandInfo:
         if self.parameters:
             lines.append("Parameters:")
             for param in self.parameters.values():
-                default = (
-                    f" (default: {param.default!r})"
-                    if param.default is not inspect.Parameter.empty
-                    else ""
-                )
+                default = f" (default: {param.default!r})" if param.default is not inspect.Parameter.empty else ""
                 lines.append(f"  {param.name}: {param.type.__name__}{default}")
                 if param.description:
-                    desc = textwrap.fill(
-                        param.description, width=80, initial_indent="    ", subsequent_indent="    "
-                    )
+                    desc = textwrap.fill(param.description, width=80, initial_indent="    ", subsequent_indent="    ")
                     lines.append(desc)
             lines.append("")
 
@@ -262,8 +256,6 @@ def register_help(mcp: FastMCP, help_sys: HelpSystem = help_system):
         return {"status": "success", "help": help_sys.format_general_help()}
 
     # Register help command info
-    help_sys.register(name="help", description="Show help for commands", requires_auth=False)(
-        help_command
-    )
+    help_sys.register(name="help", description="Show help for commands", requires_auth=False)(help_command)
 
     return help_sys

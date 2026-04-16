@@ -97,9 +97,7 @@ class MetricsCollector:
         )
 
         # Avatar metrics
-        self.avatars_loaded = Gauge(
-            "avatarmcp_avatars_loaded", "Number of avatars currently loaded"
-        )
+        self.avatars_loaded = Gauge("avatarmcp_avatars_loaded", "Number of avatars currently loaded")
 
         self.avatar_operations = Counter(
             "avatarmcp_avatar_operations_total",
@@ -132,9 +130,7 @@ class MetricsCollector:
         # System metrics
         self.system_uptime = Gauge("avatarmcp_system_uptime_seconds", "Server uptime in seconds")
 
-        self.last_updated = Gauge(
-            "avatarmcp_last_updated_timestamp_seconds", "Timestamp of the last metrics update"
-        )
+        self.last_updated = Gauge("avatarmcp_last_updated_timestamp_seconds", "Timestamp of the last metrics update")
 
     def start_metrics_server(self) -> None:
         # Start the Prometheus metrics server.

@@ -42,7 +42,7 @@ async def demo_avatar_system():
             tool_names = list(tools)[:10]  # Show first 10
             print(f"   SUCCESS: Found {tool_count} tools registered: {tool_names}")
         except Exception as e:
-            print(f"   ERROR: Tool registration check failed: {str(e)}")
+            print(f"   ERROR: Tool registration check failed: {e!s}")
 
         # Test OSC message sending
         print("4. Testing OSC Communication...")
@@ -53,7 +53,7 @@ async def demo_avatar_system():
             else:
                 print("   ERROR: OSC message failed")
         except Exception as e:
-            print(f"   ERROR: OSC communication failed: {str(e)}")
+            print(f"   ERROR: OSC communication failed: {e!s}")
 
         # Test avatar directory scanning
         print("5. Testing Avatar Discovery...")
@@ -65,7 +65,7 @@ async def demo_avatar_system():
             else:
                 print("   ERROR: Models directory not found")
         except Exception as e:
-            print(f"   ERROR: Avatar discovery failed: {str(e)}")
+            print(f"   ERROR: Avatar discovery failed: {e!s}")
 
         # Test avatar_load tool to demonstrate visual output
         print("5. Testing Avatar Loading with Visual Display...")

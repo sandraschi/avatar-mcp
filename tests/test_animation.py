@@ -13,9 +13,7 @@ class TestAnimationSystem:
         from src.avatarmcp.core.animation import AnimationKeyframe
 
         # Test bone keyframe
-        bone_kf = AnimationKeyframe(
-            time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)
-        )
+        bone_kf = AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1))
         assert bone_kf.bone_name == "Hips"
         assert bone_kf.time == 0.0
         assert bone_kf.position == (0, 1, 0)
@@ -33,18 +31,12 @@ class TestAnimationSystem:
 
         # Create test keyframes
         keyframes = [
-            AnimationKeyframe(
-                time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)
-            ),
-            AnimationKeyframe(
-                time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)
-            ),
+            AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)),
+            AnimationKeyframe(time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)),
         ]
 
         # Create a clip
-        clip = AnimationClip(
-            name="test_clip", duration=1.0, keyframes=keyframes, loop=True, speed=1.0
-        )
+        clip = AnimationClip(name="test_clip", duration=1.0, keyframes=keyframes, loop=True, speed=1.0)
 
         # Assertions
         assert clip.name == "test_clip"
@@ -86,12 +78,8 @@ class TestAnimationSystem:
 
         # Create a test animation
         keyframes = [
-            AnimationKeyframe(
-                time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)
-            ),
-            AnimationKeyframe(
-                time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)
-            ),
+            AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)),
+            AnimationKeyframe(time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)),
         ]
 
         clip = AnimationClip(name="test_animation", duration=1.0, keyframes=keyframes, loop=True)
@@ -122,12 +110,8 @@ class TestAnimationSystem:
 
         # Create a test animation
         keyframes = [
-            AnimationKeyframe(
-                time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)
-            ),
-            AnimationKeyframe(
-                time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)
-            ),
+            AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1)),
+            AnimationKeyframe(time=1.0, bone_name="Hips", position=(0, 1.2, 0), rotation=(0, 0, 0, 1)),
         ]
 
         clip = AnimationClip(name="test_animation", duration=1.0, keyframes=keyframes, loop=True)
@@ -156,15 +140,9 @@ class TestAnimationSystem:
         controller = AnimationController()
 
         # Create two test animations
-        keyframes1 = [
-            AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1))
-        ]
+        keyframes1 = [AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1, 0), rotation=(0, 0, 0, 1))]
 
-        keyframes2 = [
-            AnimationKeyframe(
-                time=0.0, bone_name="Hips", position=(0, 1.5, 0), rotation=(0, 0, 0, 1)
-            )
-        ]
+        keyframes2 = [AnimationKeyframe(time=0.0, bone_name="Hips", position=(0, 1.5, 0), rotation=(0, 0, 0, 1))]
 
         clip1 = AnimationClip(name="animation1", duration=1.0, keyframes=keyframes1)
 

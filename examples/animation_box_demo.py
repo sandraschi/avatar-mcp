@@ -17,9 +17,7 @@ if project_root not in sys.path:
 from src.avatarmcp.core.app import AvatarMCPApp
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -107,9 +105,7 @@ async def main():
             )
 
         # Hide the box but keep constraints
-        await mcp.handle_message(
-            {"jsonrpc": "2.0", "method": "animation_box.hide", "params": {}, "id": "hide_box"}
-        )
+        await mcp.handle_message({"jsonrpc": "2.0", "method": "animation_box.hide", "params": {}, "id": "hide_box"})
 
         # Keep the application running
         while True:

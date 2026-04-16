@@ -78,17 +78,12 @@ class OSCManager:
             self.osc_server = AsyncIOOSCUDPServer(
                 (self.osc_config.server_address, self.osc_config.server_port), self.dispatcher
             )
-            self.osc_client = SimpleUDPClient(
-                self.osc_config.client_address, self.osc_config.client_port
-            )
+            self.osc_client = SimpleUDPClient(self.osc_config.client_address, self.osc_config.client_port)
 
             # Register the handler method
             self.dispatcher.map("/*", self._handle_osc_message)
             self.initialized = True
-            logger.info(
-                f"OSC server initialized on {self.osc_config.server_address}:"
-                f"{self.osc_config.server_port}"
-            )
+            logger.info(f"OSC server initialized on {self.osc_config.server_address}:{self.osc_config.server_port}")
 
         except Exception as e:
             logger.error(f"Failed to initialize OSC server: {e}")
@@ -293,7 +288,7 @@ class AvatarMCPServer:
                 "num_models": len(self.vrm_manager.models),
             }
         except Exception as e:
-            error_msg = f"Initialization failed: {str(e)}"
+            error_msg = f"Initialization failed: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
 
@@ -346,7 +341,7 @@ class AvatarMCPServer:
             }
 
         except Exception as e:
-            error_msg = f"Failed to load avatar: {str(e)}"
+            error_msg = f"Failed to load avatar: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
 
@@ -383,7 +378,7 @@ class AvatarMCPServer:
             }
 
         except Exception as e:
-            error_msg = f"Failed to unload avatar: {str(e)}"
+            error_msg = f"Failed to unload avatar: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
 
@@ -420,7 +415,7 @@ class AvatarMCPServer:
             }
 
         except Exception as e:
-            error_msg = f"Failed to list avatars: {str(e)}"
+            error_msg = f"Failed to list avatars: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
 
@@ -448,7 +443,7 @@ class AvatarMCPServer:
             }
 
         except Exception as e:
-            logger.error(f"Failed to set active avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to set active avatar: {e!s}", exc_info=True)
             return {"status": "error", "message": str(e)}
 
     async def handle_avatar_get_active(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -472,7 +467,7 @@ class AvatarMCPServer:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get active avatar: {str(e)}", exc_info=True)
+            logger.error(f"Failed to get active avatar: {e!s}", exc_info=True)
             return {"status": "error", "message": str(e)}
 
     async def handle_avatar_get_metadata(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -499,7 +494,7 @@ class AvatarMCPServer:
             raise ValueError(f"Avatar not found: {avatar_id}")
 
         except Exception as e:
-            error_msg = f"Failed to get avatar metadata: {str(e)}"
+            error_msg = f"Failed to get avatar metadata: {e!s}"
             logger.error(error_msg, exc_info=True)
             return {"status": "error", "message": error_msg}
 

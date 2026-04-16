@@ -26,11 +26,7 @@ def apply_skinning_to_mesh(mesh, bones, bone_indices_map=None):
     vertices = np.array(mesh.vertices, dtype=np.float32)
 
     # Check if mesh has skinning data
-    if not (
-        hasattr(mesh, "attributes")
-        and "joint_indices" in mesh.attributes
-        and "joint_weights" in mesh.attributes
-    ):
+    if not (hasattr(mesh, "attributes") and "joint_indices" in mesh.attributes and "joint_weights" in mesh.attributes):
         print(f"  ⚠️ Mesh {mesh.name} has no skinning data, using original vertices")
         return vertices
 
@@ -45,8 +41,7 @@ def apply_skinning_to_mesh(mesh, bones, bone_indices_map=None):
     if bone_indices_map is None:
         bone_names = list(bones.keys())
         bone_indices_map = {
-            i: bone_names[i] if i < len(bone_names) else None
-            for i in range(max(joint_indices.flatten()) + 1)
+            i: bone_names[i] if i < len(bone_names) else None for i in range(max(joint_indices.flatten()) + 1)
         }
 
     # Initialize transformed vertices
@@ -121,9 +116,7 @@ def create_skinned_vrm_viewer():
 
         # Setup PyVista viewer
         pv.set_plot_theme("document")
-        plotter = pv.Plotter(
-            window_size=[1400, 900], title="🎌 Skinned VRM Viewer - With Bone Transformations"
-        )
+        plotter = pv.Plotter(window_size=[1400, 900], title="🎌 Skinned VRM Viewer - With Bone Transformations")
 
         print("\n🦴 APPLYING SKINNING TRANSFORMATIONS:")
 
@@ -142,9 +135,7 @@ def create_skinned_vrm_viewer():
             if faces.size > 0:
                 max_index = faces.max()
                 if max_index >= len(skinned_vertices):
-                    print(
-                        f"    ⚠️ Invalid face indices: max {max_index} >= vertex count {len(skinned_vertices)}"
-                    )
+                    print(f"    ⚠️ Invalid face indices: max {max_index} >= vertex count {len(skinned_vertices)}")
                     # Remove faces with invalid indices
                     valid_mask = np.all(faces < len(skinned_vertices), axis=1)
                     faces = faces[valid_mask]
@@ -181,9 +172,7 @@ def create_skinned_vrm_viewer():
                     displacement = np.linalg.norm(skinned_vertices - original_vertices, axis=1)
                     avg_displacement = displacement.mean()
                     max_displacement = displacement.max()
-                    print(
-                        f"  📊 Vertex displacement: avg={avg_displacement:.4f}, max={max_displacement:.4f}"
-                    )
+                    print(f"  📊 Vertex displacement: avg={avg_displacement:.4f}, max={max_displacement:.4f}")
 
                 except Exception as e:
                     print(f"  ❌ Error rendering skinned mesh {i}: {e}")

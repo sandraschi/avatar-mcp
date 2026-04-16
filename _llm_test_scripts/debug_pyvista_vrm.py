@@ -59,9 +59,7 @@ def debug_pyvista_vrm():
         # Create the mesh
         try:
             vrm_pv_mesh = pv.PolyData(vertices, pv_faces)
-            print(
-                f"✅ PyVista mesh created: {vrm_pv_mesh.n_points} points, {vrm_pv_mesh.n_cells} cells"
-            )
+            print(f"✅ PyVista mesh created: {vrm_pv_mesh.n_points} points, {vrm_pv_mesh.n_cells} cells")
 
             # Check if mesh is valid
             print(f"Mesh bounds: {vrm_pv_mesh.bounds}")

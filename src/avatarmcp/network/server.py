@@ -64,10 +64,10 @@ def play_standard_animation(
             "speed": speed,
         }
     except Exception as e:
-        logger.error(f"Failed to play standard animation: {str(e)}")
+        logger.error(f"Failed to play standard animation: {e!s}")
         return {
             "success": False,
-            "message": f"Failed to play standard animation: {str(e)}",
+            "message": f"Failed to play standard animation: {e!s}",
             "error": str(e),
         }
 
@@ -77,10 +77,7 @@ try:
     pass
 except ImportError:
     # Use stderr directly for critical import errors before logging is set up
-    sys.stderr.write(
-        "ERROR: FastMCP 2.10+ is required. Please install with: "
-        "pip install 'fastmcp>=2.10.0,<3.0.0'\n"
-    )
+    sys.stderr.write("ERROR: FastMCP 2.10+ is required. Please install with: pip install 'fastmcp>=2.10.0,<3.0.0'\n")
     sys.exit(1)
 
 # Configure logging
@@ -107,9 +104,7 @@ def main():
     Uses stdio communication as required by FastMCP 2.10+
     """
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     # Register the help command first
     register_help_command(mcp)
@@ -464,9 +459,7 @@ def load_vrm(file_path: str) -> dict[str, Any]:
 
         # Get bone and blend shape names for the response
         bone_names = list(vrm_model.bones.keys()) if hasattr(vrm_model, "bones") else []
-        blend_shape_names = (
-            [bs.name for bs in vrm_model.blend_shapes] if hasattr(vrm_model, "blend_shapes") else []
-        )
+        blend_shape_names = [bs.name for bs in vrm_model.blend_shapes] if hasattr(vrm_model, "blend_shapes") else []
 
         return {
             "status": "success",
@@ -484,10 +477,8 @@ def load_vrm(file_path: str) -> dict[str, Any]:
 
     except Exception as e:
         error_id = f"err_{len(_models) + 1}"
-        logger.error(f"[{error_id}] Failed to load VRM: {str(e)}\n{traceback.format_exc()}")
-        return create_error_response(
-            "Failed to load VRM model", {"error_id": error_id, "error": str(e)}
-        )
+        logger.error(f"[{error_id}] Failed to load VRM: {e!s}\n{traceback.format_exc()}")
+        return create_error_response("Failed to load VRM model", {"error_id": error_id, "error": str(e)})
 
 
 @mcp_tool()
@@ -506,19 +497,15 @@ def unload_vrm(model_id: str) -> dict[str, Any]:
 
         # Clean up resources
         del _models[model_id]
-        if model_id in _animations:
-            del _animations[model_id]
-        if model_id in _blend_shapes:
-            del _blend_shapes[model_id]
-        if model_id in _bone_transforms:
-            del _bone_transforms[model_id]
-        if model_id in _animation_controllers:
-            del _animation_controllers[model_id]
+        _animations.pop(model_id, None)
+        _blend_shapes.pop(model_id, None)
+        _bone_transforms.pop(model_id, None)
+        _animation_controllers.pop(model_id, None)
 
         return {"status": "success", "model_id": model_id}
 
     except Exception as e:
-        logger.error(f"Failed to unload VRM: {str(e)}", exc_info=True)
+        logger.error(f"Failed to unload VRM: {e!s}", exc_info=True)
         return create_error_response("Failed to unload VRM", {"error": str(e)})
 
 
@@ -549,9 +536,7 @@ def play_animation(
             return create_error_response("VRM model has no animations")
 
         # Find the animation in the VRM model
-        animation = next(
-            (a for a in model["vrm_model"].animations if a.name == animation_name), None
-        )
+        animation = next((a for a in model["vrm_model"].animations if a.name == animation_name), None)
 
         if not animation:
             return create_error_response(f"Animation '{animation_name}' not found in VRM model")
@@ -596,7 +581,7 @@ def play_animation(
         }
 
     except Exception as e:
-        logger.error(f"Failed to play animation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to play animation: {e!s}", exc_info=True)
         return create_error_response("Failed to play animation", {"error": str(e)})
     """
     Play an animation on the specified model.
@@ -648,10 +633,8 @@ def play_animation(
 
     except Exception as e:
         error_id = f"anim_err_{len(_active_animations) + 1}"
-        logger.error(f"[{error_id}] Failed to play animation: {str(e)}\n{traceback.format_exc()}")
-        return create_error_response(
-            "Failed to play animation", {"error_id": error_id, "error": str(e)}
-        )
+        logger.error(f"[{error_id}] Failed to play animation: {e!s}\n{traceback.format_exc()}")
+        return create_error_response("Failed to play animation", {"error_id": error_id, "error": str(e)})
 
 
 @mcp_tool()
@@ -684,7 +667,7 @@ def stop_animation(model_id: str, animation_name: str, fade_out: float = 0.0) ->
         }
 
     except Exception as e:
-        logger.error(f"Failed to stop animation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to stop animation: {e!s}", exc_info=True)
         return create_error_response("Failed to stop animation", {"error": str(e)})
 
 
@@ -707,9 +690,7 @@ def set_blend_shape(model_id: str, blend_shape_name: str, weight: float) -> dict
             return create_error_response("Model has no blend shape data")
 
         # Find the blend shape
-        blend_shape = next(
-            (bs for bs in model["vrm_model"].blend_shapes if bs.name == blend_shape_name), None
-        )
+        blend_shape = next((bs for bs in model["vrm_model"].blend_shapes if bs.name == blend_shape_name), None)
 
         if not blend_shape:
             return create_error_response(f"Blend shape '{blend_shape_name}' not found in model")
@@ -727,16 +708,14 @@ def set_blend_shape(model_id: str, blend_shape_name: str, weight: float) -> dict
             try:
                 model["vrm_model"].set_blend_shape_weight(blend_shape_name, weight)
             except Exception as e:
-                logger.warning(f"Could not update blend shape on model: {str(e)}")
+                logger.warning(f"Could not update blend shape on model: {e!s}")
 
         # Get updated blend shape details for the response
         updated_blend_shape = {
             "name": blend_shape_name,
             "preset": getattr(blend_shape, "preset_name", "Custom"),
             "weight": weight,
-            "material_affected": len(blend_shape.material_values)
-            if hasattr(blend_shape, "material_values")
-            else 0,
+            "material_affected": len(blend_shape.material_values) if hasattr(blend_shape, "material_values") else 0,
         }
 
         return {
@@ -748,7 +727,7 @@ def set_blend_shape(model_id: str, blend_shape_name: str, weight: float) -> dict
         }
 
     except Exception as e:
-        logger.error(f"Failed to set blend shape: {str(e)}", exc_info=True)
+        logger.error(f"Failed to set blend shape: {e!s}", exc_info=True)
         return create_error_response("Failed to set blend shape", {"error": str(e)})
 
 
@@ -818,7 +797,7 @@ def set_bone_transform(
                     scale=transform_updates.get("scale"),
                 )
             except Exception as e:
-                logger.warning(f"Could not update bone transform on model: {str(e)}")
+                logger.warning(f"Could not update bone transform on model: {e!s}")
 
         # Update our tracking dictionary
         _bone_transforms[model_id][bone_name].update(transform_updates)
@@ -839,7 +818,7 @@ def set_bone_transform(
         }
 
     except Exception as e:
-        logger.error(f"Failed to set bone transform: {str(e)}", exc_info=True)
+        logger.error(f"Failed to set bone transform: {e!s}", exc_info=True)
         return create_error_response("Failed to set bone transform", {"error": str(e)})
 
 
@@ -856,10 +835,7 @@ def list_animations(model_id: str) -> dict[str, Any]:
         model, _ = get_model(model_id)
 
         # Get standard animations
-        standard_anims = [
-            {"name": name, "type": "standard"}
-            for name in standard_animations.list_standard_animations()
-        ]
+        standard_anims = [{"name": name, "type": "standard"} for name in standard_animations.list_standard_animations()]
 
         # Get VRM animations if available
         vrm_anims = []
@@ -904,7 +880,7 @@ def list_animations(model_id: str) -> dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"Failed to list animations: {str(e)}", exc_info=True)
+        logger.error(f"Failed to list animations: {e!s}", exc_info=True)
         return create_error_response("Failed to list animations", {"error": str(e)})
 
 
@@ -947,14 +923,13 @@ def list_blend_shapes(model_id: str) -> dict[str, Any]:
             "status": "success",
             "model_id": model_id,
             "blend_shapes": {
-                bs.name: _blend_shapes.get(model_id, {}).get(bs.name, 0.0)
-                for bs in model["vrm_model"].blend_shapes
+                bs.name: _blend_shapes.get(model_id, {}).get(bs.name, 0.0) for bs in model["vrm_model"].blend_shapes
             },
             "blend_shape_details": blend_shapes,
         }
 
     except Exception as e:
-        logger.error(f"Failed to list blend shapes: {str(e)}", exc_info=True)
+        logger.error(f"Failed to list blend shapes: {e!s}", exc_info=True)
         return create_error_response("Failed to list blend shapes", {"error": str(e)})
 
 
@@ -1004,7 +979,7 @@ def list_bones(model_id: str) -> dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"Failed to list bones: {str(e)}", exc_info=True)
+        logger.error(f"Failed to list bones: {e!s}", exc_info=True)
         return create_error_response("Failed to list bones", {"error": str(e)})
 
 
@@ -1019,7 +994,7 @@ def cmd_list_standard_animations() -> dict[str, Any]:
         animations = standard_animations.list_standard_animations()
         return {"status": "success", "animations": animations}
     except Exception as e:
-        logger.error(f"Failed to list standard animations: {str(e)}", exc_info=True)
+        logger.error(f"Failed to list standard animations: {e!s}", exc_info=True)
         return create_error_response("Failed to list standard animations", {"error": str(e)})
 
 
@@ -1069,9 +1044,7 @@ def cmd_play_standard_animation(
 
             # Add keyframes
             for kf_data in anim_data.get("keyframes", []):
-                keyframe = AnimationKeyframe(
-                    time=kf_data.get("time", 0.0), bone_name=kf_data.get("bone_name", "")
-                )
+                keyframe = AnimationKeyframe(time=kf_data.get("time", 0.0), bone_name=kf_data.get("bone_name", ""))
 
                 if "rotation" in kf_data:
                     keyframe.rotation = tuple(kf_data["rotation"])
@@ -1089,9 +1062,7 @@ def cmd_play_standard_animation(
             controller.animations[animation_name] = clip
 
         # Play the animation
-        controller.play_animation(
-            name=animation_name, weight=weight, loop=loop, speed=speed, fade_in=fade_in
-        )
+        controller.play_animation(name=animation_name, weight=weight, loop=loop, speed=speed, fade_in=fade_in)
 
         return {
             "status": "success",
@@ -1103,14 +1074,12 @@ def cmd_play_standard_animation(
         }
 
     except Exception as e:
-        logger.error(f"Failed to play standard animation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to play standard animation: {e!s}", exc_info=True)
         return create_error_response("Failed to play standard animation", {"error": str(e)})
 
 
 @mcp.command("stop_standard_animation")
-def cmd_stop_standard_animation(
-    model_id: str, animation_name: str, fade_out: float | None = None
-) -> dict[str, Any]:
+def cmd_stop_standard_animation(model_id: str, animation_name: str, fade_out: float | None = None) -> dict[str, Any]:
     """Stop a standard animation.
 
     Args:
@@ -1136,7 +1105,7 @@ def cmd_stop_standard_animation(
         }
 
     except Exception as e:
-        logger.error(f"Failed to stop standard animation: {str(e)}", exc_info=True)
+        logger.error(f"Failed to stop standard animation: {e!s}", exc_info=True)
         return create_error_response("Failed to stop standard animation", {"error": str(e)})
 
 

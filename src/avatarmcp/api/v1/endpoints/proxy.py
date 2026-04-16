@@ -29,9 +29,7 @@ async def call_tool_proxy(request: dict[str, Any]):
         return {"status": "success", "result": result}
 
     except Exception as e:
-        logger.error(
-            f"Error calling tool proxy {tool_name if 'tool_name' in locals() else 'unknown'}: {e}"
-        )
+        logger.error(f"Error calling tool proxy {tool_name if 'tool_name' in locals() else 'unknown'}: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -42,9 +40,7 @@ async def get_system_status():
         server = get_server()
         # This mirrors the logic in Dashboard.tsx
         return {
-            "active_avatars": len(server.vrm_manager.active_models)
-            if hasattr(server, "vrm_manager")
-            else 0,
+            "active_avatars": len(server.vrm_manager.active_models) if hasattr(server, "vrm_manager") else 0,
             "system_load_pct": 0,  # Placeholder or real metric if available
             "unity_engine": "stable" if server.unity_integration_tool else "absent",
             "vrchat_bridge": "active",

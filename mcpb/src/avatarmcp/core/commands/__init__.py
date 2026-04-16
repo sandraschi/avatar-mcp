@@ -121,8 +121,7 @@ class CommandRegistry:
                 name: {
                     "type": str(param.annotation) if param.annotation != param.empty else "any",
                     "default": param.default if param.default != param.empty else None,
-                    "required": param.default == param.empty
-                    and param.kind == param.POSITIONAL_OR_KEYWORD,
+                    "required": param.default == param.empty and param.kind == param.POSITIONAL_OR_KEYWORD,
                     "kind": str(param.kind).split(".")[-1],
                 }
                 for name, param in cmd["parameters"].items()

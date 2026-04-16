@@ -63,9 +63,7 @@ class CoreAnimationTools:
                 controller = avatar_data["animation_controller"]
 
                 # Play the animation
-                result = controller.play_animation(
-                    animation_name=animation_name, loop=loop, weight=weight, speed=speed
-                )
+                result = controller.play_animation(animation_name=animation_name, loop=loop, weight=weight, speed=speed)
 
                 return {
                     "status": "success",
@@ -78,8 +76,8 @@ class CoreAnimationTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to play animation: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to play animation: {str(e)}"}
+                logger.error(f"Failed to play animation: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to play animation: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def animation_stop(params: dict[str, Any]) -> dict[str, Any]:
@@ -134,8 +132,8 @@ class CoreAnimationTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to stop animation: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to stop animation: {str(e)}"}
+                logger.error(f"Failed to stop animation: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to stop animation: {e!s}"}
 
         @self.mcp_server.mcp.tool()
         def animation_list(params: dict[str, Any]) -> dict[str, Any]:
@@ -186,5 +184,5 @@ class CoreAnimationTools:
                 }
 
             except Exception as e:
-                logger.error(f"Failed to list animations: {str(e)}", exc_info=True)
-                return {"status": "error", "message": f"Failed to list animations: {str(e)}"}
+                logger.error(f"Failed to list animations: {e!s}", exc_info=True)
+                return {"status": "error", "message": f"Failed to list animations: {e!s}"}

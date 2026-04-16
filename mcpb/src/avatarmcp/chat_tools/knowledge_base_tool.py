@@ -57,9 +57,7 @@ class KnowledgeBaseTool(ChatTool):
             ),
         ]
 
-    async def execute(
-        self, query: str, context: str = "", max_results: int = 3, **kwargs
-    ) -> ToolResult:
+    async def execute(self, query: str, context: str = "", max_results: int = 3, **kwargs) -> ToolResult:
         """
         Query the knowledge base.
 
@@ -107,7 +105,7 @@ class KnowledgeBaseTool(ChatTool):
 
         except Exception as e:
             logger.error(f"Error querying knowledge base: {e}", exc_info=True)
-            return ToolResult.error(f"Failed to query knowledge base: {str(e)}")
+            return ToolResult.error(f"Failed to query knowledge base: {e!s}")
 
 
 # Example usage:

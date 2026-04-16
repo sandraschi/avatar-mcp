@@ -33,9 +33,7 @@ def create_test_animation(name: str, duration: float = 1.0) -> AnimationClip:
     for i in range(5):
         t = i * (duration / 4)
         clip.keyframes.append(
-            AnimationKeyframe(
-                time=t, bone_name="Hips", rotation=(0, 0, 0, 1), position=(0, 0, 0.1 * i)
-            )
+            AnimationKeyframe(time=t, bone_name="Hips", rotation=(0, 0, 0, 1), position=(0, 0, 0.1 * i))
         )
 
     # Add a footstep event
@@ -114,9 +112,7 @@ def test_animation_events():
         print(f"Sound event: {event.name} - {event.data['sound']} at {event.time:.2f}s")
 
     def on_effect_event(layer, state, event):
-        print(
-            f"Effect event: {event.name} - {event.data['type']} (intensity: {event.data['intensity']})"
-        )
+        print(f"Effect event: {event.name} - {event.data['type']} (intensity: {event.data['intensity']})")
 
     controller.add_event_handler(AnimationEventType.CUSTOM, on_custom_event)
     controller.add_event_handler(AnimationEventType.SOUND, on_sound_event)
@@ -144,9 +140,7 @@ def test_animation_layering():
     for i in range(5):
         t = i * 0.5
         y_pos = 1.0 + 0.02 * math.sin(t * math.pi)
-        base_anim.keyframes.append(
-            AnimationKeyframe(time=t, bone_name="Hips", position=(0, y_pos, 0))
-        )
+        base_anim.keyframes.append(AnimationKeyframe(time=t, bone_name="Hips", position=(0, y_pos, 0)))
 
     # Create an upper body animation
     upper_anim = AnimationClip(name="upper_wave", duration=2.0, loop=True)
@@ -216,9 +210,7 @@ def run_animation_loop(controller: AnimationController, duration: float, fps: in
             # Print a simple status every second
             if frame_count % fps == 0:
                 elapsed = time.time() - start_time
-                print(
-                    f"Time: {elapsed:.1f}s | Active bones: {len(bone_poses)} | Blend shapes: {len(blend_shapes)}"
-                )
+                print(f"Time: {elapsed:.1f}s | Active bones: {len(bone_poses)} | Blend shapes: {len(blend_shapes)}")
 
             frame_count += 1
             time.sleep(1 / fps)

@@ -43,11 +43,7 @@ class SettingsSection:
         """Convert settings to a dictionary."""
         if is_dataclass(self):
             return asdict(self)
-        return {
-            k: getattr(self, k)
-            for k in dir(self)
-            if not k.startswith("_") and not callable(getattr(self, k))
-        }
+        return {k: getattr(self, k) for k in dir(self) if not k.startswith("_") and not callable(getattr(self, k))}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SettingsSection":
@@ -178,9 +174,7 @@ class SettingsHandler(BaseHandler):
 
     def _initialize_default_settings(self) -> None:
         """Initialize all settings sections with their default values."""
-        self._settings = {
-            name: section_class() for name, section_class in self._default_settings.items()
-        }
+        self._settings = {name: section_class() for name, section_class in self._default_settings.items()}
 
     def _setup_paths(self) -> None:
         """Set up configuration paths."""
@@ -211,7 +205,7 @@ class SettingsHandler(BaseHandler):
                         path_obj = self._config_dir.parent / path
                     path_obj.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
-                    logger.warning(f"Failed to create directory '{path}': {str(e)}")
+                    logger.warning(f"Failed to create directory '{path}': {e!s}")
 
     async def load_settings(self, file_path: str | Path | None = None) -> None:
         """Load settings from a file.
@@ -252,8 +246,8 @@ class SettingsHandler(BaseHandler):
             logger.info(f"Settings loaded from {file_path}")
 
         except Exception as e:
-            logger.error(f"Error loading settings from {file_path}: {str(e)}", exc_info=True)
-            raise SettingsError(f"Failed to load settings: {str(e)}") from e
+            logger.error(f"Error loading settings from {file_path}: {e!s}", exc_info=True)
+            raise SettingsError(f"Failed to load settings: {e!s}") from e
 
     async def save_settings(self, file_path: str | Path | None = None) -> None:
         """Save settings to a file.
@@ -273,9 +267,7 @@ class SettingsHandler(BaseHandler):
             self.validate()
 
             # Convert settings to a dictionary
-            data = {
-                section_name: section.to_dict() for section_name, section in self._settings.items()
-            }
+            data = {section_name: section.to_dict() for section_name, section in self._settings.items()}
 
             # Create parent directories if they don't exist
             file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -292,8 +284,8 @@ class SettingsHandler(BaseHandler):
             logger.info(f"Settings saved to {file_path}")
 
         except Exception as e:
-            logger.error(f"Error saving settings to {file_path}: {str(e)}", exc_info=True)
-            raise SettingsError(f"Failed to save settings: {str(e)}") from e
+            logger.error(f"Error saving settings to {file_path}: {e!s}", exc_info=True)
+            raise SettingsError(f"Failed to save settings: {e!s}") from e
 
     def validate(self) -> None:
         """Validate all settings."""
@@ -304,7 +296,7 @@ class SettingsHandler(BaseHandler):
                 if hasattr(section, "validate"):
                     section.validate()
             except Exception as e:
-                errors.append(f"{section_name}: {str(e)}")
+                errors.append(f"{section_name}: {e!s}")
 
         if errors:
             error_message = "\n- ".join(["Validation failed:"] + errors)
@@ -416,7 +408,7 @@ class SettingsHandler(BaseHandler):
         try:
             self.create_backup()
         except Exception as e:
-            logger.warning(f"Failed to create backup before restore: {str(e)}")
+            logger.warning(f"Failed to create backup before restore: {e!s}")
 
         # Load settings from backup
         with open(backup_file, encoding="utf-8") as f:
@@ -440,7 +432,7 @@ class SettingsHandler(BaseHandler):
             try:
                 await self.save_settings()
             except Exception as e:
-                logger.error(f"Error saving settings on shutdown: {str(e)}")
+                logger.error(f"Error saving settings on shutdown: {e!s}")
 
         logger.info("Settings handler shutdown complete")
 
@@ -478,4 +470,4 @@ def _convert_value(value: Any, target_type: type[T]) -> T:
             return value.lower() in ("true", "1", "t", "y", "yes")
         return target_type(value)
     except (ValueError, TypeError) as e:
-        raise ValueError(f"Cannot convert {value!r} to {target_type.__name__}: {str(e)}") from e
+        raise ValueError(f"Cannot convert {value!r} to {target_type.__name__}: {e!s}") from e

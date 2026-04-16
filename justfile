@@ -32,16 +32,29 @@ default:
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
-# Execute Ruff SOTA v13.1 linting
-lint:
-    Set-Location '{{justfile_directory()}}'
+# Execute Ruff SOTA v13.1 linting (Python)
+lint-py:
     uv run ruff check .
+
+# Execute Biome SOTA v1.4 linting (Frontend)
+lint-web:
+    Set-Location web_sota; npx @biomejs/biome check .
+
+# Global lint (Python + Web)
+lint: lint-py lint-web
 
 # Execute Ruff SOTA v13.1 fix and formatting
 fix:
-    Set-Location '{{justfile_directory()}}'
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
+    Set-Location web_sota; npx @biomejs/biome check --apply .
+    Set-Location web_sota; npx @biomejs/biome format --write .
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+
+# Run all Python tests with pytest
+test:
+    uv run pytest tests/ -v
 
 # ── Hardening ─────────────────────────────────────────────────────────────────
 

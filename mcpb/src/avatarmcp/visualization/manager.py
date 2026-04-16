@@ -37,9 +37,7 @@ class VisualizationManager:
             return
 
         self._stop_event.clear()
-        self._viewer_thread = threading.Thread(
-            target=self._run_viewer, args=(window_size,), daemon=True
-        )
+        self._viewer_thread = threading.Thread(target=self._run_viewer, args=(window_size,), daemon=True)
         self._viewer_thread.start()
         logger.info("Started 3D viewer")
 

@@ -136,9 +136,7 @@ class AvatarSamplingTool:
             try:
                 workflow_prompt = params.get("workflow_prompt", "")
                 avatar_id = params.get("avatar_id", "")
-                available_ops = params.get(
-                    "available_operations", list(self._available_operations.keys())
-                )
+                available_ops = params.get("available_operations", list(self._available_operations.keys()))
                 max_iterations = min(params.get("max_iterations", 5), 20)  # Cap at 20
                 context = params.get("context", {})
                 strict_mode = params.get("strict_mode", True)
@@ -265,9 +263,7 @@ class AvatarSamplingTool:
                 "total_iterations": iteration_count,
                 "max_iterations": max_iterations,
                 "execution_time_seconds": execution_time,
-                "operations_per_second": len(operations_executed) / execution_time
-                if execution_time > 0
-                else 0,
+                "operations_per_second": len(operations_executed) / execution_time if execution_time > 0 else 0,
             }
 
         except Exception as e:
@@ -292,12 +288,18 @@ class AvatarSamplingTool:
     ) -> list[dict[str, Any]]:
         """Generate operation sequence via FastMCP 3.1 Context.sample(); fallback if sampling unavailable."""
 
-        system_prompt = """You are an avatar workflow planner. Given a user's natural language description, output a JSON object with a single key "operations" whose value is a list of steps. Each step must have:
+        system_prompt = (
+            """You are an avatar workflow planner. Given a user's natural language description, output a JSON object with a single key "operations" whose value is a list of steps. Each step must have:
 - "name": one of the allowed operation names (exactly as given)
 - "params": object with parameters for that operation (e.g. animation_type, emotion, bone, delay)
 - "delay": optional number of seconds to wait after this step (omit if not needed)
 
-Use only these operation names: """ + ", ".join(repr(op) for op in available_operations) + """. Keep the list short (at most """ + str(max_iterations) + """ steps). Output only the structured response, no commentary."""
+Use only these operation names: """
+            + ", ".join(repr(op) for op in available_operations)
+            + """. Keep the list short (at most """
+            + str(max_iterations)
+            + """ steps). Output only the structured response, no commentary."""
+        )
 
         user_message = f"Plan the avatar workflow (at most {max_iterations} steps): {workflow_prompt}"
 
@@ -329,13 +331,23 @@ Use only these operation names: """ + ", ".join(repr(op) for op in available_ope
         prompt_lower = workflow_prompt.lower()
         sequence: list[dict[str, Any]] = []
         if any(w in prompt_lower for w in ["dance", "move", "animate"]):
-            sequence.append({"name": "play_animation", "params": {"animation_type": "dance" if "dance" in prompt_lower else "movement"}})
+            sequence.append(
+                {
+                    "name": "play_animation",
+                    "params": {"animation_type": "dance" if "dance" in prompt_lower else "movement"},
+                }
+            )
         if any(w in prompt_lower for w in ["smile", "happy", "joy", "facial"]):
             sequence.append({"name": "set_morph", "params": {"emotion": "happy"}})
         if any(w in prompt_lower for w in ["wave", "gesture", "arm"]):
             sequence.append({"name": "control_bone", "params": {"bone": "arm", "action": "wave"}})
         if any(w in prompt_lower for w in ["surprise", "excited", "emotion"]):
-            sequence.append({"name": "set_emotion", "params": {"emotion_type": "excited" if "excited" in prompt_lower else "surprised"}})
+            sequence.append(
+                {
+                    "name": "set_emotion",
+                    "params": {"emotion_type": "excited" if "excited" in prompt_lower else "surprised"},
+                }
+            )
         if any(w in prompt_lower for w in ["sequence", "complex", "choreography"]):
             sequence.append({"name": "create_sequence", "params": {"complexity": "high"}})
         return sequence[:max_iterations]
@@ -350,9 +362,7 @@ Use only these operation names: """ + ", ".join(repr(op) for op in available_ope
 
         if operation_name not in self._available_operations:
             available_ops = list(self._available_operations.keys())
-            raise ValueError(
-                f"Unknown operation '{operation_name}'. Allowed: {', '.join(available_ops)}."
-            )
+            raise ValueError(f"Unknown operation '{operation_name}'. Allowed: {', '.join(available_ops)}.")
 
         # Add avatar_id to params
         params["avatar_id"] = avatar_id

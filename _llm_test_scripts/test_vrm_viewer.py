@@ -14,9 +14,7 @@ def create_test_animation():
     from src.avatarmcp.core.animation import AnimationBlendMode, AnimationClip, AnimationKeyframe
 
     # Create a simple animation clip
-    animation = AnimationClip(
-        name="bounce", duration=2.0, loop=True, blend_mode=AnimationBlendMode.OVERRIDE
-    )
+    animation = AnimationClip(name="bounce", duration=2.0, loop=True, blend_mode=AnimationBlendMode.OVERRIDE)
 
     # Create keyframes for the animation
     # Start frame - no movement
@@ -109,9 +107,7 @@ async def test_vrm_viewer():
 
     # Show the window in non-blocking mode
     print("Showing window...")
-    viewer.plotter.show(
-        title="VRM Viewer", auto_close=False, interactive=True, interactive_update=True
-    )
+    viewer.plotter.show(title="VRM Viewer", auto_close=False, interactive=True, interactive_update=True)
 
     # Keep the viewer open for a while
     print("Window should be visible now. Close the window to exit.")

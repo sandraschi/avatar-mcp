@@ -26,9 +26,7 @@ def create_fixed_face_viewer():
 
         # Setup PyVista viewer
         pv.set_plot_theme("document")
-        plotter = pv.Plotter(
-            window_size=[1400, 900], title="🎌 Fixed Face VRM Viewer - Proper Triangular Surfaces"
-        )
+        plotter = pv.Plotter(window_size=[1400, 900], title="🎌 Fixed Face VRM Viewer - Proper Triangular Surfaces")
 
         print("\n🔧 FIXING FACE RENDERING:")
 
@@ -65,9 +63,7 @@ def create_fixed_face_viewer():
                             pv_mesh = pv.PolyData(vertices, valid_faces)
 
                             # Verify the mesh was created correctly
-                            print(
-                                f"  PyVista mesh: {pv_mesh.n_points} points, {pv_mesh.n_cells} cells"
-                            )
+                            print(f"  PyVista mesh: {pv_mesh.n_points} points, {pv_mesh.n_cells} cells")
 
                             plotter.add_mesh(
                                 pv_mesh,

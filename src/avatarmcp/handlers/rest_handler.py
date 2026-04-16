@@ -152,7 +152,7 @@ class RESTHandler(BaseHandler):
 
         @self.app.exception_handler(Exception)
         async def global_exception_handler(request: Request, exc: Exception):
-            logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+            logger.error(f"Unhandled exception: {exc!s}", exc_info=True)
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={
@@ -240,18 +240,16 @@ class RESTHandler(BaseHandler):
                 }
 
             except Exception as e:
-                logger.error(f"Error loading avatar: {str(e)}", exc_info=True)
+                logger.error(f"Error loading avatar: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to load avatar: {str(e)}",
+                        "message": f"Failed to load avatar: {e!s}",
                     },
                 ) from e
 
-        @api_router.post(
-            "/v1/avatars/{model_id}/unload", response_model=StatusResponse, tags=["Avatars"]
-        )
+        @api_router.post("/v1/avatars/{model_id}/unload", response_model=StatusResponse, tags=["Avatars"])
         async def unload_avatar(
             model_id: str,
             force: bool = False,
@@ -268,9 +266,7 @@ class RESTHandler(BaseHandler):
                 )
 
             try:
-                response = await self.server.avatar_handler.handle_avatar_unload(
-                    {"id": model_id, "force": force}
-                )
+                response = await self.server.avatar_handler.handle_avatar_unload({"id": model_id, "force": force})
 
                 if response.get("status") != "success":
                     raise HTTPException(
@@ -288,12 +284,12 @@ class RESTHandler(BaseHandler):
                 }
 
             except Exception as e:
-                logger.error(f"Error unloading avatar: {str(e)}", exc_info=True)
+                logger.error(f"Error unloading avatar: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to unload avatar: {str(e)}",
+                        "message": f"Failed to unload avatar: {e!s}",
                     },
                 ) from e
 
@@ -330,12 +326,12 @@ class RESTHandler(BaseHandler):
                 return {"status": "success", "data": response.get("avatars", {})}
 
             except Exception as e:
-                logger.error(f"Error listing avatars: {str(e)}", exc_info=True)
+                logger.error(f"Error listing avatars: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to list avatars: {str(e)}",
+                        "message": f"Failed to list avatars: {e!s}",
                     },
                 ) from e
 
@@ -385,12 +381,12 @@ class RESTHandler(BaseHandler):
                 }
 
             except Exception as e:
-                logger.error(f"Error playing animation: {str(e)}", exc_info=True)
+                logger.error(f"Error playing animation: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to play animation: {str(e)}",
+                        "message": f"Failed to play animation: {e!s}",
                     },
                 ) from e
 
@@ -412,9 +408,7 @@ class RESTHandler(BaseHandler):
             try:
                 blend_time = request.blend_time if request else 0.2
 
-                response = await self.server.animation_handler.handle_animation_stop(
-                    {"blend_time": blend_time}
-                )
+                response = await self.server.animation_handler.handle_animation_stop({"blend_time": blend_time})
 
                 if response.get("status") != "success":
                     raise HTTPException(
@@ -432,12 +426,12 @@ class RESTHandler(BaseHandler):
                 }
 
             except Exception as e:
-                logger.error(f"Error stopping animation: {str(e)}", exc_info=True)
+                logger.error(f"Error stopping animation: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to stop animation: {str(e)}",
+                        "message": f"Failed to stop animation: {e!s}",
                     },
                 ) from e
 
@@ -476,12 +470,12 @@ class RESTHandler(BaseHandler):
                 }
 
             except Exception as e:
-                logger.error(f"Error listing animations: {str(e)}", exc_info=True)
+                logger.error(f"Error listing animations: {e!s}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail={
                         "error": "internal_error",
-                        "message": f"Failed to list animations: {str(e)}",
+                        "message": f"Failed to list animations: {e!s}",
                     },
                 ) from e
 

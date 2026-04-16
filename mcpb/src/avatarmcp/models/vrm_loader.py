@@ -171,7 +171,7 @@ class VRMLoader:
                     data = f.read()
                 gltf = GLTF2().from_json(data)
         except Exception as e:
-            raise ValueError(f"Failed to load VRM file: {str(e)}") from e
+            raise ValueError(f"Failed to load VRM file: {e!s}") from e
 
         # Create a new VRM model
         model = VRMModel()
@@ -250,19 +250,14 @@ class VRMLoader:
                 if hasattr(img, "bufferView") and img.bufferView is not None:
                     # Get data from buffer view
                     if img.bufferView >= len(gltf.bufferViews):
-                        logger.warning(
-                            f"Image {tex.source} references invalid buffer view {img.bufferView}"
-                        )
+                        logger.warning(f"Image {tex.source} references invalid buffer view {img.bufferView}")
                         continue
 
                     buffer_view = gltf.bufferViews[img.bufferView]
 
                     # Get the buffer containing the data
                     if buffer_view.buffer >= len(gltf.buffers):
-                        logger.warning(
-                            f"BufferView {img.bufferView} references invalid buffer "
-                            f"{buffer_view.buffer}"
-                        )
+                        logger.warning(f"BufferView {img.bufferView} references invalid buffer {buffer_view.buffer}")
                         continue
 
                     buffer = gltf.buffers[buffer_view.buffer]
@@ -292,10 +287,7 @@ class VRMLoader:
                                     f.seek(buffer_view.byteOffset)
                                     texture_data = f.read(buffer_view.byteLength)
                         except Exception as e:
-                            logger.warning(
-                                f"Failed to load texture from "
-                                f"{getattr(buffer, 'uri', 'unknown')}: {str(e)}"
-                            )
+                            logger.warning(f"Failed to load texture from {getattr(buffer, 'uri', 'unknown')}: {e!s}")
                             continue
 
                 # Handle embedded image data
@@ -318,7 +310,7 @@ class VRMLoader:
                             with open(img.uri, "rb") as f:
                                 texture_data = f.read()
                     except Exception as e:
-                        logger.warning(f"Failed to load texture from URI {img.uri}: {str(e)}")
+                        logger.warning(f"Failed to load texture from URI {img.uri}: {e!s}")
                         continue
                 else:
                     logger.warning(f"No texture data available for texture {tex_idx}")
@@ -342,7 +334,7 @@ class VRMLoader:
                 textures.append(texture)
 
             except Exception as e:
-                logger.error(f"Error loading texture {tex_idx}: {str(e)}", exc_info=True)
+                logger.error(f"Error loading texture {tex_idx}: {e!s}", exc_info=True)
                 continue
 
         return textures
@@ -401,9 +393,7 @@ class VRMLoader:
                     if 0 <= tex_index < len(textures):
                         material.texture_indices["baseColor"] = tex_index
                     else:
-                        logger.warning(
-                            f"Invalid baseColorTexture index {tex_index} in material {i}"
-                        )
+                        logger.warning(f"Invalid baseColorTexture index {tex_index} in material {i}")
 
                 # Handle metallic and roughness factors
                 if hasattr(pbr, "metallicFactor") and pbr.metallicFactor is not None:
@@ -424,21 +414,15 @@ class VRMLoader:
                     if 0 <= tex_index < len(textures):
                         material.texture_indices["baseColor"] = tex_index
                     else:
-                        logger.warning(
-                            f"Invalid baseColorTexture index {tex_index} in material {i}"
-                        )
+                        logger.warning(f"Invalid baseColorTexture index {tex_index} in material {i}")
 
                 # Handle metallic-roughness texture
-                if hasattr(pbr, "metallicRoughnessTexture") and hasattr(
-                    pbr.metallicRoughnessTexture, "index"
-                ):
+                if hasattr(pbr, "metallicRoughnessTexture") and hasattr(pbr.metallicRoughnessTexture, "index"):
                     tex_index = pbr.metallicRoughnessTexture.index
                     if 0 <= tex_index < len(textures):
                         material.texture_indices["metallicRoughness"] = tex_index
                     else:
-                        logger.warning(
-                            f"Invalid metallicRoughnessTexture index {tex_index} in material {i}"
-                        )
+                        logger.warning(f"Invalid metallicRoughnessTexture index {tex_index} in material {i}")
 
                 # Handle normal map
                 if hasattr(mat, "normalTexture") and hasattr(mat.normalTexture, "index"):
@@ -458,13 +442,9 @@ class VRMLoader:
                         material.texture_indices["occlusion"] = tex_index
                         # Store occlusion strength if available
                         if hasattr(mat.occlusionTexture, "strength"):
-                            material.texture_indices["occlusionStrength"] = float(
-                                mat.occlusionTexture.strength
-                            )
+                            material.texture_indices["occlusionStrength"] = float(mat.occlusionTexture.strength)
                     else:
-                        logger.warning(
-                            f"Invalid occlusionTexture index {tex_index} in material {i}"
-                        )
+                        logger.warning(f"Invalid occlusionTexture index {tex_index} in material {i}")
 
                 # Handle emissive factor
                 if hasattr(mat, "emissiveFactor") and mat.emissiveFactor is not None:
@@ -496,16 +476,12 @@ class VRMLoader:
                     material.double_sided = bool(mat.doubleSided)
 
                 # Handle VRM material properties if available
-                if (
-                    hasattr(mat, "extensions")
-                    and mat.extensions
-                    and "KHR_materials_unlit" in mat.extensions
-                ):
+                if hasattr(mat, "extensions") and mat.extensions and "KHR_materials_unlit" in mat.extensions:
                     material.texture_indices["unlit"] = True
 
                 materials.append(material)
             except Exception as e:
-                logger.error(f"Error loading material {i}: {str(e)}", exc_info=True)
+                logger.error(f"Error loading material {i}: {e!s}", exc_info=True)
                 # Create a default material if loading fails
                 default_mat = VRMMaterial(
                     name=f"error_material_{i}",
@@ -519,11 +495,7 @@ class VRMLoader:
     @classmethod
     def _get_accessor_data(cls, gltf, accessor_idx):
         """Get data from an accessor using pygltflib's built-in methods."""
-        if (
-            accessor_idx is None
-            or not hasattr(gltf, "accessors")
-            or accessor_idx >= len(gltf.accessors)
-        ):
+        if accessor_idx is None or not hasattr(gltf, "accessors") or accessor_idx >= len(gltf.accessors):
             return None
 
         try:
@@ -596,11 +568,11 @@ class VRMLoader:
                 return None
 
             except Exception as e:
-                logger.warning(f"Error getting data from accessor: {str(e)}")
+                logger.warning(f"Error getting data from accessor: {e!s}")
                 return None
 
         except Exception as e:
-            logger.error(f"Error in _get_accessor_data: {str(e)}")
+            logger.error(f"Error in _get_accessor_data: {e!s}")
             return None
 
     @classmethod
@@ -626,10 +598,7 @@ class VRMLoader:
             if len(faces) % 3 == 0:
                 faces = faces.reshape(-1, 3)
             else:
-                logger.warning(
-                    f"Face array length {len(faces)} not divisible by 3 for mesh "
-                    f"{mesh_idx}, truncating"
-                )
+                logger.warning(f"Face array length {len(faces)} not divisible by 3 for mesh {mesh_idx}, truncating")
                 faces = faces[: len(faces) // 3 * 3].reshape(-1, 3)
 
         # Validate face indices are within vertex bounds
@@ -644,10 +613,7 @@ class VRMLoader:
                 valid_mask = np.all(faces < vertex_count, axis=1)
                 invalid_count = np.sum(~valid_mask)
                 faces = faces[valid_mask]
-                logger.warning(
-                    f"Removed {invalid_count} invalid faces from mesh {mesh_idx}, "
-                    f"{len(faces)} remain"
-                )
+                logger.warning(f"Removed {invalid_count} invalid faces from mesh {mesh_idx}, {len(faces)} remain")
 
         return faces
 
@@ -684,15 +650,10 @@ class VRMLoader:
                         try:
                             positions = np.array(positions, dtype=np.float32)
                             if len(positions.shape) != 2 or positions.shape[1] != 3:
-                                logger.warning(
-                                    f"Invalid position data shape {positions.shape} "
-                                    f"in mesh {mesh_idx}"
-                                )
+                                logger.warning(f"Invalid position data shape {positions.shape} in mesh {mesh_idx}")
                                 positions = None
                         except Exception as e:
-                            logger.warning(
-                                f"Error processing positions for mesh {mesh_idx}: {str(e)}"
-                            )
+                            logger.warning(f"Error processing positions for mesh {mesh_idx}: {e!s}")
                             positions = None
 
                 if positions is None:
@@ -721,9 +682,7 @@ class VRMLoader:
                                     )
                                     normals = None
                             except Exception as e:
-                                logger.warning(
-                                    f"Error processing normals for mesh {mesh_idx}: {str(e)}"
-                                )
+                                logger.warning(f"Error processing normals for mesh {mesh_idx}: {e!s}")
 
                     # Get texture coordinates if available
                     if hasattr(attrs, "TEXCOORD_0") and attrs.TEXCOORD_0 is not None:
@@ -738,10 +697,7 @@ class VRMLoader:
                                     )
                                     tex_coords = None
                             except Exception as e:
-                                logger.warning(
-                                    f"Error processing texture coordinates for mesh {mesh_idx}: "
-                                    f"{str(e)}"
-                                )
+                                logger.warning(f"Error processing texture coordinates for mesh {mesh_idx}: {e!s}")
 
                     # Get joint indices if available (for skinning)
                     if hasattr(attrs, "JOINTS_0") and attrs.JOINTS_0 is not None:
@@ -756,9 +712,7 @@ class VRMLoader:
                                     )
                                     joint_indices = None
                             except Exception as e:
-                                logger.warning(
-                                    f"Error processing joint indices for mesh {mesh_idx}: {str(e)}"
-                                )
+                                logger.warning(f"Error processing joint indices for mesh {mesh_idx}: {e!s}")
 
                     # Get joint weights if available (for skinning)
                     if hasattr(attrs, "WEIGHTS_0") and attrs.WEIGHTS_0 is not None:
@@ -773,9 +727,7 @@ class VRMLoader:
                                     )
                                     joint_weights = None
                             except Exception as e:
-                                logger.warning(
-                                    f"Error processing joint weights for mesh {mesh_idx}: {str(e)}"
-                                )
+                                logger.warning(f"Error processing joint weights for mesh {mesh_idx}: {e!s}")
 
                 # Get faces (indices)
                 faces = None
@@ -817,9 +769,7 @@ class VRMLoader:
                                 faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
 
                         except Exception as e:
-                            logger.warning(
-                                f"Error processing indices for mesh {mesh_idx}: {str(e)}"
-                            )
+                            logger.warning(f"Error processing indices for mesh {mesh_idx}: {e!s}")
                             # Fall back to non-indexed geometry
                             faces = np.arange(len(positions), dtype=np.uint32).reshape(-1, 1)
                 else:
@@ -835,9 +785,7 @@ class VRMLoader:
                 vrm_mesh = VRMMesh(
                     name=f"mesh_{len(meshes)}",
                     vertices=positions,
-                    faces=faces
-                    if faces is not None
-                    else np.array([], dtype=np.uint32).reshape(0, 3),
+                    faces=faces if faces is not None else np.array([], dtype=np.uint32).reshape(0, 3),
                     normals=normals,
                     texcoords=tex_coords,
                     material_index=getattr(primitive, "material", None),
@@ -857,7 +805,7 @@ class VRMLoader:
                 meshes.append(vrm_mesh)
 
             except Exception as e:
-                logger.error(f"Error loading mesh {mesh_idx}: {str(e)}", exc_info=True)
+                logger.error(f"Error loading mesh {mesh_idx}: {e!s}", exc_info=True)
                 continue
 
         return meshes
@@ -892,11 +840,9 @@ class VRMLoader:
                 inverse_bind_data = cls._get_accessor_data(gltf, skin.inverseBindMatrices)
                 if inverse_bind_data is not None:
                     try:
-                        inverse_bind_matrices = np.array(
-                            inverse_bind_data, dtype=np.float32
-                        ).reshape(-1, 4, 4)
+                        inverse_bind_matrices = np.array(inverse_bind_data, dtype=np.float32).reshape(-1, 4, 4)
                     except Exception as e:
-                        logger.warning(f"Error processing inverse bind matrices: {str(e)}")
+                        logger.warning(f"Error processing inverse bind matrices: {e!s}")
 
             # Create a mapping from node index to bone name
             node_to_bone = {}
@@ -926,11 +872,7 @@ class VRMLoader:
                     if hasattr(node, "rotation") and node.rotation is not None
                     else (0.0, 0.0, 0.0, 1.0)
                 )
-                scale = (
-                    tuple(node.scale)
-                    if hasattr(node, "scale") and node.scale is not None
-                    else (1.0, 1.0, 1.0)
-                )
+                scale = tuple(node.scale) if hasattr(node, "scale") and node.scale is not None else (1.0, 1.0, 1.0)
 
                 # Get inverse bind matrix if available
                 inv_bind_matrix = None
@@ -968,26 +910,18 @@ class VRMLoader:
                             child_bone.parent = bone_name
 
                 # Handle skin root bone
-                if (
-                    hasattr(skin, "skeleton")
-                    and skin.skeleton is not None
-                    and joint_idx == skin.skeleton
-                ):
+                if hasattr(skin, "skeleton") and skin.skeleton is not None and joint_idx == skin.skeleton:
                     bones[bone_name].is_root = True
 
             # If we have a skeleton root, mark it
-            if (
-                hasattr(skin, "skeleton")
-                and skin.skeleton is not None
-                and skin.skeleton in node_to_bone
-            ):
+            if hasattr(skin, "skeleton") and skin.skeleton is not None and skin.skeleton in node_to_bone:
                 root_bone_name = node_to_bone[skin.skeleton]
                 bones[root_bone_name].is_root = True
 
             logger.info(f"Loaded {len(bones)} bones for armature")
 
         except Exception as e:
-            logger.error(f"Error loading armature: {str(e)}", exc_info=True)
+            logger.error(f"Error loading armature: {e!s}", exc_info=True)
 
         return bones
 
@@ -1081,9 +1015,7 @@ class VRMLoader:
                             ]:
                                 category = "preset"
 
-                            blend_shape = VRMBlendShape(
-                                name=blend_shape_name, category=category, is_binary=is_binary
-                            )
+                            blend_shape = VRMBlendShape(name=blend_shape_name, category=category, is_binary=is_binary)
                             blend_shapes.append(blend_shape)
 
                         # Process position deltas (morph target)
@@ -1101,8 +1033,7 @@ class VRMLoader:
                                         )
                                 except Exception as e:
                                     logger.warning(
-                                        f"Error processing position deltas for blend shape "
-                                        f"{blend_shape_name}: {str(e)}"
+                                        f"Error processing position deltas for blend shape {blend_shape_name}: {e!s}"
                                     )
 
                         # Process normal deltas if available
@@ -1111,17 +1042,13 @@ class VRMLoader:
                             if normals is not None:
                                 try:
                                     normal_deltas = np.array(normals, dtype=np.float32)
-                                    if (
-                                        len(normal_deltas.shape) == 2
-                                        and normal_deltas.shape[1] == 3
-                                    ):
+                                    if len(normal_deltas.shape) == 2 and normal_deltas.shape[1] == 3:
                                         if not hasattr(blend_shape, "normal_deltas"):
                                             blend_shape.normal_deltas = {}
                                         blend_shape.normal_deltas[mesh_idx] = normal_deltas
                                 except Exception as e:
                                     logger.warning(
-                                        f"Error processing normal deltas for blend shape "
-                                        f"{blend_shape_name}: {str(e)}"
+                                        f"Error processing normal deltas for blend shape {blend_shape_name}: {e!s}"
                                     )
 
                         # Process tangent deltas if available
@@ -1130,31 +1057,24 @@ class VRMLoader:
                             if tangents is not None:
                                 try:
                                     tangent_deltas = np.array(tangents, dtype=np.float32)
-                                    if (
-                                        len(tangent_deltas.shape) == 2
-                                        and tangent_deltas.shape[1] == 3
-                                    ):
+                                    if len(tangent_deltas.shape) == 2 and tangent_deltas.shape[1] == 3:
                                         if not hasattr(blend_shape, "tangent_deltas"):
                                             blend_shape.tangent_deltas = {}
                                         blend_shape.tangent_deltas[mesh_idx] = tangent_deltas
                                 except Exception as e:
                                     logger.warning(
-                                        f"Error processing tangent deltas for blend shape "
-                                        f"{blend_shape_name}: {str(e)}"
+                                        f"Error processing tangent deltas for blend shape {blend_shape_name}: {e!s}"
                                     )
 
                     except Exception as e:
                         logger.error(
-                            f"Error processing blend shape target {target_idx} for mesh "
-                            f"{mesh_idx}: {str(e)}",
+                            f"Error processing blend shape target {target_idx} for mesh {mesh_idx}: {e!s}",
                             exc_info=True,
                         )
                         continue
 
             except Exception as e:
-                logger.error(
-                    f"Error processing mesh {mesh_idx} for blend shapes: {str(e)}", exc_info=True
-                )
+                logger.error(f"Error processing mesh {mesh_idx} for blend shapes: {e!s}", exc_info=True)
                 continue
 
         logger.info(f"Loaded {len(blend_shapes)} blend shapes")
@@ -1173,9 +1093,7 @@ class VRMLoader:
 
             if "firstPersonBone" in fp_data:
                 self.first_person.first_person_bone = fp_data["firstPersonBone"]
-                self.first_person.first_person_bone_offset = fp_data.get(
-                    "firstPersonBoneOffset", [0, 0, 0]
-                )
+                self.first_person.first_person_bone_offset = fp_data.get("firstPersonBoneOffset", [0, 0, 0])
 
             # Parse look-at settings
             if "lookAtTypeName" in fp_data:
