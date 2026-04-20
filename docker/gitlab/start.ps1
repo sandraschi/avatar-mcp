@@ -1,3 +1,13 @@
+﻿Param([switch]$Headless)
+
+# --- SOTA Headless Standard ---
+if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {
+    Start-Process pwsh -ArgumentList '-NoProfile', '-File', $PSCommandPath, '-Headless' -WindowStyle Hidden
+    exit
+}
+$WindowStyle = if ($Headless) { 'Hidden' } else { 'Normal' }
+# ------------------------------
+
 # *********************************************************************************
 # * SOTA Fleet Orchestration - Standardized Start System (v1.19.0)                *
 # * Generated/Repaired by Antigravity on 2026-03-03                  *
@@ -38,4 +48,5 @@ docker-compose up -d
 Write-Host "Orchestration Complete. GitLab is warming up." -ForegroundColor Green
 Write-Host "Access URL: http://localhost:8929" -ForegroundColor Green
 Write-Host "Note: Internal boot may take 2-5 minutes on first run." -ForegroundColor Cyan
+
 

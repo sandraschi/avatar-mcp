@@ -1,13 +1,15 @@
 # AvatarMCP
 
+[![FastMCP Version](https://img.shields.io/badge/FastMCP-3.1.0-blue?style=flat-square&logo=python&logoColor=white)](https://github.com/sandraschi/fastmcp) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![Linted with Biome](https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white)](https://biomejs.dev/) [![Built with Just](https://img.shields.io/badge/Built_with-Just-000000?style=flat-square&logo=gnu-bash&logoColor=white)](https://github.com/casey/just)
+
 **By FlowEngineer sandraschi**
 
-> FastMCP 2.14.3+ compatible VRM avatar management and animation server with conversational capabilities, SEP-1577 sampling support, and VRChat OSC integration
+> FastMCP 3.1.0+ compatible VRM avatar management and animation server with conversational capabilities, SEP-1577 sampling support, and VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
-[![FastMCP 2.14.3](https://img.shields.io/badge/FastMCP-2.14.3+-brightgreen)](https://fastmcp.readthedocs.io/)
+[![FastMCP 3.1.0](https://img.shields.io/badge/FastMCP-2.14.3+-brightgreen)](https://FastMCP 3.1.0readthedocs.io/)
 [![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
 [![Portmanteau Tools](https://img.shields.io/badge/Tools-Portmanteau-blueviolet)](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md)
 
@@ -15,13 +17,13 @@
 
 ### Core Features
 
-- **Portmanteau Tools Architecture**: Consolidated 16 portmanteau tools with FastMCP 2.14.3 sampling capabilities
+- **Portmanteau Tools Architecture**: Consolidated 16 portmanteau tools with FastMCP 3.1.0 sampling capabilities
   - Exposes only portmanteau tools to MCP (no raw core-tool list); bootstrap via `system_monitor(operation="initialize")`
   - Reduces tool explosion from 28 individual tools to 16 unified interfaces
   - Operation-based design with comprehensive multiline docstrings
   - Clean, maintainable architecture with focused tool classes
 
-- **FastMCP 2.14.3 Compatible**: Fully implements the MCP protocol with sampling capabilities (SEP-1577) for agentic workflows
+- **FastMCP 3.1.0 Compatible**: Fully implements the MCP protocol with sampling capabilities (SEP-1577) for agentic workflows
 - **Agentic Sampling Workflows**: LLM-driven orchestration of complex avatar behaviors without manual sequencing
 - **VRM 2.0 Support**: Load and manage VRM 2.0 avatar models with real-time manipulation
 - **VRChat OSC Integration**: Seamless communication with VRChat for avatar control
@@ -41,7 +43,7 @@
 
 ##  Portmanteau Tools Architecture
 
-AvatarMCP uses a  portmanteau tools architecture that consolidates related functionality into unified interfaces, leveraging FastMCP 2.14.3 sampling capabilities for agentic workflows.
+AvatarMCP uses a  portmanteau tools architecture that consolidates related functionality into unified interfaces, leveraging FastMCP 3.1.0 sampling capabilities for agentic workflows.
 
 ### Benefits
 
@@ -49,7 +51,7 @@ AvatarMCP uses a  portmanteau tools architecture that consolidates related funct
 - **Better Organization**: Related functionality logically grouped together
 - **Easier Maintenance**: Single class per functional area
 - **Improved Discoverability**: Clearer tool purposes and operations
-- **Standards Compliance**: FastMCP 2.12 compliant with multiline docstrings
+- **Standards Compliance**: FastMCP 3.1.0 compliant with multiline docstrings
 - **Cleaner API**: More intuitive tool structure with operation-based design
 
 ### Architecture Overview
@@ -81,12 +83,12 @@ For detailed architecture documentation, see [Portmanteau Tools Plan](docs/archi
 
 ### Core Components
 
-- `MCPServer`: FastMCP 2.13.0-compatible server implementation
+- `MCPServer`: FastMCP 3.1.0-compatible server implementation
 - `VRChatOSC`: OSC integration with VRChat for avatar control
 - `VRMModel`: VRM 2.0 model loading and management
 - `AnimationController`: Manage and play animations on avatars
 - `MCPTools`: MCP command handlers for avatar control
-- `AvatarSamplingTool`: Agentic workflow orchestration using FastMCP 2.14.3 sampling
+- `AvatarSamplingTool`: Agentic workflow orchestration using FastMCP 3.1.0 sampling
 
 ### Feature Guides
 
@@ -164,7 +166,7 @@ For detailed documentation, see [AVATAR_CONTROLS.md](docs/AVATAR_CONTROLS.md).
 
 ### MCP Protocol Support
 
-AvatarMCP implements the following portmanteau tools leveraging FastMCP 2.14.3 sampling capabilities:
+AvatarMCP implements the following portmanteau tools leveraging FastMCP 3.1.0 sampling capabilities:
 
 #### Core Portmanteau Tools
 
@@ -188,9 +190,9 @@ AvatarMCP implements the following portmanteau tools leveraging FastMCP 2.14.3 s
 - **`unity_config_manager`**: Unity configuration management
 - **`server_controller`**: Server lifecycle management
 
-##  Agentic Sampling Workflows (FastMCP 2.14.3)
+##  Agentic Sampling Workflows (FastMCP 3.1.0)
 
-AvatarMCP introduces **agentic sampling workflows** - a  feature leveraging FastMCP 2.14.3's SEP-1577 "sampling with tools" specification. This enables LLMs to autonomously orchestrate complex avatar behaviors without manual step-by-step programming.
+AvatarMCP introduces **agentic sampling workflows** - a  feature leveraging FastMCP 3.1.0's SEP-1577 "sampling with tools" specification. This enables LLMs to autonomously orchestrate complex avatar behaviors without manual step-by-step programming.
 
 ### Key Benefits
 
@@ -328,7 +330,7 @@ await avatar_agentic_workflow({
 4. **Start with simple workflows** (3-5 iterations) and scale up
 5. **Monitor results** to refine prompts and operation selection
 
-For complete MCP protocol documentation, see [FastMCP Documentation](https://fastmcp.readthedocs.io/).
+For complete MCP protocol documentation, see [FastMCP Documentation](https://FastMCP 3.1.0readthedocs.io/).
 
 ### VRChat OSC Integration
 
@@ -754,6 +756,17 @@ flake8
 ##  Contributing
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+
+## 🛡️ Industrial Quality Stack
+
+This project adheres to **SOTA 14.1** industrial standards for high-fidelity agentic orchestration:
+
+- **Python (Core)**: [Ruff](https://astral.sh/ruff) for linting and formatting. Zero-tolerance for `print` statements in core handlers (`T201`).
+- **Webapp (UI)**: [Biome](https://biomejs.dev/) for sub-millisecond linting. Strict `noConsoleLog` enforcement.
+- **Protocol Compliance**: Hardened `stdout/stderr` isolation to ensure crash-resistant JSON-RPC communication.
+- **Automation**: [Justfile](./justfile) recipes for all fleet operations (`just lint`, `just fix`, `just dev`).
+- **Security**: Automated audits via `bandit` and `safety`.
 
 ##  License
 
