@@ -9,6 +9,7 @@ import logging
 from enum import Enum
 from pathlib import Path
 
+import httpx
 from pydantic import BaseModel, Field, field_validator
 
 from ..chat_tools.base_tool import (
@@ -81,37 +82,122 @@ class ExportTool(AvatarControlBase, ChatTool):
         ]
 
     async def execute(self, **kwargs) -> ControlResult:
-        """Execute avatar export."""
+        """Execute avatar export via blender-mcp.
+
+        Delegates to blender-mcp's export pipeline which handles VRM import
+        and platform-specific export (FBX for VRChat, GLB for Resonite, etc.).
+        """
         try:
             options = ExportOptions(**kwargs.get("options", {}))
-
-            # Generate output path
             export_path = self._generate_export_path(options)
+            vrm_path = self._get_active_vrm_path()
 
-            # TODO: Implement actual export logic
-            # This would involve:
-            # 1. Serializing the current avatar state
-            # 2. Converting to target format
-            # 3. Writing to disk
+            if vrm_path:
+                result = await self._export_via_blender(vrm_path, options, export_path)
+                if result:
+                    return ControlResult.success(
+                        f"Exported avatar to {export_path}",
+                        data={"export": result},
+                    )
 
-            logger.info(f"Exporting avatar to {export_path} with options: {options.dict()}")
-
-            # Simulate successful export
+            # Fallback: simulated export when no VRM or blender unavailable
+            logger.warning("Blender MCP export unavailable — returning simulated result")
             export_data = {
                 "format": options.format,
                 "output_path": str(export_path),
                 "included_animations": options.include_animations,
                 "optimized": options.optimize_meshes,
                 "platform": options.platform,
-                "file_size_mb": 42.5,  # Simulated file size
-                "export_time_seconds": 5.2,  # Simulated export time
+                "note": "Blender MCP not reachable — simulated export only",
             }
-
-            return ControlResult.success(f"Successfully exported avatar to {export_path}", data={"export": export_data})
+            return ControlResult.success(
+                f"Simulated export to {export_path} (blender-mcp unavailable)",
+                data={"export": export_data},
+            )
 
         except Exception as e:
             logger.error(f"Export failed: {e!s}", exc_info=True)
             return ControlResult.error("Failed to export avatar", str(e))
+
+    def _get_active_vrm_path(self) -> str | None:
+        """Get file path of the currently loaded VRM avatar."""
+        try:
+            from ..models.vrm_manager import VRMManager
+            manager = VRMManager()
+            active = manager.get_active()
+            if active:
+                return str(active) if isinstance(active, (str, Path)) else getattr(active, "path", None)
+        except Exception:
+            pass
+        return None
+
+    async def _export_via_blender(
+        self, vrm_path: str, options: ExportOptions, export_path: Path
+    ) -> dict | None:
+        """Call blender-mcp to import VRM and export to target format."""
+        import httpx
+
+        abs_vrm = str(Path(vrm_path).resolve())
+        abs_out = str(export_path.resolve())
+
+        platform_map = {
+            "vrc": ("VRCHAT", "fbx"),
+            "unity": ("UNITY", "fbx"),
+            "generic": ("RESONITE", "glb"),
+        }
+        preset_platform, _ext = platform_map.get(options.platform, ("RESONITE", "glb"))
+
+        try:
+            async with httpx.AsyncClient(timeout=120) as client:
+                # Step 1: Import VRM into Blender
+                resp = await client.post(
+                    "http://127.0.0.1:10849/tool",
+                    json={
+                        "tool": "blender_import",
+                        "params": {
+                            "operation": "import_file",
+                            "filepath": abs_vrm,
+                            "format": "vrm",
+                        },
+                    },
+                )
+                if resp.status_code != 200:
+                    logger.warning("blender-mcp import returned %d", resp.status_code)
+                    return None
+                import_result = resp.json()
+                if not import_result.get("success"):
+                    logger.warning("blender-mcp import failed: %s", import_result.get("error", ""))
+                    return None
+
+                # Step 2: Export via platform preset
+                resp = await client.post(
+                    "http://127.0.0.1:10849/tool",
+                    json={
+                        "tool": "blender_export_presets",
+                        "params": {
+                            "operation": "export_with_preset",
+                            "platform": preset_platform,
+                            "output_path": abs_out,
+                            "include_materials": True,
+                            "include_textures": options.optimize_meshes,
+                            "apply_modifiers": options.optimize_meshes,
+                        },
+                    },
+                )
+                if resp.status_code != 200:
+                    return None
+                export_result = resp.json()
+                if export_result.get("success"):
+                    return {
+                        "format": options.format.value,
+                        "output_path": abs_out,
+                        "platform": options.platform,
+                        "blender_export": "ok",
+                    }
+        except Exception as e:
+            logger.warning("blender-mcp export call failed: %s", e)
+
+        return None
 
     def _generate_export_path(self, options: ExportOptions) -> Path:
         """Generate a unique export file path."""

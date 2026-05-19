@@ -7,28 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-19
+
+### Added
+- **Real avatar export**: `export_avatar` tool now wired to blender-mcp. Calls `blender_import` (VRM → scene) then `blender_export_presets` (platform-specific export) via the `/tool` HTTP bridge on port 10849. Falls back to simulated export if blender-mcp unreachable.
+- Export format routing: `vrc` → VRChat FBX, `unity` → Unity FBX, `generic` → Resonite GLB.
+
+### Fixed
+- **Version consistency**: `pyproject.toml` and `__init__.py` now both read `0.3.0` (previously mismatched at 0.1.0 / 0.2.0).
+
+---
+
+## [0.2.0] / Unreleased (prior) - 2026-05
+
 ### Added
 - **Webapp Settings (web_sota)**: Ollama model selection UI.
   - Backend: `GET/PUT /api/v1/settings/llm`, `GET /api/v1/settings/ollama/status`, `GET /api/v1/settings/ollama/models` (Ollama discovery via `OLLAMA_BASE_URL`, default 127.0.0.1:11434).
-  - Settings page: dynamic Ollama connection status, dropdown of discovered models, persist selection (in-process; optional `FASTSEARCH_PIPE_NAME`-style env for overrides).
+  - Settings page: dynamic Ollama connection status, dropdown of discovered models, persist selection.
 - **System monitor portmanteau**: Bootstrap operations for portmanteau-only mode.
-  - `system_monitor(operation="initialize", models_dir=...)`: bootstrap server, scan VRM models; call first before other tools.
+  - `system_monitor(operation="initialize", models_dir=...)`: bootstrap server, scan VRM models; call first.
   - `system_monitor(operation="shutdown")`: request server shutdown.
+- **Backend intelligence endpoint**: Added `GET /api/v1/intelligence/trifecta` to http_server for the Intelligence page.
+- **Docker Compose**: Full infrastructure stack (app + Prometheus + Loki + Grafana + Promtail).
+- **Portmanteau tool tests**: 19 new test cases across `test_portmanteau_tools.py` and `test_server.py`.
+- **`AnimationController` on VRMModel**: Every `VRMModel` now includes an `animation_controller` attribute.
+- **Server-level OSC helper**: Added `AvatarMCPServer._send_osc_message()` for OSC tool fallback.
 
 ### Changed
 - **Portmanteau-only tool surface**: MCP and HTTP tool list now expose only the 16 portmanteau tools.
-  - Removed registration of `CoreAvatarTools`, `CoreSystemTools`, `CoreUnityIntegrationTools` (raw tools no longer registered).
-  - Clients must call `system_monitor(operation="initialize")` before using other portmanteau tools; all other operations remain on portmanteau tools (e.g. `avatar_manager`, `animation_manager`).
-- **Webapp Loops page**: Backend now serves `GET /api/v1/intelligence/loops` from SOTA http_server; frontend uses relative URL and safe fallbacks so the page no longer 404s or goes black.
+  - Removed registration of `CoreAvatarTools`, `CoreSystemTools`, `CoreUnityIntegrationTools`.
+  - Clients must call `system_monitor(operation="initialize")` before using other portmanteau tools.
+- **`avatar_manager_tool.py` → fully async**: All handlers converted to `async def` with proper `await` on VRMManager calls.
+- **`animation_manager_tool.py` → fully async**: All handlers converted to `async def`; uses `AnimationController` from the active model instead of raw OSC.
+- **`mcp_main.py` → canonical server import**: Now imports `AvatarMCPServer` directly from `server.py` instead of the deleted `mcp_server_clean.py`.
+- **CI pipeline**: Python version matrix changed to `["3.12", "3.13"]` (was `["3.10", "3.11", "3.12"]`). Uses `uv` for dependency management.
+- **`release.yml` simplified**: Replaced deprecated `actions/create-release@v1` and `actions/upload-release-asset@v1` with `softprops/action-gh-release@v2`.
+- **`build-mcpb.yml`**: Fixed manifest validation path from `mcpb/manifest.json` to `mcpb.json`.
+- **`pyproject.toml`**: Runtime deps cleaned — `ruff`, `pyvista`, `prefab-ui` moved to dev; `psutil` added; Python classifiers updated to 3.12/3.13; mypy `python_version` set to `3.12`.
+- **`mcpb.json`**: `entry_point` fixed to `src/avatarmcp/server.py`; version aligned to `0.1.0`; deps expanded to full list.
+- **`__main__.py`**: Logging consolidated into shared `_configure_logging()` helper with `force=True`; `_stdio_original_stdout` declared at module level with `None` guard.
+- **`justfile`**: `Set-Location` replaced with `uv run --directory` for web commands; `cd` for security commands.
+- **`web_sota/intelligence.tsx`**: Changed hardcoded `http://127.0.0.1:10793/api/v1/intelligence/trifecta` to proxied `/api/v1/intelligence/trifecta`.
+- **All legacy tests rewritten**: `test_avatar_mcp.py`, `test_basic.py`, `test_integration.py`, `test_vrm_loader.py`, `test_api.py` — unified to test current architecture.
 
 ### Fixed
-- **Cursor/IDE stdio MCP**: Eliminated "Unexpected non-whitespace character after JSON" and client errors.
-  - FastMCP banner suppressed: `server.mcp.run(show_banner=False)` in `run_server()` and `mcp_main()`.
-  - Stdout patching in `__main__.py`: when `--stdio` or `--mcp` is in argv, stdout is replaced with a devnull before any imports so no log/banner leaks into the JSON-RPC stream; original stdout is restored immediately before `mcp.run()` so FastMCP can send JSON-RPC on it.
-- **Web UI (web_sota)**: Resolved Vite pre-transform errors on dev startup.
-  - Added missing `APPS_CATALOG` export in `src/common/apps-catalog.ts` (alias for `FLEET_REGISTRY`) for topbar/layout imports.
-  - Added `framer-motion` dependency for `FleetCard.tsx` and other animated components.
-  - Frontend now starts cleanly on port 10792 with backend proxy to 10793.
+- **Portmanteau tools not awaiting async calls**: `avatar_manager_tool.py` and `animation_manager_tool.py` had sync `def` calling async `vrm_manager` methods without `await`. Converted to `async def` with proper `await` on all calls. This was the root cause of all portmanteau operations being non-functional.
+- **Missing `_send_osc_message` on server**: OSC portmanteau tools (`audio_manager`, `emotion_manager`, `behavior_manager`, `collaboration_manager`, `content_manager`, `interaction_manager`, `performance_manager`) called `self.mcp_server._send_osc_message()` which didn't exist on `AvatarMCPServer`. Added the method.
+- **`mcpb.json` entry point**: Pointed to `src/avatar_mcp/server.py` (wrong path with underscore). Fixed to `src/avatarmcp/server.py`.
+- **`__main__.py` `NameError`**: `_stdio_original_stdout` could be referenced before assignment. Now declared at module level with `None` guard.
+- **`mcp_main.py` stale import**: Used `importlib` to load deleted `mcp_server_clean.py`. Now imports canonical `AvatarMCPServer`.
+- **CI Python version conflict**: CI tested 3.10/3.11 but `pyproject.toml` required `>=3.12`. Matrix fixed to `["3.12", "3.13"]`.
+- **Dependabot disabled**: Renamed `.github/dependabot.yml.disabled` → `dependabot.yml`.
+- **`test_api.py` silent skip**: All tests wrapped in `except ConnectError: pytest.skip()`. Replaced with `TestClient` fixture from the actual FastAPI app.
+- **Legacy test failures**: 10 failing tests across `test_avatar_mcp.py`, `test_basic.py`, `test_integration.py`, `test_vrm_loader.py` — all rewritten to match current API and mocks.
+- **Web_SOTA stale files**: Deleted 3 `.backup` files from `web_sota/src/pages/` and `web_sota/avatarmcp.log`.
+
+### Removed
+- **Dead code**: Deleted `tools/core/*` (9 files, ~2,500 LOC), `tools/unity/unity_tools.py` (empty placeholder), `server_fixed.py`, `mcp_enhanced.py`, `simple_mcp_server.py`, `mcp_server_clean.py`, `server.py.backup`.
+- **Old requirements files**: Deleted `requirements-updated.txt`, `requirements-ai-npc.txt`, `requirements-visualization.txt`.
+- **Personal git scripts**: Deleted `setup_git.bat`, `push_to_github.bat`, `git_commit_push.bat`.
+
+### Security
+- **Dependabot re-enabled**: Automated weekly dependency scanning for pip, GitHub Actions, and npm.
+- **Bandit security scanning**: Added to CI pipeline.
+- **Trivy vulnerability scanning**: Added to CI for filesystem SARIF reporting.
 
 ---
 
