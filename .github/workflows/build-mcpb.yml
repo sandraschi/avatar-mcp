@@ -18,7 +18,7 @@ on:
 
 env:
   PACKAGE_NAME: avatarmcp
-  PYTHON_VERSION: '3.9'
+  PYTHON_VERSION: '3.12'
 
 jobs:
   build-mcpb:
@@ -31,14 +31,14 @@ jobs:
         fetch-depth: 0
 
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
 
     - name: Install MCPB CLI
       run: npm install -g @anthropic-ai/mcpb
@@ -48,26 +48,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Validate manifest.json
-      run: mcpb validate mcpb/manifest.json
+    - name: Validate mcpb.json
+      run: mcpb validate mcpb.json
 
     - name: Build MCPB package
       run: |
-        cd mcpb
         if [ "${{ github.event.inputs.sign_package }}" = "true" ] || [[ $GITHUB_REF == refs/tags/* ]]; then
-          echo "🔐 Building with signing (production mode)"
-          mcpb pack -c mcpb.json -o ../dist/${{ env.PACKAGE_NAME }}.mcpb
+          echo "Building with signing (production mode)"
+          mcpb pack -c mcpb.json -o dist/${{ env.PACKAGE_NAME }}.mcpb
         else
-          echo "🔓 Building without signing (development mode)"
-          mcpb pack -c mcpb.json -o ../dist/${{ env.PACKAGE_NAME }}.mcpb --no-sign
+          echo "Building without signing (development mode)"
+          mcpb pack -c mcpb.json -o dist/${{ env.PACKAGE_NAME }}.mcpb --no-sign
         fi
 
     - name: Verify package
       run: |
         ls -la dist/
-        PACKAGE_SIZE=$(stat -c%s "dist/${{ env.PACKAGE_NAME }}.mcpb")
-        PACKAGE_SIZE_MB=$(echo "scale=2; $PACKAGE_SIZE/1048576" | bc)
-        echo "📦 Package size: $PACKAGE_SIZE_MB MB"
         mcpb info "dist/${{ env.PACKAGE_NAME }}.mcpb"
 
     - name: Build Python distribution
@@ -91,7 +87,7 @@ jobs:
 
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           dist/${{ env.PACKAGE_NAME }}.mcpb
@@ -112,7 +108,5 @@ jobs:
     - name: Notify success
       if: success()
       run: |
-        echo "🎉 MCPB package built successfully!"
-        echo "📦 Package: ${{ env.PACKAGE_NAME }}.mcpb"
-        echo "🏷️  Version: ${{ github.ref_name }}"
-        echo "📏 Size: $(ls -lh dist/${{ env.PACKAGE_NAME }}.mcpb | awk '{print $5}')"
+        echo "MCPB package built successfully!"
+        echo "Package: ${{ env.PACKAGE_NAME }}.mcpb"

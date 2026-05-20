@@ -7,6 +7,8 @@ from typing import Any
 
 from pygltflib import GLTF2
 
+from avatarmcp.models.animation_controller import AnimationController
+
 
 class VRMModel:
     """Class representing a loaded VRM model."""
@@ -21,6 +23,7 @@ class VRMModel:
         self.model_id = self._generate_model_id(file_path)
         self.metadata: dict[str, Any] = {}
         self.gltf: GLTF2 | None = None
+        self.animation_controller = AnimationController()
         self._load_model()
 
     def _generate_model_id(self, file_path: str) -> str:

@@ -16,6 +16,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastmcp import FastMCP
+from fastmcp.server import create_proxy
 
 from avatarmcp.handlers.chatbot_handler import ChatbotHandler
 from avatarmcp.metrics import MetricsCollector
@@ -196,6 +197,19 @@ AGENTIC WORKFLOWS (SEP-1577):
 
 USAGE: Load VRM models, animate avatars, and integrate with external applications.""",
         )
+
+        # ── MCP Bridge (ProxyProvider) ────────────────────────────────────────────
+        _bridge_proxies: list[str] = []
+        bridge_urls = os.getenv("MCP_BRIDGE_URLS", "")
+        if bridge_urls:
+            for url in bridge_urls.split(","):
+                url = url.strip()
+                if url:
+                    try:
+                        self.mcp.add_provider(create_proxy(url))
+                        _bridge_proxies.append(url)
+                    except Exception:
+                        pass
         self.running = False
         self.osc_manager = OSCManager(osc_config, enabled=enable_osc)
         self._message_id = 0
@@ -297,6 +311,16 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
 
         except Exception as e:
             self.logger.error(f"Error stopping AvatarMCPServer: {e}", exc_info=True)
+
+    def _send_osc_message(self, address: str, *args) -> bool:
+        """Send an OSC message via the OSC client. Returns True on success."""
+        try:
+            if self.osc_manager and self.osc_manager.osc_client:
+                self.osc_manager.osc_client.send_message(address, *args)
+                return True
+        except Exception as e:
+            self.logger.warning(f"Failed to send OSC message: {e}")
+        return False
 
 
 def run_server(

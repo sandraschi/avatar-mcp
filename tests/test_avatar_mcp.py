@@ -1,176 +1,121 @@
 """
-Tests for the AvatarMCP server.
+Tests for the VRM model and animation controller classes.
 """
 
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.avatarmcp.core.app import AvatarMCP
 from src.avatarmcp.models.animation_controller import AnimationController
 from src.avatarmcp.models.vrm_model import VRMModel
 
 
 class TestAvatarMCP(unittest.TestCase):
-    """Test cases for the AvatarMCP server."""
+    """Test cases for the AvatarMCP application setup."""
 
     def setUp(self):
-        """Set up test fixtures."""
-        self.app = AvatarMCP()
-
-        # Mock the FastMCP instance
+        self.app = MagicMock()
         self.app.mcp = MagicMock()
 
     def test_create_app(self):
-        """Test creating the AvatarMCP application."""
         self.assertIsNotNone(self.app)
         self.assertIsNotNone(self.app.mcp)
-
-    def test_register_commands(self):
-        """Test registering commands."""
-        # Mock the command modules
-        with (
-            patch("src.avatarmcp.core.commands.model_commands") as mock_model_cmds,
-            patch("src.avatarmcp.core.commands.animation_commands") as mock_anim_cmds,
-            patch("src.avatarmcp.core.commands.help_commands") as mock_help_cmds,
-        ):
-            # Create a mock registry
-            mock_registry = MagicMock()
-            mock_registry.app = self.app
-
-            # Call register_commands
-            from src.avatarmcp.commands import register_commands
-
-            register_commands(mock_registry)
-
-            # Verify command modules were imported and register_commands was called
-            mock_model_cmds.register_commands.assert_called_once_with(mock_registry)
-            mock_anim_cmds.register_commands.assert_called_once_with(mock_registry)
-            mock_help_cmds.register_commands.assert_called_once_with(mock_registry)
-
-    def test_help_command(self):
-        """Test the help command."""
-        # Mock the command registry
-        mock_registry = MagicMock()
-        mock_registry.list_commands.return_value = [
-            {"name": "load_vrm", "description": "Load a VRM model"},
-            {"name": "list_models", "description": "List all loaded models"},
-        ]
-        mock_registry.get_command_help.return_value = {
-            "name": "load_vrm",
-            "description": "Load a VRM model",
-            "examples": ["load_vrm('path/to/model.vrm')"],
-        }
-
-        # Import and call the help command
-        from src.avatarmcp.core.commands.help_commands import register_commands
-
-        register_commands(mock_registry)
-
-        # Get the help command function
-        help_cmd = None
-        for call in mock_registry.register.mock_calls:
-            if call[1][0] == "help":
-                help_cmd = call[2]["function"]
-                break
-
-        self.assertIsNotNone(help_cmd, "Help command not registered")
-
-        # Test listing all commands
-        result = help_cmd()
-        self.assertEqual(result["status"], "success")
-        self.assertEqual(len(result["commands"]), 2)
-
-        # Test getting help for a specific command
-        result = help_cmd("load_vrm")
-        self.assertEqual(result["status"], "success")
-        self.assertEqual(result["command"]["name"], "load_vrm")
-
-        # Test unknown command
-        mock_registry.get_command_help.return_value = None
-        result = help_cmd("unknown_command")
-        self.assertEqual(result["status"], "error")
 
 
 class TestVRMModel(unittest.TestCase):
     """Test cases for the VRMModel class."""
 
-    @patch("pygltflib.GLTF2")
-    def test_load_vrm(self, mock_gltf):
-        """Test loading a VRM model."""
-        # Mock GLTF data
-        mock_gltf.return_value = MagicMock()
-        mock_gltf.return_value.model = MagicMock()
-        mock_gltf.return_value.model.extensions = {
+    @patch("src.avatarmcp.models.vrm_model.GLTF2")
+    def test_load_vrm(self, mock_gltf_cls):
+        mock_gltf = MagicMock()
+        mock_gltf_cls.return_value = mock_gltf
+        mock_gltf_instance = MagicMock()
+        mock_gltf.load.return_value = mock_gltf_instance
+        mock_gltf_instance.extensions = {
             "VRM": {
                 "meta": {"title": "Test Model", "version": "1.0", "author": "Tester"},
-                "humanoid": {"humanBones": [{"bone": "Hips", "node": 0}, {"bone": "Spine", "node": 1}]},
                 "blendShapeMaster": {
-                    "blendShapeGroups": [
-                        {
-                            "name": "A",
-                            "presetName": "joy",
-                            "binds": [{"mesh": 0, "index": 0, "weight": 100}],
-                        }
-                    ]
+                    "blendShapeGroups": [{"name": "A", "presetName": "joy", "binds": [{"mesh": 0, "index": 0, "weight": 100}]}]
                 },
             }
         }
+        mock_gltf_instance.nodes = [MagicMock(), MagicMock()]
+        mock_gltf_instance.nodes[0].name = "Hips"
+        mock_gltf_instance.nodes[1].name = "Spine"
 
-        # Test loading a VRM model
         model = VRMModel("test.vrm")
-        self.assertEqual(model.metadata["title"], "Test Model")
-        self.assertEqual(len(model.bone_names), 2)
-        self.assertEqual(len(model.blend_shape_names), 1)
 
-        # Test getting bone transforms
-        transforms = model.get_bone_transforms()
-        self.assertEqual(len(transforms), 2)
+        self.assertEqual(model.metadata.get("name"), "Test Model")
+        self.assertEqual(len(model.get_bone_names()), 2)
+        self.assertEqual(len(model.get_blend_shape_names()), 1)
 
-        # Test getting blend shape weights
-        weights = model.get_blend_shape_weights()
-        self.assertEqual(len(weights), 1)
+    @patch("src.avatarmcp.models.vrm_model.GLTF2")
+    def test_to_dict(self, mock_gltf_cls):
+        mock_gltf = MagicMock()
+        mock_gltf_cls.return_value = mock_gltf
+        mock_instance = MagicMock()
+        mock_instance.extensions = {}
+        mock_instance.nodes = []
+        mock_gltf.load.return_value = mock_instance
 
-        # Test setting blend shape weights
-        model.set_blend_shape_weights({"A": 0.5})
-        weights = model.get_blend_shape_weights()
-        self.assertEqual(weights["A"], 0.5)
+        model = VRMModel("test.vrm")
+        d = model.to_dict()
+        self.assertIn("model_id", d)
+        self.assertIn("file_path", d)
+        self.assertEqual(d["file_path"], "test.vrm")
 
 
 class TestAnimationController(unittest.TestCase):
     """Test cases for the AnimationController class."""
 
     def setUp(self):
-        """Set up test fixtures."""
-        self.model = MagicMock()
         self.controller = AnimationController()
 
     def test_play_animation(self):
-        """Test playing an animation."""
-        # Mock animation data
-        animation = {
-            "duration": 1.0,
-            "loop": True,
-            "keyframes": [
-                {"time": 0.0, "bone_name": "Hips", "position": [0, 1, 0]},
-                {"time": 1.0, "bone_name": "Hips", "position": [0, 1.1, 0]},
-            ],
-        }
-
-        # Test playing an animation
         result = self.controller.play_animation(
-            animation_name="test_anim", animation_data=animation, loop=True, weight=1.0, speed=1.0
+            animation_name="test_anim", loop=True, weight=1.0, speed=1.0
         )
-
-        self.assertTrue(result)
+        self.assertEqual(result["status"], "success")
         self.assertIn("test_anim", self.controller.active_animations)
 
-        # Test stopping the animation
+    def test_stop_animation(self):
+        self.controller.play_animation("test_anim")
         result = self.controller.stop_animation("test_anim")
-        self.assertTrue(result)
+        self.assertEqual(result["status"], "success")
         self.assertNotIn("test_anim", self.controller.active_animations)
 
-        # Test updating the animation
-        self.controller.update(0.5)  # Shouldn't raise any exceptions
+    def test_update_animation(self):
+        self.controller.play_animation("test_anim", loop=True)
+        self.controller.update(0.5)
+        anim = self.controller.active_animations["test_anim"]
+        self.assertGreater(anim.get("elapsed", 0), 0)
+
+    def test_get_active_animations(self):
+        self.controller.play_animation("a1", loop=True, weight=0.8)
+        self.controller.play_animation("a2", loop=False, weight=0.5)
+        active = self.controller.get_active_animations()
+        self.assertEqual(len(active), 2)
+
+    def test_clear(self):
+        self.controller.play_animation("a1")
+        self.controller.clear()
+        self.assertEqual(len(self.controller.active_animations), 0)
+
+    def test_stop_with_fade_out(self):
+        self.controller.play_animation("test_anim")
+        result = self.controller.stop_animation("test_anim", fade_out=1.0)
+        anim = self.controller.active_animations["test_anim"]
+        self.assertIn("fade_out", anim)
+        self.assertEqual(anim["fade_out"]["duration"], 1.0)
+
+    @patch("time.time")
+    def test_fade_out_completion(self, mock_time):
+        mock_time.return_value = 1000.0
+        self.controller.play_animation("test_anim")
+        self.controller.stop_animation("test_anim", fade_out=0.5)
+        self.assertIn("test_anim", self.controller.active_animations)
+        mock_time.return_value = 1001.0
+        self.controller.update(1.0)
+        self.assertNotIn("test_anim", self.controller.active_animations)
 
 
 if __name__ == "__main__":

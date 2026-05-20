@@ -1,38 +1,27 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
-    git \
     build-essential \
-    libgl1-mesa-glx \
     libglib2.0-0 \
+    libportaudio2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
+COPY pyproject.toml README.md .
+COPY src/ src/
 
-# Install VRM/GLTF dependencies
-RUN pip install --no-cache-dir numpy pygltflib
+RUN pip install --no-cache-dir uv && uv sync --no-dev
 
-# Install remaining requirements
-RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir -p /app/models /app/logs
 
-# Copy the application code
-COPY . .
+EXPOSE 10793
 
-# Create a directory for VRM models
-RUN mkdir -p /app/models
+ENV HOST=0.0.0.0
+ENV PORT=10793
+ENV MODELS_DIR=/app/models
+ENV LOG_LEVEL=INFO
 
-# Expose the MCP server port (default: 8000)
-EXPOSE 8000
-
-# Expose metrics port (default: 8001)
-EXPOSE 8001
-
-# Set the default command to run the MCP server
-CMD ["python", "-m", "avatarmcp.server", "--host", "0.0.0.0"]
+CMD ["uv", "run", "uvicorn", "avatarmcp.http_server:app", "--host", "0.0.0.0", "--port", "10793", "--log-level", "info"]

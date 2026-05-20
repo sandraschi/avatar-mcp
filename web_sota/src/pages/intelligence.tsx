@@ -25,7 +25,7 @@ export function Intelligence() {
     const [data, setData] = useState<TrifectaData | null>(null);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:10793/api/v1/intelligence/trifecta")
+        fetch("/api/v1/intelligence/trifecta")
             .then(r => r.json())
             .then(setData)
             .catch(() => { });

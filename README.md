@@ -1,17 +1,36 @@
 # AvatarMCP
 
-[![FastMCP Version](https://img.shields.io/badge/FastMCP-3.1.0-blue?style=flat-square&logo=python&logoColor=white)](https://github.com/sandraschi/fastmcp) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![Linted with Biome](https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white)](https://biomejs.dev/) [![Built with Just](https://img.shields.io/badge/Built_with-Just-000000?style=flat-square&logo=gnu-bash&logoColor=white)](https://github.com/casey/just)
+<p align="center">
+  <a href="https://github.com/casey/just"><img src="https://img.shields.io/badge/just-ready_to_go-7c5cfc?style=flat-square&logo=just&logoColor=white" alt="Just"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
+</p>
 
 **By FlowEngineer sandraschi**
 
 > FastMCP 3.1.0+ compatible VRM avatar management and animation server with conversational capabilities, SEP-1577 sampling support, and VRChat OSC integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
-[![FastMCP 3.1.0](https://img.shields.io/badge/FastMCP-2.14.3+-brightgreen)](https://FastMCP 3.1.0readthedocs.io/)
+[![FastMCP 3.1.0](https://img.shields.io/badge/FastMCP-3.3-brightgreen)](https://FastMCP 3.1.0readthedocs.io/)
 [![VRChat OSC](https://img.shields.io/badge/VRChat-OSC-9cf)](docs/VRChat_OSC_Integration_Guide.md)
 [![Portmanteau Tools](https://img.shields.io/badge/Tools-Portmanteau-blueviolet)](docs/architecture/PORTMANTEAU_TOOLS_PLAN.md)
+
+## Quick Start
+
+```powershell
+git clone https://github.com/sandraschi/avatar-mcp
+cd avatar-mcp
+just
+```
+
+This opens an interactive dashboard showing all available commands. Run `just bootstrap` to install dependencies, then `just serve` or `just dev` to start.
+
+### Manual Setup
+
+If you don't have `just` installed:
 
 ##  Features
 
@@ -705,26 +724,41 @@ pre-commit install
 
 ```bash
 
-# Run tests
+# Install dev dependencies
+uv sync --dev
 
+# Run all tests
+uv run pytest tests/ -v
 
-pytest
+# Run specific test suites
+uv run pytest tests/test_portmanteau_tools.py -v
+uv run pytest tests/test_server.py -v
+uv run pytest tests/test_animation.py -v
+```
 
-# Run with coverage report
-pytest --cov=avatarmcp tests/
+The test suite includes:
+- **Portmanteau tool tests** (14 tests): Covers all 16 portmanteau tools — system_monitor (init/shutdown/status), avatar_manager (load/list/set_active/unload/errors), animation_manager (play/stop/no-active), chat_manager (full lifecycle), artifact_manager (scan), tool registration.
+- **Server tests** (5 tests): AvatarMCPServer lifecycle, tool instantiation, OSC helper, VRMManager integration.
+- **Animation tests** (6 tests): AnimationKeyframe, AnimationClip, AnimationController (play, update, blend, stop).
+- **VRM loader tests** (6 tests): File I/O, metadata extraction, bone loading, error handling.
+- **API tests** (2 tests): FastAPI TestClient health, model listing.
+- **Integration tests** (3 tests): Server start/stop, VRM scanning, OSC communication.
 
+**Status**: 49/49 tests passing. Legacy tests rewritten for current architecture.
 
+### Code Style
 
+```bash
 
+# Lint Python (Ruff)
+uv run ruff check .
 
+# Lint frontend (Biome)
+uv run --directory web_sota npx @biomejs/biome check .
 
-# Run specific test file
-pytest tests/test_osc_server.py -v
-
-
-
-
-
+# Fix both
+uv run ruff check . --fix && uv run ruff format .
+uv run --directory web_sota npx @biomejs/biome check --apply .
 ```
 
 ### Code Style
@@ -758,15 +792,18 @@ flake8
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 
-## 🛡️ Industrial Quality Stack
+##  🛡️ Industrial Quality Stack
 
 This project adheres to **SOTA 14.1** industrial standards for high-fidelity agentic orchestration:
 
 - **Python (Core)**: [Ruff](https://astral.sh/ruff) for linting and formatting. Zero-tolerance for `print` statements in core handlers (`T201`).
 - **Webapp (UI)**: [Biome](https://biomejs.dev/) for sub-millisecond linting. Strict `noConsoleLog` enforcement.
 - **Protocol Compliance**: Hardened `stdout/stderr` isolation to ensure crash-resistant JSON-RPC communication.
-- **Automation**: [Justfile](./justfile) recipes for all fleet operations (`just lint`, `just fix`, `just dev`).
+- **Automation**: [Justfile](./justfile) recipes for all fleet operations (`just lint`, `just fix`, `just test`).
 - **Security**: Automated audits via `bandit` and `safety`.
+- **CI/CD**: GitHub Actions — lint, type-check, test, build, release. Python 3.12/3.13 matrix.
+- **Quality Gates**: 49 passing tests, Ruff + mypy + Bandit + Trivy in CI.
+- **Containers**: Docker Compose with Prometheus, Loki, Grafana, Promtail for full observability.
 
 ##  License
 
@@ -783,7 +820,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with  by [Your Name] | [GitHub](https://github.com/yourusername)
+Made with by **FlowEngineer sandraschi** | [GitHub](https://github.com/anomalyco/avatar-mcp)
 
 
 ##  Webapp Dashboard

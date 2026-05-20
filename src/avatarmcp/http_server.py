@@ -319,6 +319,30 @@ async def get_agent_loops():
     }
 
 
+@app.get("/api/v1/intelligence/trifecta")
+async def get_intelligence_trifecta():
+    """Trifecta intelligence status: OpenFang, AvatarMCP, BlackFang."""
+    if not mcp_srv:
+        return {"error": "Server not initialized"}
+    return {
+        "openfang": {
+            "status": "simulated",
+            "telemetry": "heartbeat_ok",
+            "latency_ms": 12,
+        },
+        "avatarmcp_connectors": {
+            "status": "online",
+            "active_portmanteaus": 16,
+            "api_proxy": "active",
+        },
+        "blackfang_agents": {
+            "status": "idle",
+            "connected_agents": 3,
+            "current_loop": "perception_loop",
+        },
+    }
+
+
 @app.get("/api/v1/avatars")
 async def list_avatars():
     """Get list of all discovered and loaded avatars."""

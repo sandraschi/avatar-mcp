@@ -1,90 +1,77 @@
 """
-Tests for the MCP server implementation.
+Tests for the AvatarMCPServer implementation.
 """
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastmcp import FastMCP
 
 
-class TestMCPServer:
-    """Tests for the MCP server implementation."""
+@pytest.fixture
+def server():
+    """Create an AvatarMCPServer instance for testing."""
+    with patch("avatarmcp.server.OSCManager") as mock_osc_cls:
+        mock_osc = MagicMock()
+        mock_osc.initialize = AsyncMock()
+        mock_osc.start = AsyncMock()
+        mock_osc.stop = AsyncMock()
+        mock_osc.enabled = False
+        mock_osc.initialized = False
+        mock_osc_cls.return_value = mock_osc
 
-    @pytest.fixture
-    def mock_service(self):
-        """Create a mock AvatarService."""
-        service = MagicMock()
-        service.load_vrm = AsyncMock(return_value={"id": "test_avatar", "name": "Test Avatar"})
-        service.play_animation = AsyncMock(return_value={"status": "playing"})
-        service.stop_animation = AsyncMock(return_value={"status": "stopped"})
-        service.set_pose = AsyncMock(return_value={"status": "pose_set"})
-        service.get_avatar_info = AsyncMock(return_value={"name": "Test Avatar", "bones": ["Hips"]})
-        return service
-
-    @pytest.fixture
-    def server(self, mock_service):
-        """Create an instance of the MCP server for testing."""
         from avatarmcp.server import AvatarMCPServer
 
-        return AvatarMCPServer(mock_service)
+        srv = AvatarMCPServer(enable_osc=False)
+        srv.initialized = True
+        srv.running = True
+        return srv
 
-    @pytest.fixture
-    def mcp_server(self, server):
-        """Create a FastMCP server instance for testing."""
-        mcp = FastMCP("test_server")
-        server._register_tools()
-        return mcp
 
-    @pytest.mark.asyncio
-    async def test_load_vrm_tool(self, mcp_server, mock_service):
-        """Test the load_vrm tool."""
-        # Test the tool directly
-        result = await mock_service.load_vrm("test.vrm")
+@pytest.mark.asyncio
+async def test_server_start_stop(server):
+    """Test server start and stop lifecycle."""
+    assert server.running is True
+    assert server.initialized is True
+    assert server.mcp is not None
 
-        # Assertions
-        assert result == {"id": "test_avatar", "name": "Test Avatar"}
-        mock_service.load_vrm.assert_called_once_with("test.vrm")
 
-    @pytest.mark.asyncio
-    async def test_play_animation_tool(self, mcp_server, mock_service):
-        """Test the play_animation tool."""
-        # Test the tool directly
-        result = await mock_service.play_animation("test_avatar", "wave")
+@pytest.mark.asyncio
+async def test_server_has_portmanteau_tools(server):
+    """Test that server initializes all portmanteau tool classes."""
+    assert server.avatar_manager_tool is not None
+    assert server.animation_manager_tool is not None
+    assert server.system_monitor_tool is not None
+    assert server.chat_manager_tool is not None
+    assert server.artifact_manager_tool is not None
+    assert server.audio_manager_tool is not None
+    assert server.behavior_manager_tool is not None
+    assert server.collaboration_manager_tool is not None
+    assert server.content_manager_tool is not None
+    assert server.emotion_manager_tool is not None
+    assert server.interaction_manager_tool is not None
+    assert server.performance_manager_tool is not None
+    assert server.unity_integration_tool is not None
+    assert server.unity_window_manager_tool is not None
+    assert server.unity_config_manager_tool is not None
 
-        # Assertions
-        assert result == {"status": "playing"}
-        mock_service.play_animation.assert_called_once_with("test_avatar", "wave")
 
-    @pytest.mark.asyncio
-    async def test_stop_animation_tool(self, mcp_server, mock_service):
-        """Test the stop_animation tool."""
-        # Test the tool directly
-        result = await mock_service.stop_animation("test_avatar")
+@pytest.mark.asyncio
+async def test_server_has_vrm_manager(server):
+    """Test that server initializes VRMManager."""
+    assert server.vrm_manager is not None
 
-        # Assertions
-        assert result == {"status": "stopped"}
-        mock_service.stop_animation.assert_called_once_with("test_avatar")
 
-    @pytest.mark.asyncio
-    async def test_set_pose_tool(self, mcp_server, mock_service):
-        """Test the set_pose tool."""
-        # Create test pose data
-        pose_data = {"Hips": {"position": [0, 1, 0], "rotation": [0, 0, 0, 1]}}
+@pytest.mark.asyncio
+async def test_server_send_osc_message(server):
+    """Test _send_osc_message helper."""
+    # No OSC client -> returns False
+    server.osc_manager.osc_client = None
+    result = server._send_osc_message("/test/address", 1, 2, 3)
+    assert result is False
 
-        # Test the tool directly
-        result = await mock_service.set_pose("test_avatar", pose_data)
 
-        # Assertions
-        assert result == {"status": "pose_set"}
-        mock_service.set_pose.assert_called_once_with("test_avatar", pose_data)
-
-    @pytest.mark.asyncio
-    async def test_get_avatar_info_tool(self, mcp_server, mock_service):
-        """Test the get_avatar_info tool."""
-        # Test the tool directly
-        result = await mock_service.get_avatar_info("test_avatar")
-
-        # Assertions
-        assert result == {"name": "Test Avatar", "bones": ["Hips"]}
-        mock_service.get_avatar_info.assert_called_once_with("test_avatar")
+@pytest.mark.asyncio
+async def test_server_load_empty(server):
+    """Test server starts with empty loaded models."""
+    assert server.loaded_models == {}
+    assert server.active_model_id is None

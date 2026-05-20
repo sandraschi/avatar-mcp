@@ -9,53 +9,71 @@ It initializes and starts the FastMCP 2.12.0+ compatible server with VRChat OSC 
 # For stdio MCP, patch stdout before any imports so no log/banner corrupts JSON-RPC.
 import argparse
 import logging
+import logging.handlers
 import os
 import sys
 
+class _DevNullStdout:
+    def write(self, s: str) -> int:
+        return len(s)
+
+    def flush(self) -> None:
+        pass
+
+    def isatty(self) -> bool:
+        return False
+
+_stdio_original_stdout: object | None = None
+
 if "--stdio" in sys.argv or "--mcp" in sys.argv:
     _stdio_original_stdout = sys.stdout
-
-    class _DevNullStdout:
-        def write(self, s: str) -> int:
-            return len(s)
-
-        def flush(self) -> None:
-            pass
-
-        def isatty(self) -> bool:
-            return False
-
     sys.stdout = _DevNullStdout()
 
 from .server import AvatarMCPServer, run_server
-
-# Configure logging before any imports to catch early messages
 from .utils.logging_utils import setup_logging
 
-# Don't set up logging here, we'll do it after parsing arguments
 logger = logging.getLogger(__name__)
 
 
-def mcp_main() -> int:
-    """Run the MCP server for Claude/Cursor (stdio). Uses canonical FastMCP 3.1 server."""
-    log_level = logging.DEBUG if "--debug" in sys.argv else logging.INFO
-    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log")
+def _configure_logging(log_level: int, log_file: str, use_stderr: bool = False):
+    """Configure logging once with consistent format."""
     try:
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
     except OSError:
         pass
+
+    handlers: list[logging.Handler] = []
+    if use_stderr:
+        handlers.append(logging.StreamHandler(sys.stderr))
+    handlers.append(logging.handlers.RotatingFileHandler(
+        log_file, maxBytes=10 * 1024 * 1024, backupCount=5
+    ))
+
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        filename=log_file,
-        filemode="a",
+        handlers=handlers,
+        force=True,
     )
-    try:
-        server = AvatarMCPServer(enable_osc=False)
-        # Restore stdout so FastMCP can send JSON-RPC on it; nothing else must write to it.
-        if "--stdio" in sys.argv or "--mcp" in sys.argv:
+
+
+def _restore_stdout_for_mcp():
+    """Restore stdout before FastMCP starts (needs stdout for JSON-RPC)."""
+    if "--stdio" in sys.argv or "--mcp" in sys.argv:
+        if _stdio_original_stdout is not None:
             sys.stdout = _stdio_original_stdout
             sys.stdout.flush()
+
+
+def mcp_main() -> int:
+    """Run the MCP server for Claude/Cursor (stdio)."""
+    log_level = logging.DEBUG if "--debug" in sys.argv else logging.INFO
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "mcp_main.log")
+    _configure_logging(log_level, log_file, use_stderr=True)
+
+    try:
+        server = AvatarMCPServer(enable_osc=False)
+        _restore_stdout_for_mcp()
         server.mcp.run(show_banner=False)
         return 0
     except Exception as e:
@@ -85,16 +103,7 @@ def main() -> int:
 
     log_level = logging.DEBUG if args.debug else logging.INFO
     log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "avatarmcp.log")
-    try:
-        os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    except OSError:
-        pass
-    setup_logging(
-        log_level=log_level,
-        log_file=log_file,
-        max_bytes=10 * 1024 * 1024,
-        backup_count=5,
-    )
+    _configure_logging(log_level, log_file)
 
     logger.info("Starting AvatarMCP server...")
     return run_server(

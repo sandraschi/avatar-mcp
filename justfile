@@ -1,54 +1,28 @@
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 
-# ── Dashboard ─────────────────────────────────────────────────────────────────
-
-# Display the SOTA Industrial Dashboard
+# Open the interactive recipe dashboard in the browser
 default:
-    @$lines = Get-Content '{{justfile()}}'; \
-    Write-Host ' [SOTA] Industrial Operations Dashboard v1.3.2' -ForegroundColor White -BackgroundColor Cyan; \
-    Write-Host '' ; \
-    $currentCategory = ''; \
-    foreach ($line in $lines) { \
-        if ($line -match '^# ── ([^─]+) ─') { \
-            $currentCategory = $matches[1].Trim(); \
-            Write-Host "`n  $currentCategory" -ForegroundColor Cyan; \
-            Write-Host ('  ' + ('─' * 45)) -ForegroundColor Gray; \
-        } elseif ($line -match '^# ([^─].+)') { \
-            $desc = $matches[1].Trim(); \
-            $idx = [array]::IndexOf($lines, $line); \
-            if ($idx -lt $lines.Count - 1) { \
-                $nextLine = $lines[$idx + 1]; \
-                if ($nextLine -match '^([a-z0-9-]+):') { \
-                    $recipe = $matches[1]; \
-                    $pad = ' ' * [math]::Max(2, (18 - $recipe.Length)); \
-                    Write-Host "    $recipe" -ForegroundColor White -NoNewline; \
-                    Write-Host "$pad$desc" -ForegroundColor Gray; \
-                } \
-            } \
-        } \
-    } \
-    Write-Host "`n  [System State: PROD/HARDENED]" -ForegroundColor DarkGray; \
-    Write-Host ''
+    @pwsh.exe -NoProfile -ExecutionPolicy Bypass -File ../mcp-central-docs/scripts/just-dashboard.ps1 -Path .
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
-# Execute Ruff SOTA v13.1 linting (Python)
+# Execute Ruff linting (Python)
 lint-py:
     uv run ruff check .
 
-# Execute Biome SOTA v1.4 linting (Frontend)
+# Execute Biome linting (Frontend)
 lint-web:
-    Set-Location web_sota; npx @biomejs/biome check .
+    uv run --directory web_sota npx @biomejs/biome check .
 
 # Global lint (Python + Web)
 lint: lint-py lint-web
 
-# Execute Ruff SOTA v13.1 fix and formatting
+# Execute Ruff fix and formatting
 fix:
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
-    Set-Location web_sota; npx @biomejs/biome check --apply .
-    Set-Location web_sota; npx @biomejs/biome format --write .
+    uv run --directory web_sota npx @biomejs/biome check --apply .
+    uv run --directory web_sota npx @biomejs/biome format --write .
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
@@ -60,10 +34,8 @@ test:
 
 # Execute Bandit security audit
 check-sec:
-    Set-Location '{{justfile_directory()}}'
-    uv run bandit -r src/
+    cd '{{justfile_directory()}}' && uv run bandit -r src/
 
 # Execute safety audit of dependencies
 audit-deps:
-    Set-Location '{{justfile_directory()}}'
-    uv run safety check
+    cd '{{justfile_directory()}}' && uv run safety check

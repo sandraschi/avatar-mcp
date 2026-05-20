@@ -5,8 +5,7 @@ global:
 scrape_configs:
   - job_name: 'avatarmcp'
     static_configs:
-      - targets: ['host.docker.internal:8000']  # For Docker Desktop
-        # Use 'localhost:8000' for native Linux
+      - targets: ['host.docker.internal:10791']  # metrics on 10791
     metrics_path: '/metrics'
     scheme: 'http'
     scrape_interval: 5s

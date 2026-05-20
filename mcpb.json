@@ -1,11 +1,20 @@
 {
     "name": "avatar-mcp",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "type": "server",
     "runtime": "python",
-    "entry_point": "src/avatar_mcp/server.py",
+    "entry_point": "src/avatarmcp/server.py",
     "dependencies": [
-        "fastmcp>=2.14.4,<3.0.0"
+        "fastmcp>=3.1.0",
+        "numpy>=1.21.0",
+        "python-osc>=1.8.2",
+        "pygltflib>=1.14.0",
+        "trimesh>=3.9.0",
+        "packaging>=21.0",
+        "httpx>=0.27.0",
+        "fastapi>=0.132.0",
+        "uvicorn[standard]>=0.38.0",
+        "aiofiles>=23.1.0"
     ],
     "build": {
         "include": [
@@ -23,12 +32,13 @@
             "build/",
             "target/",
             "docs/",
-            "scripts/"
+            "scripts/",
+            "web_sota/"
         ]
     },
     "scripts": {
         "build": "mcpb build",
         "pack": "mcpb pack . dist/avatar-mcp.mcpb",
-        "test": "python -m pytest"
+        "test": "uv run pytest tests/ -v"
     }
 }
