@@ -7,6 +7,9 @@
   <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
 </p>
 
+
+> 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
+
 **By FlowEngineer sandraschi**
 
 > FastMCP 3.1.0+ compatible VRM avatar management and animation server with conversational capabilities, SEP-1577 sampling support, and VRChat OSC integration
