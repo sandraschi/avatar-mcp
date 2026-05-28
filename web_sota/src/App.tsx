@@ -19,6 +19,7 @@ import { Status } from '@/pages/status';
 import { Apps } from '@/pages/apps';
 import { Help } from '@/pages/help';
 import { Workflow } from '@/pages/workflow';
+import { Pipeline } from '@/pages/pipeline';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/status" element={<Status />} />
           <Route path="/apps" element={<Apps />} />
           <Route path="/workflow" element={<Workflow />} />
+          <Route path="/pipeline" element={<Pipeline />} />
           <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />

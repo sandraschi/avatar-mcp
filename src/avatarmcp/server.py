@@ -227,6 +227,7 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
         from .tools.portmanteau.artifact_manager_tool import ArtifactManagerTool
         from .tools.portmanteau.audio_manager_tool import AudioManagerTool
         from .tools.portmanteau.avatar_manager_tool import AvatarManagerTool
+        from .tools.portmanteau.avatar_pipeline_tool import AvatarPipelineTool
         from .tools.portmanteau.avatar_sampling_tool import AvatarSamplingTool
         from .tools.portmanteau.behavior_manager_tool import BehaviorManagerTool
         from .tools.portmanteau.chat_manager_tool import ChatManagerTool
@@ -241,6 +242,7 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
         from .tools.portmanteau.unity_window_manager_tool import UnityWindowManagerTool
 
         self.avatar_manager_tool = AvatarManagerTool(self)
+        self.avatar_pipeline_tool = AvatarPipelineTool(self)
         self.avatar_sampling_tool = AvatarSamplingTool(self)
         self.animation_manager_tool = AnimationManagerTool(self)
         self.emotion_manager_tool = EmotionManagerTool(self)

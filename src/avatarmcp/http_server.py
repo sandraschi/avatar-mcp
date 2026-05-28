@@ -347,6 +347,73 @@ async def get_intelligence_trifecta():
     }
 
 
+class ToolCallBody(BaseModel):
+    tool: str
+    arguments: dict[str, Any] | None = None
+
+
+# ---------------------------------------------------------------------------
+# Creative pipeline (VRoid / Blender / VTube orchestration)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/v1/pipeline/status")
+async def pipeline_status():
+    """Pipeline staging dirs and fleet integration status."""
+    if not mcp_srv or not hasattr(mcp_srv, "avatar_pipeline_tool"):
+        return {"success": False, "error": "Pipeline not initialized"}
+    return await mcp_srv.avatar_pipeline_tool.service.run("status")
+
+
+@app.get("/api/v1/pipeline/hub/callback")
+async def pipeline_hub_oauth_callback(code: str = "", state: str = ""):
+    """OAuth redirect target for VRoid Hub (register this URI in Hub app settings)."""
+    if not mcp_srv or not hasattr(mcp_srv, "avatar_pipeline_tool"):
+        raise HTTPException(status_code=503, detail="Pipeline not initialized")
+    if not code:
+        raise HTTPException(status_code=400, detail="Missing OAuth code")
+    result = await mcp_srv.avatar_pipeline_tool.service.run(
+        "hub_auth",
+        auth_step="complete",
+        auth_code=code,
+        oauth_state=state,
+    )
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "OAuth failed"))
+    return {
+        "success": True,
+        "message": "VRoid Hub connected. You can close this tab and return to the pipeline UI.",
+        "result": result,
+    }
+
+
+@app.post("/api/v1/control/tool")
+async def control_tool(body: ToolCallBody):
+    """Fleet-compatible tool bridge (matches freecad-mcp / vroidstudio-mcp)."""
+    if not mcp_srv:
+        raise HTTPException(status_code=503, detail="Server not initialized")
+    if body.tool == "avatar_pipeline":
+        args = body.arguments or {}
+        return await mcp_srv.avatar_pipeline_tool.service.run(
+            args.get("operation", "status"),
+            vrm_filename=args.get("vrm_filename", "anime_gal.vrm"),
+            source_path=args.get("source_path", ""),
+            output_name=args.get("output_name", ""),
+            pick_sample=bool(args.get("pick_sample", True)),
+            skip_vroid=bool(args.get("skip_vroid", False)),
+            label=args.get("label", "pipeline_avatar"),
+            load_into_registry=bool(args.get("load_into_registry", True)),
+            mcp_server=mcp_srv,
+            character_model_id=args.get("character_model_id", ""),
+            auth_step=args.get("auth_step", "status"),
+            auth_code=args.get("auth_code", ""),
+            oauth_state=args.get("oauth_state", ""),
+            access_token=args.get("access_token", ""),
+            model_type_override=args.get("model_type_override", ""),
+        )
+    raise HTTPException(status_code=400, detail=f"Unknown tool: {body.tool}")
+
+
 @app.get("/api/v1/avatars")
 async def list_avatars():
     """Get list of all discovered and loaded avatars."""

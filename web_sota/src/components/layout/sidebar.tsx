@@ -21,7 +21,8 @@ import {
     Infinity as InfinityIcon,
     HelpCircle,
     Grid,
-    ListTodo
+    ListTodo,
+    GitBranch
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -43,6 +44,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { href: '/vrchat', label: 'VRChat OSC', icon: Globe },
         { href: '/visualizer', label: 'Visualizer', icon: Video },
         { href: '/tools', label: 'Tools Hub', icon: Wrench },
+        { href: '/pipeline', label: 'Creative Pipeline', icon: GitBranch },
         { href: '/workflow', label: 'Workflow', icon: ListTodo },
         { href: '/status', label: 'Status', icon: Activity },
         { href: '/apps', label: 'App Hub', icon: Grid },

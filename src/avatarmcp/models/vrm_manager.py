@@ -163,11 +163,21 @@ class VRMManager:
         dest_path = os.path.join(self.models_dir, f"{model_id}.vrm")
         shutil.copy2(vrm_path, dest_path)
 
-        # Save metadata if provided
+        # Save metadata if provided, else infer model_type from VRM contents
         if metadata:
             metadata_path = os.path.join(self.models_dir, f"{model_id}.meta.json")
             async with aiofiles.open(metadata_path, "w", encoding="utf-8") as f:
                 await f.write(json.dumps(metadata, indent=2, ensure_ascii=False))
+        else:
+            try:
+                from avatarmcp.pipeline.vrm_type_detect import build_import_metadata
+
+                inferred = build_import_metadata(dest_path)
+                metadata_path = os.path.join(self.models_dir, f"{model_id}.meta.json")
+                async with aiofiles.open(metadata_path, "w", encoding="utf-8") as f:
+                    await f.write(json.dumps(inferred, indent=2, ensure_ascii=False))
+            except Exception as exc:
+                logger.warning("Could not infer VRM metadata for %s: %s", model_id, exc)
 
         # Rescan models to update the cache
         await self.scan_models()

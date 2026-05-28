@@ -41,6 +41,8 @@ If you don't have `just` installed:
 
 - **Portmanteau Tools Architecture**: Consolidated 16 portmanteau tools with FastMCP 3.1.0 sampling capabilities
   - Exposes only portmanteau tools to MCP (no raw core-tool list); bootstrap via `system_monitor(operation="initialize")`
+- **Creative Pipeline** web UI at `/pipeline` — Hub download, vroidstudio-mcp, blender-mcp, VTube staging, model_type detection
+  - Docs: [docs/CREATIVE_PIPELINE.md](docs/CREATIVE_PIPELINE.md) | MCD: `mcp-central-docs/docs/avatars/FLEET_VRM_PIPELINE.md`
   - Reduces tool explosion from 28 individual tools to 16 unified interfaces
   - Operation-based design with comprehensive multiline docstrings
   - Clean, maintainable architecture with focused tool classes
@@ -193,6 +195,7 @@ AvatarMCP implements the following portmanteau tools leveraging FastMCP 3.1.0 sa
 #### Core Portmanteau Tools
 
 - **`avatar_manager`**: Comprehensive avatar lifecycle management
+- **`avatar_pipeline`**: Creative pipeline orchestrator (VRoid brute-force → Blender validate → VTube staging)
 - **`animation_manager`**: Animation control, sequences, and layering
 - **`emotion_manager`**: Emotional states and personality profiles
 - **`audio_manager`**: Audio playback and synthesis
