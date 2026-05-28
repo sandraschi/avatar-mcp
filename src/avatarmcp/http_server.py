@@ -80,6 +80,10 @@ class ToolExecutionRequest(BaseModel):
     arguments: dict[str, Any]
 
 
+class ThumbnailRequest(BaseModel):
+    icon_path: str
+
+
 class LaunchRequest(BaseModel):
     repo_path: str
     port: int
@@ -357,3 +361,20 @@ async def list_avatars():
         }
         for mid, model in mcp_srv.loaded_models.items()
     ]
+
+
+@app.post("/api/v1/avatars/{avatar_id}/thumbnail")
+async def set_avatar_thumbnail(avatar_id: str, req: ThumbnailRequest):
+    """Set avatar model thumbnail from a PNG path on disk."""
+    if not mcp_srv:
+        raise HTTPException(status_code=503, detail="Server not initialized")
+    try:
+        result = await mcp_srv.vrm_manager.set_model_thumbnail(avatar_id, req.icon_path)
+        if not result.get("success"):
+            raise HTTPException(status_code=400, detail=result.get("error", "Thumbnail import failed"))
+        return {"status": "success", **result}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("set_avatar_thumbnail failed avatar_id=%s", avatar_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc

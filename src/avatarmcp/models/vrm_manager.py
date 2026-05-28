@@ -197,6 +197,46 @@ class VRMManager:
         # For now, return None
         return None
 
+    async def set_model_thumbnail(self, model_id: str, icon_path: str) -> dict[str, Any]:
+        """Set model thumbnail from a PNG on disk."""
+        import shutil
+
+        model_info = await self.get_model_info(model_id)
+        if not model_info:
+            resolved = None
+            for root, _, files in os.walk(self.models_dir):
+                for filename in files:
+                    if filename.lower().endswith(".vrm") and os.path.splitext(filename)[0] == model_id:
+                        resolved = {
+                            "directory": root,
+                            "id": model_id,
+                            "path": os.path.join(root, filename),
+                        }
+                        break
+                if resolved:
+                    break
+            if not resolved:
+                return {"success": False, "error": f"Model not found: {model_id}"}
+            model_info = resolved
+
+        src = Path(icon_path)
+        if not src.is_file():
+            return {"success": False, "error": f"Icon not found: {icon_path}"}
+
+        dest = Path(model_info["directory"]) / f"{model_id}.thumb.png"
+        try:
+            shutil.copy2(src, dest)
+        except OSError as exc:
+            logger.exception("Failed to write avatar thumbnail")
+            return {"success": False, "error": str(exc)}
+
+        return {
+            "success": True,
+            "model_id": model_id,
+            "thumbnail_path": str(dest),
+            "source_icon": str(src),
+        }
+
 
 # Sources for animal/creature VRMs
 VRM_SOURCES = {

@@ -5,7 +5,7 @@ Consolidates all avatar lifecycle management operations into a single tool.
 """
 
 import logging
-import time
+import os
 from typing import Any
 
 from avatarmcp.models.vrm_model import VRMModel
@@ -44,10 +44,17 @@ class AvatarManagerTool:
                     return await self._handle_get_active(params)
                 elif operation == "get_metadata":
                     return await self._handle_get_metadata(params)
+                elif operation == "set_thumbnail":
+                    return await self._handle_set_thumbnail(params)
+                elif operation == "get_thumbnail_path":
+                    return await self._handle_get_thumbnail_path(params)
                 else:
                     return {
                         "status": "error",
-                        "message": f"Unknown operation '{operation}'. Valid: load, unload, list, set_active, get_active, get_metadata",
+                        "message": (
+                            "Unknown operation. Valid: load, unload, list, set_active, "
+                            "get_active, get_metadata, set_thumbnail, get_thumbnail_path"
+                        ),
                     }
 
             except Exception as e:
@@ -220,3 +227,38 @@ class AvatarManagerTool:
             return {"status": "error", "message": f"No metadata found for avatar {avatar_id}"}
         except Exception as e:
             return {"status": "error", "message": f"Failed to get avatar metadata: {e!s}"}
+
+    async def _handle_set_thumbnail(self, params: dict[str, Any]) -> dict[str, Any]:
+        avatar_id = params.get("avatar_id") or params.get("model_id")
+        icon_path = params.get("icon_path")
+        if not avatar_id or not icon_path:
+            return {"status": "error", "message": "avatar_id and icon_path required for set_thumbnail"}
+
+        result = await self.mcp_server.vrm_manager.set_model_thumbnail(str(avatar_id), str(icon_path))
+        if not result.get("success"):
+            return {"status": "error", "message": result.get("error", "Thumbnail import failed"), **result}
+        return {
+            "status": "success",
+            "message": f"Thumbnail set for avatar {avatar_id}",
+            "operation": "set_thumbnail",
+            "avatar_id": avatar_id,
+            **result,
+        }
+
+    async def _handle_get_thumbnail_path(self, params: dict[str, Any]) -> dict[str, Any]:
+        avatar_id = params.get("avatar_id") or params.get("model_id")
+        if not avatar_id:
+            return {"status": "error", "message": "avatar_id required for get_thumbnail_path"}
+
+        model_info = await self.mcp_server.vrm_manager.get_model_info(str(avatar_id))
+        if not model_info:
+            return {"status": "error", "message": f"Avatar {avatar_id} not found"}
+
+        thumb = os.path.join(model_info["directory"], f"{avatar_id}.thumb.png")
+        return {
+            "status": "success",
+            "operation": "get_thumbnail_path",
+            "avatar_id": avatar_id,
+            "thumbnail_path": thumb,
+            "exists": os.path.isfile(thumb),
+        }
