@@ -34,14 +34,7 @@ if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeF
 
 Stop-FleetPortSquatters -Ports @($WebPort, $BackendPort, $MetricsPort) -Label "avatar-mcp"
 
-$blocked = @(Get-NetTCPConnection -LocalPort $BackendPort -State Listen -ErrorAction SilentlyContinue |
-    Where-Object { $_.OwningProcess -gt 4 })
-if ($blocked.Count -gt 0) {
-    $squatter = ($blocked | Select-Object -ExpandProperty OwningProcess -Unique) -join ','
-    Write-Host "ERROR: Port $BackendPort still held by PID(s): $squatter." -ForegroundColor Red
-    Write-Host "  If Docker: docker compose -f `"$composeFile`" stop avatarmcp prometheus" -ForegroundColor Yellow
-    exit 1
-}
+if (-not (Assert-FleetPortsAvailable -Ports @($WebPort, $BackendPort, $MetricsPort) -Label "avatar-mcp")) { exit 1 }
 
 Set-Location $PSScriptRoot
 if (-not (Test-Path "node_modules")) { npm install }
@@ -81,4 +74,5 @@ if (-not $NoBrowser) {
 
 Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
 npm run dev -- --port $WebPort --host 127.0.0.1 --strictPort
+
 
