@@ -1,67 +1,84 @@
-Param([switch]$Headless)
-$SkipFrontend = $Headless
+﻿param(
+    [switch]$Headless,
+    [switch]$BackendOnly,
+    [switch]$NoBrowser
+)
 
-# --- SOTA Headless Standard ---
-if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {
-    Start-Process pwsh -ArgumentList '-NoProfile', '-File', $PSCommandPath, '-Headless' -WindowStyle Hidden
-    exit
-}
-$WindowStyle = if ($Headless) { 'Hidden' } else { 'Normal' }
-# ------------------------------
-
-# Webapp Start - Standardized SOTA (Auto-Repaired V2.5)
 $WebPort = 10792
 $BackendPort = 10793
+$MetricsPort = 10790
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 
-# 1. Kill any process squatting on the ports
-Write-Host "Checking for port squatters on $WebPort and $BackendPort..." -ForegroundColor Yellow
-$pids = Get-NetTCPConnection -LocalPort $WebPort, $BackendPort -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | Select-Object -ExpandProperty OwningProcess -Unique
-foreach ($p in $pids) {
-    Write-Host "Found squatter (PID: $p). Terminating..." -ForegroundColor Red
-    try { Stop-Process -Id $p -Force -ErrorAction Stop } catch { Write-Host "Warning: Could not terminate PID $p." -ForegroundColor Gray }
+$FleetStartPath = Join-Path $ProjectRoot "scripts\FleetStartMode.ps1"
+if (-not (Test-Path -LiteralPath $FleetStartPath)) {
+    Write-Host "ERROR: Missing vendored launcher helper: $FleetStartPath" -ForegroundColor Red
+    exit 1
+}
+. $FleetStartPath
+$FleetStart = Initialize-FleetStartMode @PSBoundParameters
+Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
+
+# Docker compose publishes 10793 (avatarmcp) and 10790 (prometheus) — stop before local uvicorn
+$composeFile = Join-Path $ProjectRoot "docker-compose.yml"
+if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeFile)) {
+    $dockerNames = @(
+        (& docker ps --filter "publish=$BackendPort" --format "{{.Names}}" 2>$null)
+        (& docker ps --filter "publish=$MetricsPort" --format "{{.Names}}" 2>$null)
+    ) | Where-Object { $_ }
+    if ($dockerNames.Count -gt 0) {
+        Write-Host "[avatar-mcp] Stopping Docker services on fleet ports ($($dockerNames -join ', '))..." -ForegroundColor Yellow
+        & docker compose -f $composeFile stop avatarmcp prometheus 2>$null
+        Start-Sleep -Seconds 2
+    }
 }
 
-# 2. Setup
+Stop-FleetPortSquatters -Ports @($WebPort, $BackendPort, $MetricsPort) -Label "avatar-mcp"
+
+$blocked = @(Get-NetTCPConnection -LocalPort $BackendPort -State Listen -ErrorAction SilentlyContinue |
+    Where-Object { $_.OwningProcess -gt 4 })
+if ($blocked.Count -gt 0) {
+    $squatter = ($blocked | Select-Object -ExpandProperty OwningProcess -Unique) -join ','
+    Write-Host "ERROR: Port $BackendPort still held by PID(s): $squatter." -ForegroundColor Red
+    Write-Host "  If Docker: docker compose -f `"$composeFile`" stop avatarmcp prometheus" -ForegroundColor Yellow
+    exit 1
+}
+
 Set-Location $PSScriptRoot
 if (-not (Test-Path "node_modules")) { npm install }
 
-# 3. Start the Python backend (Background)
 Write-Host "Starting Python backend on port $BackendPort ..." -ForegroundColor Cyan
-
-# uv --project finds package; CWD stays web_sota (no repo-root run).
 $backendCmd = "Set-Location '$PSScriptRoot'; uv run --project '$ProjectRoot' uvicorn avatarmcp.http_server:app --host 127.0.0.1 --port $BackendPort --log-level info"
+Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Normal", "-Command", $backendCmd
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCmd -WindowStyle Normal
-
-# Wait for backend to listen (avoids ECONNREFUSED on first health checks)
-$maxWait = 30
+$healthUrl = "http://127.0.0.1:$BackendPort/api/v1/health"
+$maxWait = 45
 $waited = 0
+$backendUp = $false
 while ($waited -lt $maxWait) {
-    $conn = Get-NetTCPConnection -LocalPort $BackendPort -State Listen -ErrorAction SilentlyContinue
-    if ($conn) {
-        Write-Host "Backend listening on port $BackendPort." -ForegroundColor Green
+    try {
+        $null = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+        Write-Host "Backend ready at $healthUrl" -ForegroundColor Green
+        $backendUp = $true
         break
+    } catch {
+        Start-Sleep -Seconds 2
+        $waited += 2
     }
-    Start-Sleep -Seconds 2
-    $waited += 2
 }
-if ($waited -ge $maxWait) {
-    Write-Host "WARNING: Backend did not start on port $BackendPort within ${maxWait}s. Check the backend window for errors. Starting frontend anyway." -ForegroundColor Yellow
+if (-not $backendUp) {
+    Write-Host "WARNING: Backend did not answer /api/v1/health within ${maxWait}s." -ForegroundColor Yellow
 }
 
-# 4. Run server (Vite dev)
+if (-not $FleetStart.RunFrontend) {
+    while ($true) { Start-Sleep -Seconds 60 }
+}
+
+if (-not $NoBrowser) {
+    $frontendUrl = "http://127.0.0.1:$WebPort/"
+    $pollAndOpen = "for (`$i = 0; `$i -lt 60; `$i++) { try { `$null = Invoke-WebRequest -Uri '$frontendUrl' -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop; Start-Process '$frontendUrl'; exit } catch { Start-Sleep -Seconds 1 } }"
+    Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $pollAndOpen
+}
+
 Write-Host "Starting Vite frontend on port $WebPort ..." -ForegroundColor Green
-
-# 4b. Launch background task to open browser once frontend is ready (Auto-opened by Antigravity)
-$frontendUrl = "http://127.0.0.1:$WebPort/"
-$pollAndOpen = "for (`$i = 0; `$i -lt 60; `$i++) { try { `$null = Invoke-WebRequest -Uri '$frontendUrl' -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop; Start-Process '$frontendUrl'; exit } catch { Start-Sleep -Seconds 1 } }"
-Start-Process powershell -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $pollAndOpen
-
-Write-Host "Browser will open automatically when Vite is ready." -ForegroundColor Gray
-if ($SkipFrontend) { return }
-npm run dev -- --port $WebPort --host
-
-
-
+npm run dev -- --port $WebPort --host 127.0.0.1 --strictPort
 
