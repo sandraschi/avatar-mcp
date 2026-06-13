@@ -18,6 +18,16 @@ All operations accept a single `params` dict with `operation` key.
 |-----------|------------|
 | `hub_auth` | `auth_step`: `status` \| `start` \| `complete` \| `set_token`; `auth_code`, `oauth_state`, `access_token` |
 | `hub_download` | `character_model_id`, `vrm_filename`, `model_type_override` |
+| `hub_to_studio` | `character_model_id` and/or `project_path` (.vroid), `depot_id`, `open_in_studio`, `export_after`, `output_name` |
+
+### Depot (local catalog)
+
+| Operation | Key params |
+|-----------|------------|
+| `depot_list` | `depot_kind`: `vrm` \| `vroid`; `scan_depot`: true |
+| `depot_register` | `source_path`, `copy_to_depot`, `character_model_id` |
+| `depot_get` | `depot_id` |
+| `depot_scan` | Rescan staging/hub/output |
 
 **OAuth redirect URI** (register at hub.vroid.com):
 
@@ -56,6 +66,10 @@ pipeline/
   hub/          # Hub downloads
   staging/      # Active VRMs
   output/       # Blender re-exports
+  depot/
+    catalog.json
+    vrm/
+    projects/
   staging/vts/  # VTube manifests
   hub/token.json
 ```

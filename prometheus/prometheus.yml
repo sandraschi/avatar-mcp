@@ -5,7 +5,7 @@ global:
 scrape_configs:
   - job_name: 'avatarmcp'
     static_configs:
-      - targets: ['host.docker.internal:10791']  # metrics on 10791
+      - targets: ['host.docker.internal:10790']  # metrics on 10790
     metrics_path: '/metrics'
     scheme: 'http'
     scrape_interval: 5s

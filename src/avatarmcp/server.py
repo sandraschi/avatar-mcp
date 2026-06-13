@@ -270,8 +270,9 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
         self.chat_tool.chatbot_handler = self.chatbot_handler
 
         # Initialize metrics collection
-        # Use port 10791 for Prometheus metrics (10792/10793 are used by the app)
-        self.metrics = MetricsCollector(port=10791, enabled=True)
+        # Port 10790 (metrics-only; 10791 is reserved for docs_mcp / fleet starts UI)
+        metrics_port = int(os.getenv("METRICS_PORT", "10790"))
+        self.metrics = MetricsCollector(port=metrics_port, enabled=True)
         if self.metrics.info is not None:
             self.metrics.info.info(
                 {

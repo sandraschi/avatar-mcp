@@ -31,6 +31,8 @@ class AvatarPipelineTool:
             - status: pipeline dirs, fleet URLs, hub auth status
             - hub_auth: VRoid Hub OAuth (auth_step: status|start|complete|set_token)
             - hub_download: fetch VRM from Hub by character_model_id, stage, detect model_type
+            - hub_to_studio: Hub download and/or open .vroid in VRoid Studio (+ optional export)
+            - depot_list / depot_register / depot_get / depot_scan: local VRM/.vroid catalog
             - vroid_quick_avatar: pywinauto VRoid export + stage
             - hub_stage_file: copy local VRM into staging (+ model_type detect on import)
             - blender_validate: headless Blender import stats
@@ -57,6 +59,15 @@ class AvatarPipelineTool:
                     oauth_state=params.get("oauth_state", ""),
                     access_token=params.get("access_token", ""),
                     model_type_override=params.get("model_type_override", ""),
+                    project_path=params.get("project_path", ""),
+                    save_path=params.get("save_path", ""),
+                    depot_id=params.get("depot_id", ""),
+                    depot_kind=params.get("depot_kind", ""),
+                    open_in_studio=bool(params.get("open_in_studio", True)),
+                    export_after=bool(params.get("export_after", False)),
+                    studio_template=params.get("studio_template", "open_and_export"),
+                    copy_to_depot=bool(params.get("copy_to_depot", True)),
+                    scan_depot=bool(params.get("scan_depot", False)),
                 )
             except Exception as exc:
                 logger.exception("avatar_pipeline failed")

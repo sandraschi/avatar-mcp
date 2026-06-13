@@ -8,6 +8,16 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from avatarmcp.pipeline.depot import (
+    KIND_VRM,
+    KIND_VROID,
+    SOURCE_HUB,
+    SOURCE_MANUAL,
+    SOURCE_STAGING,
+    SOURCE_VROID_EXPORT,
+    SOURCE_VROID_PROJECT,
+    AvatarDepot,
+)
 from avatarmcp.pipeline.fleet_http import (
     DEFAULT_VROID_URL,
     blender_reexport_vrm,
@@ -35,6 +45,7 @@ class AvatarPipelineService:
         for folder in (self.staging_dir, self.output_dir, self.hub_dir, self.vts_dir):
             folder.mkdir(parents=True, exist_ok=True)
         self.hub_client = VRoidHubClient(self.hub_dir)
+        self.depot = AvatarDepot(root)
 
     async def run(
         self,
@@ -54,6 +65,15 @@ class AvatarPipelineService:
         oauth_state: str = "",
         access_token: str = "",
         model_type_override: str = "",
+        project_path: str = "",
+        save_path: str = "",
+        depot_id: str = "",
+        depot_kind: str = "",
+        open_in_studio: bool = True,
+        export_after: bool = False,
+        studio_template: str = "open_and_export",
+        copy_to_depot: bool = True,
+        scan_depot: bool = False,
     ) -> dict[str, Any]:
         op = operation.strip().lower()
 
@@ -67,8 +87,42 @@ class AvatarPipelineService:
                 "hub": [p.name for p in self.hub_dir.glob("*.vrm")],
                 "vroid_url": DEFAULT_VROID_URL,
                 "hub_auth": self.hub_client.auth_status(),
+                "depot": self.depot.list_entries(limit=20),
                 "message": "Avatar pipeline ready",
             }
+
+        if op == "depot_list":
+            if scan_depot:
+                self.depot.scan_work_dirs(self.staging_dir, self.hub_dir, self.output_dir)
+            return self.depot.list_entries(kind=depot_kind.strip())
+
+        if op == "depot_register":
+            if not source_path:
+                return {"success": False, "status": "error", "message": "source_path required"}
+            ext = Path(source_path).suffix.lower()
+            kind = KIND_VROID if ext == ".vroid" else KIND_VRM if ext == ".vrm" else ""
+            if not kind:
+                return {"success": False, "status": "error", "message": "source_path must be .vrm or .vroid"}
+            reg = self.depot.register(
+                source_path,
+                kind=kind,
+                source=SOURCE_MANUAL,
+                name=Path(source_path).stem,
+                character_model_id=character_model_id,
+                model_type=model_type_override,
+                copy_into_depot=copy_to_depot,
+            )
+            return {**reg, "status": "success" if reg.get("success") else "error"}
+
+        if op == "depot_get":
+            if not depot_id:
+                return {"success": False, "status": "error", "message": "depot_id required"}
+            got = self.depot.get(depot_id)
+            return {**got, "status": "success" if got.get("success") else "error"}
+
+        if op == "depot_scan":
+            scanned = self.depot.scan_work_dirs(self.staging_dir, self.hub_dir, self.output_dir)
+            return {**scanned, "status": "success", "message": f"Depot scan added {scanned.get('added_count', 0)} entries"}
 
         if op == "hub_auth":
             step = auth_step.strip().lower() or "status"
@@ -110,7 +164,34 @@ class AvatarPipelineService:
             }
             if load_into_registry and mcp_server:
                 await self._register_staged(mcp_server, str(staged), metadata=type_info)
+            self.depot.register(
+                staged,
+                kind=KIND_VRM,
+                source=SOURCE_HUB,
+                name=dest_name,
+                character_model_id=character_model_id.strip(),
+                model_type=str(type_info.get("model_type", "")),
+                copy_into_depot=copy_to_depot,
+                metadata={"hub_path": str(hub_path), "license_id": dl.get("license_id")},
+            )
             return result
+
+        if op == "hub_to_studio":
+            return await self._hub_to_studio(
+                character_model_id=character_model_id,
+                vrm_filename=vrm_filename,
+                project_path=project_path,
+                save_path=save_path,
+                depot_id=depot_id,
+                output_name=output_name,
+                open_in_studio=open_in_studio,
+                export_after=export_after,
+                studio_template=studio_template,
+                copy_to_depot=copy_to_depot,
+                load_into_registry=load_into_registry,
+                mcp_server=mcp_server,
+                model_type_override=model_type_override,
+            )
 
         if op == "vroid_quick_avatar":
             result = await self._vroid_export(vrm_filename, pick_sample=pick_sample)
@@ -140,6 +221,14 @@ class AvatarPipelineService:
                 if model_type_override.strip():
                     meta["model_type"] = model_type_override.strip()
                 await self._register_staged(mcp_server, str(dest), metadata=meta)
+            self.depot.register(
+                dest,
+                kind=KIND_VRM,
+                source=SOURCE_STAGING,
+                name=dest.name,
+                model_type=model_type_override,
+                copy_into_depot=copy_to_depot,
+            )
             return result
 
         staged_vrm = self._resolve_staged(vrm_filename)
@@ -235,10 +324,157 @@ class AvatarPipelineService:
             dest = self.staging_dir / vrm_filename
             shutil.copy2(export_path, dest)
             result["staged_path"] = str(dest)
+            self.depot.register(
+                dest,
+                kind=KIND_VRM,
+                source=SOURCE_VROID_EXPORT,
+                name=vrm_filename,
+                copy_into_depot=False,
+            )
         return {
             **result,
             "status": "success",
             "message": f"Exported and staged {vrm_filename}",
+        }
+
+    async def _hub_to_studio(
+        self,
+        *,
+        character_model_id: str,
+        vrm_filename: str,
+        project_path: str,
+        save_path: str,
+        depot_id: str,
+        output_name: str,
+        open_in_studio: bool,
+        export_after: bool,
+        studio_template: str,
+        copy_to_depot: bool,
+        load_into_registry: bool,
+        mcp_server: Any | None,
+        model_type_override: str,
+    ) -> dict[str, Any]:
+        steps: list[dict[str, Any]] = []
+        vrm_path: str | None = None
+        vroid_path: str | None = None
+        depot_entry: dict[str, Any] | None = None
+
+        if character_model_id.strip():
+            hub_result = await self.run(
+                "hub_download",
+                vrm_filename=vrm_filename,
+                character_model_id=character_model_id,
+                load_into_registry=load_into_registry,
+                mcp_server=mcp_server,
+                model_type_override=model_type_override,
+                copy_to_depot=copy_to_depot,
+            )
+            steps.append({"step": "hub_download", **hub_result})
+            if not hub_result.get("success"):
+                return {
+                    "success": False,
+                    "status": "error",
+                    "steps": steps,
+                    "message": hub_result.get("message", "Hub download failed"),
+                }
+            vrm_path = hub_result.get("staged_path")
+
+        if depot_id.strip():
+            got = self.depot.get(depot_id.strip())
+            if not got.get("success"):
+                return {**got, "status": "error", "steps": steps}
+            depot_entry = got["entry"]
+            if depot_entry.get("kind") == KIND_VROID:
+                vroid_path = depot_entry.get("path")
+            elif depot_entry.get("kind") == KIND_VRM:
+                vrm_path = depot_entry.get("path")
+
+        if project_path.strip():
+            proj = Path(project_path.strip())
+            if not proj.is_file():
+                return {"success": False, "status": "error", "message": f"Project not found: {project_path}"}
+            if proj.suffix.lower() != ".vroid":
+                return {
+                    "success": False,
+                    "status": "error",
+                    "message": "project_path must be a .vroid VRoid Studio project file",
+                }
+            vroid_path = str(proj.resolve())
+            reg = self.depot.register(
+                vroid_path,
+                kind=KIND_VROID,
+                source=SOURCE_VROID_PROJECT,
+                copy_into_depot=copy_to_depot,
+            )
+            if reg.get("success"):
+                depot_entry = reg.get("entry")
+
+        if not vrm_path and vrm_filename:
+            staged = self._resolve_staged(vrm_filename)
+            if staged:
+                vrm_path = str(staged)
+
+        if not vroid_path and not vrm_path:
+            return {
+                "success": False,
+                "status": "error",
+                "message": "Provide character_model_id, depot_id (vrm/vroid), project_path (.vroid), or staged vrm_filename",
+                "steps": steps,
+            }
+
+        studio_result: dict[str, Any] | None = None
+        if open_in_studio and vroid_path:
+            if export_after:
+                out = output_name or Path(vrm_filename or "hub_export.vrm").name
+                studio_result = await call_vroid_tool(
+                    "vroid_studio",
+                    {
+                        "operation": "open_and_export",
+                        "project_path": vroid_path,
+                        "output_name": out,
+                    },
+                )
+            else:
+                studio_result = await call_vroid_tool(
+                    "vroid_studio",
+                    {"operation": "open_project", "project_path": vroid_path},
+                )
+            steps.append({"step": "vroid_studio", **studio_result})
+            if studio_result.get("export_path") and Path(studio_result["export_path"]).is_file():
+                staged = self.staging_dir / Path(studio_result["export_path"]).name
+                shutil.copy2(studio_result["export_path"], staged)
+                vrm_path = str(staged)
+                self.depot.register(
+                    staged,
+                    kind=KIND_VRM,
+                    source=SOURCE_VROID_EXPORT,
+                    name=staged.name,
+                    copy_into_depot=copy_to_depot,
+                )
+        elif open_in_studio and vrm_path:
+            studio_result = await call_vroid_tool("vroid_studio", {"operation": "launch"})
+            steps.append({"step": "vroid_launch", **studio_result})
+            await call_vroid_tool("vroid_studio", {"operation": "focus"})
+
+        note = ""
+        if vrm_path and not vroid_path:
+            note = (
+                "Hub/staged asset is VRM (runtime export). VRoid Studio edits native .vroid projects. "
+                "Use blender_validate/blender_reexport for VRM mesh work, or create a new Studio project "
+                "using the downloaded model as visual reference."
+            )
+
+        return {
+            "success": True,
+            "status": "success",
+            "steps": steps,
+            "vrm_path": vrm_path,
+            "vroid_path": vroid_path,
+            "depot_entry": depot_entry,
+            "studio_result": studio_result,
+            "editable_in_studio": bool(vroid_path),
+            "note": note,
+            "message": "hub_to_studio complete",
         }
 
     async def _register_staged(

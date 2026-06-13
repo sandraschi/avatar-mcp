@@ -20,7 +20,7 @@ services:
     image: prom/prometheus:latest
     container_name: avatarmcp-prometheus
     ports:
-      - "10794:9090"
+      - "10790:9090"
     volumes:
       - ./prometheus:/etc/prometheus
       - prometheus-data:/prometheus
@@ -33,7 +33,7 @@ services:
     image: grafana/loki:latest
     container_name: avatarmcp-loki
     ports:
-      - "10795:3100"
+      - "10809:3100"
     volumes:
       - ./loki:/etc/loki
       - loki-data:/loki

@@ -142,10 +142,17 @@ class MetricsCollector:
             self._server_started = True
             logging.info("Metrics server started on port %d", self.port)
         except OSError as e:
-            if "address already in use" in str(e).lower() or e.errno == 10048:
+            # 10048 = EADDRINUSE; 10013 = Windows access denied (Docker/Hyper-V port hold)
+            if (
+                "address already in use" in str(e).lower()
+                or getattr(e, "winerror", None) in (10048, 10013)
+                or e.errno in (10048, 13)
+            ):
                 self._server_started = True
-                logging.getLogger(__name__).debug(
-                    "Metrics port %d already in use, another collector is serving", self.port
+                logging.getLogger(__name__).warning(
+                    "Metrics port %d unavailable (%s); continuing without Prometheus listener",
+                    self.port,
+                    e,
                 )
             else:
                 logging.error("Failed to start metrics server: %s", e, exc_info=True)

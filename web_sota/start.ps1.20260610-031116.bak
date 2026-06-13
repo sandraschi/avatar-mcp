@@ -1,8 +1,8 @@
-param(
+﻿param(
     [switch]$Headless,
     [switch]$BackendOnly,
-    [switch]$NoBrowser,
-    [switch]$ReuseIfRunning)
+    [switch]$NoBrowser
+)
 
 $WebPort = 10792
 $BackendPort = 10793
@@ -18,21 +18,6 @@ if (-not (Test-Path -LiteralPath $FleetStartPath)) {
 $FleetStart = Initialize-FleetStartMode @PSBoundParameters
 Enter-FleetHeadlessConsole -Headless:$Headless -BackendOnly:$BackendOnly
 
-$portResolve = @{
-    Ports      = @($WebPort, $BackendPort, $MetricsPort)
-    Label      = "avatar-mcp"
-    AllowReuse = $ReuseIfRunning
-}
-if ($ReuseIfRunning) {
-    $portResolve.HealthChecks = @{
-        $WebPort = "http://127.0.0.1:$WebPort/"
-        $BackendPort = "http://127.0.0.1:$BackendPort/api/v1/health"
-        $MetricsPort = "http://127.0.0.1:$MetricsPort/api/v1/health"
-    }
-}
-$portState = Resolve-FleetPortConflict @portResolve
-if ($portState.Action -eq 'Blocked') { exit 1 }
-if ($portState.Reuse) { return }
 # Docker compose publishes 10793 (avatarmcp) and 10790 (prometheus) — stop before local uvicorn
 $composeFile = Join-Path $ProjectRoot "docker-compose.yml"
 if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeFile)) {
@@ -47,7 +32,9 @@ if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeF
     }
 }
 
+Stop-FleetPortSquatters -Ports @($WebPort, $BackendPort, $MetricsPort) -Label "avatar-mcp"
 
+if (-not (Assert-FleetPortsAvailable -Ports @($WebPort, $BackendPort, $MetricsPort) -Label "avatar-mcp")) { exit 1 }
 
 Set-Location $PSScriptRoot
 if (-not (Test-Path "node_modules")) { npm install }

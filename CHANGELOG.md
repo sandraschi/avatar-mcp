@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-05-19
+### Fixed
+
+- **Prometheus metrics port**: Moved from **10791** to **10790** (`METRICS_PORT` env). Port 10791 is reserved for mcp-central-docs fleet starts UI; metrics on 10791 caused docs_mcp / Hermes docsops connectivity failures.
+
 
 ### Added
 - **Real avatar export**: `export_avatar` tool now wired to blender-mcp. Calls `blender_import` (VRM → scene) then `blender_export_presets` (platform-specific export) via the `/tool` HTTP bridge on port 10849. Falls back to simulated export if blender-mcp unreachable.
