@@ -8,7 +8,7 @@ on:
 jobs:
   quality-assurance:
     name: Quality Assurance
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.12", "3.13"]
@@ -116,7 +116,7 @@ jobs:
 
   security-scan:
     name: Security Scan
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
@@ -138,7 +138,7 @@ jobs:
 
   dependency-review:
     name: Dependency Review
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
     steps:

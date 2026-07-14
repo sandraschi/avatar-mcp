@@ -1,4 +1,5 @@
-﻿set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+import 'scripts/just/fleet.just'
 
 # Open the interactive recipe dashboard in the browser
 default:
@@ -39,4 +40,3 @@ check-sec:
 # Execute safety audit of dependencies
 audit-deps:
     cd '{{justfile_directory()}}' && uv run safety check
-

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Cpu, Zap, Network, Bot, ShieldCheck } from "lucide-react";
@@ -25,7 +26,7 @@ export function Intelligence() {
     const [data, setData] = useState<TrifectaData | null>(null);
 
     useEffect(() => {
-        fetch("/api/v1/intelligence/trifecta")
+        fetch(API_BASE + "/api/v1/intelligence/trifecta")
             .then(r => r.json())
             .then(setData)
             .catch(() => { });

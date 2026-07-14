@@ -22,7 +22,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 dependencies = [
-    "fastmcp>=3.2,<4",
+    "fastmcp>=3.4.2,<4",
     "numpy>=1.21.0",
     "python-osc>=1.8.2",
     "pygltflib>=1.14.0",
@@ -108,3 +108,8 @@ ignore = ["S101", "B008"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.1",
+]

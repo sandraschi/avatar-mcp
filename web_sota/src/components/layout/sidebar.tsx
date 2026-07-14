@@ -22,7 +22,8 @@ import {
     HelpCircle,
     Grid,
     ListTodo,
-    GitBranch
+    GitBranch,
+    ScrollText
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -54,6 +55,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { href: '/artifacts', label: 'Artifact Pipeline', icon: Boxes },
         { href: '/loops', label: 'Agent Loops', icon: InfinityIcon },
         { href: '/settings', label: 'Settings', icon: Settings },
+    { href: '/logging', label: 'Logging', icon: ScrollText },
     ];
 
     return (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, GitMerge, Box, Cpu, Shield, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,7 @@ export function Dashboard() {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const response = await fetch("/api/v1/status");
+                const response = await fetch(API_BASE + "/api/v1/status");
                 if (response.ok) {
                     const data = await response.json();
                     setStatus(data);

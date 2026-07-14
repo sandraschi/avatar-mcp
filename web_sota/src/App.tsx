@@ -20,6 +20,7 @@ import { Apps } from '@/pages/apps';
 import { Help } from '@/pages/help';
 import { Workflow } from '@/pages/workflow';
 import { Pipeline } from '@/pages/pipeline';
+import Logging from '@/pages/Logging';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/pipeline" element={<Pipeline />} />
           <Route path="/help" element={<Help />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/logging" element={<Logging />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppLayout>

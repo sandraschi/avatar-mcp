@@ -1,99 +1,119 @@
-{
-  "examples": [
-    {
-      "description": "Load and display a VRM avatar using portmanteau tools",
-      "commands": [
-        "await avatar_manager({\"operation\": \"load\", \"path\": \"/path/to/avatar.vrm\", \"make_active\": true})",
-        "await avatar_manager({\"operation\": \"get_metadata\", \"avatar_id\": \"loaded_avatar\"})"
-      ],
-      "expected_result": "Avatar loaded successfully with metadata displayed using consolidated tools"
-    },
-    {
-      "description": "Play an animation sequence with portmanteau control",
-      "commands": [
-        "await animation_controller({\"operation\": \"list\"})",
-        "await animation_controller({\"operation\": \"play\", \"name\": \"walk_cycle\", \"speed\": 1.5})"
-      ],
-      "expected_result": "Animation plays at increased speed using consolidated animation tool"
-    },
-    {
-      "description": "Agentic emotional performance using sampling workflows",
-      "commands": [
-        "await avatar_sampling({\"workflow_prompt\": \"Express genuine happiness with a warm smile and celebratory gesture\", \"avatar_id\": \"companion\", \"available_operations\": [\"set_morph\", \"play_animation\", \"control_bone\"], \"max_iterations\": 3})"
-      ],
-      "expected_result": "Avatar autonomously performs emotional sequence without manual step-by-step control"
-    },
-    {
-      "description": "Complex dance choreography with sampling orchestration",
-      "commands": [
-        "await avatar_sampling({\"workflow_prompt\": \"Perform a 20-second joyful dance with smooth emotional transitions\", \"avatar_id\": \"dancer\", \"available_operations\": [\"play_animation\", \"set_emotion\", \"blend_animations\", \"wait\"], \"max_iterations\": 8, \"context\": {\"duration\": 20, \"style\": \"joyful\"}})"
-      ],
-      "expected_result": "Avatar executes complex multi-step dance routine with AI-driven orchestration"
-    },
-    {
-      "description": "Interactive storytelling performance",
-      "commands": [
-        "await avatar_sampling({\"workflow_prompt\": \"React dramatically to shocking news with wide eyes and expressive gestures\", \"avatar_id\": \"character\", \"available_operations\": [\"set_emotion\", \"control_bone\", \"play_animation\"], \"max_iterations\": 5, \"context\": {\"reaction_type\": \"shock\", \"intensity\": \"high\"}})"
-      ],
-      "expected_result": "Avatar performs nuanced dramatic reaction autonomously"
-    },
-    {
-      "description": "Configure OSC for real-time control using portmanteau tools",
-      "commands": [
-        "await osc_communicator({\"operation\": \"send\", \"address\": \"/avatar/eyeBlink\", \"value\": 1.0})",
-        "await osc_communicator({\"operation\": \"receive\"})"
-      ],
-      "expected_result": "OSC communication handled through consolidated tool interface"
-    },
-    {
-      "description": "Unity desktop avatar integration with portmanteau control",
-      "commands": [
-        "await unity_integration({\"operation\": \"load_avatar\", \"path\": \"/models/avatar.vrm\"})",
-        "await unity_window_manager({\"operation\": \"set_position\", \"x\": 100, \"y\": 100, \"width\": 400, \"height\": 600})",
-        "await unity_window_manager({\"operation\": \"set_transparency\", \"level\": 0.8})"
-      ],
-      "expected_result": "Unity avatar displayed with custom positioning using consolidated tools"
-    }
-  ],
-  "workflows": {
-    "basic_setup": [
-      "Initialize AvatarMCP server with FastMCP 2.14.3",
-      "Load VRM model file using avatar_manager tool",
-      "Configure OSC settings with osc_communicator tool",
-      "Test basic animation playback with animation_controller tool"
-    ],
-    "agentic_performances": [
-      "Set up avatar with emotional baseline",
-      "Create sampling workflow for emotional response",
-      "Execute autonomous performance sequence",
-      "Monitor and adjust based on audience reaction"
-    ],
-    "dance_choreography": [
-      "Load dance-capable avatar model",
-      "Design sampling workflow with emotional arc",
-      "Execute multi-step dance sequence autonomously",
-      "Add live performance adjustments and transitions"
-    ],
-    "interactive_storytelling": [
-      "Configure avatar with expressive capabilities",
-      "Create sampling workflows for different emotional states",
-      "Execute narrative sequences with character reactions",
-      "Adapt performance based on user input and timing"
-    ],
-    "advanced_integration": [
-      "Set up Unity desktop avatar with unity_integration",
-      "Configure OSC bridge using osc_communicator",
-      "Implement facial tracking with morph control",
-      "Create custom animation sequences with sampling orchestration"
-    ],
-    "performance_optimization": [
-      "Monitor system resources with system_monitor",
-      "Optimize animation frame rates using sampling efficiency",
-      "Configure memory management with config_manager",
-      "Set up background processing for autonomous workflows"
-    ]
-  }
-}
-
-
-
+[
+  {"tool": "initialize", "input": {}, "output": {"success": true, "message": "AvatarMCP server initialized"}},
+  {"tool": "shutdown", "input": {}, "output": {"success": true, "message": "Server shutdown complete"}},
+  {"tool": "avatar_load", "input": {"id": "avatar_1", "path": "models/my_avatar.vrm"}, "output": {"success": true, "avatar": {"id": "avatar_1"}, "message": "Successfully loaded avatar 'avatar_1'"}},
+  {"tool": "avatar_load", "input": {"id": "avatar_2", "path": "models/robot.vrm", "scale": 0.8}, "output": {"success": true, "avatar": {"id": "avatar_2", "scale": 0.8}}},
+  {"tool": "avatar_load", "input": {"id": "avatar_3", "path": "models/fantasy.vrm", "auto_play_animations": false}, "output": {"success": true, "avatar": {"id": "avatar_3", "auto_play_animations": false}}},
+  {"tool": "avatar_unload", "input": {"id": "avatar_1"}, "output": {"success": true, "message": "Successfully unloaded avatar 'avatar_1'"}},
+  {"tool": "avatar_unload", "input": {"id": "avatar_2"}, "output": {"success": true}},
+  {"tool": "avatar_unload", "input": {"id": "nonexistent"}, "output": {"success": false, "error": "No avatar found with ID: nonexistent"}},
+  {"tool": "avatar_list", "input": {}, "output": {"avatars": [{"id": "avatar_1", "bones": 78, "blend_shapes": 52}]}},
+  {"tool": "avatar_list", "input": {}, "output": {"avatars": []}},
+  {"tool": "avatar_set_active", "input": {"avatar_id": "avatar_1"}, "output": {"success": true, "message": "Set active avatar to avatar_1"}},
+  {"tool": "avatar_get_active", "input": {}, "output": {"success": true, "avatar_id": "avatar_1"}},
+  {"tool": "avatar_get_active", "input": {}, "output": {"success": true, "avatar_id": null, "message": "No active avatar"}},
+  {"tool": "avatar_get_metadata", "input": {"avatar_id": "avatar_1"}, "output": {"success": true, "metadata": {"blend_shapes": ["Joy", "Angry"], "bones": ["Hips", "Spine"]}}},
+  {"tool": "animation_play", "input": {"avatar_id": "avatar_1", "animation": "wave"}, "output": {"status": "playing", "avatar_id": "avatar_1", "animation": "wave"}},
+  {"tool": "animation_play", "input": {"avatar_id": "avatar_1", "animation": "dance", "loop": true, "speed": 1.5}, "output": {"status": "playing", "loop": true, "speed": 1.5}},
+  {"tool": "animation_play", "input": {"avatar_id": "avatar_1", "animation": "idle", "weight": 0.5}, "output": {"status": "playing", "weight": 0.5}},
+  {"tool": "animation_stop", "input": {"avatar_id": "avatar_1", "animation": "wave"}, "output": {"status": "stopped", "avatar_id": "avatar_1", "animation": "wave"}},
+  {"tool": "animation_stop", "input": {"avatar_id": "avatar_1"}, "output": {"status": "stopped", "animation": null}},
+  {"tool": "animation_list", "input": {"avatar_id": "avatar_1"}, "output": {"avatar_id": "avatar_1", "animations": ["idle", "walk", "run", "wave", "dance"]}},
+  {"tool": "parameter_set", "input": {"avatar_id": "avatar_1", "name": "Blink", "value": 0.5}, "output": {"status": "set", "parameter": "Blink", "value": 0.5}},
+  {"tool": "parameter_set", "input": {"avatar_id": "avatar_1", "name": "MouthOpen", "value": 0.3}, "output": {"status": "set", "parameter": "MouthOpen", "value": 0.3}},
+  {"tool": "parameter_set", "input": {"avatar_id": "avatar_1", "name": "VoiceVolume", "value": 0.8}, "output": {"status": "set", "parameter": "VoiceVolume", "value": 0.8}},
+  {"tool": "parameter_get", "input": {"avatar_id": "avatar_1", "name": "Blink"}, "output": {"status": "success", "parameter": "Blink", "value": 0.5}},
+  {"tool": "osc_send", "input": {"address": "/avatar/parameters/Blink", "args": [0.5]}, "output": {"status": "sent", "address": "/avatar/parameters/Blink", "args": [0.5]}},
+  {"tool": "osc_send", "input": {"address": "/avatar/parameters/VoiceVolume", "args": [0.8]}, "output": {"status": "sent"}},
+  {"tool": "osc_send", "input": {"address": "/chatbox/input", "args": ["Hello VRChat!", true]}, "output": {"status": "sent"}},
+  {"tool": "osc_receive", "input": {}, "output": {"status": "success", "messages": [], "server_running": true}},
+  {"tool": "chat_start", "input": {"session_id": "chat_1", "context": "general"}, "output": {"status": "success", "session_id": "chat_1"}},
+  {"tool": "chat_start", "input": {"session_id": "chat_2", "personality": "professional"}, "output": {"status": "success", "session_id": "chat_2"}},
+  {"tool": "chat_send_message", "input": {"session_id": "chat_1", "message": "Hello!"}, "output": {"status": "success", "response": "Hello! I'm your avatar assistant."}},
+  {"tool": "chat_send_message", "input": {"session_id": "chat_1", "message": "Play an animation"}, "output": {"status": "success", "response": "I can play animations on your avatar!"}},
+  {"tool": "chat_send_message", "input": {"session_id": "chat_1", "message": "Change expression"}, "output": {"status": "success", "response": "I can control facial expressions!"}},
+  {"tool": "chat_stop", "input": {"session_id": "chat_1"}, "output": {"status": "success", "message": "Chat session 'chat_1' stopped"}},
+  {"tool": "chat_stop", "input": {}, "output": {"status": "success", "stopped_sessions": 2}},
+  {"tool": "chat_get_state", "input": {"session_id": "chat_1"}, "output": {"status": "success", "active": true, "message_count": 5}},
+  {"tool": "chat_get_state", "input": {}, "output": {"status": "success", "total_sessions": 2, "active_sessions": 1}},
+  {"tool": "system_status", "input": {}, "output": {"server_initialized": true, "uptime_seconds": 3600, "loaded_avatars": 2}},
+  {"tool": "system_status", "input": {"detailed": true}, "output": {"memory_usage": {"rss_mb": 150.5}, "system_load": {"cpu_percent": 12.0}}},
+  {"tool": "debug_echo", "input": {"message": "ping"}, "output": {"success": true, "echo": "ping"}},
+  {"tool": "debug_echo", "input": {"message": "test connectivity"}, "output": {"success": true, "echo": "test connectivity"}},
+  {"tool": "tools.discover", "input": {}, "output": {"tools": [{"name": "avatar.load"}]}},
+  {"tool": "movement.walk", "input": {"avatar_id": "avatar_1", "direction": "forward", "speed": 1.0}, "output": {"status": "walking", "movement": "walk"}},
+  {"tool": "movement.walk", "input": {"avatar_id": "avatar_1", "direction": "left"}, "output": {"status": "walking", "direction": "left"}},
+  {"tool": "movement.run", "input": {"avatar_id": "avatar_1", "speed": 3.0}, "output": {"status": "running", "speed": 3.0}},
+  {"tool": "movement.turn", "input": {"avatar_id": "avatar_1", "direction": "right", "angle": 90}, "output": {"status": "turning", "angle": 90}},
+  {"tool": "movement.jump", "input": {"avatar_id": "avatar_1", "height": 1.5}, "output": {"status": "jumping", "height": 1.5}},
+  {"tool": "movement.curtsy", "input": {"avatar_id": "avatar_1", "style": "formal", "intensity": 1.2}, "output": {"status": "curtsying", "style": "formal"}},
+  {"tool": "movement.stop", "input": {"avatar_id": "avatar_1"}, "output": {"status": "stopped", "movement": "stop"}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "left", "gesture": "Fist"}, "output": {"status": "success", "hand": "left", "gesture": "Fist"}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "right", "gesture": "Peace", "strength": 0.7}, "output": {"status": "success", "strength": 0.7}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "left", "gesture": "ThumbsUp"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "right", "gesture": "RockNRoll"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "left", "gesture": "Open"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_gesture", "input": {"hand": "right", "gesture": "Point"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "Happy"}, "output": {"status": "success", "expression": "Happy"}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "Angry", "strength": 0.8}, "output": {"status": "success", "strength": 0.8}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "Sad"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "Surprised", "strength": 0.5}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "Blink"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_expression", "input": {"expression": "EyesWide", "strength": 1.0}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "aa", "strength": 0.8}, "output": {"status": "success", "viseme": "aa"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "E", "strength": 1.0}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "O"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "U", "strength": 0.6}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "PP", "strength": 0.9}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "SS"}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_viseme", "input": {"viseme": "TH", "strength": 0.7}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_parameter", "input": {"name": "DanceMode", "value": true}, "output": {"status": "success", "parameter": "DanceMode", "value": true}},
+  {"tool": "vrchat_osc.set_parameter", "input": {"name": "Speed", "value": 0.75}, "output": {"status": "success", "parameter": "Speed", "value": 0.75}},
+  {"tool": "vrchat_osc.set_parameter", "input": {"name": "MenuOpen", "value": false}, "output": {"status": "success"}},
+  {"tool": "vrchat_osc.set_parameter", "input": {"name": "MyToggle", "value": "true"}, "output": {"status": "success", "value": true}},
+  {"tool": "vrchat_osc.set_parameter", "input": {"name": "LevelSelect", "value": 3}, "output": {"status": "success", "value": 3}},
+  {"tool": "vrchat_osc.get_parameter", "input": {"name": "GestureLeft"}, "output": {"status": "success", "value": "Fist"}},
+  {"tool": "vrchat_osc.get_parameter", "input": {"name": "MyToggle"}, "output": {"status": "success", "value": true}},
+  {"tool": "vrchat_osc.get_parameter", "input": {"name": "NonExistent"}, "output": {"status": "not_found"}},
+  {"tool": "vrchat_osc.list_parameters", "input": {}, "output": {"status": "success", "parameters": {"standard": ["GestureLeft", "Viseme"], "expressions": ["Happy", "Angry"]}}},
+  {"tool": "vrchat_osc.load_vrm", "input": {"file_path": "models/avatar.vrm"}, "output": {"status": "success", "blend_shapes": ["Joy", "Angry"], "bones": ["Hips", "Spine"]}},
+  {"tool": "unity_system_status", "input": {}, "output": {"unity_running": true, "osc_connected": true}},
+  {"tool": "unity_window_position", "input": {"x": 100, "y": 100, "width": 800, "height": 600}, "output": {"success": true}},
+  {"tool": "unity_window_transparency", "input": {"transparency": 0.5}, "output": {"success": true}},
+  {"tool": "unity_window_visibility", "input": {"visible": true}, "output": {"success": true}},
+  {"tool": "unity_window_mode", "input": {"mode": "always_on_top"}, "output": {"success": true}},
+  {"tool": "unity_avatar_load", "input": {"path": "models/avatar.vrm"}, "output": {"success": true}},
+  {"tool": "unity_avatar_expression", "input": {"expression": "Happy", "strength": 1.0}, "output": {"success": true}},
+  {"tool": "unity_avatar_animation", "input": {"action": "play", "animation_name": "wave"}, "output": {"success": true}},
+  {"tool": "unity_avatar_animation", "input": {"action": "stop"}, "output": {"success": true}},
+  {"tool": "unity_avatar_animation", "input": {"action": "pause"}, "output": {"success": true}},
+  {"tool": "unity_osc_bridge", "input": {"enable_bridge": true}, "output": {"success": true}},
+  {"tool": "unity_plugin_load", "input": {"plugin_name": "gesture_recognition"}, "output": {"success": true}},
+  {"tool": "unity_config_update", "input": {"config": {"window": {"transparent": true}}}, "output": {"success": true}},
+  {"tool": "avatar_manager", "input": {"params": {"operation": "list"}}, "output": {"status": "success", "avatars": []}},
+  {"tool": "avatar_manager", "input": {"params": {"operation": "load", "path": "models/test.vrm"}}, "output": {"status": "success"}},
+  {"tool": "avatar_manager", "input": {"params": {"operation": "get_active"}}, "output": {"status": "success", "avatar_id": null}},
+  {"tool": "avatar_manager", "input": {"params": {"operation": "set_active", "avatar_id": "test"}}, "output": {"status": "success"}},
+  {"tool": "avatar_manager", "input": {"params": {"operation": "unload", "avatar_id": "test"}}, "output": {"status": "success"}},
+  {"tool": "animation_controller", "input": {"params": {"operation": "list"}}, "output": {"status": "success", "available_animations": ["idle", "walk", "dance"]}},
+  {"tool": "animation_controller", "input": {"params": {"operation": "play", "name": "dance"}}, "output": {"status": "success"}},
+  {"tool": "animation_controller", "input": {"params": {"operation": "stop", "name": "dance"}}, "output": {"status": "success"}},
+  {"tool": "osc_communicator", "input": {"params": {"operation": "send", "address": "/test", "value": 1.0}}, "output": {"status": "success"}},
+  {"tool": "osc_communicator", "input": {"params": {"operation": "receive"}}, "output": {"status": "success"}},
+  {"tool": "chat_manager", "input": {"params": {"operation": "start_session"}}, "output": {"status": "success"}},
+  {"tool": "chat_manager", "input": {"params": {"operation": "send_message", "message": "hello"}}, "output": {"status": "success"}},
+  {"tool": "chat_manager", "input": {"params": {"operation": "get_state"}}, "output": {"status": "success"}},
+  {"tool": "chat_manager", "input": {"params": {"operation": "stop_session"}}, "output": {"status": "success"}},
+  {"tool": "unity_integration", "input": {"params": {"operation": "status"}}, "output": {"status": "success", "unity_running": false}},
+  {"tool": "unity_integration", "input": {"params": {"operation": "load_avatar", "path": "test.vrm"}}, "output": {"status": "success"}},
+  {"tool": "unity_integration", "input": {"params": {"operation": "set_expression", "expression": "Happy"}}, "output": {"status": "success"}},
+  {"tool": "unity_integration", "input": {"params": {"operation": "control_animation", "action": "play", "animation_name": "wave"}}, "output": {"status": "success"}},
+  {"tool": "unity_config_manager", "input": {"params": {"operation": "get_config"}}, "output": {"status": "success"}},
+  {"tool": "unity_config_manager", "input": {"params": {"operation": "update_config", "config": {"osc": {"enabled": true}}}}, "output": {"status": "success"}},
+  {"tool": "unity_config_manager", "input": {"params": {"operation": "osc_bridge", "enabled": true}}, "output": {"status": "success"}},
+  {"tool": "unity_config_manager", "input": {"params": {"operation": "plugin_load", "plugin_name": "gesture_recognition"}}, "output": {"status": "success"}},
+  {"tool": "unity_config_manager", "input": {"params": {"operation": "plugin_list"}}, "output": {"status": "success", "plugins": [{"name": "gesture_recognition"}]}},
+  {"tool": "system_monitor", "input": {"params": {"operation": "get_status"}}, "output": {"status": "success", "server_initialized": true}},
+  {"tool": "system_monitor", "input": {"params": {"operation": "get_health"}}, "output": {"status": "success", "server_health": "healthy"}},
+  {"tool": "system_monitor", "input": {"params": {"operation": "get_metrics"}}, "output": {"status": "success", "performance": {"uptime": 3600}}}
+]

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Repeat, Play, Info, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -16,7 +17,7 @@ export function Loops() {
     const [activeLoop, setActiveLoop] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch("/api/v1/intelligence/loops")
+        fetch(API_BASE + "/api/v1/intelligence/loops")
             .then((r) => (r.ok ? r.json() : { loops: [] }))
             .then((d) => setLoops(d?.loops ?? []))
             .catch(() => setLoops([]));

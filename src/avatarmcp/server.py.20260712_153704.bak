@@ -374,7 +374,7 @@ def main():
 
 # ASGI app for uvicorn (e.g. web_sota backend)
 _web_server = AvatarMCPServer(enable_osc=False)
-app = _web_server.mcp.http_app(path="/")
+app = _web_server.mcp.http_app()
 
 if __name__ == "__main__":
     sys.exit(main())
