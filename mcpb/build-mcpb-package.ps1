@@ -60,38 +60,38 @@ $mcpbConfigPath = Join-Path $scriptDir "mcpb.json"
 $packageName = "avatarmcp"
 $version = "0.1.0"
 
-Write-Info "🔨 AvatarMCP MCPB Package Builder"
+Write-Info "ðŸ”¨ AvatarMCP MCPB Package Builder"
 Write-Info "=================================="
 
 # Prerequisites check
 function Test-Prerequisites {
-    Write-Info "📋 Checking prerequisites..."
+    Write-Info "ðŸ“‹ Checking prerequisites..."
 
     # Check Node.js and npm
     try {
         $nodeVersion = & node --version 2>$null
         $npmVersion = & npm --version 2>$null
-        Write-Success "✅ Node.js: $nodeVersion"
-        Write-Success "✅ npm: $npmVersion"
+        Write-Success "âœ… Node.js: $nodeVersion"
+        Write-Success "âœ… npm: $npmVersion"
     }
     catch {
-        Write-Error "❌ Node.js/npm not found. Please install Node.js from https://nodejs.org/"
+        Write-Error "âŒ Node.js/npm not found. Please install Node.js from https://nodejs.org/"
         exit 1
     }
 
     # Check MCPB CLI
     try {
         $mcpbVersion = & mcpb --version 2>$null
-        Write-Success "✅ MCPB CLI: $mcpbVersion"
+        Write-Success "âœ… MCPB CLI: $mcpbVersion"
     }
     catch {
-        Write-Warning "⚠️  MCPB CLI not found. Installing @anthropic-ai/mcpb..."
+        Write-Warning "âš ï¸  MCPB CLI not found. Installing @anthropic-ai/mcpb..."
         try {
             & npm install -g @anthropic-ai/mcpb
-            Write-Success "✅ MCPB CLI installed successfully"
+            Write-Success "âœ… MCPB CLI installed successfully"
         }
         catch {
-            Write-Error "❌ Failed to install MCPB CLI. Please install manually: npm install -g @anthropic-ai/mcpb"
+            Write-Error "âŒ Failed to install MCPB CLI. Please install manually: npm install -g @anthropic-ai/mcpb"
             exit 1
         }
     }
@@ -99,46 +99,46 @@ function Test-Prerequisites {
     # Check Python
     try {
         $pythonVersion = & python --version 2>$null
-        Write-Success "✅ Python: $pythonVersion"
+        Write-Success "âœ… Python: $pythonVersion"
     }
     catch {
-        Write-Error "❌ Python not found. Please install Python 3.9+ from https://python.org/"
+        Write-Error "âŒ Python not found. Please install Python 3.9+ from https://python.org/"
         exit 1
     }
 
     # Check configuration files
     if (!(Test-Path $manifestPath)) {
-        Write-Error "❌ manifest.json not found at $manifestPath"
+        Write-Error "âŒ manifest.json not found at $manifestPath"
         exit 1
     }
-    Write-Success "✅ manifest.json found"
+    Write-Success "âœ… manifest.json found"
 
     if (!(Test-Path $mcpbConfigPath)) {
-        Write-Error "❌ mcpb.json not found at $mcpbConfigPath"
+        Write-Error "âŒ mcpb.json not found at $mcpbConfigPath"
         exit 1
     }
-    Write-Success "✅ mcpb.json found"
+    Write-Success "âœ… mcpb.json found"
 
-    Write-Success "🎉 All prerequisites satisfied!"
+    Write-Success "ðŸŽ‰ All prerequisites satisfied!"
 }
 
 # Validate manifest
 function Test-Manifest {
-    Write-Info "🔍 Validating manifest.json..."
+    Write-Info "ðŸ” Validating manifest.json..."
 
     try {
         $validationResult = & mcpb validate $manifestPath 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "✅ Manifest validation passed"
+            Write-Success "âœ… Manifest validation passed"
         }
         else {
-            Write-Error "❌ Manifest validation failed:"
+            Write-Error "âŒ Manifest validation failed:"
             Write-Error $validationResult
             exit 1
         }
     }
     catch {
-        Write-Error "❌ Manifest validation error: $_"
+        Write-Error "âŒ Manifest validation error: $_"
         exit 1
     }
 }
@@ -146,20 +146,20 @@ function Test-Manifest {
 # Clean output directory
 function Clear-OutputDirectory {
     if ($Clean -and (Test-Path $OutputDir)) {
-        Write-Info "🧹 Cleaning output directory: $OutputDir"
+        Write-Info "ðŸ§¹ Cleaning output directory: $OutputDir"
         Remove-Item -Recurse -Force $OutputDir -ErrorAction SilentlyContinue
     }
 
     # Create output directory
     if (!(Test-Path $OutputDir)) {
         New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
-        Write-Success "📁 Created output directory: $OutputDir"
+        Write-Success "ðŸ“ Created output directory: $OutputDir"
     }
 }
 
 # Build MCPB package
 function New-MCPBPackage {
-    Write-Info "📦 Building MCPB package..."
+    Write-Info "ðŸ“¦ Building MCPB package..."
 
     $packagePath = Join-Path $OutputDir "$packageName.mcpb"
 
@@ -176,20 +176,20 @@ function New-MCPBPackage {
 
         if ($NoSign) {
             $buildArgs += "--no-sign"
-            Write-Info "🔓 Building without signing (development mode)"
+            Write-Info "ðŸ”“ Building without signing (development mode)"
         }
         else {
-            Write-Info "🔐 Building with signing (production mode)"
+            Write-Info "ðŸ” Building with signing (production mode)"
         }
 
         $buildResult = & mcpb $buildArgs 2>&1
 
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "✅ MCPB package built successfully"
-            Write-Success "📦 Package: $packagePath"
+            Write-Success "âœ… MCPB package built successfully"
+            Write-Success "ðŸ“¦ Package: $packagePath"
         }
         else {
-            Write-Error "❌ MCPB build failed:"
+            Write-Error "âŒ MCPB build failed:"
             Write-Error $buildResult
             exit 1
         }
@@ -203,10 +203,10 @@ function New-MCPBPackage {
 function Test-Package {
     param([string]$PackagePath)
 
-    Write-Info "🔍 Verifying package..."
+    Write-Info "ðŸ” Verifying package..."
 
     if (!(Test-Path $PackagePath)) {
-        Write-Error "❌ Package not found: $PackagePath"
+        Write-Error "âŒ Package not found: $PackagePath"
         exit 1
     }
 
@@ -214,30 +214,30 @@ function Test-Package {
     $fileSize = (Get-Item $PackagePath).Length
     $fileSizeMB = [math]::Round($fileSize / 1MB, 2)
 
-    Write-Success "✅ Package exists: $PackagePath"
-    Write-Success "📏 Package size: $fileSizeMB MB"
+    Write-Success "âœ… Package exists: $PackagePath"
+    Write-Success "ðŸ“ Package size: $fileSizeMB MB"
 
     # Basic validation (check if it's a valid MCPB file)
     try {
         $packageInfo = & mcpb info $PackagePath 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "✅ Package validation passed"
-            Write-Info "📋 Package info:"
+            Write-Success "âœ… Package validation passed"
+            Write-Info "ðŸ“‹ Package info:"
             Write-Info $packageInfo
         }
         else {
-            Write-Warning "⚠️  Package validation warning:"
+            Write-Warning "âš ï¸  Package validation warning:"
             Write-Warning $packageInfo
         }
     }
     catch {
-        Write-Warning "⚠️  Could not validate package info: $_"
+        Write-Warning "âš ï¸  Could not validate package info: $_"
     }
 }
 
 # Main execution
 function main {
-    Write-Info "🚀 Starting AvatarMCP MCPB build process..."
+    Write-Info "ðŸš€ Starting AvatarMCP MCPB build process..."
     Write-Info ""
 
     # Prerequisites
@@ -262,23 +262,23 @@ function main {
     Write-Info ""
 
     # Summary
-    Write-Success "🎉 Build completed successfully!"
-    Write-Success "📦 Package: $finalPackagePath"
-    Write-Success "📝 Version: $version"
-    Write-Success "🛠️  Tools: 21 MCP tools available"
+    Write-Success "ðŸŽ‰ Build completed successfully!"
+    Write-Success "ðŸ“¦ Package: $finalPackagePath"
+    Write-Success "ðŸ“ Version: $version"
+    Write-Success "ðŸ› ï¸  Tools: 21 MCP tools available"
 
     if ($NoSign) {
-        Write-Warning "⚠️  Package built without signing (development mode)"
-        Write-Info "💡 For production use, run without -NoSign flag to enable signing"
+        Write-Warning "âš ï¸  Package built without signing (development mode)"
+        Write-Info "ðŸ’¡ For production use, run without -NoSign flag to enable signing"
     }
 
     Write-Info ""
-    Write-Info "📚 Next steps:"
+    Write-Info "ðŸ“š Next steps:"
     Write-Info "1. Test the package: Drag $finalPackagePath to Claude Desktop"
     Write-Info "2. Configure settings: Set VRM models directory and OSC preferences"
     Write-Info "3. Try the tools: Use avatar_load, animation_play, etc."
     Write-Info ""
-    Write-Info "🔗 Documentation: See docs/mcpb-packaging/README.md"
+    Write-Info "ðŸ”- Documentation: See docs/mcpb-packaging/README.md"
 }
 
 # Run main function
@@ -286,7 +286,7 @@ try {
     main
 }
 catch {
-    Write-Error "💥 Build failed with error: $_"
+    Write-Error "ðŸ’¥ Build failed with error: $_"
     Write-Error "Stack trace: $($_.ScriptStackTrace)"
     exit 1
 }

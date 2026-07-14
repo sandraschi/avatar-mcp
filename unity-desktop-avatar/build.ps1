@@ -44,12 +44,12 @@ function Write-Step {
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "✓ $Message" -ForegroundColor Green
+    Write-Host "âœ“ $Message" -ForegroundColor Green
 }
 
 function Write-Error {
     param([string]$Message)
-    Write-Host "✗ $Message" -ForegroundColor Red
+    Write-Host "âœ- $Message" -ForegroundColor Red
 }
 
 # Main build process
