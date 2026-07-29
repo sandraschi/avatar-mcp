@@ -44,7 +44,7 @@ function Write-Step {
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "âœ“ $Message" -ForegroundColor Green
+    Write-Host "âœ" $Message" -ForegroundColor Green
 }
 
 function Write-Error {
