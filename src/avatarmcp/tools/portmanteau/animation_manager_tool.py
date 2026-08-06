@@ -110,7 +110,9 @@ class AnimationManagerTool:
         return {
             "status": "success",
             "available_animations": list(controller.animations.keys()) if hasattr(controller, "animations") else [],
-            "active_animations": list(controller.active_animations.keys()) if hasattr(controller, "active_animations") else [],
+            "active_animations": list(controller.active_animations.keys())
+            if hasattr(controller, "active_animations")
+            else [],
         }
 
     async def _handle_sequence_create(self, params: dict[str, Any]) -> dict[str, Any]:

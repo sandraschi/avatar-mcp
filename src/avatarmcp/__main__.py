@@ -13,6 +13,7 @@ import logging.handlers
 import os
 import sys
 
+
 class _DevNullStdout:
     def write(self, s: str) -> int:
         return len(s)
@@ -23,6 +24,7 @@ class _DevNullStdout:
     def isatty(self) -> bool:
         return False
 
+
 _stdio_original_stdout: object | None = None
 
 if "--stdio" in sys.argv or "--mcp" in sys.argv:
@@ -30,7 +32,6 @@ if "--stdio" in sys.argv or "--mcp" in sys.argv:
     sys.stdout = _DevNullStdout()
 
 from .server import AvatarMCPServer, run_server
-from .utils.logging_utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +46,7 @@ def _configure_logging(log_level: int, log_file: str, use_stderr: bool = False):
     handlers: list[logging.Handler] = []
     if use_stderr:
         handlers.append(logging.StreamHandler(sys.stderr))
-    handlers.append(logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=10 * 1024 * 1024, backupCount=5
-    ))
+    handlers.append(logging.handlers.RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5))
 
     logging.basicConfig(
         level=log_level,

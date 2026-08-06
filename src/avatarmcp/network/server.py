@@ -1027,7 +1027,7 @@ def cmd_play_standard_animation(
             return create_error_response(f"Standard animation '{animation_name}' not found")
 
         # Get the model and animation controller
-        model, controller = get_model(model_id)
+        _model, controller = get_model(model_id)
         if not controller:
             return create_error_response("Animation controller not initialized")
 

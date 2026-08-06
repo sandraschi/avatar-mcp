@@ -6,7 +6,7 @@ Unity 3D and VRChat SDK.
 """
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 import httpx
@@ -24,7 +24,7 @@ from .base import AvatarControlBase, ControlResult, ControlType
 logger = logging.getLogger(__name__)
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """Supported export formats."""
 
     FBX = "fbx"
@@ -123,6 +123,7 @@ class ExportTool(AvatarControlBase, ChatTool):
         """Get file path of the currently loaded VRM avatar."""
         try:
             from ..models.vrm_manager import VRMManager
+
             manager = VRMManager()
             active = manager.get_active()
             if active:
@@ -131,11 +132,8 @@ class ExportTool(AvatarControlBase, ChatTool):
             pass
         return None
 
-    async def _export_via_blender(
-        self, vrm_path: str, options: ExportOptions, export_path: Path
-    ) -> dict | None:
+    async def _export_via_blender(self, vrm_path: str, options: ExportOptions, export_path: Path) -> dict | None:
         """Call blender-mcp to import VRM and export to target format."""
-        import httpx
 
         abs_vrm = str(Path(vrm_path).resolve())
         abs_out = str(export_path.resolve())

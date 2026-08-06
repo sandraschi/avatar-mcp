@@ -75,7 +75,7 @@ class AvatarManagerTool:
             # Load VRM model into memory
             try:
                 vrm_model = VRMModel(file_path)
-            except Exception as e:
+            except Exception:
                 # Model file may not be valid VRM; register in loaded_models anyway
                 # for models scanned from the models directory
                 self.mcp_server.loaded_models[model_id] = {"id": model_id, "path": file_path}
@@ -140,12 +140,14 @@ class AvatarManagerTool:
                 elif isinstance(model, dict):
                     name = model.get("name", model_id)
                     path = model.get("path", "")
-                avatars.append({
-                    "id": model_id,
-                    "name": name,
-                    "path": path,
-                    "active": model_id == self.mcp_server.active_model_id,
-                })
+                avatars.append(
+                    {
+                        "id": model_id,
+                        "name": name,
+                        "path": path,
+                        "active": model_id == self.mcp_server.active_model_id,
+                    }
+                )
 
             return {
                 "status": "success",

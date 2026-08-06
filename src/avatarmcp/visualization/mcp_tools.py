@@ -154,7 +154,9 @@ class VisualizationTools(BaseTools):
                 "model_id": model_id,
             }
 
-    def set_transform(self, model_id: str, position: list = None, rotation: list = None, scale: list = None) -> dict:
+    def set_transform(
+        self, model_id: str, position: list | None = None, rotation: list | None = None, scale: list | None = None
+    ) -> dict:
         """Set the transform (position, rotation, scale) of a model.
 
         Args:
@@ -440,7 +442,7 @@ class VisualizationTools(BaseTools):
             logger.error(f"Failed to stop listening: {e!s}")
             return {"status": "error", "message": f"Failed to stop listening: {e!s}"}
 
-    async def listen(self, duration: float = None, **kwargs) -> dict:
+    async def listen(self, duration: float | None = None, **kwargs) -> dict:
         """Listen for speech and transcribe it.
 
         Args:
@@ -555,7 +557,7 @@ class VisualizationTools(BaseTools):
             logger.error(f"Error in chat: {e!s}")
             return {"status": "error", "message": f"Error in chat: {e!s}"}
 
-    async def process_chat(self, message: str, context: dict = None, **kwargs) -> dict:
+    async def process_chat(self, message: str, context: dict | None = None, **kwargs) -> dict:
         """Process a chat message with additional context.
 
         This is a more advanced version of the chat method that supports additional

@@ -299,7 +299,7 @@ class SettingsHandler(BaseHandler):
                 errors.append(f"{section_name}: {e!s}")
 
         if errors:
-            error_message = "\n- ".join(["Validation failed:"] + errors)
+            error_message = "\n- ".join(["Validation failed:", *errors])
             logger.error(error_message)
             raise SettingsValidationError(error_message)
 
@@ -437,7 +437,7 @@ class SettingsHandler(BaseHandler):
         logger.info("Settings handler shutdown complete")
 
 
-def _convert_value(value: Any, target_type: type[T]) -> T:
+def _convert_value[T](value: Any, target_type: type[T]) -> T:
     """Convert a value to the specified type."""
     if value is None or isinstance(value, target_type):
         return value

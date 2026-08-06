@@ -7,7 +7,7 @@ and its components through HTTP requests.
 
 import asyncio
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
@@ -50,7 +50,7 @@ class AnimationStopRequest(BaseModel):
     blend_time: float = Field(0.2, description="Time to blend out the current animation")
 
 
-class APIVersion(str, Enum):
+class APIVersion(StrEnum):
     V1 = "v1"
 
 

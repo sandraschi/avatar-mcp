@@ -11,7 +11,7 @@ import os
 import time
 import wave
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
@@ -27,7 +27,7 @@ AudioData = np.ndarray  # 1D numpy array of float32 samples in [-1, 1]
 SpeechResult = dict[str, Any]
 
 
-class SpeechState(str, Enum):
+class SpeechState(StrEnum):
     """Speech recognition states."""
 
     IDLE = "idle"

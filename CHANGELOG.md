@@ -1,4 +1,16 @@
 
+## [Unreleased]
+
+### Added
+- Browser-based VRM viewer — three.js + @pixiv/three-vrm, renders VRM models directly in the webapp
+- New Viewer page (`/viewer`) — load any model from models/, toggle spin, built-in model buttons
+- `GET /api/vrm/view` — serves VRM files to the browser for three.js loading
+- `GET /api/avatar.vrm` — same endpoint, alias for API consistency
+- VRM files copied to `~/.avatarmcp/models/` — shared depot for avatar-mcp, resonite-mcp, vrchat-mcp
+
+### Changed
+- package.json: added three@0.185.1 and @pixiv/three-vrm@3.5.5
+
 ## [Unreleased] — 2026-06-14
 
 ### Added

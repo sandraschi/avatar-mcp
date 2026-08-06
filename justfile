@@ -1,11 +1,11 @@
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 import 'scripts/just/fleet.just'
 
 # Open the interactive recipe dashboard in the browser
 default:
     @just --list
 
-# ── Quality ───────────────────────────────────────────────────────────────────
+# --- Quality ---
 
 # Execute Ruff linting (Python)
 lint-py:
@@ -25,13 +25,13 @@ fix:
     uv run --directory web_sota npx @biomejs/biome check --apply .
     uv run --directory web_sota npx @biomejs/biome format --write .
 
-# ── Testing ───────────────────────────────────────────────────────────────────
+# --- Testing ---
 
 # Run all Python tests with pytest
 test:
     uv run pytest tests/ -v
 
-# ── Hardening ─────────────────────────────────────────────────────────────────
+# --- Hardening ---
 
 # Execute Bandit security audit
 check-sec:
@@ -41,7 +41,7 @@ check-sec:
 audit-deps:
 	cd '{{justfile_directory()}}' && uv run safety check
 
-# ── Native (Tauri) ──────────────────────────────────────────────────────────
+# --- Native  Tauri ---
 
 # Build the Tauri NSIS desktop installer (full pipeline: frontend -> Rust -> NSIS)
 build-native:
@@ -49,6 +49,9 @@ build-native:
 	Set-Location '{{justfile_directory()}}\native'
 	npx @tauri-apps/cli build --bundles nsis
 
-# Run the CUA smoke test against the installed NSIS app
-cua-nsis-test:
-	C:\Windows\py.exe scripts/cua-smoke.py
+
+# Bootstrap: install dev deps + pre-commit hook
+bootstrap:
+    uv sync --group dev
+    uv run pre-commit install
+    Write-Host "Pre-commit hooks installed." -ForegroundColor Green

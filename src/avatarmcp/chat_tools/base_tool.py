@@ -10,13 +10,13 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class ToolParameterType(str, Enum):
+class ToolParameterType(StrEnum):
     """Types of parameters that can be accepted by a tool."""
 
     STRING = "string"
@@ -66,7 +66,7 @@ class ToolParameter:
         return result
 
 
-class ToolExecutionStatus(str, Enum):
+class ToolExecutionStatus(StrEnum):
     """Status of a tool execution."""
 
     SUCCESS = "success"

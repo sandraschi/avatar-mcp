@@ -3,7 +3,6 @@ Basic tests for the AvatarMCP server using the current architecture.
 """
 
 import os
-from pathlib import Path
 
 import pytest
 
@@ -54,6 +53,7 @@ async def test_vrm_import():
     manager = VRMManager()
 
     import tempfile
+
     with tempfile.NamedTemporaryFile(suffix=".vrm", delete=False) as f:
         f.write(b"mock_vrm_data")
         tmp_path = f.name

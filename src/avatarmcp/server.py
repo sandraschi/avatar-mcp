@@ -330,7 +330,7 @@ def run_server(
     host: str = "0.0.0.0",
     port: int = 10793,
     enable_loki: bool = False,
-    loki_url: str = None,
+    loki_url: str | None = None,
     enable_osc: bool = False,
 ):
     """Run the AvatarMCP server."""

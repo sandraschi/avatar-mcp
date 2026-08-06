@@ -2,7 +2,7 @@
 Tests for the VRM loader module.
 """
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -54,9 +54,11 @@ class TestVRMLoader:
         mock_gltf.extensions = {}
         mock_load_binary.return_value = mock_gltf
 
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.suffix", ".vrm"), \
-             patch("builtins.open", create=True) as mock_open:
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.suffix", ".vrm"),
+            patch("builtins.open", create=True) as mock_open,
+        ):
             mock_file = MagicMock()
             mock_file.__enter__.return_value = mock_file
             mock_file.read.return_value = b"mock"
@@ -71,14 +73,14 @@ class TestVRMLoader:
     def test_extract_metadata(self, mock_load_binary, mock_gltf):
         from src.avatarmcp.models.vrm_loader import VRMLoader
 
-        mock_gltf.extensions = {
-            "VRM": {"meta": {"title": "Test", "version": "1.0", "author": "Tester"}}
-        }
+        mock_gltf.extensions = {"VRM": {"meta": {"title": "Test", "version": "1.0", "author": "Tester"}}}
         mock_load_binary.return_value = mock_gltf
 
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.suffix", ".vrm"), \
-             patch("builtins.open", create=True) as mock_open:
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.suffix", ".vrm"),
+            patch("builtins.open", create=True) as mock_open,
+        ):
             mock_file = MagicMock()
             mock_file.__enter__.return_value = mock_file
             mock_file.read.return_value = b"mock"
@@ -101,9 +103,11 @@ class TestVRMLoader:
         mock_gltf.nodes = [node_a, node_b]
         mock_load_binary.return_value = mock_gltf
 
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.suffix", ".vrm"), \
-             patch("builtins.open", create=True) as mock_open:
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.suffix", ".vrm"),
+            patch("builtins.open", create=True) as mock_open,
+        ):
             mock_file = MagicMock()
             mock_file.__enter__.return_value = mock_file
             mock_file.read.return_value = b"mock"

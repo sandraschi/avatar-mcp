@@ -91,7 +91,7 @@ class VRChatOSC:
                 )
 
                 # Start the server
-                transport, protocol = await self.server.create_serve_endpoint()
+                transport, _protocol = await self.server.create_serve_endpoint()
 
                 # If we get here, the port was available
                 self._running = True

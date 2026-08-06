@@ -123,7 +123,7 @@ class MCPTools(MCPToolsBase):
             return await self.get_parameter(avatar_id, name)
 
         @self.mcp.tool(name="osc.send", description="Send a raw OSC message to VRChat")
-        async def send_osc_message(address: str, args: list = None) -> dict[str, Any]:
+        async def send_osc_message(address: str, args: list | None = None) -> dict[str, Any]:
             return await self.send_osc_message(address, args)
 
         @self.mcp.tool(name="osc.chat", description="Send a chat message to VRChat")
@@ -484,7 +484,7 @@ class MCPTools(MCPToolsBase):
         # For now, we'll return a not implemented response
         raise NotImplementedError("Parameter tracking is not yet implemented")
 
-    async def send_osc_message(self, address: str, args: list = None) -> dict[str, Any]:
+    async def send_osc_message(self, address: str, args: list | None = None) -> dict[str, Any]:
         """Send a raw OSC message to VRChat.
 
         Args:

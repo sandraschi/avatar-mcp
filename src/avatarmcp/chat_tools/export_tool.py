@@ -5,7 +5,7 @@ Provides FastMCP 2.12 compatible endpoints for exporting avatars to Unity/VRChat
 """
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ from .base_tool import ChatTool, ToolExecutionStatus, ToolParameter, ToolParamet
 logger = logging.getLogger(__name__)
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """Supported export formats."""
 
     FBX = "fbx"

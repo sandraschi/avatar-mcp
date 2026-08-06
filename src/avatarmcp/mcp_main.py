@@ -10,6 +10,7 @@ import sys
 
 try:
     import asyncio
+
     ASYNCIO_AVAILABLE = True
 except OSError as e:
     if "WinError 10106" in str(e):
@@ -56,6 +57,7 @@ def main():
         sys.stderr.flush()
         logger.error(f"Error in FastMCP server: {e!s}", exc_info=True)
         import traceback
+
         sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
         sys.stderr.flush()
         sys.exit(1)

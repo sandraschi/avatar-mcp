@@ -172,7 +172,7 @@ class WebSocketHandler(BaseHandler):
         except Exception as e:
             logger.error(f"Error sending message to client {client.id}: {e!s}")
 
-    async def broadcast(self, data: dict[str, Any], topic: str = None) -> None:
+    async def broadcast(self, data: dict[str, Any], topic: str | None = None) -> None:
         """Broadcast a message to all connected clients.
 
         Args:

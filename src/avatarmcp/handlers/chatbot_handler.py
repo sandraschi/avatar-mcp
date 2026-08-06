@@ -10,7 +10,7 @@ import logging
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -21,7 +21,7 @@ from .speech_handler import SpeechHandler
 logger = logging.getLogger(__name__)
 
 
-class ChatState(str, Enum):
+class ChatState(StrEnum):
     """Chatbot conversation states."""
 
     IDLE = "idle"
@@ -31,7 +31,7 @@ class ChatState(str, Enum):
     ERROR = "error"
 
 
-class MessageRole(str, Enum):
+class MessageRole(StrEnum):
     """Message roles in the conversation."""
 
     USER = "user"
@@ -112,8 +112,9 @@ class ChatbotHandler(BaseHandler):
         # Trim history if it exceeds max length (keep system message)
         if len(self.conversation_history) > self.config.max_history + 1:  # +1 for system message
             # Keep system message and most recent messages
-            self.conversation_history = [self.conversation_history[0]] + self.conversation_history[
-                -(self.config.max_history - 1) :
+            self.conversation_history = [
+                self.conversation_history[0],
+                *self.conversation_history[-(self.config.max_history - 1) :],
             ]
 
     async def start_conversation(self) -> bool:

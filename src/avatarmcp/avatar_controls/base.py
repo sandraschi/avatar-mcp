@@ -6,13 +6,13 @@ including common types, enums, and base classes.
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, Field
 
 
-class ControlType(str, Enum):
+class ControlType(StrEnum):
     """Types of avatar controls."""
 
     BONE = "bone"
@@ -21,14 +21,14 @@ class ControlType(str, Enum):
     ANIMATION = "animation"
 
 
-class ControlSpace(str, Enum):
+class ControlSpace(StrEnum):
     """Coordinate space for transforms."""
 
     LOCAL = "local"
     WORLD = "world"
 
 
-class ControlMode(str, Enum):
+class ControlMode(StrEnum):
     """Control modes for avatar manipulation."""
 
     POSITION = "position"

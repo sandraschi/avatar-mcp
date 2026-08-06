@@ -1,9 +1,12 @@
 """FastAPI backend with logging support."""
 import sys
+import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Request
 from web_sota.backend.routes.logging import router as logging_router
 from web_sota.backend.log_buffer import activity_log
 
@@ -24,6 +27,18 @@ app.include_router(logging_router)
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "server": "Avatar MCP", "version": "0.1.0"}
+
+@app.get("/api/avatar.vrm")
+@app.get("/api/vrm/view")
+async def serve_vrm(model: str = "Nekomimi-chan"):
+    """Serve a VRM file for the three.js viewer."""
+    repo_root = Path(__file__).resolve().parents[2]
+    # Search models/ and examples/ directories
+    for sub in ("models", "examples", "test_assets"):
+        path = repo_root / sub / f"{model}.vrm"
+        if path.is_file():
+            return FileResponse(str(path), media_type="application/octet-stream")
+    return JSONResponse({"error": f"VRM '{model}' not found"}, status_code=404)
 
 if __name__ == "__main__":
     import uvicorn

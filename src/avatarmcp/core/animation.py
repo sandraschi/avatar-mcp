@@ -147,7 +147,7 @@ class AnimationClip:
 class AnimationState:
     """Tracks the state of a playing animation instance."""
 
-    def __init__(self, clip: AnimationClip, weight: float = 1.0, loop: bool = None, speed: float = None):
+    def __init__(self, clip: AnimationClip, weight: float = 1.0, loop: bool | None = None, speed: float | None = None):
         """Initialize a new animation state."""
         self.clip = clip
         self.weight = weight
@@ -332,8 +332,8 @@ class AnimationLayer:
         name: str,
         clip: AnimationClip,
         weight: float = 1.0,
-        loop: bool = None,
-        speed: float = None,
+        loop: bool | None = None,
+        speed: float | None = None,
     ) -> AnimationState:
         """Add a new animation state to this layer."""
         state = AnimationState(clip, weight, loop, speed)
@@ -690,7 +690,7 @@ def example_usage():
     try:
         while True:
             controller.update()
-            bone_poses, blend_shapes = controller.get_pose()
+            _bone_poses, _blend_shapes = controller.get_pose()
 
             # Apply poses to your model here
 

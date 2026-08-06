@@ -92,7 +92,6 @@ async def test_avatar_manager_load_and_list(mock_server):
     tool = AvatarManagerTool(mock_server)
 
     # Manually add a model to loaded_models (avoid VRMModel file-IO constructor)
-    from avatarmcp.models.animation_controller import AnimationController
     from avatarmcp.models.vrm_model import VRMModel
 
     with patch.object(VRMModel, "_load_model", return_value=None):
@@ -118,8 +117,8 @@ async def test_avatar_manager_load_and_list(mock_server):
 @pytest.mark.asyncio
 async def test_avatar_manager_set_active(mock_server):
     """Test avatar_manager set_active operation."""
-    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
     from avatarmcp.models.vrm_model import VRMModel
+    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
 
     tool = AvatarManagerTool(mock_server)
 
@@ -145,8 +144,8 @@ async def test_avatar_manager_set_active(mock_server):
 @pytest.mark.asyncio
 async def test_avatar_manager_unload(mock_server):
     """Test avatar_manager unload operation."""
-    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
     from avatarmcp.models.vrm_model import VRMModel
+    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
 
     tool = AvatarManagerTool(mock_server)
 
@@ -154,7 +153,7 @@ async def test_avatar_manager_unload(mock_server):
         model = VRMModel("/tmp/test.vrm")
         mock_server.loaded_models[model.model_id] = model
 
-    avatar_id = list(mock_server.loaded_models.keys())[0]
+    avatar_id = next(iter(mock_server.loaded_models.keys()))
     result = await tool._handle_unload({"avatar_id": avatar_id})
     assert result["status"] == "success"
     assert avatar_id not in mock_server.loaded_models
@@ -188,8 +187,8 @@ async def test_animation_manager_no_active_avatar(mock_server):
 @pytest.mark.asyncio
 async def test_animation_manager_with_active_avatar(mock_server):
     """Test animation_manager play/stop with active avatar that has animation controller."""
-    from avatarmcp.tools.portmanteau.animation_manager_tool import AnimationManagerTool
     from avatarmcp.models.vrm_model import VRMModel
+    from avatarmcp.tools.portmanteau.animation_manager_tool import AnimationManagerTool
 
     tool = AnimationManagerTool(mock_server)
 
@@ -258,18 +257,18 @@ async def test_system_monitor_without_initialize(mock_server):
 async def test_portmanteau_tool_registration(mock_server):
     """Test that all portmanteau tools register correctly on the server."""
     # Just verify that the tool classes can be instantiated without errors
-    from avatarmcp.tools.portmanteau.system_monitor_tool import SystemMonitorTool
-    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
     from avatarmcp.tools.portmanteau.animation_manager_tool import AnimationManagerTool
-    from avatarmcp.tools.portmanteau.chat_manager_tool import ChatManagerTool
     from avatarmcp.tools.portmanteau.artifact_manager_tool import ArtifactManagerTool
     from avatarmcp.tools.portmanteau.audio_manager_tool import AudioManagerTool
+    from avatarmcp.tools.portmanteau.avatar_manager_tool import AvatarManagerTool
     from avatarmcp.tools.portmanteau.behavior_manager_tool import BehaviorManagerTool
+    from avatarmcp.tools.portmanteau.chat_manager_tool import ChatManagerTool
     from avatarmcp.tools.portmanteau.collaboration_manager_tool import CollaborationManagerTool
     from avatarmcp.tools.portmanteau.content_manager_tool import ContentManagerTool
     from avatarmcp.tools.portmanteau.emotion_manager_tool import EmotionManagerTool
     from avatarmcp.tools.portmanteau.interaction_manager_tool import InteractionManagerTool
     from avatarmcp.tools.portmanteau.performance_manager_tool import PerformanceManagerTool
+    from avatarmcp.tools.portmanteau.system_monitor_tool import SystemMonitorTool
 
     # Instantiate without MCP registration (mcp is mock, _register_tool will fail to call @tool())
     # Just verify the classes import and construct properly

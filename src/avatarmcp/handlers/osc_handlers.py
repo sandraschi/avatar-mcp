@@ -115,7 +115,7 @@ class OSCManager:
         self._running = False
         logger.info("OSC server stopped")
 
-    def send_message(self, address: str, *args, ip: str = None, port: int = None) -> None:
+    def send_message(self, address: str, *args, ip: str | None = None, port: int | None = None) -> None:
         """Send an OSC message.
 
         Args:
@@ -249,7 +249,7 @@ class OSCHandler(BaseHandler):
 
         return wrapper
 
-    async def send_message(self, address: str, *args, ip: str = None, port: int = None) -> None:
+    async def send_message(self, address: str, *args, ip: str | None = None, port: int | None = None) -> None:
         """Send an OSC message.
 
         Args:

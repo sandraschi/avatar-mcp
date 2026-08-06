@@ -5,11 +5,8 @@ Integration tests for the AvatarMCP server.
 import asyncio
 import logging
 import os
-from pathlib import Path
 
-import httpx
 import pytest
-from fastapi.testclient import TestClient
 
 from avatarmcp.server import AvatarMCPServer
 
@@ -78,7 +75,7 @@ async def test_osc_communication():
 
     loop = asyncio.get_event_loop()
     osc_server = AsyncIOOSCUDPServer(("127.0.0.1", server_port), osc_dispatcher, loop)
-    transport, protocol = await osc_server.create_serve_endpoint()
+    transport, _protocol = await osc_server.create_serve_endpoint()
 
     try:
         test_address = "/avatar/parameters/TestParam"

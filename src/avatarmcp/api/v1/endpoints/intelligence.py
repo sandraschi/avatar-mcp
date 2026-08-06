@@ -43,7 +43,7 @@ async def get_agent_loops():
 @router.get("/trifecta")
 async def get_trifecta_status():
     """Get status of the OpenFang/AvatarMCP/BlackFang trifecta."""
-    server = get_server()
+    get_server()
     return {
         "openfang": {"status": "connected", "telemetry": "streaming", "latency_ms": 12},
         "avatarmcp_connectors": {

@@ -43,7 +43,9 @@ async def call_fleet_tool(
     return {"success": False, "error": "Invalid response", "tool": tool}
 
 
-async def call_blender_tool(tool: str, params: dict[str, Any] | None = None, *, timeout: float = 300.0) -> dict[str, Any]:
+async def call_blender_tool(
+    tool: str, params: dict[str, Any] | None = None, *, timeout: float = 300.0
+) -> dict[str, Any]:
     url = DEFAULT_BLENDER_URL.rstrip("/") + "/tool"
     payload = {"tool": tool, "params": params or {}}
     try:
@@ -86,7 +88,7 @@ import bpy, json
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete()
 try:
-    bpy.ops.import_scene.vrm(filepath=r"{vrm_path.replace(chr(92), '/')}")
+    bpy.ops.import_scene.vrm(filepath=r"{vrm_path.replace(chr(92), "/")}")
 except Exception as e:
     print(json.dumps({{"success": False, "error": str(e)}}))
     raise SystemExit(0)
@@ -97,7 +99,7 @@ print(json.dumps({{
     "meshes": len(meshes),
     "armatures": len(armatures),
     "objects": [o.name for o in bpy.data.objects],
-    "vrm_path": r"{vrm_path.replace(chr(92), '/')}",
+    "vrm_path": r"{vrm_path.replace(chr(92), "/")}",
 }}))
 """
     result = await call_blender_tool("script_execute", {"code": script}, timeout=180)

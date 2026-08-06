@@ -122,7 +122,11 @@ class AvatarPipelineService:
 
         if op == "depot_scan":
             scanned = self.depot.scan_work_dirs(self.staging_dir, self.hub_dir, self.output_dir)
-            return {**scanned, "status": "success", "message": f"Depot scan added {scanned.get('added_count', 0)} entries"}
+            return {
+                **scanned,
+                "status": "success",
+                "message": f"Depot scan added {scanned.get('added_count', 0)} entries",
+            }
 
         if op == "hub_auth":
             step = auth_step.strip().lower() or "status"

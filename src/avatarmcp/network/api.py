@@ -37,7 +37,7 @@ RequestHandler = Callable[[aiohttp.web.Request], Awaitable[aiohttp.web.Response]
 class APIError(Exception):
     """Base exception for API-related errors."""
 
-    def __init__(self, message: str, status: int = 400, code: str = None, details: JsonDict = None):
+    def __init__(self, message: str, status: int = 400, code: str | None = None, details: JsonDict = None):
         self.message = message
         self.status = status
         self.code = code or f"ERR_{status}"

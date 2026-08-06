@@ -34,7 +34,9 @@ class TestVRMModel(unittest.TestCase):
             "VRM": {
                 "meta": {"title": "Test Model", "version": "1.0", "author": "Tester"},
                 "blendShapeMaster": {
-                    "blendShapeGroups": [{"name": "A", "presetName": "joy", "binds": [{"mesh": 0, "index": 0, "weight": 100}]}]
+                    "blendShapeGroups": [
+                        {"name": "A", "presetName": "joy", "binds": [{"mesh": 0, "index": 0, "weight": 100}]}
+                    ]
                 },
             }
         }
@@ -71,9 +73,7 @@ class TestAnimationController(unittest.TestCase):
         self.controller = AnimationController()
 
     def test_play_animation(self):
-        result = self.controller.play_animation(
-            animation_name="test_anim", loop=True, weight=1.0, speed=1.0
-        )
+        result = self.controller.play_animation(animation_name="test_anim", loop=True, weight=1.0, speed=1.0)
         self.assertEqual(result["status"], "success")
         self.assertIn("test_anim", self.controller.active_animations)
 
@@ -102,7 +102,7 @@ class TestAnimationController(unittest.TestCase):
 
     def test_stop_with_fade_out(self):
         self.controller.play_animation("test_anim")
-        result = self.controller.stop_animation("test_anim", fade_out=1.0)
+        self.controller.stop_animation("test_anim", fade_out=1.0)
         anim = self.controller.active_animations["test_anim"]
         self.assertIn("fade_out", anim)
         self.assertEqual(anim["fade_out"]["duration"], 1.0)

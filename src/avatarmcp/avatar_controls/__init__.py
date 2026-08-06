@@ -14,23 +14,23 @@ from .export import ExportFormat, ExportOptions, ExportTool
 from .morph_control import MorphControlTool, MorphTargetUpdate
 
 __all__ = [
-    # Base classes and types
-    "ControlResult",
-    "Transform",
-    "Quaternion",
-    "ControlSpace",
-    "ControlMode",
     "BaseControlTool",
     # Bone control
     "BoneControlTool",
     "BoneTransform",
+    "ControlMode",
+    # Base classes and types
+    "ControlResult",
+    "ControlSpace",
+    "ExportFormat",
+    "ExportOptions",
+    # Export
+    "ExportTool",
     # Morph control
     "MorphControlTool",
     "MorphTargetUpdate",
-    # Export
-    "ExportTool",
-    "ExportFormat",
-    "ExportOptions",
+    "Quaternion",
+    "Transform",
 ]
 
 # List of available controls
