@@ -103,6 +103,7 @@ class HelpSystem:
         self,
         name: str | None = None,
         description: str = "",
+        examples: list[str] | None = None,
         requires_auth: bool = False,
         deprecated: bool = False,
     ) -> Callable[[F], F]:
@@ -111,6 +112,7 @@ class HelpSystem:
         Args:
             name: Command name (defaults to function name)
             description: Description of what the command does
+            examples: Optional list of example invocations
             requires_auth: Whether this command requires authentication
             deprecated: Whether this command is deprecated
 
@@ -165,6 +167,7 @@ class HelpSystem:
                 function=func,
                 description=description or doc.split("\n")[0] if doc else "",
                 parameters=parameters,
+                examples=examples or [],
                 returns=returns,
                 requires_auth=requires_auth,
                 deprecated=deprecated,
@@ -237,7 +240,7 @@ help_system = HelpSystem()
 def register_help(mcp: FastMCP, help_sys: HelpSystem = help_system):
     """Register help commands with the MCP server."""
 
-    @mcp.command("help")
+    @mcp.tool(name="help")
     def help_command(command: str = "") -> dict[str, Any]:
         """Show help for commands.
 

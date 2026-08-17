@@ -32,7 +32,7 @@ from . import standard_animations
 mcp = fastmcp.FastMCP(
     name="avatarmcp",
     version="0.1.0",
-    description="MCP server for VRM avatar management and animation",
+    instructions="MCP server for VRM avatar management and animation",
 )
 
 
@@ -109,29 +109,10 @@ def main():
     # Register the help command first
     register_help_command(mcp)
 
-    # Register all commands with MCP and the help system
-    commands = [
-        cmd_load_vrm,
-        cmd_unload_vrm,
-        cmd_play_animation,
-        cmd_stop_animation,
-        cmd_set_blend_shape,
-        cmd_set_bone_transform,
-        cmd_list_animations,
-        cmd_list_blend_shapes,
-        cmd_list_bones,
-        cmd_list_models,
-        cmd_list_standard_animations,
-        cmd_play_standard_animation,
-        cmd_stop_standard_animation,
-    ]
-
-    # Register all commands
-    for cmd in commands:
-        mcp.register(cmd)
-
     # Start the server
-    mcp.run()
+    import asyncio
+
+    asyncio.run(mcp.run_stdio_async(show_banner=False))
 
     return 0
 
@@ -145,7 +126,7 @@ _animation_controllers: dict[str, Any] = {}  # model_id -> AnimationController
 
 
 # Register commands
-@mcp.command("load_vrm")
+@mcp.tool(name="load_vrm")
 @help_system.register(
     name="load_vrm",
     description="Load a VRM model into memory for animation and manipulation.",
@@ -168,7 +149,7 @@ def cmd_load_vrm(file_path: str) -> dict[str, Any]:
     return load_vrm(file_path)
 
 
-@mcp.command("unload_vrm")
+@mcp.tool(name="unload_vrm")
 @help_system.register(
     name="unload_vrm",
     description="Unload a VRM model from memory to free up resources.",
@@ -189,7 +170,7 @@ def cmd_unload_vrm(model_id: str) -> dict[str, Any]:
     return unload_vrm(model_id)
 
 
-@mcp.command("play_animation")
+@mcp.tool(name="play_animation")
 @help_system.register(
     name="play_animation",
     description="Play an animation on a loaded VRM model.",
@@ -225,7 +206,7 @@ def cmd_play_animation(
     return play_animation(model_id, animation_name, loop, weight, speed)
 
 
-@mcp.command("stop_animation")
+@mcp.tool(name="stop_animation")
 @help_system.register(
     name="stop_animation",
     description="Stop a currently playing animation on a VRM model.",
@@ -254,7 +235,7 @@ def cmd_stop_animation(model_id: str, animation_name: str, fade_out: float = 0.0
     return stop_animation(model_id, animation_name, fade_out)
 
 
-@mcp.command("set_blend_shape")
+@mcp.tool(name="set_blend_shape")
 @help_system.register(
     name="set_blend_shape",
     description="Set the weight of a blend shape on a VRM model.",
@@ -284,7 +265,7 @@ def cmd_set_blend_shape(model_id: str, blend_shape_name: str, weight: float) -> 
     return set_blend_shape(model_id, blend_shape_name, weight)
 
 
-@mcp.command("set_bone_transform")
+@mcp.tool(name="set_bone_transform")
 @help_system.register(
     name="set_bone_transform",
     description="Set the transform (position/rotation/scale) of a bone in a VRM model.",
@@ -321,7 +302,7 @@ def cmd_set_bone_transform(
     return set_bone_transform(model_id, bone_name, position, rotation, scale)
 
 
-@mcp.command("list_animations")
+@mcp.tool(name="list_animations")
 @help_system.register(
     name="list_animations",
     description="List all available animations for a loaded VRM model.",
@@ -344,7 +325,7 @@ def cmd_list_animations(model_id: str) -> dict[str, Any]:
     return list_animations(model_id)
 
 
-@mcp.command("list_blend_shapes")
+@mcp.tool(name="list_blend_shapes")
 def cmd_list_blend_shapes(model_id: str) -> dict[str, Any]:
     """List available blend shapes for a model.
 
@@ -357,7 +338,7 @@ def cmd_list_blend_shapes(model_id: str) -> dict[str, Any]:
     return list_blend_shapes(model_id)
 
 
-@mcp.command("list_bones")
+@mcp.tool(name="list_bones")
 def cmd_list_bones(model_id: str) -> dict[str, Any]:
     """List all bones in the model.
 
@@ -370,7 +351,7 @@ def cmd_list_bones(model_id: str) -> dict[str, Any]:
     return list_bones(model_id)
 
 
-@mcp.command("list_models")
+@mcp.tool(name="list_models")
 def cmd_list_models() -> dict[str, Any]:
     """List all loaded models.
 
@@ -983,7 +964,7 @@ def list_bones(model_id: str) -> dict[str, Any]:
         return create_error_response("Failed to list bones", {"error": str(e)})
 
 
-@mcp.command("list_standard_animations")
+@mcp.tool(name="list_standard_animations")
 def cmd_list_standard_animations() -> dict[str, Any]:
     """List all available standard animations.
 
@@ -998,7 +979,7 @@ def cmd_list_standard_animations() -> dict[str, Any]:
         return create_error_response("Failed to list standard animations", {"error": str(e)})
 
 
-@mcp.command("play_standard_animation")
+@mcp.tool(name="play_standard_animation")
 def cmd_play_standard_animation(
     model_id: str,
     animation_name: str,
@@ -1078,7 +1059,7 @@ def cmd_play_standard_animation(
         return create_error_response("Failed to play standard animation", {"error": str(e)})
 
 
-@mcp.command("stop_standard_animation")
+@mcp.tool(name="stop_standard_animation")
 def cmd_stop_standard_animation(model_id: str, animation_name: str, fade_out: float | None = None) -> dict[str, Any]:
     """Stop a standard animation.
 

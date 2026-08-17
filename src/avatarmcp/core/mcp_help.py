@@ -37,6 +37,7 @@ class MCPHelpSystem:
         self,
         name: str | None = None,
         description: str = "",
+        examples: list[str] | None = None,
         deprecated: bool = False,
         requires_auth: bool = False,
     ) -> Callable[[F], F]:
@@ -45,6 +46,7 @@ class MCPHelpSystem:
         Args:
             name: Command name (defaults to function name)
             description: Description of the command
+            examples: Optional list of example invocations
             deprecated: Whether the command is deprecated
             requires_auth: Whether the command requires authentication
 
@@ -96,6 +98,7 @@ class MCPHelpSystem:
                 description=cmd_description,
                 parameters=parameters,
                 returns=returns if "returns" in locals() else "",
+                examples=examples or [],
                 deprecated=deprecated,
                 requires_auth=requires_auth,
             )
@@ -223,8 +226,8 @@ def register_help_command(mcp_instance):
                 "command": command if command else None,
             }
 
-    # Also register as a direct MCP command for convenience
-    @mcp_instance.command("help")
+    # Also register as a direct MCP tool for convenience
+    @mcp_instance.tool(name="help")
     def help_command_cli(command: str = "") -> str:
         """CLI version of help command that returns plain text."""
         result = help_command(command)
