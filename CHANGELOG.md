@@ -1,5 +1,5 @@
 
-## [Unreleased]
+## [0.4.1] - 2026-08-17
 
 ### Added
 - Browser-based VRM viewer — three.js + @pixiv/three-vrm, renders VRM models directly in the webapp
