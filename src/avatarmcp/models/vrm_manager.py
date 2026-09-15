@@ -6,6 +6,7 @@ and converting between different formats. It supports both humanoid and non-huma
 (animal/creature) VRM models.
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -161,7 +162,8 @@ class VRMManager:
         import shutil
 
         dest_path = os.path.join(self.models_dir, f"{model_id}.vrm")
-        shutil.copy2(vrm_path, dest_path)
+        # VRM files run 10-500MB — never copy on the event loop.
+        await asyncio.to_thread(shutil.copy2, vrm_path, dest_path)
 
         # Save metadata if provided, else infer model_type from VRM contents
         if metadata:
@@ -235,7 +237,7 @@ class VRMManager:
 
         dest = Path(model_info["directory"]) / f"{model_id}.thumb.png"
         try:
-            shutil.copy2(src, dest)
+            await asyncio.to_thread(shutil.copy2, src, dest)
         except OSError as exc:
             logger.exception("Failed to write avatar thumbnail")
             return {"success": False, "error": str(exc)}

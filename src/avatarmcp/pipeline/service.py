@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import shutil
@@ -150,7 +151,7 @@ class AvatarPipelineService:
             hub_path = Path(dl["download_path"])
             dest_name = vrm_filename or hub_path.name
             staged = self.staging_dir / dest_name
-            shutil.copy2(hub_path, staged)
+            await asyncio.to_thread(shutil.copy2, hub_path, staged)
             type_info = build_import_metadata(staged)
             if model_type_override.strip():
                 type_info["model_type"] = model_type_override.strip()
@@ -212,7 +213,7 @@ class AvatarPipelineService:
             if not src.is_file():
                 return {"success": False, "status": "error", "message": f"File not found: {source_path}"}
             dest = self.staging_dir / (vrm_filename or src.name)
-            shutil.copy2(src, dest)
+            await asyncio.to_thread(shutil.copy2, src, dest)
             result = {
                 "success": True,
                 "status": "success",
@@ -326,7 +327,7 @@ class AvatarPipelineService:
         export_path = result.get("export_path", "")
         if export_path and Path(export_path).is_file():
             dest = self.staging_dir / vrm_filename
-            shutil.copy2(export_path, dest)
+            await asyncio.to_thread(shutil.copy2, export_path, dest)
             result["staged_path"] = str(dest)
             self.depot.register(
                 dest,
