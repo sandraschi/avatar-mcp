@@ -1,4 +1,4 @@
-"""Local avatar depot catalog — VRM and .vroid project index."""
+"""Local avatar depot catalog - VRM and .vroid project index."""
 
 from __future__ import annotations
 

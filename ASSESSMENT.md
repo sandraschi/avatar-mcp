@@ -1,4 +1,4 @@
-# AvatarMCP — Detailed Repository Assessment
+# AvatarMCP -- Detailed Repository Assessment
 
 **Assessment Date**: 2026-04-30
 **Last Updated**: 2026-04-30 (Post-Fix)
@@ -40,48 +40,48 @@ AvatarMCP is a FastMCP 3.1+ server for VRM avatar management, animation, VRChat 
 
 | # | Issue | File(s) | Impact |
 |---|-------|---------|--------|
-| C1 | **Portmanteau tools call async methods without `await`** — `avatar_manager_tool.py`, `animation_manager_tool.py`, and likely others use `def` (sync) but invoke `self.mcp_server.vrm_manager.load_vrm(...)` which returns a coroutine. The coroutine is **never awaited**, so every operation silently returns a coroutine object instead of executing. | `tools/portmanteau/avatar_manager_tool.py:130-133`, `animation_manager_tool.py` | **Runtime broken. Zero portmanteau ops work.** |
-| C2 | **~9,000 lines of dead code** — `tools/core/*.py` (9 files) are explicitly excluded from registration by `server.py:27` ("Core tools are not registered"). `tools/unity/unity_tools.py` is an empty placeholder. These files compile but never execute. | `tools/core/*.py`, `tools/unity/unity_tools.py` | Massive maintenance burden, confusing to new devs, wastes CI time. |
-| C3 | **7+ server implementations** — `server.py`, `server.py.backup`, `server_fixed.py`, `mcp_main.py`, `mcp_server_clean.py`, `mcp_enhanced.py`, `simple_mcp_server.py`, `http_server.py`. Each is a different variant with different import paths and tool registrations. It's unclear which is canonical. | `src/avatarmcp/` (root) | Extreme architectural fragmentation. A new contributor cannot tell which server to modify. |
-| C4 | **mcpb.json `entry_point` is wrong** — Points to `src/avatar_mcp/server.py` (underscore) but actual path is `src/avatarmcp/server.py` (no underscore). | `mcpb.json:4` | `mcpb build` will fail with ModuleNotFoundError. |
-| C5 | **CI tests Python 3.10 but pyproject.toml requires >=3.12** — CI matrix includes 3.10/3.11; mypy config sets `python_version = "3.10"`. This directly contradicts `requires-python = ">=3.12"`. | `.github/workflows/ci.yml:11`, `pyproject.toml:7` | CI may pass but the build environment is untested against the declared minimum. |
-| C6 | **Zero test coverage for active code** — All existing tests target legacy `core.app.AvatarMCP`, `AnimationController`, `VRMModel` (old code paths). The portmanteau tools (15 files, ~3000 LOC), `server.py` (353 LOC), `__main__.py` (125 LOC), and `http_server.py` (335 LOC) have **no tests at all**. | All `tests/` | Every new deployment is blind. Regressions cannot be detected. |
-| C7 | **`ruff>=0.14.1` listed as runtime dependency** — Linter in production dependencies. | `pyproject.toml:33` | Unnecessary bloat in deployed environments. |
+| C1 | **Portmanteau tools call async methods without `await`** -- `avatar_manager_tool.py`, `animation_manager_tool.py`, and likely others use `def` (sync) but invoke `self.mcp_server.vrm_manager.load_vrm(...)` which returns a coroutine. The coroutine is **never awaited**, so every operation silently returns a coroutine object instead of executing. | `tools/portmanteau/avatar_manager_tool.py:130-133`, `animation_manager_tool.py` | **Runtime broken. Zero portmanteau ops work.** |
+| C2 | **~9,000 lines of dead code** -- `tools/core/*.py` (9 files) are explicitly excluded from registration by `server.py:27` ("Core tools are not registered"). `tools/unity/unity_tools.py` is an empty placeholder. These files compile but never execute. | `tools/core/*.py`, `tools/unity/unity_tools.py` | Massive maintenance burden, confusing to new devs, wastes CI time. |
+| C3 | **7+ server implementations** -- `server.py`, `server.py.backup`, `server_fixed.py`, `mcp_main.py`, `mcp_server_clean.py`, `mcp_enhanced.py`, `simple_mcp_server.py`, `http_server.py`. Each is a different variant with different import paths and tool registrations. It's unclear which is canonical. | `src/avatarmcp/` (root) | Extreme architectural fragmentation. A new contributor cannot tell which server to modify. |
+| C4 | **mcpb.json `entry_point` is wrong** -- Points to `src/avatar_mcp/server.py` (underscore) but actual path is `src/avatarmcp/server.py` (no underscore). | `mcpb.json:4` | `mcpb build` will fail with ModuleNotFoundError. |
+| C5 | **CI tests Python 3.10 but pyproject.toml requires >=3.12** -- CI matrix includes 3.10/3.11; mypy config sets `python_version = "3.10"`. This directly contradicts `requires-python = ">=3.12"`. | `.github/workflows/ci.yml:11`, `pyproject.toml:7` | CI may pass but the build environment is untested against the declared minimum. |
+| C6 | **Zero test coverage for active code** -- All existing tests target legacy `core.app.AvatarMCP`, `AnimationController`, `VRMModel` (old code paths). The portmanteau tools (15 files, ~3000 LOC), `server.py` (353 LOC), `__main__.py` (125 LOC), and `http_server.py` (335 LOC) have **no tests at all**. | All `tests/` | Every new deployment is blind. Regressions cannot be detected. |
+| C7 | **`ruff>=0.14.1` listed as runtime dependency** -- Linter in production dependencies. | `pyproject.toml:33` | Unnecessary bloat in deployed environments. |
 
 ### 🟡 HIGH
 
 | # | Issue | File(s) | Impact |
 |---|-------|---------|--------|
-| H1 | **test_api.py silently skips all tests** — Every test wraps in `try/except httpx.ConnectError: pytest.skip()`. No server fixture exists. Tests always pass without exercising anything. | `tests/test_api.py` | False sense of security. API is untested. |
-| H2 | **Deprecated GitHub Actions** — `actions/create-release@v1`, `actions/upload-release-asset@v1`, `actions/download-artifact@v3` in `release.yml`. These are archived/superseded. | `.github/workflows/release.yml` | `release.yml` will break when GitHub fully deprecates v1 actions. |
-| H3 | **Version mismatch** — `mcpb.json` says `1.0.0`, `pyproject.toml` says `0.1.0`. Which is correct? | `mcpb.json:2`, `pyproject.toml:7` | Confusing for packagers and downstream consumers. |
-| H4 | **`__main__.py` fragile stdout patching** — Line 56 references `_stdio_original_stdout` which is only defined if `--stdio` is in argv. If imported without the flag, `NameError` is raised. | `src/avatarmcp/__main__.py:56` | Importing the module can crash the interpreter. |
-| H5 | **Dependabot disabled** — `.github/dependabot.yml.disabled`. No automated dependency vulnerability scanning in CI. | `.github/dependabot.yml.disabled` | CVEs in transitive deps go unnoticed. |
-| H6 | **No production Docker Compose for the app** — `docker/` only contains a GitLab CE instance. The root `Dockerfile` exists but no `docker-compose.yml` for the avatar-mcp service with its dependencies. | `docker/`, `Dockerfile` | Deployment is manual-only. |
-| H7 | **`justfile` has broken PowerShell commands** — `Set-Location` inside `just` recipes runs in a sub-shell, so `cd` doesn't persist. | `justfile:37-39` | `just fix` doesn't actually lint the web directory. |
+| H1 | **test_api.py silently skips all tests** -- Every test wraps in `try/except httpx.ConnectError: pytest.skip()`. No server fixture exists. Tests always pass without exercising anything. | `tests/test_api.py` | False sense of security. API is untested. |
+| H2 | **Deprecated GitHub Actions** -- `actions/create-release@v1`, `actions/upload-release-asset@v1`, `actions/download-artifact@v3` in `release.yml`. These are archived/superseded. | `.github/workflows/release.yml` | `release.yml` will break when GitHub fully deprecates v1 actions. |
+| H3 | **Version mismatch** -- `mcpb.json` says `1.0.0`, `pyproject.toml` says `0.1.0`. Which is correct? | `mcpb.json:2`, `pyproject.toml:7` | Confusing for packagers and downstream consumers. |
+| H4 | **`__main__.py` fragile stdout patching** -- Line 56 references `_stdio_original_stdout` which is only defined if `--stdio` is in argv. If imported without the flag, `NameError` is raised. | `src/avatarmcp/__main__.py:56` | Importing the module can crash the interpreter. |
+| H5 | **Dependabot disabled** -- `.github/dependabot.yml.disabled`. No automated dependency vulnerability scanning in CI. | `.github/dependabot.yml.disabled` | CVEs in transitive deps go unnoticed. |
+| H6 | **No production Docker Compose for the app** -- `docker/` only contains a GitLab CE instance. The root `Dockerfile` exists but no `docker-compose.yml` for the avatar-mcp service with its dependencies. | `docker/`, `Dockerfile` | Deployment is manual-only. |
+| H7 | **`justfile` has broken PowerShell commands** -- `Set-Location` inside `just` recipes runs in a sub-shell, so `cd` doesn't persist. | `justfile:37-39` | `just fix` doesn't actually lint the web directory. |
 
 ### 🔵 MEDIUM
 
 | # | Issue | File(s) | Impact |
 |---|-------|---------|--------|
-| M1 | **Duplicate logging config** — `__main__.py` configures logging twice: once for MCP mode (line ~42) and again for normal mode (line ~87), with different log file paths. | `src/avatarmcp/__main__.py` | Logs split across files, confusing debugging. |
-| M2 | **`classifiers` list 3.10/3.11 but `requires-python` is >=3.12** — The PyPI classifiers claim 3.10/3.11 support which contradicts the actual requirement. | `pyproject.toml:19-20` | Published metadata would be misleading. |
-| M3 | **`node_modules/` present in `web_sota/`** — Should be in `.gitignore` (checking if it is). | `web_sota/node_modules/` | Bloats repo size. |
-| M4 | **`web_sota/avatarmcp.log` stale** — Log file sitting in the frontend directory. | `web_sota/avatarmcp.log` | Suggests the frontend process logs to the wrong directory. |
-| M5 | **Core tools use `params: dict[str, Any]` while portmanteau tools use typed kwargs** — Inconsistent pattern across the two architectures. | All tool files | Workflow inconsistency. |
-| M6 | **`build-mcpb.yml` references `mcpb/manifest.json`** — This file may not exist (build config is `mcpb.json` at root). | `.github/workflows/build-mcpb.yml:52` | MCPB build step likely fails. |
-| M7 | **No `__init__.py` in `tests/`** — Not strictly required by pytest, but non-standard. | `tests/` | Minor, but can cause collection issues with some tooling. |
-| M8 | **Old `requirements-*.txt` files — 3 variants** (`requirements-updated.txt`, `requirements-ai-npc.txt`, `requirements-visualization.txt`) alongside `pyproject.toml` deps. Fragmented dependency tracking. | Root dir | Confusion about which requirements are authoritative. |
+| M1 | **Duplicate logging config** -- `__main__.py` configures logging twice: once for MCP mode (line ~42) and again for normal mode (line ~87), with different log file paths. | `src/avatarmcp/__main__.py` | Logs split across files, confusing debugging. |
+| M2 | **`classifiers` list 3.10/3.11 but `requires-python` is >=3.12** -- The PyPI classifiers claim 3.10/3.11 support which contradicts the actual requirement. | `pyproject.toml:19-20` | Published metadata would be misleading. |
+| M3 | **`node_modules/` present in `web_sota/`** -- Should be in `.gitignore` (checking if it is). | `web_sota/node_modules/` | Bloats repo size. |
+| M4 | **`web_sota/avatarmcp.log` stale** -- Log file sitting in the frontend directory. | `web_sota/avatarmcp.log` | Suggests the frontend process logs to the wrong directory. |
+| M5 | **Core tools use `params: dict[str, Any]` while portmanteau tools use typed kwargs** -- Inconsistent pattern across the two architectures. | All tool files | Workflow inconsistency. |
+| M6 | **`build-mcpb.yml` references `mcpb/manifest.json`** -- This file may not exist (build config is `mcpb.json` at root). | `.github/workflows/build-mcpb.yml:52` | MCPB build step likely fails. |
+| M7 | **No `__init__.py` in `tests/`** -- Not strictly required by pytest, but non-standard. | `tests/` | Minor, but can cause collection issues with some tooling. |
+| M8 | **Old `requirements-*.txt` files -- 3 variants** (`requirements-updated.txt`, `requirements-ai-npc.txt`, `requirements-visualization.txt`) alongside `pyproject.toml` deps. Fragmented dependency tracking. | Root dir | Confusion about which requirements are authoritative. |
 
 ### 🟢 LOW
 
 | # | Issue | File(s) | Impact |
 |---|-------|---------|--------|
-| L1 | **`docs/development/` has 18 process docs** — Disproportionate for the codebase size. Many likely stale after the architecture migration. | `docs/development/` | Documentation debt. |
-| L2 | **Multiple `__pycache__/` dirs tracked** — Should all be in `.gitignore`. | Throughout | Minor git bloat. |
-| L3 | **`test_startup.py` is not a real test** — Sleeps 5s, asserts a dynamic attribute. | `tests/test_startup.py` | Misleading as a test file. |
-| L4 | **`setup_sota_ci.py`** — Python script for CI setup that could be a simple justfile recipe. | Root | Over-engineered. |
-| L5 | **`push_to_github.bat`, `setup_git.bat`, `git_commit_push.bat`** — Redundant script files for git operations that are one-liners. | Root | Clutter. |
+| L1 | **`docs/development/` has 18 process docs** -- Disproportionate for the codebase size. Many likely stale after the architecture migration. | `docs/development/` | Documentation debt. |
+| L2 | **Multiple `__pycache__/` dirs tracked** -- Should all be in `.gitignore`. | Throughout | Minor git bloat. |
+| L3 | **`test_startup.py` is not a real test** -- Sleeps 5s, asserts a dynamic attribute. | `tests/test_startup.py` | Misleading as a test file. |
+| L4 | **`setup_sota_ci.py`** -- Python script for CI setup that could be a simple justfile recipe. | Root | Over-engineered. |
+| L5 | **`push_to_github.bat`, `setup_git.bat`, `git_commit_push.bat`** -- Redundant script files for git operations that are one-liners. | Root | Clutter. |
 
 ---
 
@@ -95,7 +95,7 @@ src/avatarmcp/
 ├── cli.py                 ← CLI via core.app.AvatarMCP (legacy path)
 ├── tools/
 │   └── portmanteau/       ← ACTIVE (15 files). Used by server.py.
-├── core/                  ← Legacy (app.py, animation.py, commands/ — kept for reference)
+├── core/                  ← Legacy (app.py, animation.py, commands/ -- kept for reference)
 ├── chat_tools/            ← Chat tool implementations
 ├── avatar_controls/       ← Bone/morph/export controls
 ├── models/                ← VRM loading, animation controller
@@ -112,13 +112,13 @@ src/avatarmcp/
 
 ---
 
-## 5. Improvement TODOs (Priority-Ordered — Updated Post-Fix)
+## 5. Improvement TODOs (Priority-Ordered -- Updated Post-Fix)
 
 Status: ✅ = Fixed, 🟡 = In Progress, ⬜ = Not Started
 
 ### Critical (All Fixed)
 
-- [x] **TODO-1 (CRITICAL)**: Fix all portmanteau tools to be `async def` and properly `await`. **FIXED**: `avatar_manager_tool.py` and `animation_manager_tool.py` converted to async with proper awaits. All other OSC-only tools (`audio_manager`, `emotion_manager`, `behavior_manager`, `collaboration_manager`, `content_manager`, `interaction_manager`, `performance_manager`) use sync `_send_osc_message` which was missing from the server — added `_send_osc_message()` method to `AvatarMCPServer`.
+- [x] **TODO-1 (CRITICAL)**: Fix all portmanteau tools to be `async def` and properly `await`. **FIXED**: `avatar_manager_tool.py` and `animation_manager_tool.py` converted to async with proper awaits. All other OSC-only tools (`audio_manager`, `emotion_manager`, `behavior_manager`, `collaboration_manager`, `content_manager`, `interaction_manager`, `performance_manager`) use sync `_send_osc_message` which was missing from the server -- added `_send_osc_message()` method to `AvatarMCPServer`.
 - [x] **TODO-2 (CRITICAL)**: Purge dead code. **FIXED**: Deleted `tools/core/*`, `tools/unity/unity_tools.py`, `server.py.backup`, `server_fixed.py`, `mcp_enhanced.py`, `simple_mcp_server.py`, `mcp_server_clean.py`.
 - [x] **TODO-3 (CRITICAL)**: Fix `mcpb.json`. **FIXED**: `entry_point` → `src/avatarmcp/server.py`, version → `0.1.0` (matches pyproject.toml), deps expanded to full list.
 - [x] **TODO-4 (CRITICAL)**: Write tests for portmanteau tools. **FIXED**: 14 test cases across `test_portmanteau_tools.py` + 5 test cases in `test_server.py`. Covers: system_monitor (init/shutdown/status), avatar_manager (load/list/set_active/unload/get_active/errors), animation_manager (play/stop/no-active), chat_manager (full lifecycle), artifact_manager (scan), tool registration.
@@ -126,7 +126,7 @@ Status: ✅ = Fixed, 🟡 = In Progress, ⬜ = Not Started
 
 ### Short-Term (All Fixed)
 
-- [x] **TODO-6 (HIGH)**: Fix `test_api.py` — add a proper `TestClient` fixture. **FIXED**: Replaced `httpx` silent-skip pattern with `fastapi.testclient.TestClient` backed by the actual FastAPI app.
+- [x] **TODO-6 (HIGH)**: Fix `test_api.py` -- add a proper `TestClient` fixture. **FIXED**: Replaced `httpx` silent-skip pattern with `fastapi.testclient.TestClient` backed by the actual FastAPI app.
 - [x] **TODO-7 (HIGH)**: Update `release.yml` to use `@v4` actions. **FIXED**: Replaced `actions/create-release@v1`, `actions/upload-release-asset@v1`, `actions/download-artifact@v3` with `softprops/action-gh-release@v2` and `actions/download-artifact@v4`. Simplified pipeline.
 - [x] **TODO-8 (HIGH)**: Resolve version mismatch. **FIXED**: Both `mcpb.json` and `pyproject.toml` now use `0.1.0`.
 - [x] **TODO-9 (HIGH)**: Fix `__main__.py` NameError. **FIXED**: `_stdio_original_stdout` now declared at module level as `object | None = None` with a `None` guard on restore.
@@ -154,7 +154,7 @@ Status: ✅ = Fixed, 🟡 = In Progress, ⬜ = Not Started
 - [ ] **TODO-25 (LOW)**: Add a `Makefile`.
 - [ ] **TODO-26 (LOW)**: Add `pre-commit` config and CI step.
 - [ ] **TODO-27 (LOW)**: Convert `setup_sota_ci.py` to a justfile recipe.
-- [ ] **TODO-28 (LOW)**: Audit `docs-private/` vs `docs/` — consolidate.
+- [ ] **TODO-28 (LOW)**: Audit `docs-private/` vs `docs/` -- consolidate.
 - [ ] **TODO-29 (LOW)**: Replace `setup.py` with pyproject.toml-only build.
 
 ---
@@ -193,6 +193,6 @@ Status: ✅ = Fixed, 🟡 = In Progress, ⬜ = Not Started
 
 ## 8. Verdict
 
-**Overall: 🟢 49/49 tests passing — All 29 assessment TODOs resolved**
+**Overall: 🟢 49/49 tests passing -- All 29 assessment TODOs resolved**
 
 All 7 CRITICAL, 7 HIGH, 8 MEDIUM, and 5 LOW issues from the original assessment have been fixed across two cleanup sprints. The codebase is now in a maintainable state with proper async tool architecture, no dead code, aligned configurations, full CI/CD pipeline, and comprehensive test coverage on the active code surface.

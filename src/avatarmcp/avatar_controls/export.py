@@ -101,14 +101,14 @@ class ExportTool(AvatarControlBase, ChatTool):
                     )
 
             # Fallback: simulated export when no VRM or blender unavailable
-            logger.warning("Blender MCP export unavailable — returning simulated result")
+            logger.warning("Blender MCP export unavailable - returning simulated result")
             export_data = {
                 "format": options.format,
                 "output_path": str(export_path),
                 "included_animations": options.include_animations,
                 "optimized": options.optimize_meshes,
                 "platform": options.platform,
-                "note": "Blender MCP not reachable — simulated export only",
+                "note": "Blender MCP not reachable - simulated export only",
             }
             return ControlResult.success(
                 f"Simulated export to {export_path} (blender-mcp unavailable)",
