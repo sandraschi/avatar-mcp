@@ -1,0 +1,33 @@
+# MCPB Pack Exclusion List
+tests/
+.git/
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+target/
+docs/
+scripts/
+.cursor/
+.windsurf/
+.pytest_cache/
+.coverage
+Cargo.lock
+
+# Sneak-in editor/tooling backups - both timestamp-suffix conventions seen fleet-wide
+# (<name>.<timestamp>.bak and <name>.bak-<timestamp>)
+*.bak
+*.bak.*
+*.bak-*
+*.orig
+*.rej
+
+# mcpb/ packaging dev docs/scripts and a non-image icon placeholder - not part of the actual
+# bundle payload (found 2026-09-03 shipping inside a rebuilt package)
+build-mcpb-package.ps1
+test-mcpb-build.ps1
+manifest_portmanteau.json
+MCPB_IMPLEMENTATION_SUMMARY.md
+SAMPLING_WORKFLOWS_GUIDE.md
+*.placeholder
