@@ -2,10 +2,10 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "maintainers": ["sandraschi"],
   "name": "avatar-mcp",
-  "description": "FastMCP 2.12+ compatible VRM avatar management and animation server with VRChat OSC integration. 15 portmanteau tools for avatar control, animation, and bone manipulation. Beta status.",
+  "description": "FastMCP 3.4+ compatible VRM avatar management and animation server with VRChat OSC integration. 15 portmanteau tools for avatar control, animation, and bone manipulation. Beta status.",
   "type": "mcp_server",
   "status": "beta",
-  "framework": "FastMCP 2.12+",
+  "framework": "FastMCP 3.4+",
   "tools": 15,
   "transport": ["stdio"],
   "keywords": [

@@ -266,7 +266,7 @@
     "platforms": ["win32", "darwin", "linux"],
     "python_version": ">=3.10",
     "dependencies": {
-      "fastmcp": ">=2.12.0",
+      "fastmcp": ">=3.4.0",
       "numpy": ">=1.21.0",
       "python-osc": ">=1.8.2",
       "pygltflib": ">=1.14.0",
