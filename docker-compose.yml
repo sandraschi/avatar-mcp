@@ -33,7 +33,7 @@ services:
     image: grafana/loki:latest
     container_name: avatarmcp-loki
     ports:
-      - "10809:3100"
+      - "10737:3100"
     volumes:
       - ./loki:/etc/loki
       - loki-data:/loki
@@ -45,7 +45,7 @@ services:
     image: grafana/grafana:latest
     container_name: avatarmcp-grafana
     ports:
-      - "10796:3000"
+      - "10703:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
