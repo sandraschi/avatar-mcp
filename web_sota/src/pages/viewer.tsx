@@ -32,12 +32,12 @@ export default function Viewer() {
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
     const loader = new GLTFLoader();
-    loader.register((parser) => new VRMLoaderPlugin(parser));
+    loader.register((parser: any) => new VRMLoaderPlugin(parser));
 
     setStatus("Loading...");
     loader.load(
       `${API}?model=${encodeURIComponent(model)}`,
-      (gltf) => {
+      (gltf: any) => {
         const vrm = gltf.userData.vrm;
         if (!vrm) { setStatus("No VRM data"); return; }
         VRMUtils.rotateVRM0(vrm);
