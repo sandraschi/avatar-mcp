@@ -8,9 +8,6 @@ import {
     Box,
     User,
     BookOpen,
-    LayoutDashboard,
-    Monitor,
-    Zap,
     Mic,
     UserCircle
 } from 'lucide-react';
@@ -23,6 +20,8 @@ export interface FleetMember {
     repo_path: string;
     icon: any;
     category: 'Transit' | 'Media' | 'Infra' | 'Control' | 'Creative' | 'Knowledge' | 'Core';
+    url?: string;
+    label?: string;
 }
 
 export const FLEET_REGISTRY: FleetMember[] = [

@@ -86,11 +86,11 @@ export function Topbar() {
                             {APPS_CATALOG.map((app) => (
                                 <DropdownMenu.Item key={app.id} asChild>
                                     <a
-                                        href={app.url}
+                                        href={app.url ?? `http://localhost:${app.port}`}
                                         className="flex w-full select-none items-center rounded-sm px-2 py-1.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white outline-none cursor-pointer"
                                     >
                                         <app.icon className="mr-2 h-4 w-4 text-slate-400" />
-                                        <span>{app.label}</span>
+                                        <span>{app.label ?? app.name}</span>
                                         <ExternalLink className="ml-auto h-3 w-3 opacity-50" />
                                     </a>
                                 </DropdownMenu.Item>
