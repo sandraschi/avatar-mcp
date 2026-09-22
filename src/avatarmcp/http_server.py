@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -162,6 +162,23 @@ async def update_llm_settings(body: LLMSettingsUpdate):
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus text exposition (fleet unified monitoring contract).
+
+    Same default registry as the :10790 metrics listener, so both endpoints
+    serve identical series. Non-fatal: returns 503 only if exposition fails.
+    """
+    try:
+        from avatarmcp.fleet_tool_metrics import prometheus_metrics_body_and_type
+
+        body, content_type = prometheus_metrics_body_and_type()
+        return Response(content=body, media_type=content_type)
+    except Exception as exc:
+        logger.exception("metrics exposition failed")
+        raise HTTPException(status_code=503, detail=str(exc))
 
 
 @app.get("/api/v1/health")

@@ -282,6 +282,17 @@ USAGE: Load VRM models, animate avatars, and integrate with external application
                 }
             )
 
+        # Fleet unified monitoring: per-tool Prometheus counters
+        # (mcp_tool_calls_total / mcp_tool_duration_seconds / mcp_errors_total).
+        # Non-fatal by design: metrics must never break server boot.
+        try:
+            from avatarmcp.fleet_tool_metrics import register_mcp_tool_metrics
+
+            if register_mcp_tool_metrics(self.mcp):
+                self.logger.info("Fleet tool metrics middleware attached")
+        except Exception as exc:
+            self.logger.warning("Fleet tool metrics unavailable: %s", exc)
+
         # Track server state
         self.start_time = time.time()
         self.initialized = False
