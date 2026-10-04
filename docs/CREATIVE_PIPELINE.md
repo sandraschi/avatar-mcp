@@ -55,6 +55,8 @@ $env:VROID_HUB_ACCESS_TOKEN = "..."
 | `stage_for_vts` | `vrm_filename`, `label` |
 | `full_pipeline` | `vrm_filename`, `skip_vroid`, `pick_sample` |
 | `list_staging` | — |
+| `longcat_avatar_status` | — |
+| `longcat_avatar_generate` | `source_path` (audio), `vrm_filename` (reference image .png/.jpg/.webp), `label` (prompt), `output_name` |
 | `status` | — |
 
 ## Staging layout

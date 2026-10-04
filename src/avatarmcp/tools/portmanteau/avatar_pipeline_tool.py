@@ -40,6 +40,9 @@ class AvatarPipelineTool:
             - stage_for_vts: VTube Studio folder + manifest
             - full_pipeline: vroid -> validate -> vts (+ registry import)
             - list_staging: list staged files
+            - longcat_avatar_status: health of the LongCat-Video-Avatar engine
+            - longcat_avatar_generate: audio-driven talking video (source_path=audio, vrm_filename=reference
+              image .png/.jpg, label=prompt, output_name)
             """
             try:
                 operation = (params.get("operation") or "status").strip().lower()

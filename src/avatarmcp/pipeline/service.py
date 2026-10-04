@@ -9,6 +9,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from avatarmcp.digital_human.longcat_avatar_service import LongCatAvatarService
 from avatarmcp.pipeline.depot import (
     KIND_VRM,
     KIND_VROID,
@@ -47,6 +48,7 @@ class AvatarPipelineService:
             folder.mkdir(parents=True, exist_ok=True)
         self.hub_client = VRoidHubClient(self.hub_dir)
         self.depot = AvatarDepot(root)
+        self.longcat = LongCatAvatarService(work_dir=self.output_dir)
 
     async def run(
         self,
@@ -305,6 +307,21 @@ class AvatarPipelineService:
                     if path.is_file():
                         files.append({"path": str(path), "size_kb": round(path.stat().st_size / 1024, 1)})
             return {"success": True, "status": "success", "files": files, "message": f"{len(files)} staged files"}
+
+        if op == "longcat_avatar_status":
+            return await self.longcat.get_health()
+
+        if op == "longcat_avatar_generate":
+            if not source_path:
+                return {"success": False, "status": "error", "message": "source_path (audio file) required"}
+            kwargs: dict[str, Any] = {}
+            if Path(vrm_filename).suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
+                kwargs["reference_image_path"] = vrm_filename
+            if label and label != "pipeline_avatar":
+                kwargs["prompt"] = label
+            if output_name:
+                kwargs["output_name"] = output_name
+            return await self.longcat.generate_avatar_video(audio_path=source_path, **kwargs)
 
         return {"success": False, "status": "error", "message": f"Unknown operation: {operation}"}
 
