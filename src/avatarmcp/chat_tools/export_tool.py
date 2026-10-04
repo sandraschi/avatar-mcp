@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from .. import APP_DIR
 from .base_tool import ChatTool, ToolExecutionStatus, ToolParameter, ToolParameterType, ToolResult
 
 logger = logging.getLogger(__name__)
@@ -37,8 +38,8 @@ class ExportTool(ChatTool):
     """Tool for exporting avatars to various formats."""
 
     def __init__(self):
-        self.exports_dir = Path("exports")
-        self.exports_dir.mkdir(exist_ok=True)
+        self.exports_dir = APP_DIR / "exports"
+        self.exports_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def name(self) -> str:

@@ -12,6 +12,7 @@ from pathlib import Path
 import httpx
 from pydantic import BaseModel, Field, field_validator
 
+from .. import APP_DIR
 from ..chat_tools.base_tool import (
     ChatTool,
     ToolExecutionStatus,
@@ -54,8 +55,8 @@ class ExportTool(AvatarControlBase, ChatTool):
     """Tool for exporting avatars to various formats with FastMCP 2.12 compatibility."""
 
     def __init__(self):
-        self.exports_dir = Path("exports")
-        self.exports_dir.mkdir(exist_ok=True)
+        self.exports_dir = APP_DIR / "exports"
+        self.exports_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def control_type(self) -> ControlType:

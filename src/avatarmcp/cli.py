@@ -6,6 +6,7 @@ import asyncio
 import logging
 import sys
 
+from . import LOG_FILE
 from .core.app import AvatarMCP
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ def main():
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(), logging.FileHandler("avatarmcp.log", mode="w")],
+        handlers=[logging.StreamHandler(), logging.FileHandler(LOG_FILE, mode="w")],
     )
 
     # Set higher log level for asyncio to reduce noise
