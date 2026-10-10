@@ -72,7 +72,7 @@ def test_mcp_server_protocol():
 
         # Test tool loading
         async def test_tools():
-            tools_data = await server.mcp.get_tools()
+            tools_data = await server.mcp.list_tools()
             return len(tools_data) > 0
 
         has_tools = asyncio.run(test_tools())

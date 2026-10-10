@@ -36,8 +36,8 @@ async def demo_avatar_system():
         # Test that tools are registered
         print("3. Testing Tool Registration...")
         try:
-            # Get tools using the async method
-            tools = await server.mcp.get_tools()
+            # Get tools using the async method (FastMCP 3.x API)
+            tools = await server.mcp.list_tools()
             tool_count = len(tools)
             tool_names = list(tools)[:10]  # Show first 10
             print(f"   SUCCESS: Found {tool_count} tools registered: {tool_names}")
