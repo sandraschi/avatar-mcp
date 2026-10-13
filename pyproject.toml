@@ -22,7 +22,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 dependencies = [
-    "fastmcp>=3.4.4,<4",
+    "fastmcp>=3.4.4,<5",
     "numpy>=1.21.0",
     "python-osc>=1.8.2",
     "pygltflib>=1.14.0",
