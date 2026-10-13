@@ -1,61 +1,61 @@
+# Managed by mcp-central-docs/scripts/set_fleet_dependabot.py (GITHUB_TRIAGE_STANDARD.md):
+# weekly, grouped, low noise. Edit the generator, not this file.
 version: 2
 updates:
-  # Python dependencies
+
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "yourusername"
-    assignees:
-      - "yourusername"
+      time: "05:00"
+      timezone: "Europe/Vienna"
+    open-pull-requests-limit: 3
+    groups:
+      pip-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+      pip-security:
+        applies-to: security-updates
+        patterns: ["*"]
+    labels: ["dependencies"]
     commit-message:
-      prefix: "deps"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "python"
-      - "automated"
+      prefix: "chore(deps)"
 
-  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "yourusername"
-    assignees:
-      - "yourusername"
+      time: "05:00"
+      timezone: "Europe/Vienna"
+    open-pull-requests-limit: 3
+    groups:
+      github-actions-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+      github-actions-security:
+        applies-to: security-updates
+        patterns: ["*"]
+    labels: ["dependencies"]
     commit-message:
-      prefix: "ci"
-      include: "scope"
-    labels:
-      - "github-actions"
-      - "dependencies"
-      - "automated"
+      prefix: "chore(ci)"
 
-  # NPM dependencies (for MCPB CLI and other tools)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
       day: "monday"
-      time: "09:00"
+      time: "05:00"
+      timezone: "Europe/Vienna"
     open-pull-requests-limit: 3
-    reviewers:
-      - "yourusername"
-    assignees:
-      - "yourusername"
+    groups:
+      npm-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+    labels: ["dependencies"]
     commit-message:
-      prefix: "deps"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
-      - "automated"
+      prefix: "chore(deps)"
