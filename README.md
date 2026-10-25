@@ -811,6 +811,15 @@ This project adheres to **SOTA 14.1** industrial standards for high-fidelity age
 - **Quality Gates**: 49 passing tests, Ruff + mypy + Bandit + Trivy in CI.
 - **Containers**: Docker Compose with Prometheus, Loki, Grafana, Promtail for full observability.
 
+## Bugs
+
+Bug reports and feature requests go to [GitHub Issues](../../issues) using the
+issue forms (a bug report needs version + reproducer, no exceptions).
+GitHub is also where PRs happen; questions belong in
+[Discussions](../../discussions). Never post secrets or API keys — redact and
+rotate first; security-sensitive reports go through a
+[private advisory](../../security/advisories/new).
+
 ##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
