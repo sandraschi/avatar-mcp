@@ -8,6 +8,8 @@
 </p>
 
 
+VRM avatar management and animation server with conversational control, sampling workflows and VRChat OSC integration.
+
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
 **By FlowEngineer sandraschi**
