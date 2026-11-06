@@ -8,6 +8,8 @@
 </p>
 
 
+VRM avatar management and animation server with conversational control, sampling workflows and VRChat OSC integration.
+
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
 **By FlowEngineer sandraschi**
@@ -810,6 +812,15 @@ This project adheres to **SOTA 14.1** industrial standards for high-fidelity age
 - **CI/CD**: GitHub Actions — lint, type-check, test, build, release. Python 3.12/3.13 matrix.
 - **Quality Gates**: 49 passing tests, Ruff + mypy + Bandit + Trivy in CI.
 - **Containers**: Docker Compose with Prometheus, Loki, Grafana, Promtail for full observability.
+
+## Bugs
+
+Bug reports and feature requests go to [GitHub Issues](../../issues) using the
+issue forms (a bug report needs version + reproducer, no exceptions).
+GitHub is also where PRs happen; questions belong in
+[Discussions](../../discussions). Never post secrets or API keys — redact and
+rotate first; security-sensitive reports go through a
+[private advisory](../../security/advisories/new).
 
 ##  License
 
