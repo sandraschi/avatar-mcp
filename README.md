@@ -27,14 +27,15 @@
 
 - **DXT Packaging**: Easy deployment and integration
 
+- **✨ Fractal Generator**: Beautiful mathematical art with multiple fractal types, stunning color palettes, and animation support
 
 
-## ðŸ“– Documentation
+## ðŸ"– Documentation
 
 - [VRChat & Unity 3D Setup Guide](docs/VRCHAT_UNITY_SETUP.md) - Comprehensive guide for setting up VRChat, Unity, and
 OSC integration
 
-
+- [Fractal Generator Guide](docs/FRACTAL_GENERATOR.md) - Complete guide to creating beautiful mathematical art
 
 
 
